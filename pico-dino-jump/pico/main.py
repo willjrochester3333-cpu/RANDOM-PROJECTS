@@ -1,12 +1,15 @@
 # Pico Dino Jump
 #
 # A Chrome-style endless runner for the Raspberry Pi Pico 2 W + SSD1306
-# OLED (128x64, I2C), controlled remotely by arrow key presses forwarded
-# from a PC over USB serial (see host/keyboard_controller.py).
+# OLED (128x64, I2C). Controlled remotely by arrow key presses forwarded
+# from a laptop, either wirelessly over Bluetooth LE
+# (see host/ble_keyboard_controller.py) or over a wired USB serial
+# connection (see host/keyboard_controller.py) - both work at once.
 #
-# Upload this file as main.py (alongside ssd1306.py) so it runs
-# automatically when the Pico boots.
+# Upload this file as main.py (alongside ssd1306.py and
+# ble_uart_peripheral.py) so it runs automatically when the Pico boots.
 
+import bluetooth
 import machine
 import random
 import select
@@ -14,6 +17,7 @@ import sys
 import utime
 
 import ssd1306
+from ble_uart_peripheral import BLEUARTPeripheral
 
 # ---------------------------------------------------------------------------
 # Configuration - adjust to match your wiring / preferred difficulty
@@ -30,6 +34,10 @@ OLED_ADDR = 0x3C
 # button (wired to that pin and GND). Leave as None to use only the
 # keyboard controller.
 PHYSICAL_BUTTON_PIN = None
+
+# Name the Pico advertises over Bluetooth LE. Must match the --name
+# argument (or default) used by host/ble_keyboard_controller.py.
+BLE_NAME = "PicoDino"
 
 GROUND_Y = 54
 DINO_X = 10
@@ -56,9 +64,13 @@ if PHYSICAL_BUTTON_PIN is not None:
 poll = select.poll()
 poll.register(sys.stdin, select.POLLIN)
 
+ble = bluetooth.BLE()
+uart = BLEUARTPeripheral(ble, name=BLE_NAME)
 
-def read_serial_commands():
-    """Non-blocking read of any command bytes sent by the PC controller."""
+
+def read_commands():
+    """Non-blocking read of command bytes from either control path:
+    Bluetooth LE (wireless) or USB serial (wired)."""
     commands = []
     while poll.poll(0):
         ch = sys.stdin.read(1)
@@ -66,6 +78,9 @@ def read_serial_commands():
             commands.append(ch)
         else:
             break
+    if uart.any():
+        for b in uart.read():
+            commands.append(chr(b))
     return commands
 
 
@@ -207,7 +222,7 @@ def game_loop():
     ground_scroll = 0.0
 
     while True:
-        commands = read_serial_commands()
+        commands = read_commands()
         jump_pressed = False
         for ch in commands:
             if ch in ("U", "u"):
@@ -236,9 +251,12 @@ def game_loop():
         oled.fill(0)
 
         if state == "START":
-            oled.text("DINO JUMP", 24, 20)
-            oled.text("Press UP", 28, 36)
-            oled.text("to start", 28, 46)
+            oled.text("DINO JUMP", 24, 16)
+            oled.text("Press UP", 28, 32)
+            oled.text("to start", 28, 42)
+            oled.text(
+                "BLE: " + ("connected" if uart.is_connected() else "waiting.."), 4, 54
+            )
         else:
             if state == "RUNNING":
                 dino.update()
