@@ -51,33 +51,43 @@ Optional physical jump button (disabled by default): wire one leg to GND and
 the other to GP16, then set `PHYSICAL_BUTTON_PIN = 16` near the top of
 `main.py`.
 
-## 1. Set up VS Code with the Raspberry Pi Pico extension
+## 1. Set up Thonny
 
-1. Install the **Raspberry Pi Pico** extension for VS Code (search
-   "Raspberry Pi Pico" in the Extensions panel).
-2. Use the extension's "New Project" / "Import Project" flow to create a
-   project, and make sure it flashes **MicroPython** firmware for the
-   **Pico 2 W** onto the board (the extension will prompt you to pick the
-   board type and download firmware the first time). Use a recent firmware
-   build — Bluetooth (BLE) support for Pico 2 W needs a reasonably up to
-   date MicroPython release.
-3. Copy these three files from this repo's `pico/` folder into the root of
-   your VS Code Pico project:
-   - `pico/main.py`
-   - `pico/ssd1306.py`
-   - `pico/ble_uart_peripheral.py`
-4. Use the extension's "Run" / "Upload" button to copy all three files onto
-   the Pico's filesystem, keeping the same names. Uploading `main.py` makes
-   the game start automatically whenever the Pico is powered on.
-5. Wire up the OLED as above and power the Pico. You should see a
+1. Install [Thonny](https://thonny.org) (it bundles Python, so no separate
+   install needed on most systems).
+2. Plug in the Pico with a USB cable, then in Thonny go to
+   **Tools → Options → Interpreter**, choose **MicroPython (Raspberry Pi
+   Pico)** as the interpreter, and pick the Pico's USB/serial port.
+3. If the board doesn't already have MicroPython on it (or has an old
+   version), click **Install or update MicroPython (Pico)** near the
+   bottom of that same Interpreter dialog. Select the **Pico 2 W** variant
+   and target — Bluetooth (BLE) support needs a reasonably up to date
+   firmware build. Follow the prompts (usually: hold BOOTSEL while
+   plugging in, then click Install).
+4. Once Thonny shows a `>>>` prompt connected to the board, open
+   **View → Files** to show a Pico file panel alongside your computer's
+   files.
+5. Open each of these files from this repo's `pico/` folder in Thonny
+   (File → Open) and use **File → Save As → Raspberry Pi Pico**, saving
+   each with the *same* filename onto the board:
+   - `pico/main.py` → save as `main.py` on the Pico
+   - `pico/ssd1306.py` → save as `ssd1306.py` on the Pico
+   - `pico/ble_uart_peripheral.py` → save as `ble_uart_peripheral.py` on
+     the Pico
+   Saving it as `main.py` makes the game start automatically whenever the
+   Pico is powered on.
+6. Wire up the OLED as above and power the Pico. You should see a
    "DINO JUMP / Press UP to start / BLE: waiting.." screen — that confirms
    the display, firmware, and Bluetooth advertising are all working, even
-   before you connect the keyboard controller.
+   before you connect the keyboard controller. (If a Thonny Shell session
+   is still attached and showing the REPL instead, click the red Stop/
+   Restart button, or just power-cycle the board.)
 
 ## 2. Run the Bluetooth keyboard controller on your PC
 
-Close any serial monitor / REPL terminal the Pico extension has open (it
-isn't required for BLE, but it's good practice while testing).
+Disconnect Thonny from the board first (Run → Disconnect, or close Thonny) —
+it isn't required for BLE, but it's good practice while testing, and it's
+required if you want to try the wired fallback below afterwards.
 
 ```bash
 cd host
@@ -104,11 +114,11 @@ pip install -r requirements.txt
 python keyboard_controller.py
 ```
 
-This needs the Pico's serial port free — close any serial monitor / REPL
-terminal the Pico extension has open first (only one program can hold the
-USB serial port open at a time). It tries to auto-detect the Pico's serial
-port; if it can't, it lists the available ports so you can pass the right
-one as an argument (e.g. `python keyboard_controller.py COM5` on Windows,
+This needs the Pico's serial port free — make sure Thonny is disconnected
+from the board first (only one program can hold the USB serial port open at
+a time). It tries to auto-detect the Pico's serial port; if it can't, it
+lists the available ports so you can pass the right one as an argument
+(e.g. `python keyboard_controller.py COM5` on Windows,
 `python keyboard_controller.py /dev/ttyACM0` on Linux, or
 `python keyboard_controller.py /dev/cu.usbmodemXXXX` on macOS).
 
@@ -139,9 +149,9 @@ Near the top of `pico/main.py`:
   isn't already connected to something else — it only accepts one BLE
   connection at a time, so close any other app (like a "nRF Connect" style
   BLE scanner) that might already be connected to it.
-- **Wired controller script can't open the port / "port is busy"**: close
-  VS Code's serial monitor or any other program (Thonny, `screen`, etc.)
-  connected to the Pico first.
+- **Wired controller script can't open the port / "port is busy"**: make
+  sure Thonny (or any other program) isn't still connected to the Pico's
+  serial port — disconnect it (Run → Disconnect) or close Thonny first.
 - **Key presses don't do anything**: make sure the controller script's
   terminal window shows "Connected" — if `pynput` can't find a keyboard
   listener permission (mainly on macOS), grant your terminal app
