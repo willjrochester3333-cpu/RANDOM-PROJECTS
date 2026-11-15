@@ -197,12 +197,22 @@ def make_mqtt() -> mqtt.Client:
     client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
     client.will_set(T_STATUS, "offline", qos=1, retain=True)
 
-    def on_connect(c, *_):
+    def on_connect(c, _userdata, _flags, rc, *_):
+        if getattr(rc, "is_failure", rc != 0):
+            print(f"server {MQTT_HOST} refused the connection: {rc} "
+                  "(check MQTT_PASSWORD in /etc/jarvis-camera.env)", flush=True)
+            return
         # Re-announced on every connect, so a changed IP address is picked up.
-        c.publish(T_STREAM, stream_url(), qos=1, retain=True)
+        url = stream_url()
+        c.publish(T_STREAM, url, qos=1, retain=True)
         c.publish(T_STATUS, "online", qos=1, retain=True)
+        print(f"connected to server {MQTT_HOST}, announced {url.split('?')[0]}", flush=True)
+
+    def on_disconnect(_c, *args):
+        print(f"lost the server {MQTT_HOST}, retrying", flush=True)
 
     client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
     client.reconnect_delay_set(min_delay=2, max_delay=60)
     return client
 
@@ -213,6 +223,7 @@ def main() -> None:
     httpd.daemon_threads = True
 
     client = make_mqtt()
+    print(f"connecting to server {MQTT_HOST}:{MQTT_PORT}", flush=True)
     client.connect_async(MQTT_HOST, MQTT_PORT, keepalive=60)
     client.loop_start()
 
