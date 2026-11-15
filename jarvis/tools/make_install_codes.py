@@ -23,7 +23,8 @@ PIS = {
     "core": {
         "title": "CORE server (Raspberry Pi 5)",
         "after": "cd ~/jarvis/core && bash setup.sh",
-        "then": "Setup starts by itself and takes 10 to 20 minutes. At the end it prints the "
+        "then": "Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it "
+                "again later updates the server and keeps your password. At the end it prints the "
                 "MQTT password: copy it somewhere safe, every other device needs it. Then type "
                 "hostname -I to get the server's IP address and open http://THAT-ADDRESS/ in a "
                 "browser to see the dashboard.",
@@ -42,6 +43,13 @@ PIS = {
                 "the server's IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. "
                 "Then reboot with: sudo reboot. "
                 "It comes back up showing the dashboard full screen.",
+    },
+    "camera": {
+        "title": "CAMERA (any Pi with a camera module)",
+        "after": 'echo "Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP"',
+        "then": "Paste this on whichever Pi has the camera plugged in, then run the install line "
+                "it prints, with the MQTT password and the server's IP address. No reboot needed: "
+                "a Camera panel appears on the dashboard within a few seconds.",
     },
 }
 

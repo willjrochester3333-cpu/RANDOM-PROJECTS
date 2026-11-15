@@ -14,6 +14,16 @@ header h1 { margin:0; font-size:1.1rem; letter-spacing:.3em; color:var(--amber);
 #clock { font-size:2rem; font-variant-numeric:tabular-nums; font-weight:300; }
 #link { font-size:.8rem; color:var(--muted); }
 main { flex:1; display:grid; grid-template-columns:1.3fr 1fr; gap:12px; min-height:0; }
+main.has-cam { grid-template-columns:1fr 1.25fr 1fr; }
+main.has-cam #nodes { grid-template-columns:1fr; }
+#campanel { cursor:zoom-in; }
+#camview { position:relative; flex:1; min-height:0; background:#000; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+#cam { width:100%; height:100%; object-fit:contain; display:block; }
+#camnote { position:absolute; inset:auto 0 0 0; padding:6px 10px; font-size:.85rem; color:var(--muted); background:rgba(8,14,22,.7); }
+#camnote:empty { display:none; }
+#campanel.big { position:fixed; inset:0; z-index:5; border-radius:0; border:0; background:#000; cursor:zoom-out; padding:0; }
+#campanel.big .label { display:none; }
+#campanel.big #camview { border-radius:0; }
 .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0; }
 .label { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
 #temp { font-size:5rem; font-weight:200; line-height:1; font-variant-numeric:tabular-nums; }
@@ -36,13 +46,13 @@ input[type=text] { flex:1; min-width:0; background:var(--bg); border:1px solid v
 button { background:var(--amber); color:#1a1305; border:0; border-radius:8px; padding:12px 18px; font-size:1rem; font-weight:600; cursor:pointer; }
 button.quiet { background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:400; }
 button:focus-visible, input:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
-#dinner { position:fixed; inset:0; background:rgba(8,14,22,.94); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; text-align:center; padding:24px; }
+#dinner { position:fixed; inset:0; z-index:10; background:rgba(8,14,22,.94); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; text-align:center; padding:24px; }
 #dinner h2 { margin:0; font-size:clamp(2.4rem, 9vw, 5rem); font-weight:300; color:var(--amber); }
 #dinner p { margin:0; font-size:1.3rem; color:var(--muted); }
 #dinner button { font-size:1.6rem; padding:22px 44px; border-radius:14px; }
 #dinner.acked h2 { color:var(--ok); }
 [hidden] { display:none !important; }
-@media (max-width:700px) { main { grid-template-columns:1fr; } #temp { font-size:3.6rem; } body { height:auto; } }
+@media (max-width:700px) { main, main.has-cam { grid-template-columns:1fr; } #camview { aspect-ratio:4/3; flex:none; } #temp { font-size:3.6rem; } body { height:auto; } }
 </style>
 </head>
 <body>
@@ -63,6 +73,11 @@ button:focus-visible, input:focus-visible { outline:2px solid var(--amber); outl
     <div id="age">No reading yet</div>
     <svg id="spark" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline points=""/></svg>
     <div id="range"><span>24 hours ago</span><span id="minmax"></span><span>now</span></div>
+  </section>
+
+  <section class="panel" id="campanel" hidden title="Tap to enlarge">
+    <span class="label">Camera</span>
+    <div id="camview"><img id="cam" alt="Live camera"><span id="camnote"></span></div>
   </section>
 
   <section class="panel">
@@ -103,7 +118,9 @@ function render(s) {
     $("age").textContent = w.stale ? `Last reading ${mins} min ago: check the outdoor station` : "Updated " + (mins < 1 ? "just now" : mins + " min ago");
     $("age").className = w.stale ? "stale" : "";
   }
-  $("nodes").replaceChildren(...NODES.map(n => {
+  renderCamera(s);
+  const names = NODES.concat(Object.keys(s.nodes).filter(n => NODES.indexOf(n) < 0));
+  $("nodes").replaceChildren(...names.map(n => {
     const st = s.nodes[n], d = document.createElement("div");
     d.className = "node";
     const dot = document.createElement("span");
@@ -121,6 +138,41 @@ function render(s) {
   $("dismiss").hidden = d.state !== "acknowledged";
   $("dismiss").onclick = () => { dismissedSince = d.since; box.hidden = true; };
 }
+
+// Live camera. The stream is only (re)connected when the address changes or the
+// camera comes back online, never on ordinary state updates.
+let camUrl = null, camKey = null;
+function renderCamera(s) {
+  const cams = s.cameras || {};
+  const names = Object.keys(cams);
+  $("campanel").hidden = names.length === 0;
+  document.querySelector("main").classList.toggle("has-cam", names.length > 0);
+  const live = names.find(n => s.nodes[n] && s.nodes[n].online);
+  if (!live) {
+    stopCamera(names.length ? "Camera offline" : "");
+    return;
+  }
+  const key = cams[live] + "|" + s.nodes[live].since;
+  if (key === camKey) return;
+  camKey = key; camUrl = cams[live];
+  $("camnote").textContent = "Connecting…";
+  $("cam").src = camUrl;
+}
+function stopCamera(note) {
+  camKey = camUrl = null;
+  $("cam").removeAttribute("src");
+  $("camnote").textContent = note;
+  $("campanel").classList.remove("big");
+}
+$("cam").onload = () => { $("camnote").textContent = ""; };
+$("cam").onerror = () => {
+  if (!camUrl) return;
+  $("camnote").textContent = "Reconnecting…";
+  const url = camUrl;
+  setTimeout(() => { if (camUrl === url) $("cam").src = url + "&r=" + Date.now(); }, 3000);
+};
+$("campanel").onclick = () => { if (camUrl) $("campanel").classList.toggle("big"); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("campanel").classList.remove("big"); });
 
 function line(cls, text) {
   const p = document.createElement("div"); p.className = cls; p.textContent = text;

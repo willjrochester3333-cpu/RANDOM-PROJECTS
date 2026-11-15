@@ -28,6 +28,7 @@ class House:
         self._notify = notify
         self.dinner_timeout = dinner_timeout
         self.nodes: dict[str, dict] = {}
+        self.cameras: dict[str, str] = {}     # node name -> live stream address
         self.weather: dict | None = store.latest_weather()
         self.dinner = {"state": "idle", "since": None, "ack_by": None}
         self._last_press = 0.0
@@ -43,6 +44,12 @@ class House:
 
         if leaf == "status":
             self.nodes[node] = {"online": payload == "online", "since": time.time()}
+            await self._changed()
+        elif leaf == "stream":
+            if payload.startswith(("http://", "https://")):
+                self.cameras[node] = payload
+            else:
+                self.cameras.pop(node, None)
             await self._changed()
         elif topic == T_WEATHER:
             await self._on_weather(payload, retained)
@@ -130,7 +137,8 @@ class House:
         if self.weather:
             age = now - self.weather["ts"]
             weather = {**self.weather, "age_s": int(age), "stale": age > WEATHER_STALE_S}
-        return {"time": int(now), "weather": weather, "nodes": self.nodes, "dinner": self.dinner}
+        return {"time": int(now), "weather": weather, "nodes": self.nodes, "dinner": self.dinner,
+                "cameras": self.cameras}
 
     async def _changed(self) -> None:
         await self._notify({"type": "state", "state": self.snapshot()})

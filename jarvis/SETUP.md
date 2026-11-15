@@ -91,6 +91,22 @@ thermometer you trust, set `TEMP_OFFSET` in `/etc/jarvis-outpost.env` and
 
 It boots into the full-screen dashboard and speaks announcements.
 
+## 5. CAMERA (optional, any Pi with a camera module)
+
+Plug the camera ribbon into the Pi with the power off. A Raspberry Pi 5 needs the
+narrower Pi 5 camera cable; a Pi 3 uses the standard wide one. Then copy the `camera/`
+folder over (or paste the CAMERA block from `install-codes/`) and run:
+
+```sh
+bash camera/install.sh <mqtt-password> <core-ip-address>
+```
+
+A Camera panel appears on the dashboard within a few seconds. Tap it to fill the screen.
+The camera only switches on while someone is watching. If the picture is upside down,
+set `CAMERA_ROTATE=1` in `/etc/jarvis-camera.env` and run `sudo systemctl restart jarvis-camera`.
+
+Anyone on your home network who opens the dashboard can see the camera.
+
 ## What is and is not here
 
 - **Working and tested together** (on a PC, with simulated hardware): broker, brain,

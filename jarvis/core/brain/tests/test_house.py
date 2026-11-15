@@ -90,3 +90,15 @@ async def test_status_and_resync(rig):
     sent.clear()
     await house.resync()
     assert (h.T_LED, "blink", True) in sent and (h.T_ALERT, "dinner", True) in sent
+
+
+async def test_camera_stream_announced_and_removed(rig):
+    house, _, events = rig
+    url = "http://192.168.1.60:8081/stream.mjpg?key=abc"
+    await house.handle("jarvis/camera/stream", url, retained=True)
+    assert house.snapshot()["cameras"] == {"camera": url}
+    assert events[-1]["state"]["cameras"]["camera"] == url
+    await house.handle("jarvis/camera/stream", "")
+    assert house.snapshot()["cameras"] == {}
+    await house.handle("jarvis/camera/stream", "javascript:alert(1)")
+    assert house.snapshot()["cameras"] == {}
