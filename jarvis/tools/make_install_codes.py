@@ -24,20 +24,23 @@ PIS = {
         "title": "CORE server (Raspberry Pi 5)",
         "after": "cd ~/jarvis/core && bash setup.sh",
         "then": "Setup starts by itself and takes 10 to 20 minutes. At the end it prints the "
-                "MQTT password: copy it somewhere safe, every other device needs it. Then open "
-                "http://jarvis-core.local/ in a browser to see the dashboard.",
+                "MQTT password: copy it somewhere safe, every other device needs it. Then type "
+                "hostname -I to get the server's IP address and open http://THAT-ADDRESS/ in a "
+                "browser to see the dashboard.",
     },
     "outpost": {
         "title": "OUTPOST weather station (Raspberry Pi 3)",
-        "after": 'echo "Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD"',
-        "then": "After the paste, run the install line it prints, with the MQTT password from "
-                "the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot",
+        "after": 'echo "Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD SERVER-IP"',
+        "then": "After the paste, run the install line it prints, with the MQTT password and "
+                "the server's IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. "
+                "Then reboot with: sudo reboot",
     },
     "console": {
         "title": "CONSOLE touchscreen (Raspberry Pi 5)",
-        "after": 'echo "Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD"',
-        "then": "After the paste, run the install line it prints, with the MQTT password from "
-                "the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot. "
+        "after": 'echo "Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP"',
+        "then": "After the paste, run the install line it prints, with the MQTT password and "
+                "the server's IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. "
+                "Then reboot with: sudo reboot. "
                 "It comes back up showing the dashboard full screen.",
     },
 }

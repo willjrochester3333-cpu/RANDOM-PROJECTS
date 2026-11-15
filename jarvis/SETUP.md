@@ -67,9 +67,12 @@ If either board hits an error it waits 5 seconds and restarts itself.
 
    ```sh
    cd outpost
-   ./install.sh <mqtt-password>
+   ./install.sh <mqtt-password> <core-ip-address>
    sudo reboot
    ```
+
+   The IP address is optional if `jarvis-core.local` works on your network; many home
+   networks do not pass those names along, so the address is the safer choice.
 
 Readings appear on the dashboard within a minute. If the temperature reads warm against a
 thermometer you trust, set `TEMP_OFFSET` in `/etc/jarvis-outpost.env` and
@@ -82,7 +85,7 @@ thermometer you trust, set `TEMP_OFFSET` in `/etc/jarvis-outpost.env` and
 
    ```sh
    cd console
-   ./install.sh <mqtt-password>
+   ./install.sh <mqtt-password> <core-ip-address>
    sudo reboot
    ```
 

@@ -53,9 +53,9 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
   </section>
   <section class="pi" aria-labelledby="h-core">
     <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
-    <p>Setup starts by itself and takes 10 to 20 minutes. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then open http://jarvis-core.local/ in a browser to see the dashboard.</p>
+    <p>Setup starts by itself and takes 10 to 20 minutes. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard.</p>
     <details><summary>Show the block (191 lines)</summary><pre id="code-core">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; bash setup.sh
-H4sIAP/k+WoC/+1923bbxpJonvEVHdgZA9kkeNHFCmUqW5GUHU1sSyPKO5Ol6NAg0RRhgwCMBkXz
+H4sIANXm+WoC/+1923bbxpJonvEVHdgZA9kkeNHFCmUqW5GUHU1sSyPKO5Ol6NAg0RRhgwCMBkXz
 aGut+Zp5nrfzvj/lfMlUVXfjRlCSc/HM2ltMLBJ9qa6urq6qrq5uvHOTa1+0xlHCWw4Prx3+0Z3F
 Af/id/y04bO9uUnf8Kl+tze7z7PflN7pbnY7X7D2F5/hMxepm0DzX/xzfp6wwdRNuMdGS8avebJk
 YeRxhwmezmNHTNnEDwLB/JC5LHFDL5qx2BViESUei0LITUTKknnoGK/+7fx8+GZwdNZ/RzwlE073
@@ -249,9 +249,9 @@ JARVIS_END
   </section>
   <section class="pi" aria-labelledby="h-outpost">
     <div class="row"><h2 id="h-outpost">OUTPOST weather station (Raspberry Pi 3)</h2><button type="button" id="copy-outpost" data-copy="code-outpost">Copy</button></div>
-    <p>After the paste, run the install line it prints, with the MQTT password from the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot</p>
-    <details><summary>Show the block (35 lines)</summary><pre id="code-outpost">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD&quot;
-H4sIAP/k+WoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
+    <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot</p>
+    <details><summary>Show the block (35 lines)</summary><pre id="code-outpost">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
+H4sIANXm+WoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
 9n/foT4s2WnaO6C4ezgNglgUZ4bD+fjN6JaIeyaHvFA5l2rIMqlIkrgyPvpx5CG9fPGi/EU6/B0/
 e/68ea7ej8YvX3pH4B39F6jACws8/uj/k47/NiykGK5YNqTZPayIjI1jmF0uL2aLJUiqihysOZH5
 igqxhQsGz+BnWNBMUnh/thzA3t5sAR+YoraLOi4luaETcDs5Ba/S35VyciLlhovoNXwJuaBOjJmX
@@ -289,9 +289,9 @@ JARVIS_END
   </section>
   <section class="pi" aria-labelledby="h-console">
     <div class="row"><h2 id="h-console">CONSOLE touchscreen (Raspberry Pi 5)</h2><button type="button" id="copy-console" data-copy="code-console">Copy</button></div>
-    <p>After the paste, run the install line it prints, with the MQTT password from the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot. It comes back up showing the dashboard full screen.</p>
-    <details><summary>Show the block (38 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD&quot;
-H4sIAP/k+WoC/+1YbXPbuBH2Z/6KLePeSa1JyU7sZJTQNz5bad27i3ySk1zH9WggEhJxogAGAC3r
+    <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot. It comes back up showing the dashboard full screen.</p>
+    <details><summary>Show the block (38 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
+H4sIANXm+WoC/+1YbXPbuBH2Z/6KLePeSa1JyU7sZJTQNz5bad27i3ySk1zH9WggEhJxogAGAC3r
 eu1v7y5ISvJb2s5k2g/H/SATwGKx2JdnF/6Z6RthOrGSRmW8I6SxLMtCk+58OeoivTw8dH+R7v99
 cXD4ov4u5/cPXu6/3IHuzv+ACrywxuN3fpv07HedwujORMgOlzcwYSb1nsHp4N1o8H0fDLdFDq0h
 M/mEa72CCwGH8EewqohTE2vO5R7cWR2MYClsCgk3c6vydojSfmBzbsCmnBgmSlkwVjMxSy0IaZVb
