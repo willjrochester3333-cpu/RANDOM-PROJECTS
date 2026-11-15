@@ -1,0 +1,417 @@
+<title>J.A.R.V.I.S. House System</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: an engineering drawing set. One column of numbered sheets, each a diagram or table with a short brief. */
+:root {
+  --bg: #f1f4f8; --panel: #ffffff; --ink: #15202f; --muted: #566579; --line: #cbd4e0;
+  --accent: #a9690a; --accent-soft: #f6e7c8; --render: #1d1f21;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1520; --panel: #142032; --ink: #e4ebf4; --muted: #94a4b9; --line: #2b3b53;
+  --accent: #f0b23a; --accent-soft: #3a2f16; --render: #1d1f21; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d1520; --panel: #142032; --ink: #e4ebf4; --muted: #94a4b9; --line: #2b3b53;
+  --accent: #f0b23a; --accent-soft: #3a2f16; --render: #1d1f21; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 72px; }
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+.muted { color: var(--muted); }
+.eyebrow { font: 600 0.74rem/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+header { display: flex; flex-direction: column; gap: 16px; border-bottom: 2px solid var(--ink); padding-bottom: 28px; }
+header p { font-size: 1.08rem; }
+.calls { display: flex; flex-wrap: wrap; gap: 8px; }
+.calls span { font: 600 0.78rem/1 var(--mono); letter-spacing: 0.06em; padding: 7px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--panel); }
+section { display: flex; flex-direction: column; gap: 18px; }
+.sheet-head { display: flex; flex-direction: column; gap: 8px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.draw { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 12px; overflow-x: auto; }
+.draw svg { display: block; width: 100%; min-width: 720px; height: auto; color: var(--ink); font-family: var(--body); }
+figcaption { font-size: 0.88rem; color: var(--muted); max-width: 72ch; }
+svg .box { fill: var(--bg); stroke: currentColor; stroke-width: 1.5; }
+svg .core { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+svg .ln { stroke: currentColor; stroke-width: 1.5; fill: none; }
+svg .thin { stroke: currentColor; stroke-width: 1; fill: none; opacity: 0.55; }
+svg .dash { stroke: currentColor; stroke-width: 1.2; fill: none; stroke-dasharray: 5 4; opacity: 0.7; }
+svg .acc { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+svg .accfill { fill: var(--accent); }
+svg .ink { fill: currentColor; }
+svg .solid { fill: currentColor; opacity: 0.82; }
+svg .pcb { fill: #2e7d4f; }
+svg text { fill: currentColor; font-size: 12px; }
+svg .t-h { font: 600 14px var(--display); }
+svg .t-m { font: 11px var(--mono); }
+svg .t-s { font-size: 11px; opacity: 0.75; }
+svg .t-a { fill: var(--accent); font: 600 11px var(--mono); }
+.tbl { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 640px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 0.72rem/1.2 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.call { font: 600 0.82rem var(--mono); color: var(--accent); white-space: nowrap; }
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; }
+.case { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.case img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--render); border-radius: 4px; display: block; }
+.case p { font-size: 0.92rem; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.two > * { min-width: 0; }
+.note { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; font-size: 0.95rem; }
+ol.steps, ul.plain { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+footer { font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Design set · rev A</span>
+  <h1>J.A.R.V.I.S. House System</h1>
+  <p>Five boards on your home Wi-Fi, one job each. A Pi 5 runs everything, a second Pi 5 with the touchscreen is where you talk to it, a Pi 3 with the Sense HAT reports the weather from outside, the ESP32-S3 is the dinner button in the kitchen, and the Pico 2 W is a light that tells you dinner is ready when you are away from the screen.</p>
+  <div class="calls"><span>CORE · Pi 5</span><span>CONSOLE · Pi 5 + touch</span><span>OUTPOST · Pi 3 + Sense HAT</span><span>DINNER BELL · XIAO ESP32-S3 Sense</span><span>BEACON · Pico 2 W</span></div>
+</header>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 1</span><h2>System map</h2>
+  <p>Every device talks only to CORE. Nothing talks sideways, so any one node can be unplugged without breaking the others.</p></div>
+  <figure>
+    <div class="draw">
+    <svg viewBox="0 0 1000 520" role="img" aria-label="System map: Console, Dinner Bell, Outpost and Beacon each exchange MQTT messages with the Core server, which optionally calls the Claude API over the internet.">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ink"/></marker></defs>
+      <!-- core -->
+      <rect x="400" y="30" width="200" height="460" rx="4" class="core"/>
+      <text x="500" y="58" text-anchor="middle" class="t-h">CORE</text>
+      <text x="500" y="76" text-anchor="middle" class="t-s">Pi 5 · NVMe SSD · Ethernet</text>
+      <g class="t-m">
+        <rect x="420" y="100" width="160" height="40" rx="3" class="box"/><text x="500" y="124" text-anchor="middle">MQTT broker</text>
+        <rect x="420" y="152" width="160" height="40" rx="3" class="box"/><text x="500" y="176" text-anchor="middle">Brain (rules + chat)</text>
+        <rect x="420" y="204" width="160" height="40" rx="3" class="box"/><text x="500" y="228" text-anchor="middle">Speech to text</text>
+        <rect x="420" y="256" width="160" height="40" rx="3" class="box"/><text x="500" y="280" text-anchor="middle">Text to speech</text>
+        <rect x="420" y="308" width="160" height="40" rx="3" class="box"/><text x="500" y="332" text-anchor="middle">Weather history DB</text>
+        <rect x="420" y="360" width="160" height="40" rx="3" class="box"/><text x="500" y="384" text-anchor="middle">Dashboard web app</text>
+      </g>
+      <text x="500" y="440" text-anchor="middle" class="t-s">hostname jarvis-core.local</text>
+      <text x="500" y="458" text-anchor="middle" class="t-s">fixed IP from the router</text>
+
+      <!-- left nodes -->
+      <rect x="20" y="40" width="210" height="110" rx="4" class="box"/>
+      <text x="125" y="68" text-anchor="middle" class="t-h">CONSOLE</text>
+      <text x="125" y="88" text-anchor="middle">Pi 5 + 7" touchscreen</text>
+      <text x="125" y="106" text-anchor="middle" class="t-s">USB mic + speaker</text>
+      <text x="125" y="124" text-anchor="middle" class="t-s">your desk · main input</text>
+
+      <rect x="20" y="205" width="210" height="110" rx="4" class="box" stroke-dasharray="5 4"/>
+      <text x="125" y="240" text-anchor="middle" class="t-h">Phone or laptop</text>
+      <text x="125" y="262" text-anchor="middle" class="t-s">optional: same dashboard</text>
+      <text x="125" y="280" text-anchor="middle" class="t-s">in any browser at home</text>
+
+      <rect x="20" y="370" width="210" height="110" rx="4" class="box"/>
+      <text x="125" y="398" text-anchor="middle" class="t-h">DINNER BELL</text>
+      <text x="125" y="418" text-anchor="middle">XIAO ESP32-S3 Sense</text>
+      <text x="125" y="436" text-anchor="middle" class="t-s">lit arcade button</text>
+      <text x="125" y="454" text-anchor="middle" class="t-s">kitchen, downstairs</text>
+
+      <!-- right nodes -->
+      <rect x="770" y="40" width="210" height="110" rx="4" class="box"/>
+      <text x="875" y="68" text-anchor="middle" class="t-h">OUTPOST</text>
+      <text x="875" y="88" text-anchor="middle">Pi 3 + Sense HAT</text>
+      <text x="875" y="106" text-anchor="middle" class="t-s">temp · humidity · pressure</text>
+      <text x="875" y="124" text-anchor="middle" class="t-s">outside wall, weather case</text>
+
+      <rect x="770" y="205" width="210" height="110" rx="4" class="box" stroke-dasharray="5 4"/>
+      <text x="875" y="240" text-anchor="middle" class="t-h">Claude API</text>
+      <text x="875" y="262" text-anchor="middle" class="t-s">optional: internet</text>
+      <text x="875" y="280" text-anchor="middle" class="t-s">open-ended questions</text>
+
+      <rect x="770" y="370" width="210" height="110" rx="4" class="box"/>
+      <text x="875" y="398" text-anchor="middle" class="t-h">BEACON</text>
+      <text x="875" y="418" text-anchor="middle">Pico 2 W</text>
+      <text x="875" y="436" text-anchor="middle" class="t-s">LED ring · buzzer · button</text>
+      <text x="875" y="454" text-anchor="middle" class="t-s">bedroom or workshop</text>
+
+      <!-- arrows -->
+      <g class="t-m">
+        <line x1="232" y1="80" x2="398" y2="80" class="ln" marker-end="url(#ar)"/><text x="315" y="72" text-anchor="middle">taps, mic audio</text>
+        <line x1="398" y1="118" x2="232" y2="118" class="ln" marker-end="url(#ar)"/><text x="315" y="136" text-anchor="middle">dashboard, speech</text>
+        <line x1="398" y1="260" x2="232" y2="260" class="dash" marker-end="url(#ar)"/><text x="315" y="252" text-anchor="middle">dashboard (HTTP)</text>
+        <line x1="232" y1="410" x2="398" y2="410" class="ln" marker-end="url(#ar)"/><text x="315" y="402" text-anchor="middle">dinner pressed</text>
+        <line x1="398" y1="448" x2="232" y2="448" class="ln" marker-end="url(#ar)"/><text x="315" y="466" text-anchor="middle">LED: blink / solid</text>
+
+        <line x1="768" y1="95" x2="602" y2="95" class="ln" marker-end="url(#ar)"/><text x="685" y="87" text-anchor="middle">reading every 60 s</text>
+        <line x1="602" y1="245" x2="768" y2="245" class="dash" marker-end="url(#ar)"/><text x="685" y="237" text-anchor="middle">question (HTTPS)</text>
+        <line x1="768" y1="277" x2="602" y2="277" class="dash" marker-end="url(#ar)"/><text x="685" y="295" text-anchor="middle">answer</text>
+        <line x1="602" y1="410" x2="768" y2="410" class="ln" marker-end="url(#ar)"/><text x="685" y="402" text-anchor="middle">alert: glow + chime</text>
+        <line x1="768" y1="448" x2="602" y2="448" class="ln" marker-end="url(#ar)"/><text x="685" y="466" text-anchor="middle">"on my way"</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Solid arrows are MQTT messages over home Wi-Fi. Dashed boxes are optional and the system works without them.</figcaption>
+  </figure>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Node</th><th>Board</th><th>Where</th><th>Job</th><th>Software</th><th>Power</th></tr></thead>
+    <tbody>
+      <tr><td class="call">CORE</td><td>Raspberry Pi 5, Active Cooler, NVMe SSD</td><td>Near the router</td><td>Message broker, rules, voice processing, stores weather history, serves the dashboard</td><td>Pi OS Lite, Docker: Mosquitto, Python brain, faster-whisper, Piper</td><td>Official 27 W USB-C</td></tr>
+      <tr><td class="call">CONSOLE</td><td>Raspberry Pi 5 + 7" touchscreen</td><td>Your desk</td><td>Main input: touch dashboard, wake word, microphone, speaker</td><td>Pi OS, Chromium in kiosk mode, openWakeWord</td><td>Official 27 W USB-C</td></tr>
+      <tr><td class="call">OUTPOST</td><td>Raspberry Pi 3 + Sense HAT</td><td>Outside, north-facing wall</td><td>Temperature, humidity, pressure once a minute</td><td>Pi OS Lite, Python + sense-hat</td><td>5 V 2.5 A micro-USB (see sheet 4)</td></tr>
+      <tr><td class="call">DINNER BELL</td><td>Seeed XIAO ESP32-S3 Sense</td><td>Kitchen</td><td>Button press announces dinner; its light shows when you have answered</td><td>Arduino or MicroPython, MQTT client</td><td>Any USB-C charger</td></tr>
+      <tr><td class="call">BEACON</td><td>Raspberry Pi Pico 2 W</td><td>Wherever you are when not at the desk</td><td>Glows and chimes for dinner; button replies "on my way"</td><td>MicroPython, umqtt</td><td>Any micro-USB charger</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">You did not give the Pico 2 W a job, so I gave it one: the second half of the dinner button. If you would rather use it for something else, the rest of the design does not depend on it.</p>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 2</span><h2>What happens when dinner is ready</h2>
+  <p>The button's own light closes the loop: whoever is cooking can see that you got the message without shouting up the stairs.</p></div>
+  <figure>
+    <div class="draw">
+    <svg viewBox="0 0 1000 470" role="img" aria-label="Sequence: the kitchen button tells Core, Core alerts the Console and Beacon and blinks the button; an acknowledgement from either turns the button light solid.">
+      <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ink"/></marker></defs>
+      <g>
+        <rect x="50" y="16" width="160" height="38" rx="4" class="box"/><text x="130" y="40" text-anchor="middle" class="t-h">DINNER BELL</text>
+        <rect x="320" y="16" width="160" height="38" rx="4" class="core"/><text x="400" y="40" text-anchor="middle" class="t-h">CORE</text>
+        <rect x="590" y="16" width="160" height="38" rx="4" class="box"/><text x="670" y="40" text-anchor="middle" class="t-h">CONSOLE</text>
+        <rect x="820" y="16" width="160" height="38" rx="4" class="box"/><text x="900" y="40" text-anchor="middle" class="t-h">BEACON</text>
+        <line x1="130" y1="54" x2="130" y2="455" class="thin"/><line x1="400" y1="54" x2="400" y2="455" class="thin"/>
+        <line x1="670" y1="54" x2="670" y2="455" class="thin"/><line x1="900" y1="54" x2="900" y2="455" class="thin"/>
+      </g>
+      <g class="t-m">
+        <text x="20" y="100" class="t-a">1</text>
+        <line x1="130" y1="104" x2="398" y2="104" class="ln" marker-end="url(#ar2)"/><text x="264" y="96" text-anchor="middle">kitchen/dinner = pressed</text>
+        <text x="20" y="158" class="t-a">2</text>
+        <line x1="400" y1="162" x2="668" y2="162" class="ln" marker-end="url(#ar2)"/><text x="534" y="154" text-anchor="middle">banner + "Dinner is ready"</text>
+        <text x="20" y="216" class="t-a">3</text>
+        <line x1="400" y1="220" x2="898" y2="220" class="ln" marker-end="url(#ar2)"/><text x="785" y="212" text-anchor="middle">beacon/alert = dinner</text>
+        <text x="20" y="274" class="t-a">4</text>
+        <line x1="400" y1="278" x2="132" y2="278" class="ln" marker-end="url(#ar2)"/><text x="264" y="270" text-anchor="middle">kitchen/led = blink</text>
+        <text x="20" y="332" class="t-a">5</text>
+        <line x1="670" y1="336" x2="402" y2="336" class="ln" marker-end="url(#ar2)"/><text x="534" y="328" text-anchor="middle">tap "On my way"</text>
+        <line x1="900" y1="352" x2="402" y2="352" class="dash" marker-end="url(#ar2)"/><text x="785" y="368" text-anchor="middle">or press the beacon</text>
+        <text x="20" y="406" class="t-a">6</text>
+        <line x1="400" y1="410" x2="132" y2="410" class="acc" marker-end="url(#ar2)"/><text x="264" y="402" text-anchor="middle">kitchen/led = solid</text>
+        <text x="534" y="414" text-anchor="middle" class="t-s">everything clears after 3 minutes</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Step 6 is the point of the design: the kitchen button stops blinking and stays lit once you have answered from either device.</figcaption>
+  </figure>
+
+  <div class="tbl"><table>
+    <thead><tr><th>MQTT topic</th><th>From</th><th>To</th><th>Payload</th></tr></thead>
+    <tbody class="mono">
+      <tr><td>jarvis/outpost/weather</td><td>OUTPOST</td><td>CORE</td><td>{"temp_c":8.4,"humidity":71,"pressure_hpa":1009.2}</td></tr>
+      <tr><td>jarvis/kitchen/dinner</td><td>DINNER BELL</td><td>CORE</td><td>pressed</td></tr>
+      <tr><td>jarvis/kitchen/led</td><td>CORE</td><td>DINNER BELL</td><td>off | blink | solid</td></tr>
+      <tr><td>jarvis/beacon/alert</td><td>CORE</td><td>BEACON</td><td>dinner | clear</td></tr>
+      <tr><td>jarvis/beacon/ack</td><td>BEACON</td><td>CORE</td><td>pressed</td></tr>
+      <tr><td>jarvis/console/say</td><td>CORE</td><td>CONSOLE</td><td>text to speak and show</td></tr>
+      <tr><td>jarvis/+/status</td><td>every node</td><td>CORE</td><td>online | offline (last-will, so CORE knows when a node drops)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 3</span><h2>Enclosures</h2>
+  <p>All five are modelled, parametric, and exported as print-ready STL files in <code>jarvis/cases/</code>. Charcoal bodies with amber accents indoors; white outdoors to reflect heat.</p></div>
+  <div class="cases">
+    <div class="case"><img src="img/core.png" alt="Core server case render: charcoal box with amber hex-vented lid"><h3>CORE server case</h3>
+      <p>97 × 68 × 39 mm. Tall enough for the Active Cooler with an M.2 HAT+ and SSD on top. Hex-vent lid over the fan, intake slots on the GPIO side, three M3 screws.</p><p class="muted mono">2 parts · PETG · no supports</p></div>
+    <div class="case"><img src="img/console.png" alt="Console stand render: touchscreen leaning back 20 degrees in a charcoal frame with an amber wedge behind"><h3>CONSOLE stand, front</h3>
+      <p>The screen slides into the frame from the top and leans back 20°. A lip holds it on three sides, so no screws go into the display.</p><p class="muted mono">frame · PETG · supports under the back ledge</p></div>
+    <div class="case"><img src="img/console_back.png" alt="Console stand rear render: amber wedge shroud with exhaust slots and side cable ports"><h3>CONSOLE stand, rear</h3>
+      <p>The wedge hides the Pi 5 bolted to the back of the screen and is also the foot. Cable ports on both sides, exhaust slots on top, four M3 screws from the sides.</p><p class="muted mono">shroud · PETG · no supports</p></div>
+    <div class="case"><img src="img/weather.png" alt="Outdoor weather station render: white louvred cylinder under a sealed drum with a double roof"><h3>OUTPOST weather station</h3>
+      <p>200 mm across, 165 mm tall. Sealed drum for the Pi on top, louvred sensor shield below, double roof. Sheet 4 explains the section.</p><p class="muted mono">11 printed parts · white ASA or PETG</p></div>
+    <div class="case"><img src="img/kitchen.png" alt="Kitchen button render: charcoal puck with a red arcade button on top"><h3>DINNER BELL</h3>
+      <p>84 mm puck, 58 mm tall, heavy enough to stay put when hit. Lit 30 mm arcade button on top, USB-C at the back, three small holes for the board's microphone.</p><p class="muted mono">2 parts · PETG · no supports</p></div>
+    <div class="case"><img src="img/beacon.png" alt="Beacon render, exploded: charcoal cup, amber LED plate, translucent cap"><h3>BEACON</h3>
+      <p>80 mm puck. The translucent cap has a 1 mm top that diffuses the LED ring into one even glow. Button on the side, buzzer slots at the back.</p><p class="muted mono">3 parts · cap in natural or white PETG</p></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>File</th><th>Parts to print</th><th>Orientation</th><th>Bed needed</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">core_server_case</td><td>base, lid</td><td>As exported (lid flat side down)</td><td>100 × 70</td></tr>
+      <tr><td class="mono">console_stand</td><td>frame, shroud</td><td>Frame front-face down; shroud open-face down</td><td>200 × 125</td></tr>
+      <tr><td class="mono">weather_station</td><td>base, louvre ×6, spider, drum, lid, sunshade</td><td>As exported. Louvres wide side down</td><td>205 × 200</td></tr>
+      <tr><td class="mono">kitchen_button</td><td>body, base</td><td>Body top-down</td><td>85 × 85</td></tr>
+      <tr><td class="mono">beacon_pico</td><td>cup, plate, cap</td><td>Cap top-down</td><td>80 × 80</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The models are built from published board dimensions and every part passes a solid-mesh check, but nothing has been test-fitted on real hardware. Print the first 4 mm of each base as a fit test before committing to the full part. The console stand assumes the official Raspberry Pi Touch Display 2 (7"): if your screen is different, change <code>disp_w</code>, <code>disp_h</code> and <code>disp_t</code> at the top of the file.</p>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 4</span><h2>The outdoor station, in section</h2>
+  <p>A sealed box protects electronics but ruins weather readings: the sensors would measure the Pi's own heat and trapped air. So the station has two chambers. The Pi lives sealed in the drum. The Sense HAT hangs below it in a louvred shield, in moving outside air but out of sun and rain, joined by a ribbon cable.</p></div>
+  <figure>
+    <div class="draw">
+    <svg viewBox="0 104 940 420" role="img" aria-label="Cross-section of the weather station: sun shade, lid with drip edge, sealed drum holding the Pi 3, spider carrying the Sense HAT in a six-louvre shield, base plate with wall arm.">
+      <!-- rods -->
+      <line x1="128" y1="500" x2="128" y2="150" class="thin"/><line x1="472" y1="500" x2="472" y2="150" class="thin"/>
+      <!-- sun shade -->
+      <rect x="100" y="166" width="400" height="6" class="solid"/>
+      <!-- lid + drip edge -->
+      <rect x="108" y="188" width="384" height="8" class="solid"/>
+      <rect x="108" y="196" width="6" height="10" class="solid"/><rect x="486" y="196" width="6" height="10" class="solid"/>
+      <!-- drum -->
+      <path d="M142 196 V288 H458 V196 H448 V280 H152 V196 Z" class="solid"/>
+      <rect x="215" y="262" width="170" height="5" class="pcb"/>
+      <text x="300" y="250" text-anchor="middle" class="t-m">Pi 3</text>
+      <!-- gland -->
+      <rect x="458" y="236" width="20" height="14" class="solid"/>
+      <path d="M478 243 H496 Q510 243 510 262 V300 Q510 318 524 318 H540" class="ln"/>
+      <!-- spider -->
+      <rect x="118" y="288" width="364" height="6" class="accfill"/>
+      <line x1="245" y1="294" x2="245" y2="330" class="ln"/><line x1="355" y1="294" x2="355" y2="330" class="ln"/>
+      <!-- sense hat -->
+      <rect x="235" y="330" width="130" height="5" class="pcb"/>
+      <text x="300" y="352" text-anchor="middle" class="t-m">Sense HAT</text>
+      <!-- ribbon -->
+      <path d="M372 264 V330" class="acc" stroke-dasharray="6 4"/>
+      <!-- louvres -->
+      <g class="ln" style="stroke-width:4">
+        <line x1="142" y1="488" x2="186" y2="444"/><line x1="458" y1="488" x2="414" y2="444"/>
+        <line x1="142" y1="460" x2="186" y2="416"/><line x1="458" y1="460" x2="414" y2="416"/>
+        <line x1="142" y1="432" x2="186" y2="388"/><line x1="458" y1="432" x2="414" y2="388"/>
+        <line x1="142" y1="404" x2="186" y2="360"/><line x1="458" y1="404" x2="414" y2="360"/>
+        <line x1="142" y1="376" x2="186" y2="332"/><line x1="458" y1="376" x2="414" y2="332"/>
+        <line x1="142" y1="348" x2="186" y2="304"/><line x1="458" y1="348" x2="414" y2="304"/>
+      </g>
+      <!-- base + arm + wall plate -->
+      <rect x="76" y="488" width="396" height="12" class="solid"/>
+      <rect x="76" y="360" width="12" height="140" class="solid"/>
+      <path d="M88 488 L88 420 L134 488 Z" class="box"/>
+      <line x1="60" y1="330" x2="60" y2="520" class="dash"/>
+      <text x="52" y="345" text-anchor="end" class="t-s">wall</text>
+      <!-- labels -->
+      <g class="t-s" style="opacity:1">
+        <line x1="500" y1="169" x2="590" y2="169" class="thin"/><text x="598" y="165" class="t-h">Sun shade</text><text x="598" y="181">10 mm air gap keeps direct sun off the lid</text>
+        <line x1="492" y1="200" x2="590" y2="214" class="thin"/><text x="598" y="212" class="t-h">Lid, drip edge, O-ring</text><text x="598" y="228">overhangs the drum; 2.5 mm silicone cord seal</text>
+        <line x1="545" y1="318" x2="590" y2="262" class="thin"/><text x="598" y="259" class="t-h">Cable gland + drip loop</text><text x="598" y="275">PG7 gland; breather vent on the far side</text>
+        <line x1="482" y1="291" x2="590" y2="308" class="thin"/><text x="598" y="306" class="t-h">Spider</text><text x="598" y="322">carries the Sense HAT, leaves an air gap under the drum</text>
+        <line x1="376" y1="300" x2="590" y2="355" class="thin"/><text x="598" y="353" class="t-h">GPIO ribbon</text><text x="598" y="369">through a slot in the drum floor, sealed with silicone</text>
+        <line x1="440" y1="418" x2="590" y2="402" class="thin"/><text x="598" y="400" class="t-h">Six louvres</text><text x="598" y="416">each overlaps the next: air passes, rain and sun do not</text>
+        <line x1="472" y1="494" x2="590" y2="449" class="thin"/><text x="598" y="447" class="t-h">Base and arm</text><text x="598" y="463">drain holes; screws to a wall or hose-clamps to a pole</text>
+        <line x1="472" y1="150" x2="590" y2="128" class="thin"/><text x="598" y="126" class="t-h">Three M4 rods</text><text x="598" y="142">clamp the stack from outside, so no holes in the seal</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Drawn to scale at 2 px per mm. Heat from the Pi rises away from the sensors because the drum is on top.</figcaption>
+  </figure>
+  <div class="two">
+    <div><h3>What makes it weatherproof</h3>
+      <ul class="plain">
+        <li>White ASA (best) or PETG. PLA softens in summer sun and goes brittle.</li>
+        <li>4 perimeters, 40% infill on the drum and lid so the walls do not seep.</li>
+        <li>Cable enters from the side under the roof overhang, with a drip loop.</li>
+        <li>A breather vent stops pressure changes sucking damp air past the O-ring. A silica gel sachet in the drum catches the rest.</li>
+        <li>Spray the Sense HAT with conformal coating, masking the three small sensor chips, and line the louvres with stainless insect mesh.</li>
+      </ul></div>
+    <div><h3>Limits you should know</h3>
+      <ul class="plain">
+        <li>The Sense HAT is not an outdoor part. Coated and shielded it should last, but expect to replace it eventually. Its temperature reading also carries a small offset from its own LEDs and chips: keep the LED matrix off.</li>
+        <li>Mount it 1.5 m or more above ground on a north-facing wall, away from vents and tumble-dryer outlets.</li>
+        <li>5 V sags over long thin cables. Up to about 3 m, use a thick (18 AWG) USB cable from an indoor supply. Longer than that, run 12 V and put a small 12 V to 5 V buck converter inside the drum.</li>
+        <li>Check the Wi-Fi signal at the mounting spot with your phone before drilling.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 5</span><h2>Wiring</h2>
+  <p>The two Pi 5s and the Pi 3 need no soldering. Only the button and the beacon have loose wires.</p></div>
+  <figure>
+    <div class="draw">
+    <svg viewBox="0 0 1000 330" role="img" aria-label="Wiring: the XIAO reads the arcade button on D1 and drives its LED from D2; the Pico drives the LED ring from GP2, the buzzer from GP15 and reads the button on GP14.">
+      <!-- XIAO -->
+      <text x="20" y="24" class="t-h">DINNER BELL</text>
+      <rect x="20" y="40" width="130" height="250" rx="4" class="box"/>
+      <text x="85" y="64" text-anchor="middle" class="t-m">XIAO ESP32-S3</text>
+      <g class="t-m">
+        <text x="140" y="114" text-anchor="end">D1</text><text x="140" y="164" text-anchor="end">D2</text><text x="140" y="214" text-anchor="end">GND</text><text x="140" y="264" text-anchor="end">USB-C</text>
+        <line x1="150" y1="110" x2="330" y2="110" class="ln"/><text x="240" y="102" text-anchor="middle">switch</text>
+        <line x1="150" y1="160" x2="330" y2="160" class="acc"/><text x="240" y="152" text-anchor="middle">LED +</text>
+        <path d="M150 210 H330 M300 210 V190 H330" class="ln"/><text x="232" y="228" text-anchor="middle">switch + LED −</text>
+        <text x="160" y="264">5 V charger</text>
+      </g>
+      <rect x="330" y="90" width="130" height="140" rx="4" class="box"/>
+      <text x="395" y="150" text-anchor="middle">Lit arcade</text><text x="395" y="168" text-anchor="middle">button</text>
+      <!-- Pico -->
+      <text x="520" y="24" class="t-h">BEACON</text>
+      <rect x="520" y="40" width="130" height="250" rx="4" class="box"/>
+      <text x="585" y="64" text-anchor="middle" class="t-m">Pico 2 W</text>
+      <g class="t-m">
+        <text x="640" y="94" text-anchor="end">VBUS</text><text x="640" y="134" text-anchor="end">GP2</text><text x="640" y="174" text-anchor="end">GND</text><text x="640" y="224" text-anchor="end">GP15</text><text x="640" y="264" text-anchor="end">GP14</text>
+        <line x1="650" y1="90" x2="830" y2="90" class="ln"/><text x="740" y="82" text-anchor="middle">5 V</text>
+        <line x1="650" y1="130" x2="830" y2="130" class="acc"/><text x="740" y="122" text-anchor="middle">data, 330 Ω</text>
+        <path d="M650 170 H830 M690 170 V242 H830 M690 242 V282 H830" class="ln"/><text x="762" y="162" text-anchor="middle">ground</text>
+        <line x1="650" y1="220" x2="830" y2="220" class="ln"/>
+        <line x1="650" y1="260" x2="830" y2="260" class="ln"/>
+      </g>
+      <rect x="830" y="70" width="150" height="110" rx="4" class="box"/><text x="905" y="130" text-anchor="middle">12-LED ring</text>
+      <rect x="830" y="206" width="150" height="46" rx="4" class="box"/><text x="905" y="234" text-anchor="middle">Piezo buzzer</text>
+      <rect x="830" y="254" width="150" height="46" rx="4" class="box"/><text x="905" y="282" text-anchor="middle">Push button</text>
+    </svg>
+    </div>
+    <figcaption>Amber wires carry the light signal. Both buttons connect a pin to ground and use the board's internal pull-up, so they need no resistors.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th>Node</th><th>Connection</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td class="call">DINNER BELL</td><td>D1 (GPIO 2) → switch → GND</td><td>Input with pull-up. Pressed reads low.</td></tr>
+      <tr><td class="call">DINNER BELL</td><td>D2 (GPIO 3) → button LED + ; LED − → GND</td><td>If the button's LED has no built-in resistor, add 100 Ω in series.</td></tr>
+      <tr><td class="call">BEACON</td><td>VBUS (pin 40) → ring 5 V ; GND (pin 38) → ring GND</td><td>Cap brightness at about 40% in code so 12 LEDs stay under 300 mA.</td></tr>
+      <tr><td class="call">BEACON</td><td>GP2 (pin 4) → 330 Ω → ring DIN</td><td>If the ring flickers, add a 74AHCT125 level shifter.</td></tr>
+      <tr><td class="call">BEACON</td><td>GP15 (pin 20) → piezo + ; GP14 (pin 19) → button → GND</td><td>Passive piezo so the chime can have notes.</td></tr>
+      <tr><td class="call">OUTPOST</td><td>Pi 3 header ⇄ Sense HAT</td><td>20 cm 40-way GPIO extension ribbon, male to female.</td></tr>
+      <tr><td class="call">CONSOLE</td><td>Pi 5 ⇄ screen</td><td>DSI ribbon and power lead supplied with the display; USB speakerphone for mic and speaker.</td></tr>
+      <tr><td class="call">CORE</td><td>Pi 5 ⇄ M.2 HAT+</td><td>PCIe ribbon supplied with the HAT. Ethernet to the router if you can.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 6</span><h2>What to buy</h2>
+  <p>Beyond the five boards and the Sense HAT you already have.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>For</th><th>Item</th><th>Qty</th></tr></thead>
+    <tbody>
+      <tr><td class="call">CORE</td><td>Pi 5 Active Cooler; M.2 HAT+ with a 256 GB NVMe SSD (2230 or 2242); 27 W USB-C supply; Ethernet cable</td><td>1 each</td></tr>
+      <tr><td class="call">CONSOLE</td><td>7" touchscreen (Touch Display 2 assumed); Active Cooler; 27 W USB-C supply; USB speakerphone or USB mic + small speaker; microSD 32 GB</td><td>1 each</td></tr>
+      <tr><td class="call">OUTPOST</td><td>M4 threaded rod 180 mm; M4 nuts, washers, wing nuts</td><td>3 rods, 12 nuts, 3 wing nuts</td></tr>
+      <tr><td class="call">OUTPOST</td><td>PG7 cable gland; M12 breather vent plug; 2.5 mm silicone O-ring cord (0.5 m); neutral-cure silicone sealant</td><td>1 each</td></tr>
+      <tr><td class="call">OUTPOST</td><td>40-way GPIO extension ribbon, male to female, 20 cm; M2.5 × 15 mm standoffs and screws; conformal coating spray; stainless insect mesh; silica gel; microSD 16 GB</td><td>1 set</td></tr>
+      <tr><td class="call">OUTPOST</td><td>Outdoor-rated power: 5 V 2.5 A supply with 18 AWG micro-USB cable, or 12 V supply + 12 V to 5 V 3 A buck converter</td><td>1</td></tr>
+      <tr><td class="call">DINNER BELL</td><td>30 mm arcade button with LED; USB-C cable and charger</td><td>1 each</td></tr>
+      <tr><td class="call">BEACON</td><td>12-LED RGB ring (WS2812, about 37 mm); passive piezo buzzer; 16 mm momentary push button; 330 Ω resistor; micro-USB cable and charger</td><td>1 each</td></tr>
+      <tr><td class="call">Cases</td><td>M2.5 × 6 self-tapping screws (Pi mounts); M3 × 8 self-tapping screws (lids, stand); M2 × 5 screws (Pico); 8 mm rubber feet</td><td>12 / 10 / 4 / 8</td></tr>
+      <tr><td class="call">Filament</td><td>Charcoal PETG, amber PETG, natural PETG (beacon cap), white ASA or PETG (station: about 1 kg)</td><td>about 2 kg total</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sheet-head"><span class="eyebrow">Sheet 7</span><h2>Build order</h2>
+  <p>Each step gives you something that works before you start the next.</p></div>
+  <ol class="steps">
+    <li><strong>CORE first.</strong> Flash Pi OS Lite, give it a fixed address in the router, start the MQTT broker. Everything else needs this.</li>
+    <li><strong>DINNER BELL and BEACON on the bench.</strong> Wire them on a breadboard, get a button press to light the beacon through CORE. This proves the whole message path with the two cheapest boards.</li>
+    <li><strong>OUTPOST indoors.</strong> Pi 3 with the Sense HAT plugged straight on, publishing readings. Leave it running for a few days before it goes outside.</li>
+    <li><strong>CONSOLE.</strong> Screen, kiosk dashboard showing weather and the dinner banner. Add voice last, once touch works.</li>
+    <li><strong>Print and box up.</strong> Indoor cases first. Print the station last and soak-test it with a garden hose before the Pi goes in.</li>
+  </ol>
+</section>
+
+<footer>Design only: the enclosure models and this drawing set are complete, but no firmware or server software has been written yet. Source files are in the <code>jarvis/</code> folder of the repository.</footer>
+
+</div>
