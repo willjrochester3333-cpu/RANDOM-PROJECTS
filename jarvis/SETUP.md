@@ -99,3 +99,17 @@ It boots into the full-screen dashboard and speaks announcements.
   natural-sounding upgrade.
 - **Chat with an API key** uses the Anthropic API and was not exercised in testing (no key
   was available).
+
+## Installing by paste (Raspberry Pi Connect)
+
+If you control a Pi through Raspberry Pi Connect's terminal, you can skip copying files.
+`install-codes/` holds one paste block per Pi (`core.txt`, `outpost.txt`, `console.txt`),
+and `install-codes/index.html` shows them with Copy buttons. Paste the whole block into
+the Pi's terminal: it unpacks that Pi's folder into `~/jarvis/`, and for CORE it also starts
+`setup.sh`.
+
+After changing any code, rebuild the blocks with:
+
+```sh
+python3 jarvis/tools/make_install_codes.py
+```

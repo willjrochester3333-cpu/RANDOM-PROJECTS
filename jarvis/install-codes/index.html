@@ -1,0 +1,352 @@
+<title>J.A.R.V.I.S. Install Codes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one column; a short how-to, then one block per Pi with a single Copy button. */
+:root {
+  --bg: #f1f4f8; --panel: #ffffff; --ink: #15202f; --muted: #566579; --line: #cbd4e0;
+  --accent: #a9690a; --on-accent: #ffffff; --ok: #1f7a4d;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1520; --panel: #142032; --ink: #e4ebf4; --muted: #94a4b9; --line: #2b3b53;
+  --accent: #f0b23a; --on-accent: #1a1305; --ok: #4cc38a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d1520; --panel: #142032; --ink: #e4ebf4; --muted: #94a4b9; --line: #2b3b53;
+  --accent: #f0b23a; --on-accent: #1a1305; --ok: #4cc38a; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 36px 64px; }
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1, h2 { font-family: var(--display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); }
+h2 { font-size: 1.2rem; }
+p { margin: 0; max-width: 66ch; }
+.muted { color: var(--muted); }
+ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; }
+kbd, code { font-family: var(--mono); font-size: 0.88em; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--panel); }
+.pi { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.size { font: 0.8rem var(--mono); color: var(--muted); }
+button { font: 600 1rem var(--body); background: var(--accent); color: var(--on-accent); border: 0; border-radius: 6px; padding: 10px 22px; cursor: pointer; min-width: 9em; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+button.done { background: var(--ok); color: var(--panel); }
+details summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--mono); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 10px; white-space: pre; user-select: all; }
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>J.A.R.V.I.S. Install Codes</h1>
+    <p>One paste puts all of a Pi's J.A.R.V.I.S. files on it. The block is compressed, so it looks like random letters; the readable code is in the <code>jarvis/</code> folder on GitHub. If any part of the paste goes missing, it stops with an error instead of installing broken code.</p>
+  </header>
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>How to use</h2>
+    <ol>
+      <li>Open the Pi's terminal in Raspberry Pi Connect.</li>
+      <li>Click <b>Copy</b> on the block for that Pi below.</li>
+      <li>Click in the terminal and paste with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> or right-click, Paste. If the browser asks to allow the clipboard, allow it.</li>
+      <li>Press <kbd>Enter</kbd> if nothing starts by itself.</li>
+    </ol>
+  </section>
+  <section class="pi" aria-labelledby="h-core">
+    <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
+    <p>Setup starts by itself and takes 10 to 20 minutes. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then open http://jarvis-core.local/ in a browser to see the dashboard.</p>
+    <details><summary>Show the block (191 lines)</summary><pre id="code-core">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; bash setup.sh
+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
+efw8fn7Pz38DLLr8TgCgAAA=
+JARVIS_END
+</pre></details>
+  </section>
+  <section class="pi" aria-labelledby="h-outpost">
+    <div class="row"><h2 id="h-outpost">OUTPOST weather station (Raspberry Pi 3)</h2><button type="button" id="copy-outpost" data-copy="code-outpost">Copy</button></div>
+    <p>After the paste, run the install line it prints, with the MQTT password from the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot</p>
+    <details><summary>Show the block (35 lines)</summary><pre id="code-outpost">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD&quot;
+H4sIAP/k+WoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
+9n/foT4s2WnaO6C4ezgNglgUZ4bD+fjN6JaIeyaHvFA5l2rIMqlIkrgyPvpx5CG9fPGi/EU6/B0/
+e/68ea7ej8YvX3pH4B39F6jACws8/uj/k47/NiykGK5YNqTZPayIjI1jmF0uL2aLJUiqihysOZH5
+igqxhQsGz+BnWNBMUnh/thzA3t5sAR+YoraLOi4luaETcDs5Ba/S35VyciLlhovoNXwJuaBOjJmX
+kZReG3geOLTgkLOcrglLjDAC88SKmNAM+OiZtmlcnC0Wn2fzt7558sdo8o/iPz/pT9N4M5tPtYLx
+xLkti8DRLG7CQ5LgtiGLiAPJlXODRhV5RBTdf1efBs4W/YT+cGKiIN+qmGfP8OSYO9qGWtGOOYIh
+z9WwOvJgLwUsE9hQomIq3HzbZR22rx9JnXoeDCN6P8wKfDGkKqyFnLquXYxtJaUofYoBXrc6Xr2a
+zt4ZH/+1XAbvMRH8E+2tan25mM792vzyxS4aJ82Tcf5pOZ1fnX3wTz1jOf14EczevVtMl75naLUH
+lsitVDSN6t9DwyTFZUgfG/flMmPq2nhLZShYrhjP/N/cM3fuXrnn7sIFVBBxLhp3AnpLMxlna0WF
+n1GFiXHn8CxhGXURAzCkxmeSKfnEnvFlUZlybUyzeyZ4ltJMvWMJ9Z/y+PSBhgsUV/6uyOr8eCqy
+cypLfpJsyFY2ywUN/ZFnXKIv/BPtf2NR5HlCtQFEbH8VvMilz8YhJkVeKLhnEeVo8HmVItflvWj0
+z62fFoliToGKmmu1Aan8H6oEIkJTnjmCJpxEh5s0I6uEguNkfAP7lzZoGHMwG/SoM5RGLnwmKoyB
+KdgwFU/glhdY0IlW5xQHSsBZm7Wi8zWomEnAP3QQrJnAbcUQCPRyB0IQEwkrSjPkUHjPAQi64lwB
+z0LqmsZRT0/S7X7/b1PxB/f/07bHH/6+GI9ePO7/z/v+/z/o/zU8GabZVPEEi4lE8qDiSBZBXqwS
+JmMqH0GtrjsgkLKsUFiApmmwNOdCwa1EAK6fuWyeJLtBMNittrsNXepGs9Ad1dUd1Q0ThsAHWPRl
+g10LnlYdONAduGYvbX1PELd1AwMfz9OYrHHbRdyzzF1zMwdgPpoATNu4mM21HMuU9VVZva9lR7/8
+8sy0bUMD81Pn6L32HK28bpVPCTT7WgjZm4aK7GsE5ccWNQya/9TT5hzDolgpQUJVgWjpJh1FxPGc
+CqIKQYGtYYtY3DTHOtYbIlIgN0QDOMZRCSwSGmlhkfKUYv90u239SaM6PNqu0ixjGXyeni3fl74y
+vw4/JjItlmfLy8VXeLSphcQBzYjoGlJyR4MqISwbnNdlSrhvyhcTA5COYTeLwdh9gIxSvCIBDHKy
+IuEdnF2cwz0VEu//dxghR8QxpzPsHzG5r1oNtspCN1u31IhOw45DlBKW1oo3e1PrQlVXlSbTrk7X
+VOer37XNqp4fyblX0/nifPZpPKjFAhb55n6HxHzQamki6XcO+Z6Kat/V84Aei4N8E+AIbulsHUCT
+gnusG5YkJU8TIbw9X6/1oIQh/p1Lf6Tbr8Lc8ZeioHvCPAtCnmU01HYmJF1FGIYB/BRMIHRrONlT
+nP17egWt1QYRTci2tA/Bp1r56MqUPNSLU6+SRFU4gtQK6lzSyW+VQDLZwUeZUxELd8m03OjRO6I5
+xX/o8G41aVkuEA+zMmtWnIhoAphEAj9Q9Ku0SiAtgx6oztKlEnS0BLpQg7hIWcTUFpP6Z/gGXy6o
+lLiybBuGMO7e7Y9dbphaLAhNxHJeZJFVnu9ApzwHMLYHLX9z+k4CvWmNPM/1Sl9a5UNrVWusbQ9g
+1NXU2BfEOdlpayVb81u5P3eljYeW/v/EszrTS0l0XRMey25fY1+gRKDEAR3Dh+lb1KYEewDM1Uk5
+hyLEyUdwWAWwo3Lfxo7Kdh5ttsv0AaK/LiDnGyoc/HSuQiHBq+KO/cyVCaW5NUIk3C/bLpB1k7tJ
+bSK3WWjphoWlia1nAHeoiCTsnvqjsbcnk3CeB+WnQ9cdx6Cx5qaMAV5A26trqj4AR+gtekbSZF2Z
+pmMgFc+tn4IOmCmxbRedI79Wvt/CBXdDmArWXASN5Nje6aUPIc0VWPMi0z6bCsHFAK5IUlTP9r4J
++jMfHod9JfgdBoMk+qZbuNFZpG+I0COVo5EMQq6RHwp5gKONB/H2rVU4mbj0gSnLq4NXDS5u9WPV
+q8X5r9iKPw5K39nf5MOm3bCVfJsYvyZBu6e9n7adZTeYIS08tSaxdcPwZb/UruE1eN8JVN2HB+VY
+5kZFmkur1mZXMfPsfT8LPQzVLANs+oWMO2h8kOLNSIKXM9DOIChbTAA+9vQg0NUdBGZlYlXq/Yda
+Tz311FNPPfXUU0899dRTTz311FNPPf1Y+gtscz9OACgAAA==
+JARVIS_END
+</pre></details>
+  </section>
+  <section class="pi" aria-labelledby="h-console">
+    <div class="row"><h2 id="h-console">CONSOLE touchscreen (Raspberry Pi 5)</h2><button type="button" id="copy-console" data-copy="code-console">Copy</button></div>
+    <p>After the paste, run the install line it prints, with the MQTT password from the server in place of YOUR-MQTT-PASSWORD. Then reboot with: sudo reboot. It comes back up showing the dashboard full screen.</p>
+    <details><summary>Show the block (38 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD&quot;
+H4sIAP/k+WoC/+1YbXPbuBH2Z/6KLePeSa1JyU7sZJTQNz5bad27i3ySk1zH9WggEhJxogAGAC3r
+eu1v7y5ISvJb2s5k2g/H/SATwGKx2JdnF/6Z6RthOrGSRmW8I6SxLMtCk+58OeoivTw8dH+R7v99
+cXD4ov4u5/cPXu6/3IHuzv+ACrywxuN3fpv07HedwujORMgOlzcwYSb1nsHp4N1o8H0fDLdFDq0h
+M/mEa72CCwGH8EewqohTE2vO5R7cWR2MYClsCgk3c6vydojSfmBzbsCmnBgmSlkwVjMxSy0IaZVb
+mRZZFpQSIUElJorpBJhMwOSczfFLqkLGfMGlNST0vWEz3oNwK2ThzeKTtUHOjFkqnRzDVaw0D1Jl
+rGQLfu3hdSDghYJc5HzKRObFCfi7rURoYsDPrt/2vYuT0ejjYHgW+bt/3+99U/z3J/3D904Hwz4J
+OOgFP7scC4glzFTMMlz2TJEoYLkNZqhUkSfM8rtz1WkQrIA7GwRyBvnKpko+x5NTFZAOHpoiCAKy
+Eo9TdBgeFXNo6UIaYAZWqtgDo0BYiJmEwnCa0sCKRChQhc0L2yYJ5eHrQxPoqNx2StXvrS0As7n0
+C9dhvtpm7WymvS1h/+yECDFTMavYtibMyli+SDAMufa2zjjqdqGT8JuOxNB4IKBGrBCj1ouZhePP
+ssCbN/3BW++HHy8vx38ejC6jXfJPOX4/6g+j6qJuYu3/3frL+zA4P+1HXAaziTe66PfPov2jQ49E
+3j97+zqVIkFtk9o7pTJX76Ww194Zx7AXuRVKRn8JT8Jh+CE8D0chVOpXrvVOppbrSHKLETcPlMyE
+5CFiF8WKwdxIqoHnXY3Kc669vrwRWklKmrci49Hv08+ZsX/L4xEKsdEaE6p4e8rDQ24cP8uWbGXq
+4YjH0SGqcV4689r7yKTlyberKMGsKzJba0pWKO0VW/R5QDbD7OcLJQPNM8WSh8tcsgkaJQikWsJd
++5ZhmqmZkLSh5AzQTjPc5++Sn/06X+ZCmXkPTlOtFqJYOPyBCn+ULIW4tPh2OPhIAYIwEavFghAp
+uIG43vfrr/DIdDDRakna4rLVBUdQEVO4guAX1KOS6MP1a4I+6QESeliBv1ZHIkhOnVOhsiJlMCFr
+D55CifpwH46/OiiF3uKmfW8qvO/OB6PvovXZeDNnAGdGhO5EMLyxwWEijLOakFM1Ydo4jmAqtLEB
+YsoWh+HGYMwGsUa45kkwKSalY9QN12hJhYCeCmOVXgWS3YgZcyHehdTavNfpuAzsOIecFlpjiD6o
+JOjwsm5kbLKMydC5MgIlvgaVJWheDBLOiIlwDeHtp7M/IbJZ5cIQA8DqVfg4DJUSN+P1Lm+meQ7B
+JwN+FV3OUv79vZsd5OS/bTlx1xkbvgJ4BndFHB8/LeUBkKxXOttCwqqw1hhyVg37dNdr73KV8+gk
+zzMRO3N777Ac3YWVdXV1+R6V2noDma1GqVqey+j7n876r+knyMVrl6NeFZ1VV1AZlGNwDrmr51jE
+S1OQs9YHVKGqHY9fCblEjKirFaVwGdObCodZ5GAWvj6t8K+Euq99b6ehL053y8AWtn/h/v/oxYun
++v/nzw+7D/v/g6b//z/0/1W993y/zvZe2egZWKbYoiK0A+E25MUkE4j7hqrl/SBiqz1EZKy7m7wO
+UaInEL8RJJSpvz4VvOD1wBSTXKsYy4pXT1GbG1KbG8aZoAqBHW3Z9VITBxGKos6FepwQq2HLXzd4
+/t4avzd9t9/2LgZD2ofvjtaje2md9u6/evXcb7c9ahqeOsc1FOtzSHjVLj61oV6nTcjumspHeN08
+8TggREbXcT7C6OadtkeHyOZdjkcnf0U+/6FDfFq8PLl8P3ps3TJbGCzFBLSmB77zS/gj/V7hW+3a
+x01bc60FuzXiFx7td/FUD7s6jIIxSpM8tq3SVXvwh3G758piORFWIdOqFUG9S2jHG3xSJtrfw1Jh
+mZDRJbVM21sxNKhJnvCWu2LFv3X2AqMGX2mtcX34mJpFfFSxPViYWaWI5bcWb4ITYc5W1F9iOY1V
+wlt+YafBKzIlVv+Mxdxvh3hxkbdKPbB7c5upz6PejESUypaSnXS92gyInDXx2naMhY4J2yIRV73D
+bve6vWbktzHPq0wI32IXelcGPTGBOolEY5XXDAusxiqLvQ6W4Dn2iBoWQhaWm8oYC9SphS+6Y3in
+JO/V2qfMMGt1i7IHb3mK9XvC4vnJxfkH7NawU/DbPXfO+mUJB+HtWpUq/SKXfeGpG7XK7weSwg/9
+4eh88O5gr9o2Fkm0SUYXcn5pAJ4Z3vv8If9ORBUh5G56eo/z5Rif+S3KzT2oE+4O61JkmePZDsTp
+9D+LxE2cUz6uB/dYqnAsWarBNovm1b5xwjO2ctqgG8tRhIbDBKsGR90759f7mFnJuEVIh7dEzNqD
+Oec5y8QNv78lUyofu/YMg9ktLFN8DALdbSt6y9woY5bQZROiz+BEzwp6ROKywfCR2O6lHEPV9Xtu
+J/1zQbryMOFADwVEalY/jcK1qA3Gh8jUuvLXBYJyL7jBX4d+NDA4cAhHgwAHdNA1BlXK43n0lmHs
+EAJgcI/HzvVjiBDbxmNKgfHYL+9W5kPTOzbUUEMNNdRQQw011FBDDTXUUEMNNfSbpH8Bt6rBnwAo
+AAA=
+JARVIS_END
+</pre></details>
+  </section>
+</div>
+
+<script>
+document.querySelectorAll("button[data-copy]").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const pre = document.getElementById(btn.dataset.copy);
+    try {
+      await navigator.clipboard.writeText(pre.textContent);
+      btn.textContent = "Copied";
+      btn.classList.add("done");
+      setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2500);
+    } catch {
+      pre.closest("details").open = true;
+      const r = document.createRange(); r.selectNodeContents(pre);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      btn.textContent = "Selected: press Ctrl+C";
+    }
+  });
+});
+</script>
