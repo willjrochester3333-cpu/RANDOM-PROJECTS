@@ -1,0 +1,92 @@
+import asyncio
+import json
+
+import pytest
+
+from jarvis_core import house as h
+from jarvis_core.house import House
+from jarvis_core.store import Store
+
+
+@pytest.fixture
+def rig(tmp_path, monkeypatch):
+    monkeypatch.setattr(h, "PRESS_DEBOUNCE_S", 0)
+    sent, events = [], []
+
+    async def publish(topic, payload, retain):
+        sent.append((topic, payload, retain))
+
+    async def notify(event):
+        events.append(event)
+
+    return House(Store(str(tmp_path / "t.db")), publish, notify, dinner_timeout=0.05), sent, events
+
+
+def last(sent, topic):
+    return [p for t, p, _ in sent if t == topic][-1]
+
+
+async def test_dinner_call_ack_and_timeout(rig):
+    house, sent, events = rig
+    await house.handle(h.T_DINNER, "pressed")
+    assert house.dinner["state"] == "calling"
+    assert last(sent, h.T_LED) == "blink"
+    assert last(sent, h.T_ALERT) == "dinner"
+    assert last(sent, h.T_SAY) == "Dinner is ready."
+    assert any(e["type"] == "say" for e in events)
+
+    await house.handle(h.T_ACK, "pressed")
+    assert house.dinner["state"] == "acknowledged"
+    assert house.dinner["ack_by"] == "beacon"
+    assert last(sent, h.T_LED) == "solid"
+    assert last(sent, h.T_ALERT) == "clear"
+
+    await asyncio.sleep(0.12)
+    assert house.dinner["state"] == "idle"
+    assert last(sent, h.T_LED) == "off"
+
+
+async def test_ack_without_call_does_nothing(rig):
+    house, sent, _ = rig
+    assert await house.ack_dinner("console") is False
+    assert sent == []
+
+
+async def test_retained_press_is_ignored(rig):
+    house, _, _ = rig
+    await house.handle(h.T_DINNER, "pressed", retained=True)
+    assert house.dinner["state"] == "idle"
+
+
+async def test_debounce(rig, monkeypatch):
+    house, sent, _ = rig
+    monkeypatch.setattr(h, "PRESS_DEBOUNCE_S", 2)
+    await house.handle(h.T_DINNER, "pressed")
+    await house.handle(h.T_DINNER, "pressed")
+    assert [p for t, p, _ in sent if t == h.T_SAY] == ["Dinner is ready."]
+
+
+async def test_weather_stored_and_validated(rig):
+    house, _, _ = rig
+    await house.handle(h.T_WEATHER, json.dumps({"temp_c": 8.44, "humidity": 71, "pressure_hpa": 1009.2}))
+    assert house.weather["temp_c"] == 8.4
+    assert house.store.latest_weather()["humidity"] == 71
+    assert house.snapshot()["weather"]["stale"] is False
+
+    for bad in ("not json", '{"temp_c": 999, "humidity": 50, "pressure_hpa": 1000}', '{"temp_c": 5}'):
+        await house.handle(h.T_WEATHER, bad)
+    assert house.weather["temp_c"] == 8.4
+    assert len(house.store.history(1)) == 1
+
+
+async def test_status_and_resync(rig):
+    house, sent, _ = rig
+    await house.handle("jarvis/beacon/status", "online", retained=True)
+    await house.handle("jarvis/kitchen/status", "offline", retained=True)
+    assert house.nodes["beacon"]["online"] is True
+    assert house.nodes["kitchen"]["online"] is False
+
+    await house.call_dinner()
+    sent.clear()
+    await house.resync()
+    assert (h.T_LED, "blink", True) in sent and (h.T_ALERT, "dinner", True) in sent

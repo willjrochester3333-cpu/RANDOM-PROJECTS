@@ -1,0 +1,7 @@
+core/.env
+core/mosquitto/passwd
+__pycache__/
+.pytest_cache/
+*.db
+kitchen/config.py
+beacon/config.py

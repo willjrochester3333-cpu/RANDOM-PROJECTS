@@ -1,0 +1,27 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto:/mosquitto/config
+      - mosquitto-data:/mosquitto/data
+
+  brain:
+    build: ./brain
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    env_file: .env
+    environment:
+      MQTT_HOST: mosquitto
+      DB_PATH: /data/jarvis.db
+    ports:
+      - "80:8000"
+    volumes:
+      - brain-data:/data
+
+volumes:
+  mosquitto-data:
+  brain-data:

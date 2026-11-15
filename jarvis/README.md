@@ -1,7 +1,7 @@
 # J.A.R.V.I.S. House System
 
-A five-node home assistant. This folder is the **design**: system architecture, enclosure
-models and wiring. No firmware or server software has been written yet.
+A five-node home assistant: system design, enclosure models, wiring, and the software for
+every node. See [SETUP.md](SETUP.md) to install it.
 
 Open `index.html` for the full drawing set (system map, dinner sequence, weather-station
 cross-section, wiring, parts list).
