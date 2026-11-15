@@ -12,12 +12,15 @@ sudo apt-get install -y --no-install-recommends python3-picamera2 python3-paho-m
 sudo install -d /opt/jarvis
 sudo install -m 755 camera.py /opt/jarvis/camera.py
 
-# Keep the same private stream key across re-installs, so saved links keep working.
+# Keep the private stream key and the rotation across re-installs.
 KEY=""
+ROTATE=""
 if sudo test -f /etc/jarvis-camera.env; then
     KEY="$(sudo sed -n 's/^CAMERA_KEY=//p' /etc/jarvis-camera.env)"
+    ROTATE="$(sudo sed -n 's/^CAMERA_ROTATE=//p' /etc/jarvis-camera.env)"
 fi
 KEY="${KEY:-$(openssl rand -hex 16)}"
+ROTATE="${ROTATE:-0}"
 
 sudo install -m 600 /dev/null /etc/jarvis-camera.env
 sudo tee /etc/jarvis-camera.env >/dev/null <<EOF
@@ -30,7 +33,7 @@ CAMERA_SIZE=640x480
 CAMERA_FPS=12
 CAMERA_QUALITY=75
 # Set to 1 if the picture is upside down.
-CAMERA_ROTATE=0
+CAMERA_ROTATE=$ROTATE
 EOF
 
 sudo tee /etc/systemd/system/jarvis-camera.service >/dev/null <<EOF
