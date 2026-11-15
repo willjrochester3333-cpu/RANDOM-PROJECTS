@@ -10,7 +10,7 @@ cross-section, wiring, parts list).
 
 | Callsign | Board | Where | Job |
 |---|---|---|---|
-| CORE | Raspberry Pi 5 + NVMe | near the router | MQTT broker, rules, voice processing, weather history, dashboard |
+| CORE | Raspberry Pi 5 + NVMe, USB mic and speaker | near the router | MQTT broker, rules, local language model (Ollama), speech in and out, weather history, dashboard |
 | CONSOLE | Raspberry Pi 5 + 7" touchscreen | desk | main input: touch, wake word, mic, speaker |
 | OUTPOST | Raspberry Pi 3 + Sense HAT | outside wall | temperature, humidity, pressure every 60 s |
 | DINNER BELL | Seeed XIAO ESP32-S3 Sense | kitchen | lit button that announces dinner |

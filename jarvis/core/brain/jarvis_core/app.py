@@ -6,8 +6,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import aiomqtt
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+import httpx
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
 from .chat import Chat
@@ -23,6 +24,7 @@ MQTT_USER = os.environ.get("MQTT_USER") or None
 MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD") or None
 DB_PATH = os.environ.get("DB_PATH", "jarvis.db")
 DINNER_TIMEOUT = float(os.environ.get("DINNER_TIMEOUT", "180"))
+SPEECH_URL = os.environ.get("SPEECH_URL", "http://speech:8010").rstrip("/")
 STATIC = Path(__file__).parent / "static"
 
 sockets: set[WebSocket] = set()
@@ -78,11 +80,16 @@ async def mqtt_loop() -> None:
         await asyncio.sleep(5)
 
 
+speech = httpx.AsyncClient(base_url=SPEECH_URL, timeout=httpx.Timeout(120, connect=5))
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     task = asyncio.create_task(mqtt_loop())
+    await chat.start()
     yield
     task.cancel()
+    await speech.aclose()
 
 
 app = FastAPI(title="J.A.R.V.I.S. core", lifespan=lifespan)
@@ -91,6 +98,12 @@ app = FastAPI(title="J.A.R.V.I.S. core", lifespan=lifespan)
 class ChatIn(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
     speak: bool = True
+    source: str = Field(default="typed", pattern="^(typed|voice)$")
+
+
+class VoiceState(BaseModel):
+    state: str = Field(pattern="^(idle|listening|thinking|speaking)$")
+    text: str = Field(default="", max_length=2000)
 
 
 class SayIn(BaseModel):
@@ -131,10 +144,54 @@ async def dinner_clear():
 
 @app.post("/api/chat")
 async def chat_endpoint(body: ChatIn):
+    await notify({"type": "voice", "state": "thinking", "text": body.text})
     reply = await chat.ask(body.text)
+    await notify({"type": "chat", "source": body.source, "text": body.text, "reply": reply})
     if body.speak:
         await house.say(reply)
+    await notify({"type": "voice", "state": "idle"})
     return {"reply": reply}
+
+
+@app.post("/api/listen")
+async def listen():
+    """Start listening on the server's microphone, as if the wake word had been said."""
+    await house.listen()
+    return {"ok": True}
+
+
+@app.post("/api/voice/state")
+async def voice_state(body: VoiceState):
+    """The microphone service reports what it is doing, so dashboards can show it."""
+    await notify({"type": "voice", "state": body.state, "text": body.text})
+    return {"ok": True}
+
+
+@app.post("/api/transcribe")
+async def transcribe(request: Request):
+    """Body: WAV audio. Returns the words in it, via the speech service."""
+    data = await request.body()
+    if len(data) > 10_000_000:
+        raise HTTPException(413, "audio too long")
+    try:
+        r = await speech.post("/transcribe", content=data, headers={"Content-Type": "audio/wav"})
+        r.raise_for_status()
+    except httpx.HTTPError as e:
+        log.warning("speech service transcribe failed: %s", e)
+        raise HTTPException(503, "speech service unavailable")
+    return r.json()
+
+
+@app.get("/api/tts")
+async def tts(text: str):
+    """Returns a WAV of the text, spoken by the speech service."""
+    try:
+        r = await speech.get("/tts", params={"text": text[:600]})
+        r.raise_for_status()
+    except httpx.HTTPError as e:
+        log.warning("speech service tts failed: %s", e)
+        raise HTTPException(503, "speech service unavailable")
+    return Response(r.content, media_type="audio/wav")
 
 
 @app.post("/api/say")

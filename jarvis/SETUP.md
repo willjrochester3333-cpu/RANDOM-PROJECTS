@@ -91,6 +91,37 @@ thermometer you trust, set `TEMP_OFFSET` in `/etc/jarvis-outpost.env` and
 
 It boots into the full-screen dashboard and speaks announcements.
 
+## Talking to J.A.R.V.I.S. (on CORE)
+
+Plug a USB microphone and a USB speaker into the server, then run `bash setup.sh` again in
+`core/` (or paste the CORE block). It adds three things to the server:
+
+- **Ollama**, a language model running on the Pi itself. The model (`OLLAMA_MODEL` in
+  `.env`, default `llama3.2:3b`, about 2 GB) is downloaded once by `setup.sh`. On a 4 GB
+  Pi set `OLLAMA_MODEL=llama3.2:1b` before running setup.
+- **Speech**, a container with Whisper (hears you) and Piper (the voice). Its models are
+  downloaded while the container is built, which takes a while the first time.
+- **Voice**, a small service on the Pi itself that owns the microphone and speaker. Say
+  **"Hey Jarvis"**, wait for the beep, ask your question. The dashboard's **Talk** button does
+  the same without the wake word, and typed questions get the same answers.
+
+Expect 10 to 20 seconds from the end of your question to the start of the answer on a Pi 5:
+most of that is the language model thinking. Keep questions short.
+
+Useful settings in `core/.env` (run `bash setup.sh` again after changing them):
+
+| Setting | What it does |
+|---|---|
+| `CHAT_BACKEND` | `ollama` (default), `claude` (needs `ANTHROPIC_API_KEY`) or `builtin` |
+| `OLLAMA_MODEL` | any model from ollama.com/library that fits in RAM |
+| `MIC_DEVICE`, `SPEAKER_DEVICE` | normally `default`; otherwise a name from `arecord -L` / `aplay -L` |
+| `WAKE_WORD` | `0` turns the wake word off, leaving only the Talk button |
+| `WAKE_THRESHOLD` | raise towards `0.8` if it wakes up by itself, lower towards `0.3` if it ignores you |
+
+Checks: `arecord -l` and `aplay -l` list the USB devices; `journalctl -u jarvis-voice -f`
+shows what the voice service hears; `arecord -d 3 test.wav && aplay test.wav` records and
+plays back three seconds. If the console Pi also has a speaker, both will speak.
+
 ## 5. CAMERA (optional, any Pi with a camera module)
 
 Plug the camera ribbon into the Pi with the power off. A Raspberry Pi 5 needs the
@@ -113,9 +144,9 @@ Anyone on your home network who opens the dashboard can see the camera.
   dashboard, weather publishing, the whole dinner call / answer / clear cycle, spoken
   announcements, typed questions.
 - **Not tested on real boards.** Pin numbers follow the wiring table in `README.md`.
-- **Not written yet:** voice input (wake word and speech-to-text). You type questions on
-  the touchscreen for now. Speech output uses `espeak-ng`, which is robotic; Piper is the
-  natural-sounding upgrade.
+- **Voice** (wake word, speech-to-text, local model, text-to-speech) was tested end to end
+  with a fake microphone and stand-in speech models; the real Whisper and Piper models and
+  Ollama itself have not been run here. The touchscreen's own speaker still uses `espeak-ng`.
 - **Chat with an API key** uses the Anthropic API and was not exercised in testing (no key
   was available).
 

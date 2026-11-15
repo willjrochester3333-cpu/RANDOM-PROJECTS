@@ -13,6 +13,7 @@ T_LED = "jarvis/kitchen/led"
 T_ALERT = "jarvis/beacon/alert"
 T_ACK = "jarvis/beacon/ack"
 T_SAY = "jarvis/console/say"
+T_LISTEN = "jarvis/voice/listen"      # CORE -> voice service: start listening now
 
 WEATHER_STALE_S = 300      # no reading for 5 minutes = outpost is in trouble
 PRESS_DEBOUNCE_S = 2
@@ -124,6 +125,13 @@ class House:
         state = self.dinner["state"]
         await self._publish(T_LED, {"idle": "off", "calling": "blink", "acknowledged": "solid"}[state], True)
         await self._publish(T_ALERT, "dinner" if state == "calling" else "clear", True)
+
+    # ---- voice ----
+
+    async def listen(self) -> None:
+        """Ask the microphone service to listen for a question, as if the wake word was said."""
+        await self._publish(T_LISTEN, "start", False)
+        await self._notify({"type": "voice", "state": "listening"})
 
     # ---- outputs ----
 

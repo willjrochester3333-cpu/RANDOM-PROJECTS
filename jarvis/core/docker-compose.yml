@@ -8,15 +8,35 @@ services:
       - ./mosquitto:/mosquitto/config
       - mosquitto-data:/mosquitto/data
 
+  # Local language model. The model itself is downloaded by setup.sh (ollama pull).
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: 24h
+
+  # Speech-to-text (Whisper) and text-to-speech (Piper), models baked into the image.
+  speech:
+    build: ./speech
+    restart: unless-stopped
+    environment:
+      THREADS: 3
+
   brain:
     build: ./brain
     restart: unless-stopped
     depends_on:
       - mosquitto
+      - ollama
+      - speech
     env_file: .env
     environment:
       MQTT_HOST: mosquitto
       DB_PATH: /data/jarvis.db
+      OLLAMA_URL: http://ollama:11434
+      SPEECH_URL: http://speech:8010
     ports:
       - "80:8000"
     volumes:
@@ -24,4 +44,5 @@ services:
 
 volumes:
   mosquitto-data:
+  ollama-data:
   brain-data:
