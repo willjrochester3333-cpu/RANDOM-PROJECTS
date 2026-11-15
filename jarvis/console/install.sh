@@ -11,6 +11,12 @@ sudo apt-get update
 sudo apt-get install -y espeak-ng python3-paho-mqtt
 
 # --- speech service (runs as you, so it can use your audio output) ---
+# Keep your user services running without a login, and make sure `systemctl --user`
+# can find them even from a remote shell such as Raspberry Pi Connect.
+sudo loginctl enable-linger "$USER"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+for _ in $(seq 1 20); do [ -S "$XDG_RUNTIME_DIR/systemd/private" ] && break; sleep 0.5; done
+
 sudo install -d /opt/jarvis
 sudo install -m 755 speaker.py /opt/jarvis/speaker.py
 install -d ~/.config/jarvis ~/.config/systemd/user
@@ -38,7 +44,6 @@ WantedBy=default.target
 EOF
 systemctl --user daemon-reload
 systemctl --user enable --now jarvis-speaker
-sudo loginctl enable-linger "$USER"
 
 # --- kiosk: Chromium full screen on login ---
 BROWSER="$(command -v chromium || command -v chromium-browser || true)"
@@ -59,6 +64,9 @@ Name=J.A.R.V.I.S. dashboard
 Exec=$KIOSK
 OnlyShowIn=LXDE;LXDE-pi;
 EOF
+
+# Keep the screen awake: this is a wall display.
+sudo raspi-config nonint do_blanking 1 || true
 
 echo "CONSOLE installed. Reboot to start the dashboard: sudo reboot"
 echo "Test speech now with: espeak-ng -v en-gb 'Console online'"
