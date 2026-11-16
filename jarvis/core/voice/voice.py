@@ -62,7 +62,8 @@ VOLUME = os.environ.get("VOLUME", "")          # e.g. "80%": set the mixer once 
 RATE = 16000
 CHUNK = 1280                                     # 80 ms, the wake-word model's frame size
 SILENCE_END_S = 1.0                              # stop recording after this much quiet
-NO_SPEECH_S = 5.0                                # give up if nothing is said
+NO_SPEECH_S = 6.0                                # give up if nothing is said
+MIN_SPEECH_LEVEL = float(os.environ.get("MIN_SPEECH_LEVEL", "120"))   # lower if your mic is quiet
 MAX_UTTERANCE_S = 12.0
 
 T_SAY = "jarvis/console/say"
@@ -154,17 +155,20 @@ def rms(chunk: np.ndarray) -> float:
 
 def record_utterance(read_chunk, noise_floor: float) -> bytes | None:
     """Read from the mic until the speaker goes quiet. Returns raw PCM, or None if silent."""
-    threshold = max(250.0, noise_floor * 3)
+    threshold = max(MIN_SPEECH_LEVEL, noise_floor * 2.5)
     frames: list[bytes] = []
     started = None
     quiet_since = None
+    peak = 0.0
     t0 = time.monotonic()
     while True:
         raw = read_chunk()
         if raw is None:
             return None
         chunk = np.frombuffer(raw, np.int16)
-        loud = rms(chunk) > threshold
+        level = rms(chunk)
+        peak = max(peak, level)
+        loud = level > threshold
         now = time.monotonic()
         if started is None:
             frames.append(raw)
@@ -172,6 +176,9 @@ def record_utterance(read_chunk, noise_floor: float) -> bytes | None:
             if loud:
                 started = now
             elif now - t0 > NO_SPEECH_S:
+                log.info("nothing said: loudest %.0f, needed %.0f (noise floor %.0f). "
+                         "If you did speak, the mic is too quiet: try MIN_SPEECH_LEVEL=%d or a USB mic with more gain",
+                         peak, threshold, noise_floor, max(40, int(peak * 0.6)))
                 return None
             continue
         frames.append(raw)
@@ -197,7 +204,6 @@ def handle_question(read_chunk, noise_floor: float) -> None:
         read_chunk()
     pcm = record_utterance(read_chunk, noise_floor)
     if pcm is None:
-        log.info("nothing said")
         report("idle")
         return
     report("thinking")
@@ -309,10 +315,22 @@ def make_mqtt() -> mqtt.Client:
     return client
 
 
+def set_mixer() -> None:
+    """Turn the USB microphone's gain and the speaker's volume up; they often start low."""
+    m = re.search(r"CARD=([^,]+)", MIC)
+    if m:
+        for ctl in ("Mic", "Capture"):
+            subprocess.run(["amixer", "-q", "-c", m.group(1), "sset", ctl, "100%"], check=False,
+                           stderr=subprocess.DEVNULL)
+    m = re.search(r"CARD=([^,]+)", SPEAKER)
+    if m:
+        for ctl in ("PCM", "Speaker", "Master"):
+            subprocess.run(["amixer", "-q", "-c", m.group(1), "sset", ctl, VOLUME or "90%"], check=False,
+                           stderr=subprocess.DEVNULL)
+
+
 def main() -> None:
-    if VOLUME:
-        subprocess.run(["amixer", "-q", "set", "Master", VOLUME], check=False)
-        subprocess.run(["amixer", "-q", "set", "PCM", VOLUME], check=False)
+    set_mixer()
     client = make_mqtt()
     client.connect_async(MQTT_HOST, MQTT_PORT, keepalive=60)
     client.loop_start()

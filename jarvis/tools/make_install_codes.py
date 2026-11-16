@@ -45,6 +45,12 @@ PIS = {
                 "Then reboot with: sudo reboot. "
                 "It comes back up showing the dashboard full screen.",
     },
+    "core/voice": {
+        "title": "VOICE update (server only, quick)",
+        "after": "sudo install -m 755 ~/jarvis/core/voice/voice.py /opt/jarvis/voice.py && sudo systemctl restart jarvis-voice && echo 'Voice service updated'",
+        "then": "Updates only the microphone and speaker service on the server and restarts it, in a "
+                "few seconds. Use this instead of the full CORE block when only the voice changed.",
+    },
     "camera": {
         "title": "CAMERA (any Pi with a camera module)",
         "after": 'echo "Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP"',
@@ -168,8 +174,8 @@ def main() -> None:
             + "\n".join(lines)
             + "\nJARVIS_END\n"
         )
-        (OUT / f"{folder}.txt").write_text(text)
-        blocks.append(BLOCK.format(id=folder, title=html.escape(meta["title"]), then=html.escape(meta["then"]),
+        (OUT / f"{folder.replace('/', '-')}.txt").write_text(text)
+        blocks.append(BLOCK.format(id=folder.replace("/", "-"), title=html.escape(meta["title"]), then=html.escape(meta["then"]),
                                    lines=len(lines) + 2, code=html.escape(text)))
         print(f"{folder}: {len(text)} bytes, {len(lines) + 2} lines")
     (OUT / "index.html").write_text(PAGE.replace("__BLOCKS__", "\n  ".join(blocks)))
