@@ -156,6 +156,15 @@ async def chat_endpoint(body: ChatIn):
     return {"reply": reply}
 
 
+@app.get("/api/report")
+async def report(q: str = ""):
+    """What the model is told along with a question (all of it when q is empty)."""
+    from fastapi.responses import PlainTextResponse
+    from .chat import OLLAMA_MODEL
+    model = OLLAMA_MODEL if chat.backend == "ollama" else chat.backend
+    return PlainTextResponse(f"Answering with: {model}\n\n{await chat.report(q)}\n")
+
+
 @app.post("/api/listen")
 async def listen():
     """Start listening on the server's microphone, as if the wake word had been said."""

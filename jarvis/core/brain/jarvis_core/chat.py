@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import time
 from collections import deque
 from typing import Awaitable, Callable
 
@@ -40,7 +41,7 @@ OnSentence = Callable[[str], Awaitable[None]]
 class Chat:
     def __init__(self, house):
         self.house = house
-        self.history: deque[dict] = deque(maxlen=10)
+        self.history: deque[dict] = deque(maxlen=6)    # last 3 exchanges: short prompts are fast
         self.forecast = Forecast()
         self.backend = BACKEND
         self.client = None
@@ -61,10 +62,10 @@ class Chat:
             asyncio.create_task(self._warm_up())
         asyncio.create_task(self.forecast.refresh())
 
-    async def report(self) -> str:
+    async def report(self, question: str = "") -> str:
         await self.forecast.refresh()
         history = await asyncio.to_thread(self.house.store.history, 24, 48)
-        return describe(self.house.snapshot(), history, self.forecast)
+        return describe(self.house.snapshot(), history, self.forecast, question)
 
     async def ask(self, text: str, on_sentence: OnSentence | None = None) -> str:
         """Answer the question. If on_sentence is given, each finished sentence is passed to it
@@ -100,7 +101,10 @@ class Chat:
     async def _ollama(self, text: str, on_sentence: OnSentence | None) -> str:
         # The report goes with the question, after the history, so the fixed system prompt and
         # the earlier turns stay cached inside Ollama between questions (much faster on a Pi).
-        question = f"House report: {await self.report()}\n\nQuestion: {text}"
+        question = f"House report: {await self.report(text)}\n\nQuestion: {text}"
+        t0 = time.monotonic()
+        first = None
+        stats: dict = {}
         body = {
             "model": OLLAMA_MODEL,
             "stream": True,
@@ -120,7 +124,12 @@ class Chat:
                 async for line in r.aiter_lines():
                     if not line:
                         continue
-                    piece = json.loads(line).get("message", {}).get("content", "")
+                    msg = json.loads(line)
+                    if msg.get("done"):
+                        stats = msg
+                    piece = msg.get("message", {}).get("content", "")
+                    if piece and first is None:
+                        first = time.monotonic() - t0
                     reply += piece
                     pending += piece
                     if on_sentence:
@@ -133,6 +142,7 @@ class Chat:
         except httpx.TimeoutException:
             return "The language model took too long to answer."
         reply = " ".join(reply.split())
+        self._log_timing(t0, first, stats)
         if not reply:
             return "I have no answer for that."
         if on_sentence and pending.strip():
@@ -140,12 +150,25 @@ class Chat:
         self._remember(text, reply)
         return reply
 
+    @staticmethod
+    def _log_timing(t0: float, first: float | None, stats: dict) -> None:
+        """One line per answer showing where the time went, for `docker compose logs brain`."""
+        def secs(key):
+            return stats.get(key, 0) / 1e9
+        read_n, write_n = stats.get("prompt_eval_count", 0), stats.get("eval_count", 0)
+        log.info(
+            "answer timing: total %.1fs, first words after %.1fs | load %.1fs | read %d tokens of "
+            "prompt in %.1fs (%.0f/s) | wrote %d tokens in %.1fs (%.1f/s)",
+            time.monotonic() - t0, first or 0, secs("load_duration"),
+            read_n, secs("prompt_eval_duration"), read_n / max(secs("prompt_eval_duration"), 1e-3),
+            write_n, secs("eval_duration"), write_n / max(secs("eval_duration"), 1e-3))
+
     # ---- Claude ----
 
     async def _claude(self, text: str) -> str:
         import anthropic
 
-        state = await self.report()
+        state = await self.report(text)
         messages = [*self.history, {"role": "user", "content": f"<house_report>{state}</house_report>\n\n{text}"}]
         try:
             response = await self.client.beta.messages.create(

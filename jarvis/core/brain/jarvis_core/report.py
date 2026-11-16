@@ -6,7 +6,10 @@ what goes in front of every question.
 import asyncio
 import logging
 import os
+import re
 import time
+from datetime import datetime
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 
@@ -17,6 +20,28 @@ LON = os.environ.get("LOCATION_LON", "").strip()
 PLACE = os.environ.get("LOCATION_NAME", "").strip()
 FORECAST_URL = os.environ.get("FORECAST_URL", "https://api.open-meteo.com/v1/forecast")
 FORECAST_TTL = 1800     # seconds between forecast downloads
+
+try:
+    ZONE = ZoneInfo(os.environ.get("TZ", "").strip() or "UTC")
+except (ZoneInfoNotFoundError, ValueError):
+    log.warning("unknown time zone %r, using UTC", os.environ.get("TZ"))
+    ZONE = ZoneInfo("UTC")
+
+
+def now() -> datetime:
+    return datetime.now(ZONE)
+
+
+# Only the parts of the report that matter for the question are sent: on a Pi, every word the
+# model has to read before answering costs time.
+TOPICS = {
+    "weather": r"weather|rain|sun|cloud|cold|hot|warm|chilly|temp|degree|outside|forecast|umbrella|coat|"
+               r"jacket|wind|snow|frost|ice|icy|storm|humid|pressure|tomorrow|tonight|today|week|dark|"
+               r"light|dawn|dusk|sunrise|sunset|wear|walk|garden|wash|dry",
+    "dinner": r"dinner|food|eat|tea|kitchen|ready|hungry|meal|lunch|supper",
+    "devices": r"device|online|offline|camera|station|sensor|status|working|broken|system|house|home|"
+               r"pi|server|beacon|console|kitchen|outpost|everything",
+}
 
 WEATHER_CODES = {
     0: "clear", 1: "mostly clear", 2: "partly cloudy", 3: "overcast", 45: "fog", 48: "freezing fog",
@@ -68,8 +93,8 @@ class Forecast:
                        f"low {daily['temperature_2m_min'][i]:.0f} degrees, {daily['precipitation_probability_max'][i]:.0f} percent chance of rain.")
         out.append(f"Sunrise {daily['sunrise'][0][11:16]}, sunset {daily['sunset'][0][11:16]}.")
         # the next 12 hours, every 3 hours, from the current hour
-        now = time.strftime("%Y-%m-%dT%H:00")
-        start = hourly["time"].index(now) if now in hourly["time"] else 0
+        hour = now().strftime("%Y-%m-%dT%H:00")
+        start = hourly["time"].index(hour) if hour in hourly["time"] else 0
         hours = []
         for j in range(start, min(start + 13, len(hourly["time"])), 3):
             hours.append(f"{hourly['time'][j][11:16]} {hourly['temperature_2m'][j]:.0f} degrees "
@@ -78,12 +103,24 @@ class Forecast:
         return " ".join(out)
 
 
-def describe(snapshot: dict, history: list[dict], forecast: Forecast) -> str:
+def topics(question: str) -> set[str]:
+    """Which parts of the report a question needs. An empty question gets everything."""
+    q = question.lower()
+    if not q.strip():
+        return set(TOPICS)
+    return {name for name, pattern in TOPICS.items() if re.search(rf"\b({pattern})", q)}
+
+
+def describe(snapshot: dict, history: list[dict], forecast: Forecast, question: str = "") -> str:
+    want = topics(question)
     parts = []
-    parts.append("Now: " + time.strftime("%A %d %B %Y, %H:%M") + (f" in {PLACE}" if PLACE else "") + ".")
+    parts.append("Now: " + now().strftime("%A %d %B %Y, %H:%M") + (f" in {PLACE}" if PLACE else "") + ".")
 
     w = snapshot.get("weather")
-    if w:
+    if "weather" not in want:
+        if w and not w["stale"]:
+            parts.append(f"Outside: {w['temp_c']:.0f} degrees.")
+    elif w:
         mins = w["age_s"] // 60
         when = "just now" if mins < 1 else f"{mins} minutes ago"
         stale = " This reading is old; the station may be down." if w["stale"] else ""
@@ -91,7 +128,7 @@ def describe(snapshot: dict, history: list[dict], forecast: Forecast) -> str:
                      f"{w['humidity']:.0f} percent humidity, pressure {w['pressure_hpa']:.0f} hectopascals, measured {when}.{stale}")
     else:
         parts.append("Our own weather station has not reported yet.")
-    if len(history) >= 2:
+    if "weather" in want and len(history) >= 2:
         temps = [h["temp_c"] for h in history]
         lo, hi = min(temps), max(temps)
         parts.append(f"Last 24 hours: low {lo:.1f}, high {hi:.1f} degrees.")
@@ -105,16 +142,20 @@ def describe(snapshot: dict, history: list[dict], forecast: Forecast) -> str:
                 parts.append(f"Pressure rising ({change:+.1f} hPa in 3 hours): settling weather.")
             else:
                 parts.append("Pressure steady.")
-    if forecast.enabled:
-        parts.append("Forecast: " + (forecast.text or "not available right now."))
-    else:
-        parts.append("No forecast is set up (LOCATION_LAT and LOCATION_LON are empty).")
+    if "weather" in want:
+        if forecast.enabled:
+            parts.append("Forecast: " + (forecast.text or "not available right now."))
+        else:
+            parts.append("No forecast is set up (LOCATION_LAT and LOCATION_LON are empty).")
 
     d = snapshot.get("dinner", {})
-    parts.append({"idle": "Dinner has not been called.",
+    if "dinner" in want or d.get("state") in ("calling", "acknowledged"):
+        parts.append({"idle": "Dinner has not been called.",
                   "calling": "Dinner is ready and nobody has answered yet.",
                   "acknowledged": "Dinner is ready and someone has said they are on their way."}
                  .get(d.get("state"), "Dinner: unknown."))
+    if "devices" not in want:
+        return " ".join(parts)
     nodes = snapshot.get("nodes", {})
     on = sorted(n for n, s in nodes.items() if s.get("online"))
     off = sorted(n for n, s in nodes.items() if not s.get("online"))
