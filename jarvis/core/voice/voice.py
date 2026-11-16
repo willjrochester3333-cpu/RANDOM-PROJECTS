@@ -117,12 +117,11 @@ def speak(text: str) -> None:
         play_wav(wav)
     except (urllib.error.URLError, OSError) as e:
         log.warning("speech service failed (%s); using espeak", e)
-        speaking.set()
-        try:
-            subprocess.run(["espeak-ng", "-v", "en-gb", "-s", "165", "--", text], check=False)
-        finally:
-            time.sleep(0.3)
-            speaking.clear()
+        # espeak-ng makes the WAV; we play it on the right speaker ourselves.
+        wav = subprocess.run(["espeak-ng", "-v", "en-gb", "-s", "165", "--stdout", "--", text],
+                             capture_output=True, check=False).stdout
+        if wav:
+            play_wav(wav)
     report("idle")
 
 
