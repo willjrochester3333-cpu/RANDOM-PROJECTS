@@ -12,7 +12,7 @@ import json
 import logging
 import os
 import queue
-import struct
+import re
 import subprocess
 import sys
 import threading
@@ -35,6 +35,26 @@ MQTT_USER = os.environ.get("MQTT_USER", "jarvis")
 MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
 MIC = os.environ.get("MIC_DEVICE", "default")
 SPEAKER = os.environ.get("SPEAKER_DEVICE", "default")
+
+
+def find_device(tool: str, kind: str) -> str | None:
+    """With no device set, use the USB sound card (ALSA's 'default' is usually HDMI, which has no mic)."""
+    try:
+        out = subprocess.run([tool, "-l"], capture_output=True, text=True, timeout=10).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    cards = re.findall(r"^card \d+: (\S+) \[(.*?)\], device (\d+)", out, re.M)
+    for card_id, name, dev in cards:
+        if "usb" in name.lower() or "usb" in card_id.lower():
+            log.info("using USB %s: %s", kind, name)
+            return f"plughw:CARD={card_id},DEV={dev}"
+    return None
+
+
+if MIC == "default":
+    MIC = find_device("arecord", "microphone") or MIC
+if SPEAKER == "default":
+    SPEAKER = find_device("aplay", "speaker") or SPEAKER
 WAKE_WORD = os.environ.get("WAKE_WORD", "1") == "1"
 WAKE_THRESHOLD = float(os.environ.get("WAKE_THRESHOLD", "0.5"))
 VOLUME = os.environ.get("VOLUME", "")          # e.g. "80%": set the mixer once at start
