@@ -51,6 +51,12 @@ PIS = {
         "then": "Updates only the microphone and speaker service on the server and restarts it, in a "
                 "few seconds. Use this instead of the full CORE block when only the voice changed.",
     },
+    "core/speech": {
+        "title": "SPEECH update (server only, quick)",
+        "after": "cd ~/jarvis/core && sudo docker compose up -d --build speech && echo 'Speech service updated'",
+        "then": "Rebuilds only the hearing-and-voice container on the server, about a minute. Use "
+                "this instead of the full CORE block when only the speech service changed.",
+    },
     "camera": {
         "title": "CAMERA (any Pi with a camera module)",
         "after": 'echo "Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP"',

@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && sudo install -m 755 ~/jarvis/core/voice/voice.py /opt/jarvis/voice.py && sudo systemctl restart jarvis-voice && echo 'Voice service updated'
-H4sIAJpM+2oC/+1aa3PbSnL1Z/6KCRyXAZuCKNlWfHmXvqWVubFy9VpJtpPS1aIgcijCAgEYA4jm
+H4sIALZN+2oC/+1aa3PbSnL1Z/6KCRyXAZuCKNlWfHmXvqWVubFy9VpJtpPS1aIgcijCAgEYA4jm
 Ov7vOd0zeJKUvYkr+RCOSgQw7+npx+me+eSn94HaHsWp3L6Pg5H5dZPFo5+Wekh7L1/yE6n1fNF7
 tVOW6fyd3X/Z230keo/+F1KuMj/F8I/+f6bH/7Sdq3T7Joi2ZXQvkkU2jaMXHcuyPpweHgz7IptK
 oWR6L9OnSkg/VcKPxmIW59nUFed5pEQccaWD0/OhOAtEkCkZTroCNVQwluJtPLqTaVfMg2wq/M77

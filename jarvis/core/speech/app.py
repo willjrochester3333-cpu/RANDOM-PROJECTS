@@ -4,6 +4,8 @@ import logging
 import os
 import wave
 
+import numpy as np
+
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 
@@ -43,13 +45,34 @@ async def transcribe(request: Request):
     data = await request.body()
     if len(data) < 1000:
         return JSONResponse({"text": ""})
+    try:
+        audio = wav_to_samples(data)
+    except (wave.Error, EOFError, ValueError) as e:
+        log.warning("bad audio: %s", e)
+        return JSONResponse({"text": ""})
     segments, _ = whisper.transcribe(
-        io.BytesIO(data), language="en", beam_size=1, vad_filter=True,
+        audio, language="en", beam_size=1, vad_filter=True,
         condition_on_previous_text=False, without_timestamps=True,
     )
     text = " ".join(s.text.strip() for s in segments).strip()
     log.info("heard: %r", text)
     return {"text": text}
+
+
+def wav_to_samples(data: bytes) -> np.ndarray:
+    """Decode a 16-bit PCM WAV into the 16 kHz mono float array Whisper wants, without PyAV."""
+    with wave.open(io.BytesIO(data)) as w:
+        channels, width, rate = w.getnchannels(), w.getsampwidth(), w.getframerate()
+        frames = w.readframes(w.getnframes())
+    if width != 2:
+        raise ValueError(f"need 16-bit audio, got {width * 8}-bit")
+    pcm = np.frombuffer(frames, np.int16).astype(np.float32) / 32768.0
+    if channels > 1:
+        pcm = pcm.reshape(-1, channels).mean(axis=1)
+    if rate != 16000:
+        n = int(len(pcm) * 16000 / rate)
+        pcm = np.interp(np.linspace(0, len(pcm) - 1, n), np.arange(len(pcm)), pcm).astype(np.float32)
+    return pcm
 
 
 @app.get("/tts")
