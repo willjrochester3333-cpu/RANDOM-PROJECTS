@@ -46,17 +46,29 @@ systemctl --user daemon-reload
 systemctl --user enable --now jarvis-speaker
 
 # --- kiosk: Chromium full screen on login ---
-BROWSER="$(command -v chromium || command -v chromium-browser || true)"
-if [ -z "$BROWSER" ]; then
-    echo "Chromium not found. Install it with: sudo apt-get install -y chromium" >&2
-    exit 1
+if ! command -v chromium >/dev/null && ! command -v chromium-browser >/dev/null; then
+    echo "Installing the Chromium browser..."
+    sudo apt-get install -y chromium || sudo apt-get install -y chromium-browser
 fi
-KIOSK="$BROWSER --kiosk --noerrdialogs --disable-infobars --no-first-run --disable-session-crashed-bubble --overscroll-history-navigation=0 http://$CORE/"
+BROWSER="$(command -v chromium || command -v chromium-browser)"
+KIOSK="$BROWSER --kiosk --noerrdialogs --disable-infobars --no-first-run --disable-session-crashed-bubble --overscroll-history-navigation=0 --ozone-platform-hint=auto http://$CORE/"
 
-# Current Raspberry Pi OS uses the labwc compositor; older releases use an XDG autostart entry.
+if command -v labwc >/dev/null; then
+    # Desktop version of Raspberry Pi OS: log straight in to the desktop on power-up.
+    sudo raspi-config nonint do_boot_behaviour B4 || true
+else
+    # Lite version has no desktop: add just enough to show one full-screen browser.
+    echo "No desktop found: installing a minimal one for the dashboard..."
+    sudo apt-get install -y --no-install-recommends labwc
+    sudo raspi-config nonint do_boot_behaviour B2 || true    # log in on the screen automatically
+    sed -i '/jarvis-kiosk/d' ~/.profile 2>/dev/null || true
+    echo 'if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = /dev/tty1 ]; then exec labwc; fi  # jarvis-kiosk' >> ~/.profile
+fi
+
+# labwc (current Raspberry Pi OS) starts what is in its autostart file; older releases use XDG autostart.
 install -d ~/.config/labwc ~/.config/autostart
-grep -qs "jarvis-kiosk" ~/.config/labwc/autostart || \
-    echo "$KIOSK &  # jarvis-kiosk" >> ~/.config/labwc/autostart
+sed -i '/jarvis-kiosk/d' ~/.config/labwc/autostart 2>/dev/null || true
+echo "$KIOSK &  # jarvis-kiosk" >> ~/.config/labwc/autostart
 cat > ~/.config/autostart/jarvis-kiosk.desktop <<EOF
 [Desktop Entry]
 Type=Application

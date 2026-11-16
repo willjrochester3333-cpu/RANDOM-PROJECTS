@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && cd ~/jarvis/core && bash setup.sh
-H4sIADNT+2oC/+2923bbSJIo2s/8imzYHgMuEiKpi1206WpZVrU1JVsaSba7RqVhgSQookQCNACK
+H4sIAMxu+2oC/+2923bbSJIo2s/8imzYHgMuEiKpi1206WpZVrU1JVsaSba7RqVhgSQookQCNACK
 Zktaa3/Ned5v531/yvmSE5fMROJCSa6u9p6LNdNlAshrZGTcMjLiNy++DJK1QRT7a64fXrr+Z286
 m/h/+gP/mvC3tbFB/8Jf8d/2entd/eb3rfZGa+tPovmnr/A3T1Ivhu7/9D/z74E4HnuxPxT9pfAv
 /XgpwmjouyLx0/nMTcZiFEwmiQhC4YnYC4fRVMy8JFlE8VBEIXyNk1TE89Ctvf23k5Pe++Pdo+5v

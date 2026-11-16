@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && cd ~/jarvis/core && sudo docker compose up -d --build speech && echo 'Speech service updated'
-H4sIADNT+2oC/+1Ye2/juBHP3/oUU/X2IhU2bSeb7MKtFs3mcZvrJQ6Su2yL68GgJdrmRiZVkY7X
+H4sIAMxu+2oC/+1Ye2/juBHP3/oUU/X2IhU2bSeb7MKtFs3mcZvrJQ6Su2yL68GgJdrmRiZVkY7X
 F+S73wwpyY/dQ1vgumhRTx7ma2bIefyG9AdePkrTSXUpOqYQIp12znT6IMqxzMXeb0NdpOOXL90n
 0vZn76h3ULf9eO/w5eHhHnT3vgDNjeUlqt/7/6SL28EVFEs71ap/yHoHbZPLWfB7eD+V6RR8RLSt
 blvx0cJMZyIHrjJ41DIVYDWM+IMAqRi8lZOJKIkPmUq/1MBU8BJGwlocGs0tCrbEkGuFi/tgpVoy

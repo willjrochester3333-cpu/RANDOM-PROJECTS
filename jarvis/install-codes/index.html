@@ -55,7 +55,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
     <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
     <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done.</p>
     <details><summary>Show the block (447 lines)</summary><pre id="code-core">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; bash setup.sh
-H4sIADNT+2oC/+2923bbSJIo2s/8imzYHgMuEiKpi1206WpZVrU1JVsaSba7RqVhgSQookQCNACK
+H4sIAMxu+2oC/+2923bbSJIo2s/8imzYHgMuEiKpi1206WpZVrU1JVsaSba7RqVhgSQookQCNACK
 Zktaa3/Ned5v531/yvmSE5fMROJCSa6u9p6LNdNlAshrZGTcMjLiNy++DJK1QRT7a64fXrr+Z286
 m/h/+gP/mvC3tbFB/8Jf8d/2entd/eb3rfZGa+tPovmnr/A3T1Ivhu7/9D/z74E4HnuxPxT9pfAv
 /XgpwmjouyLx0/nMTcZiFEwmiQhC4YnYC4fRVMy8JFlE8VBEIXyNk1TE89Ctvf23k5Pe++Pdo+5v
@@ -507,7 +507,7 @@ JARVIS_END
     <div class="row"><h2 id="h-outpost">OUTPOST weather station (Raspberry Pi 3)</h2><button type="button" id="copy-outpost" data-copy="code-outpost">Copy</button></div>
     <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot</p>
     <details><summary>Show the block (35 lines)</summary><pre id="code-outpost">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-H4sIADNT+2oC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
+H4sIAMxu+2oC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
 9n/foT4s2WnaO6C4ezgNglgUZ4bD+fjN6JaIeyaHvFA5l2rIMqlIkrgyPvpx5CG9fPGi/EU6/B0/
 e/68ea7ej8YvX3pH4B39F6jACws8/uj/k47/NiykGK5YNqTZPayIjI1jmF0uL2aLJUiqihysOZH5
 igqxhQsGz+BnWNBMUnh/thzA3t5sAR+YoraLOi4luaETcDs5Ba/S35VyciLlhovoNXwJuaBOjJmX
@@ -546,46 +546,51 @@ JARVIS_END
   <section class="pi" aria-labelledby="h-console">
     <div class="row"><h2 id="h-console">CONSOLE touchscreen (Raspberry Pi 5)</h2><button type="button" id="copy-console" data-copy="code-console">Copy</button></div>
     <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot. It comes back up showing the dashboard full screen.</p>
-    <details><summary>Show the block (41 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-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
+    <details><summary>Show the block (46 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
+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
+xmZsxmZsxmZsxmZsxh94/BvjUFAAACgAAA==
 JARVIS_END
 </pre></details>
   </section>
@@ -593,7 +598,7 @@ JARVIS_END
     <div class="row"><h2 id="h-core-voice">VOICE update (server only, quick)</h2><button type="button" id="copy-core-voice" data-copy="code-core-voice">Copy</button></div>
     <p>Updates only the microphone and speaker service on the server and restarts it, in a few seconds. Use this instead of the full CORE block when only the voice changed.</p>
     <details><summary>Show the block (84 lines)</summary><pre id="code-core-voice">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; sudo install -m 755 ~/jarvis/core/voice/voice.py /opt/jarvis/voice.py &amp;&amp; sudo systemctl restart jarvis-voice &amp;&amp; echo &#x27;Voice service updated&#x27;
-H4sIADNT+2oC/+1aa3PbSnL1Z/6KCRyXAZuCKNlWfHmXvqWVubFy9VpJtpPS1aIgcijCAgEYA4jm
+H4sIAMxu+2oC/+1aa3PbSnL1Z/6KCRyXAZuCKNlWfHmXvqWVubFy9VpJtpPS1aIgcijCAgEYA4jm
 Ov7vOd0zeJKUvYkr+RCOSgQw7+npx+me+eSn94HaHsWp3L6Pg5H5dZPFo5+Wekh7L1/yE6n1fNF7
 tVOW6fyd3X/Z230keo/+F1KuMj/F8I/+f6bH/7Sdq3T7Joi2ZXQvkkU2jaMXHcuyPpweHgz7IptK
 oWR6L9OnSkg/VcKPxmIW59nUFed5pEQccaWD0/OhOAtEkCkZTroCNVQwluJtPLqTaVfMg2wq/M77
@@ -682,7 +687,7 @@ JARVIS_END
     <div class="row"><h2 id="h-core-speech">SPEECH update (server only, quick)</h2><button type="button" id="copy-core-speech" data-copy="code-core-speech">Copy</button></div>
     <p>Rebuilds only the hearing-and-voice container on the server, about a minute. Use this instead of the full CORE block when only the speech service changed.</p>
     <details><summary>Show the block (38 lines)</summary><pre id="code-core-speech">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; sudo docker compose up -d --build speech &amp;&amp; echo &#x27;Speech service updated&#x27;
-H4sIADNT+2oC/+1Ye2/juBHP3/oUU/X2IhU2bSeb7MKtFs3mcZvrJQ6Su2yL68GgJdrmRiZVkY7X
+H4sIAMxu+2oC/+1Ye2/juBHP3/oUU/X2IhU2bSeb7MKtFs3mcZvrJQ6Su2yL68GgJdrmRiZVkY7X
 F+S73wwpyY/dQ1vgumhRTx7ma2bIefyG9AdePkrTSXUpOqYQIp12znT6IMqxzMXeb0NdpOOXL90n
 0vZn76h3ULf9eO/w5eHhHnT3vgDNjeUlqt/7/6SL28EVFEs71ap/yHoHbZPLWfB7eD+V6RR8RLSt
 blvx0cJMZyIHrjJ41DIVYDWM+IMAqRi8lZOJKIkPmUq/1MBU8BJGwlocGs0tCrbEkGuFi/tgpVoy
@@ -725,7 +730,7 @@ JARVIS_END
     <div class="row"><h2 id="h-camera">CAMERA (any Pi with a camera module)</h2><button type="button" id="copy-camera" data-copy="code-camera">Copy</button></div>
     <p>Paste this on whichever Pi has the camera plugged in, then run the install line it prints, with the MQTT password and the server&#x27;s IP address. No reboot needed: a Camera panel appears on the dashboard within a few seconds.</p>
     <details><summary>Show the block (75 lines)</summary><pre id="code-camera">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-H4sIADNT+2oC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
+H4sIAMxu+2oC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
 8/m/XzcAUqIeTmZu6+6qTqhKLOLR6G70G/hMi2suOzGdsYLaP0E+f/SvbF1ozw4P9V9oK38Puj93
 n1V9pn//4En34BHpPvofaKVUtIDtH/3/bI9/6JSy6Ix41mHZNcnnaiqyJ47ruqcnb8/6Jz0iVcHo
 TBJK+lTmI1YUc3LFiREVogRRU0b+FpwE/eD34CIYBCShcjoStEgCxxnCYM5jVRaMcEkkK65ZQqgk
