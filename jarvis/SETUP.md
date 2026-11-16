@@ -105,8 +105,16 @@ Plug a USB microphone and a USB speaker into the server, then run `bash setup.sh
   **"Hey Jarvis"**, wait for the beep, ask your question. The dashboard's **Talk** button does
   the same without the wake word, and typed questions get the same answers.
 
-Expect 10 to 20 seconds from the end of your question to the start of the answer on a Pi 5:
-most of that is the language model thinking. Keep questions short.
+The answer is spoken sentence by sentence as the model writes it, so the first words come a
+few seconds after your question on a Pi 5; a long answer keeps going while it talks. For a
+faster model, set `OLLAMA_MODEL=llama3.2:1b` (2 to 3 times quicker, a little less clever).
+
+With every question the model gets a house report: the date and time (`TZ`), the weather
+station's current reading, the last 24 hours' high, low and pressure trend, a 3-day forecast
+with sunrise and sunset from Open-Meteo (needs `LOCATION_LAT` and `LOCATION_LON` in `.env`),
+dinner, and which devices are online. Anything else it answers from what the model learned
+in training, which for a small model is patchy: dates, weather and the house are reliable,
+trivia is not.
 
 Useful settings in `core/.env` (run `bash setup.sh` again after changing them):
 
@@ -114,6 +122,7 @@ Useful settings in `core/.env` (run `bash setup.sh` again after changing them):
 |---|---|
 | `CHAT_BACKEND` | `ollama` (default), `claude` (needs `ANTHROPIC_API_KEY`) or `builtin` |
 | `OLLAMA_MODEL` | any model from ollama.com/library that fits in RAM |
+| `TZ`, `LOCATION_NAME`, `LOCATION_LAT`, `LOCATION_LON` | time zone, place name and coordinates for the date, sunrise and forecast |
 | `MIC_DEVICE`, `SPEAKER_DEVICE` | normally `default`; otherwise a name from `arecord -L` / `aplay -L` |
 | `WAKE_WORD` | `0` turns the wake word off, leaving only the Talk button |
 | `WAKE_THRESHOLD` | raise towards `0.8` if it wakes up by itself, lower towards `0.3` if it ignores you |

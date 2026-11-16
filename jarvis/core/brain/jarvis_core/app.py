@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -14,6 +15,9 @@ from pydantic import BaseModel, Field
 from .chat import Chat
 from .house import House
 from .store import Store
+
+if os.environ.get("TZ"):
+    time.tzset()                      # so dates and times are in the house's time zone
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 log = logging.getLogger("jarvis.app")
@@ -145,10 +149,9 @@ async def dinner_clear():
 @app.post("/api/chat")
 async def chat_endpoint(body: ChatIn):
     await notify({"type": "voice", "state": "thinking", "text": body.text})
-    reply = await chat.ask(body.text)
+    # Each sentence is spoken as soon as the model finishes it, so the answer starts sooner.
+    reply = await chat.ask(body.text, on_sentence=house.say if body.speak else None)
     await notify({"type": "chat", "source": body.source, "text": body.text, "reply": reply})
-    if body.speak:
-        await house.say(reply)
     await notify({"type": "voice", "state": "idle"})
     return {"reply": reply}
 
