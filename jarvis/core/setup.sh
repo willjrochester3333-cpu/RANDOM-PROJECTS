@@ -21,7 +21,7 @@ set -a; . ./.env; set +a
 
 # ---- broker password file, owned by the mosquitto user inside the container ----
 sudo docker run --rm -v "$PWD/mosquitto:/mosquitto/config" eclipse-mosquitto:2 sh -c \
-    "mosquitto_passwd -b -c /mosquitto/config/passwd '$MQTT_USER' '$MQTT_PASSWORD' \
+    "rm -f /mosquitto/config/passwd && mosquitto_passwd -b -c /mosquitto/config/passwd '$MQTT_USER' '$MQTT_PASSWORD' \
      && chown 1883:1883 /mosquitto/config/passwd && chmod 600 /mosquitto/config/passwd"
 
 # ---- the containers: broker, brain, local language model, speech ----
