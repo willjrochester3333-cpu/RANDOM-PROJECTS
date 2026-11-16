@@ -43,9 +43,9 @@ def find_device(tool: str, kind: str) -> str | None:
         out = subprocess.run([tool, "-l"], capture_output=True, text=True, timeout=10).stdout
     except (OSError, subprocess.TimeoutExpired):
         return None
-    cards = re.findall(r"^card \d+: (\S+) \[(.*?)\], device (\d+)", out, re.M)
-    for card_id, name, dev in cards:
-        if "usb" in name.lower() or "usb" in card_id.lower():
+    cards = re.findall(r"^card \d+: (\S+) \[(.*?)\], device (\d+): (.*)$", out, re.M)
+    for card_id, name, dev, rest in cards:
+        if "usb" in (card_id + name + rest).lower():
             log.info("using USB %s: %s", kind, name)
             return f"plughw:CARD={card_id},DEV={dev}"
     return None
