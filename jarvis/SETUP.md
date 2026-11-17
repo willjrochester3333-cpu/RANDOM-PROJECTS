@@ -38,23 +38,52 @@ sudo docker compose logs -f brain      # what the brain is doing
 sudo docker compose restart brain
 ```
 
-## 2. DINNER BELL and BEACON (microcontrollers)
+## 2. KITCHEN CAMERA and BEACON (microcontrollers)
 
 Both use MicroPython and Thonny.
 
-1. Install MicroPython firmware:
-   - **XIAO ESP32-S3**: the generic `ESP32_GENERIC_S3` build from micropython.org.
-   - **Pico 2 W**: the `RPI_PICO2_W` build (hold BOOTSEL, plug in, drop the `.uf2` on it).
-2. In Thonny: *Tools → Manage packages*, install `umqtt.simple` (the ESP32 build already
-   has it).
-3. Copy `config.example.py` to the board as `config.py` and fill in your Wi-Fi name and
-   password, CORE's IP address and the MQTT password.
-4. Copy `main.py` from `kitchen/` or `beacon/` to the board and reset it.
+### Kitchen camera (Seeed XIAO ESP32S3 Sense)
+
+Live camera and microphone for the dashboard, plus the dinner button. Standard MicroPython
+has no camera driver, so this board needs a MicroPython build that includes one:
+
+1. Download `mpy_cam-v1.27.0-XIAO_ESP32S3.zip` from the Releases page of
+   github.com/cnadler86/micropython-camera-API and unzip it.
+2. Put the board in download mode: hold its **BOOT** button while plugging in the USB-C cable.
+3. In Thonny: *Tools → Options → Interpreter*, choose *MicroPython (ESP32)*, click
+   *Install or update MicroPython (esptool)*. Pick the board's port, then use the **≡** menu
+   next to the Install button: *Select local MicroPython image* and choose the `.bin` file
+   from the zip. Click *Install*. Unplug and plug the board back in.
+4. Copy `kitchen/config.example.py` to the board as `config.py` and fill in your Wi-Fi, the
+   server's IP address and the MQTT password. Copy `kitchen/main.py` to the board, then reset it.
+
+Within a few seconds the dashboard's camera panel gets a **Kitchen camera** button. Tap
+**Listen** on it to hear the kitchen. The board only streams while someone watches or listens.
+
+- **Dinner button**: optional, as before: button from D1 to GND, its light on D2.
+- **Leave D3 unconnected**: the microphone uses it internally.
+- **Upside down picture**: set `CAMERA_FLIP = True` in `config.py`.
+- **Too quiet or too loud**: change `MIC_GAIN` (1 to 64, default 16).
+- **Board running hot**: lower `CAMERA_FPS` or use `CAMERA_SIZE = "QVGA"`.
+- **Private key**: the board makes its own key on first start and keeps it in `key.txt`. Only
+  the server learns it, so other devices on your network can't watch the camera directly.
+
+The microphone is read in a way MicroPython doesn't support natively: the board collects the
+microphone's raw bits and converts them to sound itself. That conversion was tested here
+against a simulated microphone, not on a real board yet. If **Listen** gives only silence or
+noise, tell Claude what you hear.
+
+### Beacon (Pico 2 W)
+
+1. Install the `RPI_PICO2_W` MicroPython build (hold BOOTSEL, plug in, drop the `.uf2` on it).
+2. In Thonny: *Tools → Manage packages*, install `umqtt.simple`.
+3. Copy `beacon/config.example.py` to the board as `config.py` and fill it in, then copy
+   `beacon/main.py` to the board and reset it.
 
 What you should see:
 
-- **Bell**: the button light flickers while joining Wi-Fi, then goes dark. Press it: it
-  blinks, the dashboard shows "Dinner is ready".
+- **Kitchen button**: the button light flickers while joining Wi-Fi, then goes dark. Press it:
+  it blinks, the dashboard shows "Dinner is ready".
 - **Beacon**: a blue dot circles while joining, then dark. When dinner is called it chimes
   and breathes amber. Press its button: it flashes green and the kitchen light goes solid.
 
@@ -105,9 +134,12 @@ Plug a USB microphone and a USB speaker into the server, then run `bash setup.sh
   **"Hey Jarvis"**, wait for the beep, ask your question. The dashboard's **Talk** button does
   the same without the wake word, and typed questions get the same answers.
 
-The answer is spoken sentence by sentence as the model writes it, so the first words come a
-few seconds after your question on a Pi 5; a long answer keeps going while it talks. For a
-faster model, set `OLLAMA_MODEL=llama3.2:1b` (2 to 3 times quicker, a little less clever).
+The answer is shown and spoken sentence by sentence as the model writes it, so the first
+words come a few seconds after your question on a Pi 5; a long answer keeps going while it
+talks, and **Stop** (the Talk button, while Jarvis is busy) ends it. The default model is
+`llama3.2:1b`, 2 to 3 times quicker than `llama3.2:3b` but a little less clever. Follow-up
+questions are quick too: the conversation is sent to the model word for word each time, so it
+only has to read the new question. It forgets the conversation after 3 quiet minutes.
 
 With every question the model gets a house report: the date and time (`TZ`), the weather
 station's current reading, the last 24 hours' high, low and pressure trend, a 3-day forecast
@@ -122,6 +154,8 @@ Useful settings in `core/.env` (run `bash setup.sh` again after changing them):
 |---|---|
 | `CHAT_BACKEND` | `ollama` (default), `claude` (needs `ANTHROPIC_API_KEY`) or `builtin` |
 | `OLLAMA_MODEL` | any model from ollama.com/library that fits in RAM |
+| `OLLAMA_THREADS` | processor cores for the model (default 3, leaving one for camera and speech) |
+| `MAX_REPLY_TOKENS` | longest answer (default 400, about 300 words); answers that reach it end on a full sentence |
 | `TZ`, `LOCATION_NAME`, `LOCATION_LAT`, `LOCATION_LON` | time zone, place name and coordinates for the date, sunrise and forecast |
 | `MIC_DEVICE`, `SPEAKER_DEVICE` | normally `default`; otherwise a name from `arecord -L` / `aplay -L` |
 | `WAKE_WORD` | `0` turns the wake word off, leaving only the Talk button |

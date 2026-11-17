@@ -9,11 +9,12 @@ from pathlib import Path
 import aiomqtt
 import httpx
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, PlainTextResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
-from .chat import Chat
-from .house import House
+from .chat import OLLAMA_MODEL, Chat
+from .house import T_STOP, House
+from .relay import Relays
 from .store import Store
 
 if os.environ.get("TZ"):
@@ -55,6 +56,7 @@ async def notify(event: dict) -> None:
 
 house = House(Store(DB_PATH), publish, notify, DINNER_TIMEOUT)
 chat = Chat(house)
+relays = Relays(house)
 
 
 async def mqtt_loop() -> None:
@@ -149,20 +151,81 @@ async def dinner_clear():
 @app.post("/api/chat")
 async def chat_endpoint(body: ChatIn):
     await notify({"type": "voice", "state": "thinking", "text": body.text})
-    # Each sentence is spoken as soon as the model finishes it, so the answer starts sooner.
-    reply = await chat.ask(body.text, on_sentence=house.say if body.speak else None)
+
+    async def on_sentence(sentence: str) -> None:
+        # Shown and spoken as soon as the model finishes it, so the answer starts sooner.
+        await notify({"type": "partial", "text": sentence})
+        if body.speak:
+            await house.say(sentence)
+
+    reply = await chat.ask(body.text, on_sentence=on_sentence)
     await notify({"type": "chat", "source": body.source, "text": body.text, "reply": reply})
     await notify({"type": "voice", "state": "idle"})
     return {"reply": reply}
 
 
+@app.post("/api/voice/stop")
+async def voice_stop():
+    """Stop talking: end the answer being written and silence the speaker."""
+    chat.stop()
+    await publish(T_STOP, "stop", False)
+    await notify({"type": "voice", "state": "idle"})
+    return {"ok": True}
+
+
 @app.get("/api/report")
 async def report(q: str = ""):
     """What the model is told along with a question (all of it when q is empty)."""
-    from fastapi.responses import PlainTextResponse
-    from .chat import OLLAMA_MODEL
     model = OLLAMA_MODEL if chat.backend == "ollama" else chat.backend
     return PlainTextResponse(f"Answering with: {model}\n\n{await chat.report(q)}\n")
+
+
+# ---- relayed cameras (the kitchen camera): one connection to the camera, shared by everyone ----
+
+def _feed(node: str, kind: str):
+    try:
+        return relays.feed(node, kind)
+    except KeyError:
+        raise HTTPException(404, f"No {kind} from a camera called {node}")
+
+
+@app.get("/api/cameras/{node}/stream.mjpg")
+async def camera_stream(node: str):
+    feed = _feed(node, "video")
+
+    async def pictures():
+        async with feed.watching():
+            async for jpeg in feed.frames():
+                yield (b"--FRAME\r\nContent-Type: image/jpeg\r\nContent-Length: "
+                       + str(len(jpeg)).encode() + b"\r\n\r\n" + jpeg + b"\r\n")
+
+    return StreamingResponse(pictures(), media_type="multipart/x-mixed-replace; boundary=FRAME",
+                             headers={"Cache-Control": "no-cache, private"})
+
+
+@app.get("/api/cameras/{node}/audio.wav")
+async def camera_audio(node: str):
+    feed = _feed(node, "audio")
+
+    async def sound():
+        async with feed.watching():
+            async for chunk in feed.chunks():
+                yield chunk
+
+    return StreamingResponse(sound(), media_type="audio/wav", headers={"Cache-Control": "no-cache, private"})
+
+
+@app.get("/api/cameras/{node}/snapshot.jpg")
+async def camera_snapshot(node: str):
+    feed = _feed(node, "video")
+    if feed.connected and feed.frame:
+        return Response(feed.frame, media_type="image/jpeg", headers={"Cache-Control": "no-cache"})
+    try:
+        r = await relays.http.get(relays.snapshot_url(node))
+        r.raise_for_status()
+    except httpx.HTTPError:
+        raise HTTPException(503, "The camera did not answer")
+    return Response(r.content, media_type="image/jpeg", headers={"Cache-Control": "no-cache"})
 
 
 @app.post("/api/listen")

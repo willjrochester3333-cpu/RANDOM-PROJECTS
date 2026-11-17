@@ -16,13 +16,19 @@ header h1 { margin:0; font-size:1.1rem; letter-spacing:.3em; color:var(--amber);
 main { flex:1; display:grid; grid-template-columns:1.3fr 1fr; gap:12px; min-height:0; }
 main.has-cam { grid-template-columns:1fr 1.25fr 1fr; }
 main.has-cam #nodes { grid-template-columns:1fr; }
-#campanel { cursor:zoom-in; }
+.camhead { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.camhead .label { margin-right:auto; }
+button.chip { padding:5px 12px; font-size:.8rem; font-weight:500; border-radius:999px; background:transparent; color:var(--muted); border:1px solid var(--line); }
+button.chip.on { color:#1a1305; background:var(--amber); border-color:var(--amber); }
+#camview { cursor:zoom-in; }
 #camview { position:relative; flex:1; min-height:0; background:#000; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
 #cam { width:100%; height:100%; object-fit:contain; display:block; }
 #camnote { position:absolute; inset:auto 0 0 0; padding:6px 10px; font-size:.85rem; color:var(--muted); background:rgba(8,14,22,.7); }
 #camnote:empty { display:none; }
-#campanel.big { position:fixed; inset:0; z-index:5; border-radius:0; border:0; background:#000; cursor:zoom-out; padding:0; }
+#campanel.big { position:fixed; inset:0; z-index:5; border-radius:0; border:0; background:#000; padding:0; }
+#campanel.big .camhead { position:absolute; top:10px; right:10px; z-index:6; }
 #campanel.big .label { display:none; }
+#campanel.big #camview { cursor:zoom-out; }
 #campanel.big #camview { border-radius:0; }
 .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0; }
 .label { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
@@ -41,6 +47,9 @@ main.has-cam #nodes { grid-template-columns:1fr; }
 .dot.on { background:var(--ok); } .dot.off { background:var(--bad); }
 #log { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; font-size:.95rem; min-height:60px; }
 #log .me { color:var(--muted); } #log .j { color:var(--ink); }
+#log .live::after { content:"\25CD"; color:var(--amber); margin-left:4px; animation:blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity:0; } }
+@media (prefers-reduced-motion: reduce) { #log .live::after { animation:none; } }
 form { display:flex; gap:8px; }
 input[type=text] { flex:1; min-width:0; background:var(--bg); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:12px; font-size:1rem; -webkit-user-select:text; user-select:text; }
 button { background:var(--amber); color:#1a1305; border:0; border-radius:8px; padding:12px 18px; font-size:1rem; font-weight:600; cursor:pointer; }
@@ -79,9 +88,14 @@ button:focus-visible, input:focus-visible { outline:2px solid var(--amber); outl
     <div id="range"><span>24 hours ago</span><span id="minmax"></span><span>now</span></div>
   </section>
 
-  <section class="panel" id="campanel" hidden title="Tap to enlarge">
-    <span class="label">Camera</span>
-    <div id="camview"><img id="cam" alt="Live camera"><span id="camnote"></span></div>
+  <section class="panel" id="campanel" hidden>
+    <div class="camhead">
+      <span class="label" id="camlabel">Camera</span>
+      <span id="camtabs"></span>
+      <button type="button" class="chip" id="listen" hidden title="Hear this camera's microphone">Listen</button>
+    </div>
+    <div id="camview" title="Tap to enlarge"><img id="cam" alt="Live camera"><span id="camnote"></span></div>
+    <audio id="camsound" preload="none"></audio>
   </section>
 
   <section class="panel">
@@ -145,24 +159,39 @@ function render(s) {
   $("dismiss").onclick = () => { dismissedSince = d.since; box.hidden = true; };
 }
 
-// Live camera. The stream is only (re)connected when the address changes or the
-// camera comes back online, never on ordinary state updates.
-let camUrl = null, camKey = null;
+// Live cameras. A stream is only (re)connected when its address changes or the camera
+// comes back online, never on ordinary state updates.
+let cams = {}, camNode = null, camKey = null, camUrl = null, lastState = null, listening = false;
+const online = (s, n) => !!(s.nodes[n] && s.nodes[n].online);
+const fresh = url => url + (url.includes("?") ? "&" : "?") + "r=" + Date.now();
+
 function renderCamera(s) {
-  const cams = s.cameras || {};
+  lastState = s;
+  cams = s.cameras || {};
   const names = Object.keys(cams);
   $("campanel").hidden = names.length === 0;
   document.querySelector("main").classList.toggle("has-cam", names.length > 0);
-  const live = names.find(n => s.nodes[n] && s.nodes[n].online);
-  if (!live) {
-    stopCamera(names.length ? "Camera offline" : "");
+  if (!cams[camNode]) camNode = names.find(n => online(s, n)) || names[0] || null;
+  $("camtabs").replaceChildren(...(names.length > 1 ? names : []).map(n => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (n === camNode ? " on" : ""); b.textContent = cams[n].name;
+    b.onclick = () => { if (n !== camNode) { stopSound(); camNode = n; camKey = null; renderCamera(lastState); } };
+    return b;
+  }));
+  const cam = cams[camNode];
+  $("camlabel").textContent = cam ? cam.name : "Camera";
+  $("listen").hidden = !(cam && cam.audio);
+  if (!cam || !online(s, camNode)) {
+    stopCamera(cam ? cam.name + " offline" : "");
+    stopSound();
     return;
   }
-  const key = cams[live] + "|" + s.nodes[live].since;
+  const key = camNode + "|" + cam.video + "|" + s.nodes[camNode].since;
   if (key === camKey) return;
-  camKey = key; camUrl = cams[live];
+  camKey = key; camUrl = cam.video;
   $("camnote").textContent = "Connecting…";
   $("cam").src = camUrl;
+  if (listening) startSound();
 }
 function stopCamera(note) {
   camKey = camUrl = null;
@@ -175,14 +204,51 @@ $("cam").onerror = () => {
   if (!camUrl) return;
   $("camnote").textContent = "Reconnecting…";
   const url = camUrl;
-  setTimeout(() => { if (camUrl === url) $("cam").src = url + "&r=" + Date.now(); }, 3000);
+  setTimeout(() => { if (camUrl === url) $("cam").src = fresh(url); }, 3000);
 };
-$("campanel").onclick = () => { if (camUrl) $("campanel").classList.toggle("big"); };
+$("camview").onclick = () => { if (camUrl) $("campanel").classList.toggle("big"); };
 document.addEventListener("keydown", e => { if (e.key === "Escape") $("campanel").classList.remove("big"); });
+
+// Sound from a camera's microphone: off until someone taps Listen.
+function startSound() {
+  const cam = cams[camNode];
+  if (!cam || !cam.audio) return;
+  const a = $("camsound");
+  a.src = fresh(cam.audio);
+  listening = true;
+  $("listen").textContent = "Mute"; $("listen").classList.add("on");
+  a.play().catch(() => { stopSound(); $("camnote").textContent = "Tap Listen to hear it"; });
+}
+function stopSound() {
+  const a = $("camsound");
+  a.pause(); a.removeAttribute("src"); a.load();
+  listening = false;
+  $("listen").textContent = "Listen"; $("listen").classList.remove("on");
+}
+$("listen").onclick = () => { listening ? stopSound() : startSound(); };
+$("camsound").onerror = () => { if (listening) setTimeout(() => { if (listening) startSound(); }, 3000); };
 
 function line(cls, text) {
   const p = document.createElement("div"); p.className = cls; p.textContent = text;
   $("log").append(p); $("log").scrollTop = 1e9;
+  return p;
+}
+
+// Answers appear sentence by sentence while they are written, then the final text replaces them.
+let live = null;
+function startAnswer(question) {
+  if (live) live.classList.remove("live");
+  line("me", question);
+  live = line("j live", "");
+}
+function addToAnswer(text) {
+  if (!live) live = line("j live", "");
+  live.textContent += (live.textContent ? " " : "") + text;
+  $("log").scrollTop = 1e9;
+}
+function finishAnswer(m) {
+  if (live) { live.textContent = m.reply; live.classList.remove("live"); live = null; }
+  else { line("me", m.text); line("j", m.reply); }
 }
 
 function connect() {
@@ -191,8 +257,12 @@ function connect() {
   ws.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.type === "state") render(m.state);
-    else if (m.type === "chat") { line("me", m.text); line("j", m.reply); }
-    else if (m.type === "voice") voiceState(m);
+    else if (m.type === "partial") addToAnswer(m.text);
+    else if (m.type === "chat") finishAnswer(m);
+    else if (m.type === "voice") {
+      if (m.state === "thinking" && m.text) startAnswer(m.text);
+      voiceState(m);
+    }
   };
   ws.onclose = () => { $("link").textContent = "reconnecting…"; setTimeout(connect, 3000); };
 }
@@ -211,10 +281,15 @@ function voiceState(m) {
   el.textContent = (VOICE_TEXT[m.state] || "") + (m.state === "thinking" && m.text ? " " + m.text : "");
   el.className = m.state === "idle" ? "" : "on";
   $("talk").classList.toggle("live", m.state === "listening");
+  // While Jarvis thinks or talks, the Talk button stops him instead.
+  $("talk").textContent = m.state === "thinking" || m.state === "speaking" ? "Stop" : "Talk";
   clearTimeout(voiceTimer);
   if (m.state !== "idle") voiceTimer = setTimeout(() => voiceState({state: "idle"}), 60000);
 }
-$("talk").onclick = () => post("/api/listen").catch(() => line("j", "The server did not answer. Is CORE running?"));
+$("talk").onclick = () => {
+  const path = $("talk").textContent === "Stop" ? "/api/voice/stop" : "/api/listen";
+  post(path).catch(() => line("j", "The server did not answer. Is CORE running?"));
+};
 $("ack").onclick = () => post("/api/dinner/ack").catch(() => {});
 $("call").onclick = () => post("/api/dinner/call").catch(() => {});
 $("ask").onsubmit = async e => {

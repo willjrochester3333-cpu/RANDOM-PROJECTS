@@ -12,6 +12,12 @@ if [ ! -f .env ]; then
     cp .env.example .env
     sed -i "s/^MQTT_PASSWORD=.*/MQTT_PASSWORD=$(openssl rand -hex 12)/" .env
 fi
+# One-time upgrade of older settings files: the faster model becomes the default.
+if ! grep -q "^JARVIS_ENV_VERSION=" .env && grep -q "^OLLAMA_MODEL=llama3.2:3b$" .env; then
+    sed -i "s/^OLLAMA_MODEL=.*/OLLAMA_MODEL=llama3.2:1b/" .env
+    echo "Switched to the faster model llama3.2:1b."
+    echo "To go back: set OLLAMA_MODEL=llama3.2:3b in $PWD/.env and run setup.sh again."
+fi
 while IFS= read -r line; do
     key="${line%%=*}"
     case "$line" in ''|'#'*) continue ;; esac
@@ -28,11 +34,16 @@ sudo docker run --rm -v "$PWD/mosquitto:/mosquitto/config" eclipse-mosquitto:2 s
 echo "Building and starting the server (the first time this takes a while)..."
 sudo docker compose up -d --build
 
-echo "Downloading the language model $OLLAMA_MODEL (about 2 GB, once)..."
+echo "Downloading the language model $OLLAMA_MODEL (once; llama3.2:1b is about 1.3 GB)..."
+pulled=no
 for attempt in 1 2 3 4 5 6; do
-    sudo docker compose exec ollama ollama pull "$OLLAMA_MODEL" && break
+    if sudo docker compose exec ollama ollama pull "$OLLAMA_MODEL"; then pulled=yes; break; fi
     echo "Language model service still starting, retrying..."; sleep 10
 done
+if [ "$pulled" = no ]; then
+    echo "WARNING: could not download $OLLAMA_MODEL. Check the name on ollama.com/library,"
+    echo "fix OLLAMA_MODEL in $PWD/.env and run setup.sh again."
+fi
 
 # ---- the voice service: microphone and speaker, on this Pi outside Docker ----
 sudo apt-get install -y alsa-utils espeak-ng python3-venv python3-numpy >/dev/null

@@ -14,11 +14,36 @@ T_ALERT = "jarvis/beacon/alert"
 T_ACK = "jarvis/beacon/ack"
 T_SAY = "jarvis/console/say"
 T_LISTEN = "jarvis/voice/listen"      # CORE -> voice service: start listening now
+T_STOP = "jarvis/voice/stop"          # CORE -> voice service: stop talking now
 
 WEATHER_STALE_S = 300      # no reading for 5 minutes = outpost is in trouble
 PRESS_DEBOUNCE_S = 2
 
 Publish = Callable[[str, str, bool], Awaitable[None]]   # topic, payload, retain
+
+
+def _is_url(value) -> bool:
+    return isinstance(value, str) and value.startswith(("http://", "https://")) and len(value) < 500
+
+
+def parse_camera(node: str, payload: str) -> dict | None:
+    """A camera's announcement on jarvis/<node>/stream: either a bare stream address (the Pi
+    camera) or JSON {"name", "video", "audio", "relay"} (the kitchen camera). None = removed."""
+    default_name = "Camera" if node == "camera" else f"{node.capitalize()} camera"
+    payload = payload.strip()
+    if payload.startswith("{"):
+        try:
+            d = json.loads(payload)
+        except ValueError:
+            return None
+        if not isinstance(d, dict) or not _is_url(d.get("video")):
+            return None
+        name = d.get("name") if isinstance(d.get("name"), str) and d.get("name").strip() else default_name
+        return {"name": name.strip()[:40], "video": d["video"],
+                "audio": d["audio"] if _is_url(d.get("audio")) else None, "relay": d.get("relay") is True}
+    if _is_url(payload):
+        return {"name": default_name, "video": payload, "audio": None, "relay": False}
+    return None
 Notify = Callable[[dict], Awaitable[None]]
 
 
@@ -29,7 +54,7 @@ class House:
         self._notify = notify
         self.dinner_timeout = dinner_timeout
         self.nodes: dict[str, dict] = {}
-        self.cameras: dict[str, str] = {}     # node name -> live stream address
+        self.cameras: dict[str, dict] = {}    # node -> {"name", "video", "audio", "relay"}
         self.weather: dict | None = store.latest_weather()
         self.dinner = {"state": "idle", "since": None, "ack_by": None}
         self._last_press = 0.0
@@ -47,8 +72,9 @@ class House:
             self.nodes[node] = {"online": payload == "online", "since": time.time()}
             await self._changed()
         elif leaf == "stream":
-            if payload.startswith(("http://", "https://")):
-                self.cameras[node] = payload
+            camera = parse_camera(node, payload)
+            if camera:
+                self.cameras[node] = camera
             else:
                 self.cameras.pop(node, None)
             await self._changed()
@@ -146,7 +172,20 @@ class House:
             age = now - self.weather["ts"]
             weather = {**self.weather, "age_s": int(age), "stale": age > WEATHER_STALE_S}
         return {"time": int(now), "weather": weather, "nodes": self.nodes, "dinner": self.dinner,
-                "cameras": self.cameras}
+                "cameras": self.public_cameras()}
+
+    def public_cameras(self) -> dict:
+        """What dashboards are told about each camera. Relayed cameras are watched through this
+        server, so their own addresses (and private keys) never leave it."""
+        out = {}
+        for node, cam in self.cameras.items():
+            base = f"/api/cameras/{node}"
+            out[node] = {
+                "name": cam["name"],
+                "video": f"{base}/stream.mjpg" if cam["relay"] else cam["video"],
+                "audio": (f"{base}/audio.wav" if cam["relay"] else cam["audio"]) if cam["audio"] else None,
+            }
+        return out
 
     async def _changed(self) -> None:
         await self._notify({"type": "state", "state": self.snapshot()})

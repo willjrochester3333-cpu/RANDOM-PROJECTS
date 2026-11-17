@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && echo "Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD SERVER-IP"
-H4sIAMxu+2oC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
+H4sIAOSL/GoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
 9n/foT4s2WnaO6C4ezgNglgUZ4bD+fjN6JaIeyaHvFA5l2rIMqlIkrgyPvpx5CG9fPGi/EU6/B0/
 e/68ea7ej8YvX3pH4B39F6jACws8/uj/k47/NiykGK5YNqTZPayIjI1jmF0uL2aLJUiqihysOZH5
 igqxhQsGz+BnWNBMUnh/thzA3t5sAR+YoraLOi4luaETcDs5Ba/S35VyciLlhovoNXwJuaBOjJmX

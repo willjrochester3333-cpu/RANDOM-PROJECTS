@@ -63,6 +63,12 @@ class Forecast:
         self.http = httpx.AsyncClient(timeout=15)
         self._lock = asyncio.Lock()
 
+    async def run(self) -> None:
+        """Keep the forecast fresh in the background, so no question ever waits for it."""
+        while self.enabled:
+            await self.refresh()
+            await asyncio.sleep(60)
+
     async def refresh(self) -> None:
         if not self.enabled or time.time() - self.fetched < FORECAST_TTL:
             return

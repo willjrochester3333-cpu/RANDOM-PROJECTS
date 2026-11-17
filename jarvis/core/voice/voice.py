@@ -61,7 +61,7 @@ VOLUME = os.environ.get("VOLUME", "")          # e.g. "80%": set the mixer once 
 
 RATE = 16000
 CHUNK = 1280                                     # 80 ms, the wake-word model's frame size
-SILENCE_END_S = 1.0                              # stop recording after this much quiet
+SILENCE_END_S = 0.8                              # stop recording after this much quiet
 NO_SPEECH_S = 6.0                                # give up if nothing is said
 MIN_SPEECH_LEVEL = float(os.environ.get("MIN_SPEECH_LEVEL", "120"))   # lower if your mic is quiet
 MAX_UTTERANCE_S = 12.0
@@ -69,8 +69,15 @@ MAX_UTTERANCE_S = 12.0
 T_SAY = "jarvis/console/say"
 T_LISTEN = "jarvis/voice/listen"
 T_STATUS = "jarvis/voice/status"
+T_STOP = "jarvis/voice/stop"
 
-say_queue: "queue.Queue[str]" = queue.Queue()
+# Speaking is a two-stage pipeline, so sentences follow each other without gaps: the voicer
+# turns the next sentence into sound while the player is still playing the current one.
+say_queue: "queue.Queue[tuple[int, str]]" = queue.Queue()             # text waiting for a voice
+play_queue: "queue.Queue[tuple[int, str, bytes]]" = queue.Queue()     # sound waiting to be played
+generation = 0                 # bumped by Stop: anything queued before it is thrown away
+player: subprocess.Popen | None = None
+player_lock = threading.Lock()
 listen_requested = threading.Event()
 speaking = threading.Event()
 
@@ -93,41 +100,78 @@ def report(state: str, text: str = "") -> None:
 # ---------------------------------------------------------------- speaker
 
 def play_wav(data: bytes) -> None:
+    global player
     speaking.set()
     try:
-        subprocess.run(["aplay", "-q", "-D", SPEAKER, "-"], input=data, check=False, timeout=120)
+        with player_lock:
+            player = subprocess.Popen(["aplay", "-q", "-D", SPEAKER, "-"],
+                                      stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        try:
+            player.communicate(data, timeout=120)
+        except subprocess.TimeoutExpired:
+            player.kill()
     finally:
-        time.sleep(0.3)                          # let the room go quiet before listening again
+        if play_queue.empty():
+            time.sleep(0.25)                     # let the room go quiet before listening again
         speaking.clear()
 
 
-def beep(freq: float = 880, ms: int = 140) -> None:
+def say(text: str) -> None:
+    """Queue something to be said."""
+    if text.strip():
+        say_queue.put((generation, text.strip()))
+
+
+def stop_talking() -> None:
+    """Stop: forget everything queued and cut off the sentence being played."""
+    global generation
+    generation += 1
+    for q in (say_queue, play_queue):
+        while not q.empty():
+            try:
+                q.get_nowait()
+            except queue.Empty:
+                break
+    with player_lock:
+        if player and player.poll() is None:
+            player.kill()
+
+
+def beep(freq: float = 988, ms: int = 100) -> None:
     t = np.arange(int(RATE * ms / 1000)) / RATE
     tone = (np.sin(2 * np.pi * freq * t) * np.minimum(1, 8 * np.minimum(t, t[-1] - t)) * 9000).astype(np.int16)
     play_wav(to_wav(tone.tobytes()))
 
 
-def speak(text: str) -> None:
-    text = text.strip()
-    if not text:
-        return
-    report("speaking", text)
+def voice_of(text: str) -> bytes:
     try:
-        wav = core("GET", "/api/tts?" + urllib.parse.urlencode({"text": text}), timeout=60)
-        play_wav(wav)
+        return core("GET", "/api/tts?" + urllib.parse.urlencode({"text": text}), timeout=60)
     except (urllib.error.URLError, OSError) as e:
         log.warning("speech service failed (%s); using espeak", e)
         # espeak-ng makes the WAV; we play it on the right speaker ourselves.
-        wav = subprocess.run(["espeak-ng", "-v", "en-gb", "-s", "165", "--stdout", "--", text],
-                             capture_output=True, check=False).stdout
-        if wav:
-            play_wav(wav)
-    report("idle")
+        return subprocess.run(["espeak-ng", "-v", "en-gb", "-s", "165", "--stdout", "--", text],
+                              capture_output=True, check=False).stdout
 
 
-def speaker_thread() -> None:
+def voicer_thread() -> None:
     while True:
-        speak(say_queue.get())
+        gen, text = say_queue.get()
+        if gen != generation:
+            continue
+        wav = voice_of(text)
+        if wav and gen == generation:
+            play_queue.put((gen, text, wav))
+
+
+def player_thread() -> None:
+    while True:
+        gen, text, wav = play_queue.get()
+        if gen != generation:
+            continue
+        report("speaking", text)
+        play_wav(wav)
+        if play_queue.empty() and say_queue.empty():
+            report("idle")
 
 
 # ---------------------------------------------------------------- microphone
@@ -193,6 +237,8 @@ def record_utterance(read_chunk, noise_floor: float) -> bytes | None:
 
 
 def handle_question(read_chunk, noise_floor: float) -> None:
+    if speaking.is_set() or not say_queue.empty() or not play_queue.empty():
+        stop_talking()                           # Talk pressed mid-answer: listen instead
     while speaking.is_set():                     # never record our own voice
         time.sleep(0.05)
     t0 = time.monotonic()
@@ -210,18 +256,18 @@ def handle_question(read_chunk, noise_floor: float) -> None:
         heard = json.loads(core("POST", "/api/transcribe", to_wav(pcm), "audio/wav", timeout=60)).get("text", "").strip()
     except (urllib.error.URLError, OSError) as e:
         log.warning("transcribe failed: %s", e)
-        speak("Sorry, my hearing is not working right now.")
+        say("Sorry, my hearing is not working right now.")
         return
     log.info("heard: %r", heard)
     if len(heard) < 2:
-        speak("Sorry, I didn't catch that.")
+        say("Sorry, I didn't catch that.")
         return
     try:
         core("POST", "/api/chat", json.dumps({"text": heard, "speak": True, "source": "voice"}).encode(), timeout=240)
         # CORE announces the answer on jarvis/console/say, which the speaker thread plays.
     except (urllib.error.URLError, OSError) as e:
         log.warning("chat failed: %s", e)
-        speak("Sorry, I could not think of an answer.")
+        say("Sorry, I could not think of an answer.")
 
 
 def load_wake_model():
@@ -298,15 +344,18 @@ def make_mqtt() -> mqtt.Client:
 
     def on_connect(c, *_):
         c.publish(T_STATUS, "online", qos=1, retain=True)
-        c.subscribe([(T_SAY, 1), (T_LISTEN, 1)])
+        c.subscribe([(T_SAY, 1), (T_LISTEN, 1), (T_STOP, 1)])
 
     def on_message(_c, _u, msg):
         if msg.retain:
             return
         if msg.topic == T_SAY:
-            say_queue.put(msg.payload.decode("utf-8", "replace"))
+            say(msg.payload.decode("utf-8", "replace"))
         elif msg.topic == T_LISTEN:
             listen_requested.set()
+        elif msg.topic == T_STOP:
+            stop_talking()
+            report("idle")
 
     client.on_connect = on_connect
     client.on_message = on_message
@@ -333,7 +382,8 @@ def main() -> None:
     client = make_mqtt()
     client.connect_async(MQTT_HOST, MQTT_PORT, keepalive=60)
     client.loop_start()
-    threading.Thread(target=speaker_thread, daemon=True).start()
+    threading.Thread(target=voicer_thread, daemon=True).start()
+    threading.Thread(target=player_thread, daemon=True).start()
     try:
         mic_loop()
     except KeyboardInterrupt:

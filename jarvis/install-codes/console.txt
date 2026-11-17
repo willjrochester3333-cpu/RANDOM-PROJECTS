@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && echo "Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP"
-H4sIAMxu+2oC/+1YbXPbuBHOZ/6KPcaNpdakZCf2ZeSTbxxbad0klk9ykst4PDyIhCTEFMAQoGWl
+H4sIANSL/GoC/+1YbXPbuBHOZ/6KPcaNpdakZCf2ZeSTbxxbad0klk9ykst4PDyIhCTEFMAQoGWl
 1/727gKk3uwkvZmbtjMnfLAFYLFY7Muzu/zI8luhG7GSWqW8IaQ2LE1DPX70+40mju/39+1/HOv/
 D/YP5ntufXfv+72DR9B89F8YBT44x+sf/THH4+8ahc4bAyEbXN7CgOmx9xhOuuf97usOaG6KDGo9
 prMBz/MZXAjYh7+AUUU81nHOudyBld1uH6bCjCHh+saorB4itzfshmswY04EA6UMaJMzMRobENIo

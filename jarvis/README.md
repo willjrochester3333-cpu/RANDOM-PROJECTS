@@ -13,13 +13,13 @@ cross-section, wiring, parts list).
 | CORE | Raspberry Pi 5 + NVMe, USB mic and speaker | near the router | MQTT broker, rules, local language model (Ollama), speech in and out, weather history, dashboard |
 | CONSOLE | Raspberry Pi 5 + 7" touchscreen | desk | main input: touch, wake word, mic, speaker |
 | OUTPOST | Raspberry Pi 3 + Sense HAT | outside wall | temperature, humidity, pressure every 60 s |
-| DINNER BELL | Seeed XIAO ESP32-S3 Sense | kitchen | lit button that announces dinner |
+| KITCHEN CAMERA | Seeed XIAO ESP32-S3 Sense | kitchen | live camera and microphone for the dashboard, and the dinner button |
 | BEACON | Raspberry Pi Pico 2 W | bedroom / workshop | glows and chimes for dinner, button replies "on my way" |
 
 ```mermaid
 flowchart LR
     CONSOLE[CONSOLE<br/>Pi 5 + touch] <-->|taps, audio / dashboard, speech| CORE
-    BELL[DINNER BELL<br/>XIAO ESP32-S3] <-->|pressed / LED state| CORE
+    BELL[KITCHEN CAMERA<br/>XIAO ESP32-S3 Sense] <-->|button, video, sound / LED state| CORE
     CORE((CORE<br/>Pi 5 server))
     OUTPOST[OUTPOST<br/>Pi 3 + Sense HAT] -->|reading every 60 s| CORE
     CORE <-->|alert / ack| BEACON[BEACON<br/>Pico 2 W]
@@ -31,8 +31,8 @@ flowchart LR
 | Topic | From → To | Payload |
 |---|---|---|
 | `jarvis/outpost/weather` | OUTPOST → CORE | `{"temp_c":8.4,"humidity":71,"pressure_hpa":1009.2}` |
-| `jarvis/kitchen/dinner` | DINNER BELL → CORE | `pressed` |
-| `jarvis/kitchen/led` | CORE → DINNER BELL | `off` / `blink` / `solid` |
+| `jarvis/kitchen/dinner` | KITCHEN CAMERA → CORE | `pressed` |
+| `jarvis/kitchen/led` | CORE → KITCHEN CAMERA | `off` / `blink` / `solid` |
 | `jarvis/beacon/alert` | CORE → BEACON | `dinner` / `clear` |
 | `jarvis/beacon/ack` | BEACON → CORE | `pressed` |
 | `jarvis/console/say` | CORE → CONSOLE | text to speak and show |
@@ -77,8 +77,8 @@ hangs under it on 15 mm standoffs) → drum (Pi 3 inside) → lid → sunshade �
 
 | Node | Connection |
 |---|---|
-| DINNER BELL | D1 (GPIO 2) → switch → GND (internal pull-up) |
-| DINNER BELL | D2 (GPIO 3) → button LED + ; LED − → GND (100 Ω in series if the LED has no resistor) |
+| KITCHEN CAMERA | D1 (GPIO 2) → switch → GND (internal pull-up) |
+| KITCHEN CAMERA | D2 (GPIO 3) → button LED + ; LED − → GND (100 Ω in series if the LED has no resistor) |
 | BEACON | VBUS (pin 40) → ring 5 V ; GND (pin 38) → ring GND |
 | BEACON | GP2 (pin 4) → 330 Ω → ring DIN |
 | BEACON | GP15 (pin 20) → piezo + ; GP14 (pin 19) → button → GND |
@@ -86,7 +86,7 @@ hangs under it on 15 mm standoffs) → drum (Pi 3 inside) → lid → sunshade �
 ## Build order
 
 1. CORE: OS, fixed IP, MQTT broker.
-2. DINNER BELL + BEACON on a breadboard, talking through CORE.
+2. KITCHEN CAMERA + BEACON on a breadboard, talking through CORE.
 3. OUTPOST indoors for a few days, then outside.
 4. CONSOLE: kiosk dashboard, then voice.
 5. Print and box up. Hose-test the station before the Pi goes in.

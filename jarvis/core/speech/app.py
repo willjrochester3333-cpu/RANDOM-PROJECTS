@@ -5,8 +5,8 @@ import os
 import wave
 
 import numpy as np
-
 from fastapi import FastAPI, Request, Response
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -15,7 +15,8 @@ log = logging.getLogger("jarvis.speech")
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base.en")
 PIPER_VOICE = os.environ.get("PIPER_VOICE", "en_GB-alan-medium")
 MODELS = os.environ.get("MODELS_DIR", "/models")
-THREADS = int(os.environ.get("THREADS", "3"))
+THREADS = int(os.environ.get("THREADS", "4"))          # Whisper: runs while the model is idle
+TTS_THREADS = int(os.environ.get("TTS_THREADS", "2"))  # Piper: runs while the model writes, so stay small
 
 app = FastAPI(title="J.A.R.V.I.S. speech")
 whisper = None
@@ -30,8 +31,40 @@ def load_models() -> None:
 
     whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8",
                            cpu_threads=THREADS, download_root=f"{MODELS}/whisper")
-    voice = PiperVoice.load(f"{MODELS}/piper/{PIPER_VOICE}.onnx")
+    model_path = f"{MODELS}/piper/{PIPER_VOICE}.onnx"
+    voice = PiperVoice.load(model_path)
+    # Piper's own session uses every core and fights the language model for them; replace it
+    # with one limited to TTS_THREADS.
+    try:
+        import onnxruntime
+        opts = onnxruntime.SessionOptions()
+        opts.intra_op_num_threads = TTS_THREADS
+        opts.inter_op_num_threads = 1
+        voice.session = onnxruntime.InferenceSession(model_path, sess_options=opts,
+                                                     providers=["CPUExecutionProvider"])
+    except Exception as e:                       # a newer Piper may differ: keep its own session
+        log.warning("could not limit Piper's threads (%s); using its defaults", e)
+    # First runs are slow while things are set up: do them now, not on the first question.
+    hear(np.zeros(16000, np.float32))
+    speak("Ready.")
     log.info("loaded whisper %s and piper voice %s", WHISPER_MODEL, PIPER_VOICE)
+
+
+def hear(audio: np.ndarray) -> str:
+    # The recording is already trimmed to the speech, so Whisper's own speech detection is
+    # skipped; temperature 0 means one decoding pass, never retries.
+    segments, _ = whisper.transcribe(
+        audio, language="en", beam_size=1, best_of=1, temperature=0.0, vad_filter=False,
+        condition_on_previous_text=False, without_timestamps=True,
+    )
+    return " ".join(s.text.strip() for s in segments).strip()
+
+
+def speak(text: str) -> bytes:
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wav:
+        voice.synthesize_wav(text or "Nothing to say.", wav)
+    return buf.getvalue()
 
 
 @app.get("/health")
@@ -50,11 +83,7 @@ async def transcribe(request: Request):
     except (wave.Error, EOFError, ValueError) as e:
         log.warning("bad audio: %s", e)
         return JSONResponse({"text": ""})
-    segments, _ = whisper.transcribe(
-        audio, language="en", beam_size=1, vad_filter=True,
-        condition_on_previous_text=False, without_timestamps=True,
-    )
-    text = " ".join(s.text.strip() for s in segments).strip()
+    text = await run_in_threadpool(hear, audio)      # keeps the service answering meanwhile
     log.info("heard: %r", text)
     return {"text": text}
 
@@ -78,8 +107,4 @@ def wav_to_samples(data: bytes) -> np.ndarray:
 @app.get("/tts")
 def tts(text: str):
     """Returns a WAV of the text spoken aloud."""
-    text = text.strip()[:600]
-    buf = io.BytesIO()
-    with wave.open(buf, "wb") as wav:
-        voice.synthesize_wav(text or "Nothing to say.", wav)
-    return Response(buf.getvalue(), media_type="audio/wav")
+    return Response(speak(text.strip()[:600]), media_type="audio/wav")

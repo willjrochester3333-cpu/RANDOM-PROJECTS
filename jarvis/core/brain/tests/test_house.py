@@ -96,9 +96,26 @@ async def test_camera_stream_announced_and_removed(rig):
     house, _, events = rig
     url = "http://192.168.1.60:8081/stream.mjpg?key=abc"
     await house.handle("jarvis/camera/stream", url, retained=True)
-    assert house.snapshot()["cameras"] == {"camera": url}
-    assert events[-1]["state"]["cameras"]["camera"] == url
+    assert house.snapshot()["cameras"] == {"camera": {"name": "Camera", "video": url, "audio": None}}
+    assert events[-1]["state"]["cameras"]["camera"]["video"] == url
     await house.handle("jarvis/camera/stream", "")
     assert house.snapshot()["cameras"] == {}
     await house.handle("jarvis/camera/stream", "javascript:alert(1)")
     assert house.snapshot()["cameras"] == {}
+
+
+async def test_relayed_camera_hides_its_own_address(rig):
+    house, _, _ = rig
+    announce = ('{"name": "Kitchen camera", "video": "http://192.168.1.77/stream.mjpg?key=k1", '
+                '"audio": "http://192.168.1.77/audio.wav?key=k1", "relay": true}')
+    await house.handle("jarvis/kitchen/stream", announce, retained=True)
+    assert house.snapshot()["cameras"]["kitchen"] == {
+        "name": "Kitchen camera",
+        "video": "/api/cameras/kitchen/stream.mjpg",
+        "audio": "/api/cameras/kitchen/audio.wav",
+    }
+    assert "k1" not in str(house.snapshot())
+    assert house.cameras["kitchen"]["video"].endswith("key=k1")      # the server still knows it
+    for bad in ('{"video": "ftp://x"}', "{not json", '{"name": "x"}'):
+        await house.handle("jarvis/kitchen/stream", bad)
+        assert "kitchen" not in house.cameras

@@ -16,7 +16,7 @@ from pathlib import Path
 
 JARVIS = Path(__file__).resolve().parent.parent
 OUT = JARVIS / "install-codes"
-SKIP_NAMES = {".env", "passwd", "__pycache__", ".pytest_cache", "config.py"}
+SKIP_NAMES = {".env", "passwd", "__pycache__", ".pytest_cache", "config.py", "tests", "pytest.ini"}
 SKIP_SUFFIXES = {".db", ".pyc"}
 
 PIS = {
