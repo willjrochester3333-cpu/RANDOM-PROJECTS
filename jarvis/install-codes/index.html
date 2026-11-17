@@ -55,7 +55,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
     <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
     <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done.</p>
     <details><summary>Show the block (549 lines)</summary><pre id="code-core">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; bash setup.sh
-H4sIAPWL/GoC/+y9W3vbRrIoup75KzqwvQw6JERK8iWU6Yws07EmsqQlyfZkFC0GJEEREQjQAGiZ
+H4sIAK2M/GoC/+y9W3vbRrIoup75KzqwvQw6JERK8iWU6Yws07EmsqQlyfZkFC0GJEEREQjQAGiZ
 kfR9+7ech/O83877/in7l5y6dAPdAEjJSSb7suyZ2ATQ1+rqunVV9a9u/MlP1oZR7K05XvjJ8T67
 01ng/duf+KcFf55sbtK/8Kf470braVv95vft9c32038TrX/7C/7Mk9SNoft/+6/55544nrixNxKD
 hfA+efFChNHIc0TipfOZk0zE2A+CRPihcEXshqNoKmZuklxG8UhEIXyNk1TE89Cpvf2Pk5P+u+Pe
@@ -609,7 +609,7 @@ JARVIS_END
     <div class="row"><h2 id="h-outpost">OUTPOST weather station (Raspberry Pi 3)</h2><button type="button" id="copy-outpost" data-copy="code-outpost">Copy</button></div>
     <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot</p>
     <details><summary>Show the block (35 lines)</summary><pre id="code-outpost">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/outpost/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-H4sIAPWL/GoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
+H4sIAK2M/GoC/+1X3W/bOBLPs/6KOSUP0q4ly26bLnxVD7nW3WbR1jnbSR+KQKAlOmIiiVqSimMs
 9n/foT4s2WnaO6C4ezgNglgUZ4bD+fjN6JaIeyaHvFA5l2rIMqlIkrgyPvpx5CG9fPGi/EU6/B0/
 e/68ea7ej8YvX3pH4B39F6jACws8/uj/k47/NiykGK5YNqTZPayIjI1jmF0uL2aLJUiqihysOZH5
 igqxhQsGz+BnWNBMUnh/thzA3t5sAR+YoraLOi4luaETcDs5Ba/S35VyciLlhovoNXwJuaBOjJmX
@@ -649,7 +649,7 @@ JARVIS_END
     <div class="row"><h2 id="h-console">CONSOLE touchscreen (Raspberry Pi 5)</h2><button type="button" id="copy-console" data-copy="code-console">Copy</button></div>
     <p>After the paste, run the install line it prints, with the MQTT password and the server&#x27;s IP address in place of YOUR-MQTT-PASSWORD and SERVER-IP. Then reboot with: sudo reboot. It comes back up showing the dashboard full screen.</p>
     <details><summary>Show the block (46 lines)</summary><pre id="code-console">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/console/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-H4sIAPWL/GoC/+1YbXPbuBHOZ/6KPcaNpdakZCf2ZeSTbxxbad0klk9ykst4PDyIhCTEFMAQoGWl
+H4sIAK2M/GoC/+1YbXPbuBHOZ/6KPcaNpdakZCf2ZeSTbxxbad0klk9ykst4PDyIhCTEFMAQoGWl
 1/727gKk3uwkvZmbtjMnfLAFYLFY7Muzu/zI8luhG7GSWqW8IaQ2LE1DPX70+40mju/39+1/HOv/
 D/YP5ntufXfv+72DR9B89F8YBT44x+sf/THH4+8ahc4bAyEbXN7CgOmx9xhOuuf97usOaG6KDGo9
 prMBz/MZXAjYh7+AUUU81nHOudyBld1uH6bCjCHh+saorB4itzfshmswY04EA6UMaJMzMRobENIo
@@ -700,7 +700,7 @@ JARVIS_END
     <div class="row"><h2 id="h-core-voice">VOICE update (server only, quick)</h2><button type="button" id="copy-core-voice" data-copy="code-core-voice">Copy</button></div>
     <p>Updates only the microphone and speaker service on the server and restarts it, in a few seconds. Use this instead of the full CORE block when only the voice changed.</p>
     <details><summary>Show the block (94 lines)</summary><pre id="code-core-voice">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; sudo install -m 755 ~/jarvis/core/voice/voice.py /opt/jarvis/voice.py &amp;&amp; sudo systemctl restart jarvis-voice &amp;&amp; echo &#x27;Voice service updated&#x27;
-H4sIAPWL/GoC/+1ba3fbyJH1Z/6KDrw+BmwKouRHPJzQcxSZibWjV0TZ3j0aBwckmiQsEIDxEM14
+H4sIAK2M/GoC/+1ba3fbyJH1Z/6KDrw+BmwKouRHPJzQcxSZibWjV0TZ3j0aBwckmiQsEIDxEM14
 /d9zq7rxJCl5Ep/9EmHOiEA/qrur63Gruv3JTW78dHcSJXL3JvIn+q8drx78sKeH5+Xz5/yLp/X7
 7Pmz52WZKt/b/+PLZw9E78H/w5OnmZtg+Af/mc/DP+zmabI79sNdGd6IeJXNo/BZxzCM92dHh8O+
 yOZSpDK5kcnjVEg3SYUbemIR5dncFhd5mIoo5EaHZxdDce4LP0tlMO0KtEh9T4o30eRaJl2x9LO5
@@ -799,7 +799,7 @@ JARVIS_END
     <div class="row"><h2 id="h-core-speech">SPEECH update (server only, quick)</h2><button type="button" id="copy-core-speech" data-copy="code-core-speech">Copy</button></div>
     <p>Rebuilds only the hearing-and-voice container on the server, about a minute. Use this instead of the full CORE block when only the speech service changed.</p>
     <details><summary>Show the block (47 lines)</summary><pre id="code-core-speech">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; sudo docker compose up -d --build speech &amp;&amp; echo &#x27;Speech service updated&#x27;
-H4sIAPWL/GoC/+1Z/3PbthXPz/wrMKZpyJ1EWXaa5pQq1yR2GndN7LNTZ7uup4NESEJMEhwBWlFy
+H4sIAK2M/GoC/+1Z/3PbthXPz/wrMKZpyJ1EWXaa5pQq1yR2GndN7LNTZ7uup4NESEJMEhwBWlFy
 +d/3eQBIUXLabXdd77oJbSIAxPuC9+XzHpl3vLqRejBTlRjoUojZcnCsZteimstM3PltxgHGwwcP
 7C/G7u/wq+FhM3f7w6MHR0d32MGd32HU2vAK4u/8f44XF2evWLk2S1WMjpLhYV9nMg/usrdLOVsy
 FxF9o/pGvDcsV6nIGC9SdqPkTDCj2JRfCyaLhD2Ti4WoiA5ElTuq2VLwik2FMdia1gaMDRFkqsDh
@@ -851,7 +851,7 @@ JARVIS_END
     <div class="row"><h2 id="h-camera">CAMERA (any Pi with a camera module)</h2><button type="button" id="copy-camera" data-copy="code-camera">Copy</button></div>
     <p>Paste this on whichever Pi has the camera plugged in, then run the install line it prints, with the MQTT password and the server&#x27;s IP address. No reboot needed: a Camera panel appears on the dashboard within a few seconds.</p>
     <details><summary>Show the block (75 lines)</summary><pre id="code-camera">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; echo &quot;Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP&quot;
-H4sIAPWL/GoC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
+H4sIAK2M/GoC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
 8/m/XzcAUqIeTmZu6+6qTqhKLOLR6G70G/hMi2suOzGdsYLaP0E+f/SvbF1ozw4P9V9oK38Puj93
 n1V9pn//4En34BHpPvofaKVUtIDtH/3/bI9/6JSy6Ix41mHZNcnnaiqyJ47ruqcnb8/6Jz0iVcHo
 TBJK+lTmI1YUc3LFiREVogRRU0b+FpwE/eD34CIYBCShcjoStEgCxxnCYM5jVRaMcEkkK65ZQqgk
@@ -925,6 +925,509 @@ MbsBtcbbMRm4Faj6xUz1nkRCQKp0stQjD75tsRA+4CuZOrmBY+01stbPAlIHmiJhftmkCUyb6zza
 tV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV3btV37P97+C2zY
 feUAUAAA
 JARVIS_END
+</pre></details>
+  </section>
+  <section class="pi" aria-labelledby="h-kitchen-main-py">
+    <div class="row"><h2 id="h-kitchen-main-py">KITCHEN CAMERA: main.py (for Thonny)</h2><button type="button" id="copy-kitchen-main-py" data-copy="code-kitchen-main-py">Copy</button></div>
+    <p>Copy, paste into a new file in Thonny, and save it to the board as main.py. Flash the camera firmware first (SETUP.md, section 2).</p>
+    <details><summary>Show the block (475 lines)</summary><pre id="code-kitchen-main-py"># KITCHEN CAMERA - MicroPython for the Seeed XIAO ESP32S3 Sense.
+#
+# Live camera and microphone for the J.A.R.V.I.S. dashboard, plus the dinner button.
+#
+# Firmware: MicroPython with camera support for this board, &quot;mpy_cam-v1.27.0-XIAO_ESP32S3.zip&quot;
+# from https://github.com/cnadler86/micropython-camera-API/releases (see SETUP.md).
+# Files on the board: this main.py, and config.py with your Wi-Fi and the server&#x27;s details.
+#
+# How it works: the board serves /stream.mjpg (pictures) and /audio.wav (sound) on your home
+# network, protected by a private key it makes on first start. It tells CORE where to find
+# them over MQTT. CORE connects only while someone is watching or listening, and passes them
+# on to every dashboard, so the board never has more than one viewer.
+#
+# Pins: camera and microphone are built in. Optional dinner button on D1 (to GND) and its
+# light on D2. D3 is used internally by the microphone: leave it unconnected.
+
+import array
+import asyncio
+import gc
+import os
+import struct
+import time
+
+import machine
+import micropython
+import network
+from machine import I2S, Pin
+from umqtt.simple import MQTTClient
+
+import config
+
+try:
+    from acamera import Camera, FrameSize, PixelFormat
+except ImportError:
+    try:
+        from camera import Camera, FrameSize, PixelFormat     # older firmware: no async capture
+    except ImportError:
+        Camera = None                                         # plain MicroPython: no camera
+
+
+def setting(name, default):
+    return getattr(config, name, default)
+
+
+NAME = &quot;kitchen&quot;
+DISPLAY_NAME = setting(&quot;CAMERA_NAME&quot;, &quot;Kitchen camera&quot;)
+FPS = setting(&quot;CAMERA_FPS&quot;, 8)              # pictures per second; lower runs cooler
+SIZE = setting(&quot;CAMERA_SIZE&quot;, &quot;VGA&quot;)        # QVGA 320x240, VGA 640x480, SVGA 800x600
+QUALITY = setting(&quot;CAMERA_QUALITY&quot;, 80)     # 0-100: higher is sharper but bigger
+FLIP = setting(&quot;CAMERA_FLIP&quot;, False)        # True if the picture is upside down
+MIC_GAIN = setting(&quot;MIC_GAIN&quot;, 16)          # louder or quieter sound (1 to 64)
+PORT = 80
+
+T_STATUS = b&quot;jarvis/kitchen/status&quot;
+T_STREAM = b&quot;jarvis/kitchen/stream&quot;
+T_DINNER = b&quot;jarvis/kitchen/dinner&quot;
+T_LED = b&quot;jarvis/kitchen/led&quot;
+
+BUTTON = Pin(2, Pin.IN, Pin.PULL_UP)          # D1
+LED = Pin(3, Pin.OUT, value=0)                # D2
+MIC_CLOCK, MIC_DATA, MIC_SPARE = 42, 41, 4    # built-in microphone; D3 (GPIO 4) is spare
+
+led_mode = &quot;off&quot;                              # off | blink | solid, set by CORE
+
+
+# ------------------------------------------------------------------ private key
+
+def private_key():
+    &quot;&quot;&quot;A random key made on first start and kept in key.txt, so only CORE can watch.&quot;&quot;&quot;
+    try:
+        with open(&quot;key.txt&quot;) as f:
+            key = f.read().strip()
+        if len(key) &gt;= 16:
+            return key
+    except OSError:
+        pass
+    key = &quot;&quot;.join(&quot;%02x&quot; % b for b in os.urandom(16))
+    with open(&quot;key.txt&quot;, &quot;w&quot;) as f:
+        f.write(key)
+    return key
+
+
+KEY = private_key()
+
+
+# ------------------------------------------------------------------ microphone
+
+# The built-in microphone sends a fast stream of single bits (PDM). Stock MicroPython cannot
+# decode that, so the I2S unit just collects the raw bits (2,048,000 a second) and
+# pdm_to_pcm turns every 128 of them into one 16-bit sound sample, 16,000 a second, with a
+# 4-stage CIC filter. To be quick enough, the filter takes a whole byte (8 bits) per step using
+# the lookup tables below, which give exactly the same answer as going bit by bit.
+
+MIC_BYTES_PER_SAMPLE = 16
+
+
+def _cic_tables():
+    t = array.array(&quot;H&quot;, bytes(2 * 1024))
+    for v in range(256):
+        for j in range(1, 9):                # bit 1 (the top bit) is the earliest
+            if (v &gt;&gt; (8 - j)) &amp; 1:
+                t[v] += 1
+                t[256 + v] += 9 - j
+                t[512 + v] += (9 - j) * (10 - j) // 2
+                t[768 + v] += (9 - j) * (10 - j) * (11 - j) // 6
+    return t
+
+
+CIC_TABLES = _cic_tables()
+
+
+@micropython.viper
+def pdm_to_pcm(src: ptr8, n: int, dst: ptr16, st: ptr32) -&gt; int:
+    t = ptr16(CIC_TABLES)
+    i1 = st[0]
+    i2 = st[1]
+    i3 = st[2]
+    i4 = st[3]
+    z1 = st[4]
+    z2 = st[5]
+    z3 = st[6]
+    z4 = st[7]
+    phase = st[8]
+    last = st[9]
+    hp = st[10] - 0x10000000         # stored with an offset so it is never negative in memory
+    gain = st[11]
+    settle = st[12]
+    m = 0x3FFFFFFF                   # 30-bit arithmetic: wraps the same way on every chip
+    out = 0
+    w = 0
+    while w &lt; n:
+        # Each 32-bit word arrives least significant byte first; its bits were heard most
+        # significant byte first, so walk each word backwards.
+        k = 3
+        while k &gt;= 0:
+            b = src[w + k]
+            i4 = (i4 + (i3 &lt;&lt; 3) + i2 * 36 + i1 * 120 + t[768 + b]) &amp; m
+            i3 = (i3 + (i2 &lt;&lt; 3) + i1 * 36 + t[512 + b]) &amp; m
+            i2 = (i2 + (i1 &lt;&lt; 3) + t[256 + b]) &amp; m
+            i1 = (i1 + t[b]) &amp; m
+            k -= 1
+        w += 4
+        phase += 1
+        if phase == 4:               # 16 bytes = 128 bits = one sample
+            phase = 0
+            d1 = (i4 - z1) &amp; m
+            z1 = i4
+            d2 = (d1 - z2) &amp; m
+            z2 = d1
+            d3 = (d2 - z3) &amp; m
+            z3 = d2
+            y = (d3 - z4) &amp; m        # 0..2^28, about 2^27 when the room is silent
+            z4 = d3
+            hp = y - last + hp - (hp &gt;&gt; 6)      # remove the resting level, keep the sound
+            last = y
+            if settle &gt; 0:           # the filter needs a few samples to fill up
+                settle -= 1
+                hp = 0
+                v = 0
+            else:
+                v = ((hp &gt;&gt; 4) * gain) &gt;&gt; 8
+                if v &gt; 32767:
+                    v = 32767
+                if v &lt; -32767:
+                    v = -32767
+            dst[out] = v
+            out += 1
+    st[0] = i1
+    st[1] = i2
+    st[2] = i3
+    st[3] = i4
+    st[4] = z1
+    st[5] = z2
+    st[6] = z3
+    st[7] = z4
+    st[8] = phase
+    st[9] = last
+    st[10] = hp + 0x10000000
+    st[12] = settle
+    return out
+
+
+def mic_state(gain):
+    &quot;&quot;&quot;Fresh filter memory: empty, resting level in the middle, settling, chosen gain.&quot;&quot;&quot;
+    st = bytearray(13 * 4)
+    struct.pack_into(&quot;&lt;13i&quot;, st, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 &lt;&lt; 27, 0x10000000, gain, 8)
+    return st
+
+
+def wav_header(rate=16000, channels=1, bits=16):
+    data_size = 0x7FFF0000                      # a stream with no end
+    block = channels * bits // 8
+    return struct.pack(&quot;&lt;4sI4s4sIHHIIHH4sI&quot;, b&quot;RIFF&quot;, data_size + 36, b&quot;WAVE&quot;, b&quot;fmt &quot;, 16, 1,
+                       channels, rate, rate * block, block, bits, b&quot;data&quot;, data_size)
+
+
+# ------------------------------------------------------------------ HTTP helpers
+
+async def send_head(writer, status, ctype, extra=b&quot;&quot;):
+    writer.write(b&quot;HTTP/1.1 &quot; + status + b&quot;\r\nContent-Type: &quot; + ctype
+                 + b&quot;\r\nCache-Control: no-cache\r\nConnection: close\r\n&quot; + extra + b&quot;\r\n&quot;)
+    await writer.drain()
+
+
+async def send_body(writer, status, ctype, body):
+    await send_head(writer, status, ctype, b&quot;Content-Length: &quot; + str(len(body)).encode() + b&quot;\r\n&quot;)
+    writer.write(body)
+    await writer.drain()
+
+
+# ------------------------------------------------------------------ camera
+
+class Eye:
+    &quot;&quot;&quot;The camera. It is switched on only while someone watches, which keeps the board cool.
+    The newest viewer always wins: a stale connection is dropped when a new one arrives.&quot;&quot;&quot;
+
+    def __init__(self):
+        self.cam = None
+        self.users = 0
+        self.session = 0
+        self.snapshot_wanted = None
+        if Camera:
+            size = getattr(FrameSize, SIZE, FrameSize.VGA)
+            self.cam = Camera(frame_size=size, pixel_format=PixelFormat.JPEG,
+                              jpeg_quality=QUALITY, init=False)
+
+    def on(self):
+        self.users += 1
+        if self.users == 1:
+            self.cam.init()
+            if FLIP:
+                for prop in (&quot;vflip&quot;, &quot;hmirror&quot;):
+                    try:
+                        setattr(self.cam, prop, True)
+                    except (AttributeError, ValueError):
+                        pass
+
+    def off(self):
+        self.users -= 1
+        if self.users == 0:
+            self.cam.deinit()
+            gc.collect()
+
+    async def capture(self):
+        if hasattr(self.cam, &quot;acapture&quot;):
+            return await self.cam.acapture()
+        await asyncio.sleep_ms(0)
+        return self.cam.capture()
+
+    async def stream(self, writer):
+        self.session += 1
+        mine = self.session
+        self.on()
+        try:
+            await send_head(writer, b&quot;200 OK&quot;, b&quot;multipart/x-mixed-replace; boundary=FRAME&quot;)
+            period = 1000 // max(1, FPS)
+            while self.session == mine:
+                started = time.ticks_ms()
+                frame = await self.capture()
+                if frame:
+                    if self.snapshot_wanted is not None:
+                        self.snapshot_wanted = bytes(frame)
+                    writer.write(b&quot;--FRAME\r\nContent-Type: image/jpeg\r\nContent-Length: &quot;
+                                 + str(len(frame)).encode() + b&quot;\r\n\r\n&quot;)
+                    writer.write(frame)
+                    writer.write(b&quot;\r\n&quot;)
+                    await writer.drain()
+                wait = period - time.ticks_diff(time.ticks_ms(), started)
+                if wait &gt; 0:
+                    await asyncio.sleep_ms(wait)
+        finally:
+            self.off()
+
+    async def snapshot(self):
+        if self.users:                           # streaming: take the next picture from it
+            self.snapshot_wanted = b&quot;&quot;
+            for _ in range(50):
+                await asyncio.sleep_ms(50)
+                if self.snapshot_wanted:
+                    break
+            picture, self.snapshot_wanted = self.snapshot_wanted, None
+            return picture
+        self.on()
+        try:
+            picture = None
+            for _ in range(3):                   # the first pictures are often too dark
+                frame = await self.capture()
+                if frame:
+                    picture = bytes(frame)
+            return picture
+        finally:
+            self.off()
+
+
+# ------------------------------------------------------------------ microphone stream
+
+class Ear:
+    &quot;&quot;&quot;The microphone, switched on only while someone listens. Newest listener wins.&quot;&quot;&quot;
+
+    def __init__(self):
+        self.session = 0
+        self.raw = bytearray(4096)
+        self.pcm = bytearray(len(self.raw) // MIC_BYTES_PER_SAMPLE * 2)
+
+    async def stream(self, writer):
+        self.session += 1
+        mine = self.session
+        mic = I2S(0, sck=Pin(MIC_CLOCK), ws=Pin(MIC_SPARE), sd=Pin(MIC_DATA), mode=I2S.RX,
+                  bits=32, format=I2S.STEREO, rate=32000, ibuf=64000)
+        try:
+            state = mic_state(MIC_GAIN)
+            await send_head(writer, b&quot;200 OK&quot;, b&quot;audio/wav&quot;)
+            writer.write(wav_header())
+            reader = asyncio.StreamReader(mic)
+            raw, pcm = memoryview(self.raw), memoryview(self.pcm)
+            while self.session == mine:
+                n = await reader.readinto(raw)
+                if n:
+                    count = pdm_to_pcm(raw, n - n % 4, pcm, state)
+                    writer.write(pcm[:count * 2])
+                    await writer.drain()
+        finally:
+            mic.deinit()
+
+
+eye = Eye()
+ear = Ear()
+
+
+# ------------------------------------------------------------------ web server
+
+async def handle(reader, writer):
+    try:
+        request = await reader.readline()
+        while True:                                # skip the headers
+            line = await reader.readline()
+            if not line or line == b&quot;\r\n&quot;:
+                break
+        parts = request.decode().split(&quot; &quot;)
+        path = parts[1] if len(parts) &gt; 1 else &quot;/&quot;
+        route, _, query = path.partition(&quot;?&quot;)
+        given = &quot;&quot;
+        for pair in query.split(&quot;&amp;&quot;):
+            if pair.startswith(&quot;key=&quot;):
+                given = pair[4:]
+        if route == &quot;/&quot;:
+            page = (&quot;J.A.R.V.I.S. kitchen camera\ncamera: %s\nwatching: %d\nfree memory: %d\n&quot;
+                    % (&quot;yes&quot; if eye.cam else &quot;no (camera firmware not installed)&quot;,
+                       eye.users, gc.mem_free()))
+            await send_body(writer, b&quot;200 OK&quot;, b&quot;text/plain&quot;, page.encode())
+        elif given != KEY:
+            await send_body(writer, b&quot;403 Forbidden&quot;, b&quot;text/plain&quot;, b&quot;Wrong or missing key\n&quot;)
+        elif route == &quot;/stream.mjpg&quot; and eye.cam:
+            await eye.stream(writer)
+        elif route == &quot;/snapshot.jpg&quot; and eye.cam:
+            picture = await eye.snapshot()
+            if picture:
+                await send_body(writer, b&quot;200 OK&quot;, b&quot;image/jpeg&quot;, picture)
+            else:
+                await send_body(writer, b&quot;503 Service Unavailable&quot;, b&quot;text/plain&quot;, b&quot;No picture\n&quot;)
+        elif route == &quot;/audio.wav&quot;:
+            await ear.stream(writer)
+        else:
+            await send_body(writer, b&quot;404 Not Found&quot;, b&quot;text/plain&quot;, b&quot;Not found\n&quot;)
+    except OSError:
+        pass                                       # the viewer went away
+    except Exception as e:
+        print(&quot;request error:&quot;, repr(e))
+    finally:
+        try:
+            writer.close()
+            await writer.wait_closed()
+        except Exception:
+            pass
+
+
+# ------------------------------------------------------------------ Wi-Fi and MQTT
+
+def wifi_connect():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    try:
+        wlan.config(pm=wlan.PM_NONE)               # no Wi-Fi power saving: smoother video
+    except (AttributeError, ValueError):
+        pass
+    if not wlan.isconnected():
+        wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
+        start = time.ticks_ms()
+        while not wlan.isconnected():
+            if time.ticks_diff(time.ticks_ms(), start) &gt; 20000:
+                raise OSError(&quot;wifi timeout&quot;)
+            LED.value(not LED.value())             # fast flicker while joining
+            time.sleep_ms(100)
+    LED.value(0)
+    return wlan
+
+
+def on_message(topic, msg):
+    global led_mode
+    if topic == T_LED and msg in (b&quot;off&quot;, b&quot;blink&quot;, b&quot;solid&quot;):
+        led_mode = msg.decode()
+
+
+def mqtt_connect(ip):
+    client = MQTTClient(&quot;jarvis-kitchen&quot;, config.MQTT_HOST, port=config.MQTT_PORT,
+                        user=config.MQTT_USER, password=config.MQTT_PASSWORD, keepalive=60)
+    client.set_last_will(T_STATUS, b&quot;offline&quot;, retain=True, qos=1)
+    client.set_callback(on_message)
+    client.connect()
+    client.subscribe(T_LED, qos=1)
+    client.publish(T_STATUS, b&quot;online&quot;, retain=True, qos=1)
+    if eye.cam:
+        base = &quot;http://%s&quot; % ip
+        announce = (&#x27;{&quot;name&quot;: &quot;%s&quot;, &quot;video&quot;: &quot;%s/stream.mjpg?key=%s&quot;, &quot;audio&quot;: &quot;%s/audio.wav?key=%s&quot;, &#x27;
+                    &#x27;&quot;relay&quot;: true}&#x27; % (DISPLAY_NAME, base, KEY, base, KEY))
+        client.publish(T_STREAM, announce.encode(), retain=True, qos=1)
+    return client
+
+
+async def mqtt_task(client, wlan):
+    last_ping = time.ticks_ms()
+    while True:
+        if not wlan.isconnected():
+            raise OSError(&quot;wifi lost&quot;)
+        client.check_msg()
+        if time.ticks_diff(time.ticks_ms(), last_ping) &gt; 20000:
+            client.ping()
+            last_ping = time.ticks_ms()
+        await asyncio.sleep_ms(50)
+
+
+async def button_task(client):
+    &quot;&quot;&quot;The dinner button: must be held 40 ms, then one press per 1.5 s.&quot;&quot;&quot;
+    global led_mode
+    was_down = False
+    down_since = 0
+    fired = False
+    last_press = time.ticks_add(time.ticks_ms(), -5000)
+    while True:
+        now = time.ticks_ms()
+        down = BUTTON.value() == 0
+        if down and not was_down:
+            down_since = now
+            fired = False
+        if (down and not fired and time.ticks_diff(now, down_since) &gt; 40
+                and time.ticks_diff(now, last_press) &gt; 1500):
+            fired = True
+            last_press = now
+            client.publish(T_DINNER, b&quot;pressed&quot;, qos=1)
+            led_mode = &quot;blink&quot;                     # instant feedback; CORE confirms the state
+        was_down = down
+        if led_mode == &quot;blink&quot;:
+            LED.value((now // 350) % 2)
+        else:
+            LED.value(1 if led_mode == &quot;solid&quot; else 0)
+        await asyncio.sleep_ms(10)
+
+
+async def main():
+    wlan = wifi_connect()
+    ip = wlan.ifconfig()[0]
+    client = mqtt_connect(ip)
+    await asyncio.start_server(handle, &quot;0.0.0.0&quot;, PORT)
+    print(&quot;kitchen camera ready at http://%s/&quot; % ip)
+    asyncio.create_task(button_task(client))
+    await mqtt_task(client, wlan)                  # returns only by failing
+
+
+try:
+    asyncio.run(main())
+except Exception as e:                             # any failure: wait, then start clean
+    print(&quot;error:&quot;, repr(e))
+    LED.value(0)
+    time.sleep(5)
+    machine.reset()
+</pre></details>
+  </section>
+  <section class="pi" aria-labelledby="h-kitchen-config-example-py">
+    <div class="row"><h2 id="h-kitchen-config-example-py">KITCHEN CAMERA: config.py (for Thonny)</h2><button type="button" id="copy-kitchen-config-example-py" data-copy="code-kitchen-config-example-py">Copy</button></div>
+    <p>Copy, paste into a new file in Thonny, fill in your Wi-Fi and the server&#x27;s details, and save it to the board as config.py.</p>
+    <details><summary>Show the block (18 lines)</summary><pre id="code-kitchen-config-example-py"># Copy this file to config.py on the board and fill it in.
+# The board only joins 2.4 GHz Wi-Fi.
+WIFI_SSID = &quot;your-wifi-name&quot;
+WIFI_PASSWORD = &quot;your-wifi-password&quot;
+
+# The server&#x27;s fixed IP address and its MQTT password (on the server: grep MQTT_PASSWORD ~/jarvis/core/.env).
+MQTT_HOST = &quot;192.168.1.120&quot;
+MQTT_PORT = 1883
+MQTT_USER = &quot;jarvis&quot;
+MQTT_PASSWORD = &quot;the long password from the server&quot;
+
+# Optional camera and microphone settings. Leave them out to use these defaults.
+CAMERA_NAME = &quot;Kitchen camera&quot;   # the name on the dashboard
+CAMERA_FPS = 8                   # pictures per second: lower runs cooler, higher is smoother
+CAMERA_SIZE = &quot;VGA&quot;              # &quot;QVGA&quot; (320x240), &quot;VGA&quot; (640x480) or &quot;SVGA&quot; (800x600)
+CAMERA_QUALITY = 80              # 0-100: higher is sharper but uses more Wi-Fi
+CAMERA_FLIP = False              # True if the picture is upside down
+MIC_GAIN = 16                    # 1-64: raise if the kitchen sounds too quiet
 </pre></details>
   </section>
 </div>

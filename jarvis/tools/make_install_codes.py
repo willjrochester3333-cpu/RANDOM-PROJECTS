@@ -169,6 +169,18 @@ BLOCK = """<section class="pi" aria-labelledby="h-{id}">
   </section>"""
 
 
+# Microcontroller files are loaded with Thonny, so they go on the page as plain text to paste
+# into a new Thonny file and save to the board.
+THONNY_FILES = [
+    ("kitchen/main.py", "KITCHEN CAMERA: main.py (for Thonny)",
+     "Copy, paste into a new file in Thonny, and save it to the board as main.py. "
+     "Flash the camera firmware first (SETUP.md, section 2)."),
+    ("kitchen/config.example.py", "KITCHEN CAMERA: config.py (for Thonny)",
+     "Copy, paste into a new file in Thonny, fill in your Wi-Fi and the server's details, and "
+     "save it to the board as config.py."),
+]
+
+
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     blocks = []
@@ -184,6 +196,10 @@ def main() -> None:
         blocks.append(BLOCK.format(id=folder.replace("/", "-"), title=html.escape(meta["title"]), then=html.escape(meta["then"]),
                                    lines=len(lines) + 2, code=html.escape(text)))
         print(f"{folder}: {len(text)} bytes, {len(lines) + 2} lines")
+    for path, title, then in THONNY_FILES:
+        text = (JARVIS / path).read_text()
+        blocks.append(BLOCK.format(id=path.replace("/", "-").replace(".", "-"), title=html.escape(title),
+                                   then=html.escape(then), lines=text.count("\n"), code=html.escape(text)))
     (OUT / "index.html").write_text(PAGE.replace("__BLOCKS__", "\n  ".join(blocks)))
 
 
