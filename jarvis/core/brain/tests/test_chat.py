@@ -1,4 +1,3 @@
-import asyncio
 import json
 
 import httpx
@@ -63,7 +62,7 @@ def make_chat(replies, seen):
 
 async def test_conversation_is_resent_word_for_word_for_the_cache():
     seen = []
-    c = make_chat([("Hello there. How can I help?", "stop"), ("It is Tuesday.", "stop")], seen)
+    c = make_chat([("Hello there. How can I help?", "stop"), ("Lima is the capital.", "stop")], seen)
     spoken = []
 
     async def say(s):
@@ -71,7 +70,7 @@ async def test_conversation_is_resent_word_for_word_for_the_cache():
 
     assert await c.ask("hello", say) == "Hello there. How can I help?"
     assert spoken == ["Hello there.", "How can I help?"]
-    await c.ask("what day is it", say)
+    await c.ask("what is the capital of peru", say)
     first, second = seen
     # the second request starts with exactly what the first one sent, then the reply as written
     assert second["messages"][:2] == first["messages"]

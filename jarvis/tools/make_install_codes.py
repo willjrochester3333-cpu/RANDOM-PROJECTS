@@ -8,6 +8,7 @@ of leaving broken code behind.
 
 Run from anywhere:  python3 jarvis/tools/make_install_codes.py
 """
+import gzip
 import base64
 import html
 import io
@@ -75,7 +76,7 @@ def bundle(folder: str) -> bytes:
     buf = io.BytesIO()
     src = JARVIS / folder
     files = sorted(p for p in src.rglob("*") if p.is_file() and wanted(p.relative_to(src)))
-    with tarfile.open(fileobj=buf, mode="w:gz", compresslevel=9) as tar:
+    with tarfile.open(fileobj=buf, mode="w") as tar:
         for f in files:
             info = tarfile.TarInfo(f"jarvis/{folder}/{f.relative_to(src).as_posix()}")
             data = f.read_bytes()
@@ -83,7 +84,8 @@ def bundle(folder: str) -> bytes:
             info.mode = 0o755 if f.suffix == ".sh" else 0o644
             info.mtime = 0
             tar.addfile(info, io.BytesIO(data))
-    return buf.getvalue()
+    # No timestamp in the gzip header either, so unchanged folders give identical blocks.
+    return gzip.compress(buf.getvalue(), compresslevel=9, mtime=0)
 
 
 PAGE = """<title>J.A.R.V.I.S. Install Codes</title>

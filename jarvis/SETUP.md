@@ -126,37 +126,79 @@ Plug a USB microphone and a USB speaker into the server, then run `bash setup.sh
 `core/` (or paste the CORE block). It adds three things to the server:
 
 - **Ollama**, a language model running on the Pi itself. The model (`OLLAMA_MODEL` in
-  `.env`, default `llama3.2:3b`, about 2 GB) is downloaded once by `setup.sh`. On a 4 GB
-  Pi set `OLLAMA_MODEL=llama3.2:1b` before running setup.
+  `.env`, default `llama3.2:1b`, about 1.3 GB) is downloaded once by `setup.sh`.
 - **Speech**, a container with Whisper (hears you) and Piper (the voice). Its models are
   downloaded while the container is built, which takes a while the first time.
 - **Voice**, a small service on the Pi itself that owns the microphone and speaker. Say
   **"Hey Jarvis"**, wait for the beep, ask your question. The dashboard's **Talk** button does
   the same without the wake word, and typed questions get the same answers.
 
-The answer is shown and spoken sentence by sentence as the model writes it, so the first
-words come a few seconds after your question on a Pi 5; a long answer keeps going while it
-talks, and **Stop** (the Talk button, while Jarvis is busy) ends it. The default model is
-`llama3.2:1b`, 2 to 3 times quicker than `llama3.2:3b` but a little less clever. Follow-up
-questions are quick too: the conversation is sent to the model word for word each time, so it
-only has to read the new question. It forgets the conversation after 3 quiet minutes.
+### How a question is answered
 
-With every question the model gets a house report: the date and time (`TZ`), the weather
-station's current reading, the last 24 hours' high, low and pressure trend, a 3-day forecast
-with sunrise and sunset from Open-Meteo (needs `LOCATION_LAT` and `LOCATION_LON` in `.env`),
-dinner, and which devices are online. Anything else it answers from what the model learned
-in training, which for a small model is patchy: dates, weather and the house are reliable,
-trivia is not.
+Fastest first:
+
+1. **Instant answers from the house**, in a few thousandths of a second: the time, the date,
+   the outdoor temperature, the local forecast ("will it rain tomorrow", "do I need a coat",
+   sunrise, sunset), dinner, which devices are offline, sums ("what's 23 times 47", "15 percent
+   of 80") and "say that again".
+2. **The same question again** within 15 minutes gets the same internet answer, instantly.
+3. **Claude with live web search**, once you add an Anthropic API key (below): accurate on
+   almost any question. It searches the web only when the answer could have changed (news,
+   sport, prices, opening times, who holds a job now) and answers settled facts straight
+   away. While it searches, Jarvis says "Let me look that up", and the dashboard lists the
+   sites the answer came from.
+4. **The local model** when there is no key or no internet; Jarvis says which.
+
+Every answer is shown and spoken sentence by sentence as it is written, and **Stop** (the
+Talk button, while Jarvis is busy) ends it. A spoken question also waits about 0.8 seconds
+for you to finish and about a second to be turned into text, so even instant answers take
+about 2 seconds by voice; typed ones appear at once. Rough estimates for Claude's first words,
+not yet measured on your Pi: 1 to 3 seconds without a search, 3 to 8 with one. Each answer
+writes a line with its real timings to the server log:
+
+    sudo docker compose -f ~/jarvis/core/docker-compose.yml logs -f brain | grep timing
+
+Without a key, questions the house can't answer go to the local model, which gets a house
+report with every question (date, time, weather, forecast, dinner, devices) but otherwise only
+knows what it learned in training, which for a small model is patchy. It is quick on
+follow-ups because the conversation is sent to it word for word, so it only reads the new
+question. Conversations are forgotten after 3 quiet minutes.
+
+### Internet answers: adding an API key
+
+1. Sign in to the Claude Console at platform.claude.com, add some credit, and create an API key.
+2. On CORE run `bash ~/jarvis/core/set-key.sh` and paste the key (it doesn't show on screen).
+   It checks the key with Anthropic, saves it in `core/.env` and restarts the server.
+3. Ask something only the internet knows, such as "who won the last Formula 1 race?"
+
+Web search is on for new accounts. If an organisation admin has turned it off (Console,
+Capabilities), Jarvis says "Web search is switched off for this API account" and answers from
+the local model. If Claude declines a question, Anthropic passes it to a backup model
+(server-side fallbacks; on by default for `claude-opus-5-5`).
+
+**What it costs** (Anthropic's prices in November 2026, US dollars): `claude-opus-5-5` costs $4
+per million tokens read and $20 per million written. A web search costs 1 cent, and the pages
+it reads count as tokens read. Roughly, a question costs about 1 cent without a search and 3 to
+15 cents with searches; instant answers and repeats cost nothing. `claude-haiku-5-5` costs about
+a fortieth as much per token ($0.10 and $0.50 per million). Fast mode doubles the token price.
+The Console shows what you have spent.
 
 Useful settings in `core/.env` (run `bash setup.sh` again after changing them):
 
 | Setting | What it does |
 |---|---|
-| `CHAT_BACKEND` | `ollama` (default), `claude` (needs `ANTHROPIC_API_KEY`) or `builtin` |
-| `OLLAMA_MODEL` | any model from ollama.com/library that fits in RAM |
-| `OLLAMA_THREADS` | processor cores for the model (default 3, leaving one for camera and speech) |
-| `MAX_REPLY_TOKENS` | longest answer (default 400, about 300 words); answers that reach it end on a full sentence |
+| `CHAT_BACKEND` | `auto` (default: Claude when a key is set, else the local model), `claude`, `ollama` (local only) or `builtin` |
+| `ANTHROPIC_API_KEY` | your key; `set-key.sh` fills it in |
+| `ONLINE_MODEL` | `claude-opus-5-5` (default, most accurate), or for example `claude-haiku-5-5` (usually quicker, far cheaper, knows less) |
+| `ONLINE_EFFORT` | how hard Claude thinks first: `low` (default, quickest), `medium`, `high` |
+| `ONLINE_FAST_MODE` | `1`: once it starts, the answer arrives up to 2.5 times faster, at twice the price (`claude-opus-5-5`) |
+| `WEB_SEARCHES` | most searches per question (default 2) |
+| `SEARCH_FILTERING` | `1`: Claude runs a small program over the search results first and reads only what matters; cheaper on long searches, one more step |
+| `OLLAMA_MODEL` | the local model: any model from ollama.com/library that fits in RAM |
+| `OLLAMA_THREADS` | processor cores for the local model (default 3, leaving one for camera and speech) |
+| `MAX_REPLY_TOKENS` | longest local answer (default 400, about 300 words); answers that reach it end on a full sentence |
 | `TZ`, `LOCATION_NAME`, `LOCATION_LAT`, `LOCATION_LON` | time zone, place name and coordinates for the date, sunrise and forecast |
+| `LOCATION_COUNTRY` | two-letter country for local web results, such as `GB`; blank = worked out from `TZ` |
 | `MIC_DEVICE`, `SPEAKER_DEVICE` | normally `default`; otherwise a name from `arecord -L` / `aplay -L` |
 | `WAKE_WORD` | `0` turns the wake word off, leaving only the Talk button |
 | `WAKE_THRESHOLD` | raise towards `0.8` if it wakes up by itself, lower towards `0.3` if it ignores you |

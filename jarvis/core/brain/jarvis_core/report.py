@@ -9,15 +9,43 @@ import os
 import re
 import time
 from datetime import datetime
+from importlib.resources import files
+from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 
 log = logging.getLogger("jarvis.report")
 
+
+def country_of(zone: str) -> str:
+    """The two-letter country code of a time zone, e.g. GB for Europe/London, from the time
+    zone database's own table."""
+    for source in (lambda: (files("tzdata") / "zoneinfo" / "zone.tab").read_text(),
+                   lambda: Path("/usr/share/zoneinfo/zone.tab").read_text()):
+        try:
+            table = source()
+        except Exception:
+            continue
+        for line in table.splitlines():
+            parts = line.split("\t")
+            if len(parts) >= 3 and parts[2] == zone and re.fullmatch(r"[A-Z]{2}", parts[0]):
+                return parts[0]
+    return ""
+
+
+def _country(given: str, zone: str) -> str:
+    given = given.strip().upper()
+    given = {"UK": "GB"}.get(given, given)
+    return given if re.fullmatch(r"[A-Z]{2}", given) else country_of(zone)
+
+
 LAT = os.environ.get("LOCATION_LAT", "").strip()
 LON = os.environ.get("LOCATION_LON", "").strip()
 PLACE = os.environ.get("LOCATION_NAME", "").strip()
+TZ_NAME = os.environ.get("TZ", "").strip()
+# Two letters, e.g. GB. Worked out from the time zone when not set.
+COUNTRY = _country(os.environ.get("LOCATION_COUNTRY", ""), TZ_NAME)
 FORECAST_URL = os.environ.get("FORECAST_URL", "https://api.open-meteo.com/v1/forecast")
 FORECAST_TTL = 1800     # seconds between forecast downloads
 
@@ -59,6 +87,8 @@ class Forecast:
     def __init__(self):
         self.enabled = bool(LAT and LON)
         self.text = ""
+        self.days: list[dict] = []       # today, tomorrow, the day after: for instant answers
+        self.sunrise = self.sunset = ""
         self.fetched = 0.0
         self.http = httpx.AsyncClient(timeout=15)
         self._lock = asyncio.Lock()
@@ -82,7 +112,13 @@ class Forecast:
                     "hourly": "temperature_2m,precipitation_probability,weather_code",
                 })
                 r.raise_for_status()
-                self.text = self._render(r.json())
+                data = r.json()
+                self.text = self._render(data)
+                daily = data["daily"]
+                self.days = [{"desc": WEATHER_CODES.get(daily["weather_code"][i], "mixed"),
+                              "high": daily["temperature_2m_max"][i], "low": daily["temperature_2m_min"][i],
+                              "rain": daily["precipitation_probability_max"][i]} for i in range(len(daily["time"]))]
+                self.sunrise, self.sunset = daily["sunrise"][0][11:16], daily["sunset"][0][11:16]
                 self.fetched = time.time()
                 log.info("forecast updated")
             except (httpx.HTTPError, KeyError, ValueError, IndexError) as e:

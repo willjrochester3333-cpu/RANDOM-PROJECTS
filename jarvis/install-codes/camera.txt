@@ -1,5 +1,5 @@
 cd ~ && base64 -d <<'JARVIS_END' | tar -xz && echo "Copied. Now run: bash ~/jarvis/camera/install.sh YOUR-MQTT-PASSWORD SERVER-IP"
-H4sIAK2M/GoC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
+H4sIAAAAAAAC/+06a3PbOJL5zF+BYbw11KxIyY6TSSmmpxzHcbwzib2SMqm9bI4FkZCEhCIYArSt
 8/m/XzcAUqIeTmZu6+6qTqhKLOLR6G70G/hMi2suOzGdsYLaP0E+f/SvbF1ozw4P9V9oK38Puj93
 n1V9pn//4En34BHpPvofaKVUtIDtH/3/bI9/6JSy6Ix41mHZNcnnaiqyJ47ruqcnb8/6Jz0iVcHo
 TBJK+lTmI1YUc3LFiREVogRRU0b+FpwE/eD34CIYBCShcjoStEgCxxnCYM5jVRaMcEkkK65ZQqgk
