@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconn
 from fastapi.responses import FileResponse, PlainTextResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
-from .chat import CLAUDE_MODEL, OLLAMA_MODEL, Chat
+from .chat import OLLAMA_MODEL, Chat
 from .house import T_STOP, House
 from .relay import Relays
 from .store import Store
@@ -108,7 +108,7 @@ class ChatIn(BaseModel):
 
 
 class VoiceState(BaseModel):
-    state: str = Field(pattern="^(idle|listening|thinking|searching|speaking)$")
+    state: str = Field(pattern="^(idle|listening|thinking|speaking)$")
     text: str = Field(default="", max_length=2000)
 
 
@@ -151,31 +151,22 @@ async def dinner_clear():
 @app.post("/api/chat")
 async def chat_endpoint(body: ChatIn):
     await notify({"type": "voice", "state": "thinking", "text": body.text})
-    started = False
 
     async def on_sentence(sentence: str) -> None:
-        # Shown and spoken as soon as the model finishes it, so the answer starts sooner.
-        nonlocal started
-        started = True
+        # Shown and spoken as soon as the model writes it, so the answer starts sooner.
         await notify({"type": "partial", "text": sentence})
         if body.speak:
             await house.say(sentence)
 
-    async def on_status(status: str) -> None:
-        await notify({"type": "voice", "state": status, "text": body.text})
-        if status == "searching" and body.speak and not started:
-            await house.say("Let me look that up.")       # heard at once, while the search runs
-
-    reply = await chat.ask(body.text, on_sentence=on_sentence, on_status=on_status)
-    sources = chat.last_sources
-    await notify({"type": "chat", "source": body.source, "text": body.text, "reply": reply, "sources": sources})
+    reply = await chat.ask(body.text, on_sentence=on_sentence)
+    await notify({"type": "chat", "source": body.source, "text": body.text, "reply": reply})
     await notify({"type": "voice", "state": "idle"})
-    return {"reply": reply, "sources": sources}
+    return {"reply": reply}
 
 
 @app.post("/api/ready")
 async def ready():
-    """Someone is about to ask something: open the internet connection ahead of the question."""
+    """Someone is about to ask something: the model reads ahead while they do."""
     chat.get_ready()
     return {"ok": True}
 
@@ -192,7 +183,7 @@ async def voice_stop():
 @app.get("/api/report")
 async def report(q: str = ""):
     """What the model is told along with a question (all of it when q is empty)."""
-    model = {"claude": f"{CLAUDE_MODEL} with web search", "ollama": OLLAMA_MODEL}.get(chat.backend, chat.backend)
+    model = OLLAMA_MODEL if chat.backend == "ollama" else chat.backend
     return PlainTextResponse(f"Answering with: {model}\n\n{await chat.report(q)}\n")
 
 
@@ -255,7 +246,7 @@ async def listen():
 async def voice_state(body: VoiceState):
     """The microphone service reports what it is doing, so dashboards can show it."""
     if body.state == "listening":
-        chat.get_ready()              # open the internet connection while they speak
+        chat.get_ready()              # the model reads ahead while they speak
     await notify({"type": "voice", "state": body.state, "text": body.text})
     return {"ok": True}
 

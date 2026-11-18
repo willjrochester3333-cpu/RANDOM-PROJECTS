@@ -1,4 +1,4 @@
-from jarvis_core.report import Forecast, describe, topics
+from jarvis_core.report import Forecast, base, describe, details, topics
 
 SNAP = {
     "weather": {"ts": 0, "temp_c": 8.4, "humidity": 71, "pressure_hpa": 1009.2, "age_s": 30, "stale": False},
@@ -38,3 +38,10 @@ def test_dinner_shown_when_called_even_if_not_asked():
 def test_empty_question_gets_everything():
     text = describe(SNAP, HIST, Forecast(), "")
     assert all(k in text for k in ("Last 24 hours", "Dinner has not", "Devices online: core", "Devices offline: beacon"))
+
+
+def test_base_does_not_depend_on_the_question():
+    assert base(SNAP, "Monday 1 December 2026, 09:00") == "Now: Monday 1 December 2026, 09:00. Outside: 8 degrees."
+    assert details(SNAP, HIST, Forecast(), "who wrote Hamlet?") == ""
+    calling = {**SNAP, "dinner": {"state": "calling"}}
+    assert "Dinner is ready" in base(calling, "x") and "Dinner" not in details(calling, HIST, Forecast(), "is dinner ready")

@@ -9,8 +9,6 @@ import os
 import re
 import time
 from datetime import datetime
-from importlib.resources import files
-from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
@@ -18,34 +16,9 @@ import httpx
 log = logging.getLogger("jarvis.report")
 
 
-def country_of(zone: str) -> str:
-    """The two-letter country code of a time zone, e.g. GB for Europe/London, from the time
-    zone database's own table."""
-    for source in (lambda: (files("tzdata") / "zoneinfo" / "zone.tab").read_text(),
-                   lambda: Path("/usr/share/zoneinfo/zone.tab").read_text()):
-        try:
-            table = source()
-        except Exception:
-            continue
-        for line in table.splitlines():
-            parts = line.split("\t")
-            if len(parts) >= 3 and parts[2] == zone and re.fullmatch(r"[A-Z]{2}", parts[0]):
-                return parts[0]
-    return ""
-
-
-def _country(given: str, zone: str) -> str:
-    given = given.strip().upper()
-    given = {"UK": "GB"}.get(given, given)
-    return given if re.fullmatch(r"[A-Z]{2}", given) else country_of(zone)
-
-
 LAT = os.environ.get("LOCATION_LAT", "").strip()
 LON = os.environ.get("LOCATION_LON", "").strip()
 PLACE = os.environ.get("LOCATION_NAME", "").strip()
-TZ_NAME = os.environ.get("TZ", "").strip()
-# Two letters, e.g. GB. Worked out from the time zone when not set.
-COUNTRY = _country(os.environ.get("LOCATION_COUNTRY", ""), TZ_NAME)
 FORECAST_URL = os.environ.get("FORECAST_URL", "https://api.open-meteo.com/v1/forecast")
 FORECAST_TTL = 1800     # seconds between forecast downloads
 
@@ -58,6 +31,10 @@ except (ZoneInfoNotFoundError, ValueError):
 
 def now() -> datetime:
     return datetime.now(ZONE)
+
+
+def clock_text() -> str:
+    return now().strftime("%A %d %B %Y, %H:%M")
 
 
 # Only the parts of the report that matter for the question are sent: on a Pi, every word the
@@ -153,58 +130,74 @@ def topics(question: str) -> set[str]:
     return {name for name, pattern in TOPICS.items() if re.search(rf"\b({pattern})", q)}
 
 
-def describe(snapshot: dict, history: list[dict], forecast: Forecast, question: str = "") -> str:
+def base(snapshot: dict, clock: str) -> str:
+    """The part of the report every question gets: when and where it is, the temperature
+    outside, and dinner if it has been called. It doesn't depend on the question, so the model
+    can read it while the question is still being asked."""
+    parts = ["Now: " + clock + (f" in {PLACE}" if PLACE else "") + "."]
+    w = snapshot.get("weather")
+    if w and not w["stale"]:
+        parts.append(f"Outside: {w['temp_c']:.0f} degrees.")
+    d = snapshot.get("dinner", {})
+    if d.get("state") in ("calling", "acknowledged"):
+        parts.append(_DINNER[d["state"]])
+    return " ".join(parts)
+
+
+_DINNER = {"idle": "Dinner has not been called.",
+           "calling": "Dinner is ready and nobody has answered yet.",
+           "acknowledged": "Dinner is ready and someone has said they are on their way."}
+
+
+def details(snapshot: dict, history: list[dict], forecast: Forecast, question: str = "") -> str:
+    """The parts of the report a question needs on top of the base: the full weather for a
+    weather question, dinner for a dinner question, devices for a question about devices."""
     want = topics(question)
     parts = []
-    parts.append("Now: " + now().strftime("%A %d %B %Y, %H:%M") + (f" in {PLACE}" if PLACE else "") + ".")
-
     w = snapshot.get("weather")
-    if "weather" not in want:
-        if w and not w["stale"]:
-            parts.append(f"Outside: {w['temp_c']:.0f} degrees.")
-    elif w:
-        mins = w["age_s"] // 60
-        when = "just now" if mins < 1 else f"{mins} minutes ago"
-        stale = " This reading is old; the station may be down." if w["stale"] else ""
-        parts.append(f"Outside right now, from our own weather station: {w['temp_c']:.1f} degrees C, "
-                     f"{w['humidity']:.0f} percent humidity, pressure {w['pressure_hpa']:.0f} hectopascals, measured {when}.{stale}")
-    else:
-        parts.append("Our own weather station has not reported yet.")
-    if "weather" in want and len(history) >= 2:
-        temps = [h["temp_c"] for h in history]
-        lo, hi = min(temps), max(temps)
-        parts.append(f"Last 24 hours: low {lo:.1f}, high {hi:.1f} degrees.")
-        now_ts = history[-1]["ts"]
-        earlier = [h for h in history if now_ts - h["ts"] >= 3 * 3600]
-        if earlier:
-            change = history[-1]["pressure_hpa"] - earlier[-1]["pressure_hpa"]
-            if change <= -1.5:
-                parts.append(f"Pressure falling ({change:+.1f} hPa in 3 hours): rain or wind more likely.")
-            elif change >= 1.5:
-                parts.append(f"Pressure rising ({change:+.1f} hPa in 3 hours): settling weather.")
-            else:
-                parts.append("Pressure steady.")
     if "weather" in want:
+        if w:
+            mins = w["age_s"] // 60
+            when = "just now" if mins < 1 else f"{mins} minutes ago"
+            stale = " This reading is old; the station may be down." if w["stale"] else ""
+            parts.append(f"Our weather station: {w['temp_c']:.1f} degrees C, {w['humidity']:.0f} percent "
+                         f"humidity, pressure {w['pressure_hpa']:.0f} hectopascals, measured {when}.{stale}")
+        else:
+            parts.append("Our own weather station has not reported yet.")
+        if len(history) >= 2:
+            temps = [h["temp_c"] for h in history]
+            parts.append(f"Last 24 hours: low {min(temps):.1f}, high {max(temps):.1f} degrees.")
+            now_ts = history[-1]["ts"]
+            earlier = [h for h in history if now_ts - h["ts"] >= 3 * 3600]
+            if earlier:
+                change = history[-1]["pressure_hpa"] - earlier[-1]["pressure_hpa"]
+                if change <= -1.5:
+                    parts.append(f"Pressure falling ({change:+.1f} hPa in 3 hours): rain or wind more likely.")
+                elif change >= 1.5:
+                    parts.append(f"Pressure rising ({change:+.1f} hPa in 3 hours): settling weather.")
+                else:
+                    parts.append("Pressure steady.")
         if forecast.enabled:
             parts.append("Forecast: " + (forecast.text or "not available right now."))
         else:
             parts.append("No forecast is set up (LOCATION_LAT and LOCATION_LON are empty).")
-
-    d = snapshot.get("dinner", {})
-    if "dinner" in want or d.get("state") in ("calling", "acknowledged"):
-        parts.append({"idle": "Dinner has not been called.",
-                  "calling": "Dinner is ready and nobody has answered yet.",
-                  "acknowledged": "Dinner is ready and someone has said they are on their way."}
-                 .get(d.get("state"), "Dinner: unknown."))
-    if "devices" not in want:
-        return " ".join(parts)
-    nodes = snapshot.get("nodes", {})
-    on = sorted(n for n, s in nodes.items() if s.get("online"))
-    off = sorted(n for n, s in nodes.items() if not s.get("online"))
-    if on:
-        parts.append("Devices online: " + ", ".join(on) + ".")
-    if off:
-        parts.append("Devices offline: " + ", ".join(off) + ".")
-    if snapshot.get("cameras"):
-        parts.append("A live camera is showing on the dashboard.")
+    state = snapshot.get("dinner", {}).get("state")
+    if "dinner" in want and state not in ("calling", "acknowledged"):      # those are in the base
+        parts.append(_DINNER.get(state, "Dinner: unknown."))
+    if "devices" in want:
+        nodes = snapshot.get("nodes", {})
+        on = sorted(n for n, s in nodes.items() if s.get("online"))
+        off = sorted(n for n, s in nodes.items() if not s.get("online"))
+        if on:
+            parts.append("Devices online: " + ", ".join(on) + ".")
+        if off:
+            parts.append("Devices offline: " + ", ".join(off) + ".")
+        if snapshot.get("cameras"):
+            parts.append("A live camera is showing on the dashboard.")
     return " ".join(parts)
+
+
+def describe(snapshot: dict, history: list[dict], forecast: Forecast, question: str = "") -> str:
+    """The whole report for a question (an empty question gets everything)."""
+    extra = details(snapshot, history, forecast, question)
+    return base(snapshot, clock_text()) + (f" {extra}" if extra else "")

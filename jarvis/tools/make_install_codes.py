@@ -25,9 +25,8 @@ PIS = {
                 "MQTT password: copy it somewhere safe, every other device needs it. Then type "
                 "hostname -I to get the server's IP address and open http://THAT-ADDRESS/ in a "
                 "browser to see the dashboard. With a USB microphone and speaker plugged in, "
-                "say 'Hey Jarvis' once it is done. For internet answers to any question, then "
-                "run: bash ~/jarvis/core/set-key.sh and paste your Anthropic API key (from "
-                "platform.claude.com); it doesn't show on screen.",
+                "say 'Hey Jarvis' once it is done. To compare models on your "
+                "Pi afterwards, run: bash ~/jarvis/core/bench.sh",
     },
     "outpost": {
         "title": "OUTPOST weather station (Raspberry Pi 3)",
@@ -109,7 +108,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>J.A.R.V.I.S. Install Codes</h1>
-    <p>One short line per Pi. The Pi downloads its J.A.R.V.I.S. files from GitHub itself and installs them, so nothing big goes through the paste. Your settings (passwords, API key) stay as they are. The GitHub repository has to be public for the download to work.</p>
+    <p>One short line per Pi. The Pi downloads its J.A.R.V.I.S. files from GitHub itself and installs them, so nothing big goes through the paste. Your settings (such as passwords) stay as they are. The GitHub repository has to be public for the download to work.</p>
   </header>
   <section style="display:flex;flex-direction:column;gap:10px">
     <h2>How to use</h2>

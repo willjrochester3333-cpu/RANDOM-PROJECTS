@@ -23,7 +23,7 @@ flowchart LR
     CORE((CORE<br/>Pi 5 server))
     OUTPOST[OUTPOST<br/>Pi 3 + Sense HAT] -->|reading every 60 s| CORE
     CORE <-->|alert / ack| BEACON[BEACON<br/>Pico 2 W]
-    CORE -.->|optional| LLM[Claude API]
+    CORE --- LLM[Ollama<br/>language model on CORE]
 ```
 
 ## MQTT topics

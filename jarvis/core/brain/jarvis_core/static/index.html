@@ -47,7 +47,6 @@ button.chip.on { color:#1a1305; background:var(--amber); border-color:var(--ambe
 .dot.on { background:var(--ok); } .dot.off { background:var(--bad); }
 #log { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; font-size:.95rem; min-height:60px; }
 #log .me { color:var(--muted); } #log .j { color:var(--ink); }
-#log .src { color:var(--muted); font-size:.75rem; margin-top:-4px; }
 #log .live::after { content:"\25CD"; color:var(--amber); margin-left:4px; animation:blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity:0; } }
 @media (prefers-reduced-motion: reduce) { #log .live::after { animation:none; } }
@@ -250,12 +249,6 @@ function addToAnswer(text) {
 function finishAnswer(m) {
   if (live) { live.textContent = m.reply; live.classList.remove("live"); live = null; }
   else { line("me", m.text); line("j", m.reply); }
-  // The web pages an internet answer came from, by site name. Plain text, not links, so a tap
-  // on the touchscreen console can't leave the dashboard.
-  const sites = [...new Set((m.sources || []).map(s => {
-    try { return new URL(s.url).hostname.replace(/^www\./, ""); } catch { return ""; }
-  }).filter(Boolean))];
-  if (sites.length) line("src", "Sources: " + sites.join(" · "));
 }
 
 function connect() {
@@ -281,15 +274,15 @@ async function post(path, body) {
   return r.json();
 }
 
-const VOICE_TEXT = {listening: "Listening…", thinking: "Thinking…", searching: "Searching the web…", speaking: "Speaking…", idle: ""};
+const VOICE_TEXT = {listening: "Listening…", thinking: "Thinking…", speaking: "Speaking…", idle: ""};
 let voiceTimer = null;
 function voiceState(m) {
   const el = $("voice");
-  el.textContent = (VOICE_TEXT[m.state] || "") + ((m.state === "thinking" || m.state === "searching") && m.text ? " " + m.text : "");
+  el.textContent = (VOICE_TEXT[m.state] || "") + (m.state === "thinking" && m.text ? " " + m.text : "");
   el.className = m.state === "idle" ? "" : "on";
   $("talk").classList.toggle("live", m.state === "listening");
   // While Jarvis thinks or talks, the Talk button stops him instead.
-  $("talk").textContent = ["thinking", "searching", "speaking"].includes(m.state) ? "Stop" : "Talk";
+  $("talk").textContent = ["thinking", "speaking"].includes(m.state) ? "Stop" : "Talk";
   clearTimeout(voiceTimer);
   if (m.state !== "idle") voiceTimer = setTimeout(() => voiceState({state: "idle"}), 60000);
 }
@@ -299,7 +292,7 @@ $("talk").onclick = () => {
 };
 $("ack").onclick = () => post("/api/dinner/ack").catch(() => {});
 $("call").onclick = () => post("/api/dinner/call").catch(() => {});
-// Starting to type opens the server's internet connection, so the answer doesn't wait for it.
+// Starting to type lets the model read ahead (the house report, the conversation) meanwhile.
 $("q").addEventListener("focus", () => post("/api/ready").catch(() => {}));
 $("ask").onsubmit = async e => {
   e.preventDefault();

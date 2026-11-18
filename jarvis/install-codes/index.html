@@ -41,7 +41,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>J.A.R.V.I.S. Install Codes</h1>
-    <p>One short line per Pi. The Pi downloads its J.A.R.V.I.S. files from GitHub itself and installs them, so nothing big goes through the paste. Your settings (passwords, API key) stay as they are. The GitHub repository has to be public for the download to work.</p>
+    <p>One short line per Pi. The Pi downloads its J.A.R.V.I.S. files from GitHub itself and installs them, so nothing big goes through the paste. Your settings (such as passwords) stay as they are. The GitHub repository has to be public for the download to work.</p>
   </header>
   <section style="display:flex;flex-direction:column;gap:10px">
     <h2>How to use</h2>
@@ -54,7 +54,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
   </section>
   <section class="pi" aria-labelledby="h-core">
     <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
-    <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done. For internet answers to any question, then run: bash ~/jarvis/core/set-key.sh and paste your Anthropic API key (from platform.claude.com); it doesn&#x27;t show on screen.</p>
+    <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done. To compare models on your Pi afterwards, run: bash ~/jarvis/core/bench.sh</p>
     <pre class="cmd" id="code-core">if curl -fsSL https://github.com/willjrochester3333-cpu/RANDOM-PROJECTS/archive/refs/heads/claude/peaceful-mayer-pfwzre.tar.gz | tar -xz -C ~ --strip-components=1 --wildcards &#x27;*/jarvis/core&#x27;; then cd ~/jarvis/core &amp;&amp; bash setup.sh; else echo &#x27;Download failed: is the GitHub repository public, and is this Pi online?&#x27;; fi</pre>
   </section>
   <section class="pi" aria-labelledby="h-outpost">

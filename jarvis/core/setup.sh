@@ -21,13 +21,10 @@ if [ "$ver" -lt 2 ] && grep -q "^OLLAMA_MODEL=llama3.2:3b$" .env; then
     echo "Switched to the faster model llama3.2:1b."
     echo "To go back: set OLLAMA_MODEL=llama3.2:3b in $PWD/.env and run setup.sh again."
 fi
-if [ "$ver" -lt 3 ] && grep -q "^CHAT_BACKEND=ollama$" .env; then
-    # version 3: internet answers (Claude with web search) whenever an API key is set
-    sed -i "s/^CHAT_BACKEND=ollama$/CHAT_BACKEND=auto/" .env
-    echo "Internet answers are ready: run  bash $PWD/set-key.sh  to add your Anthropic API key."
-    echo "Until then the local model answers, as before."
-fi
-if [ "$ver" -lt 3 ]; then
+if [ "$ver" -lt 4 ]; then
+    # version 4: the local model answers everything again; internet-answer settings go
+    sed -i "s/^CHAT_BACKEND=auto$/CHAT_BACKEND=ollama/" .env
+    sed -i -E '/^(ONLINE_MODEL|ONLINE_EFFORT|ONLINE_FAST_MODE|WEB_SEARCHES|SEARCH_FILTERING|LOCATION_COUNTRY)=/d; /^ANTHROPIC_API_KEY=$/d' .env
     sed -i '/^JARVIS_ENV_VERSION=/d' .env     # the new version line is added just below
 fi
 while IFS= read -r line; do
@@ -105,10 +102,6 @@ echo "Every other node needs these two values:"
 echo "  MQTT user:     $MQTT_USER"
 echo "  MQTT password: $MQTT_PASSWORD"
 echo
-if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
-    echo "Internet answers: run  bash $PWD/set-key.sh  to add an Anthropic API key (see SETUP.md)."
-    echo
-fi
 echo "Voice: say 'Hey Jarvis', wait for the beep, then ask your question."
 echo "  Sound devices found:   arecord -l   and   aplay -l"
 echo "  Voice service log:     journalctl -u jarvis-voice -f"
