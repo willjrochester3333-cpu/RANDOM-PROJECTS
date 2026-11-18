@@ -298,7 +298,8 @@ class Chat:
                 return
             if r.status_code == 200:
                 self._read_ahead_for = key
-                log.info("read ahead in %.1fs (%d new tokens): ready for the question",
+                # Ollama counts the whole prompt, including what it already had: the time is what matters.
+                log.info("read ahead in %.1fs (prompt %d tokens): ready for the question",
                          time.monotonic() - t0, stats.get("prompt_eval_count", 0))
 
     async def _ollama(self, text: str, on_sentence: OnSentence | None, stopped_by_user=lambda: False) -> str:
@@ -378,15 +379,16 @@ class Chat:
 
     @staticmethod
     def _log_timing(t0: float, first: float | None, said: float | None, stats: dict) -> None:
-        """One line per answer showing where the time went, for `docker compose logs brain`."""
+        """One line per answer showing where the time went, for `docker compose logs brain`. The
+        prompt count includes what was already read ahead; the read time is only the new part."""
         def secs(key):
             return stats.get(key, 0) / 1e9
         read_n, write_n = stats.get("prompt_eval_count", 0), stats.get("eval_count", 0)
         log.info(
             "answer timing: total %.1fs, first words written after %.1fs, first words to say after %.1fs | "
-            "load %.1fs | read %d new tokens in %.1fs (%.0f/s) | wrote %d tokens in %.1fs (%.1f/s)",
+            "load %.1fs | prompt %d tokens, read in %.1fs | wrote %d tokens in %.1fs (%.1f/s)",
             time.monotonic() - t0, first or 0, said or 0, secs("load_duration"),
-            read_n, secs("prompt_eval_duration"), read_n / max(secs("prompt_eval_duration"), 1e-3),
+            read_n, secs("prompt_eval_duration"),
             write_n, secs("eval_duration"), write_n / max(secs("eval_duration"), 1e-3))
 
     # ---- builtin ----
