@@ -53,7 +53,7 @@ pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--
   </section>
   <section class="pi" aria-labelledby="h-core">
     <div class="row"><h2 id="h-core">CORE server (Raspberry Pi 5)</h2><button type="button" id="copy-core" data-copy="code-core">Copy</button></div>
-    <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done.</p>
+    <p>Setup starts by itself and takes 10 to 20 minutes the first time. Pasting it again later updates the server and keeps your password. At the end it prints the MQTT password: copy it somewhere safe, every other device needs it. Then type hostname -I to get the server&#x27;s IP address and open http://THAT-ADDRESS/ in a browser to see the dashboard. With a USB microphone and speaker plugged in, say &#x27;Hey Jarvis&#x27; once it is done. For internet answers to any question, then run: bash ~/jarvis/core/set-key.sh and paste your Anthropic API key (from platform.claude.com); it doesn&#x27;t show on screen.</p>
     <details><summary>Show the block (711 lines)</summary><pre id="code-core">cd ~ &amp;&amp; base64 -d &lt;&lt;&#x27;JARVIS_END&#x27; | tar -xz &amp;&amp; cd ~/jarvis/core &amp;&amp; bash setup.sh
 H4sIAAAAAAAC/+y973rbRpI3Op95FRh4vAZtCiYl2XFo01nFVsae2JbXUiZvRtZyIBKUEJEADYCS
 GUnPs7dxvp4P5/O5hnMp75Wc+lV1A90ASMnJzOzzvBvvTkQA3dX/qqurquvPz0F6HmUPR0kaPvTD

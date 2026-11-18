@@ -29,7 +29,9 @@ PIS = {
                 "MQTT password: copy it somewhere safe, every other device needs it. Then type "
                 "hostname -I to get the server's IP address and open http://THAT-ADDRESS/ in a "
                 "browser to see the dashboard. With a USB microphone and speaker plugged in, "
-                "say 'Hey Jarvis' once it is done.",
+                "say 'Hey Jarvis' once it is done. For internet answers to any question, then "
+                "run: bash ~/jarvis/core/set-key.sh and paste your Anthropic API key (from "
+                "platform.claude.com); it doesn't show on screen.",
     },
     "outpost": {
         "title": "OUTPOST weather station (Raspberry Pi 3)",
