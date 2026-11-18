@@ -235,15 +235,17 @@ Anyone on your home network who opens the dashboard can see the camera.
 - **Chat with an API key** uses the Anthropic API and was not exercised in testing (no key
   was available).
 
-## Installing by paste (Raspberry Pi Connect)
+## Installing with one line (Raspberry Pi Connect)
 
 If you control a Pi through Raspberry Pi Connect's terminal, you can skip copying files.
-`install-codes/` holds one paste block per Pi (`core.txt`, `outpost.txt`, `console.txt`),
-and `install-codes/index.html` shows them with Copy buttons. Paste the whole block into
-the Pi's terminal: it unpacks that Pi's folder into `~/jarvis/`, and for CORE it also starts
-`setup.sh`.
+`install-codes/index.html` shows one short line per Pi with a Copy button (the same lines are
+in `install-codes/*.txt`). Paste it into the Pi's terminal: the Pi downloads this branch from
+GitHub, unpacks only its own folder into `~/jarvis/`, and for CORE starts `setup.sh`. Settings
+such as `core/.env` are not in the repository, so updating never touches your passwords or
+API key. The repository must be public for the download to work. (Large pasted blocks crash
+Pi Connect's terminal, which is why the lines download instead.)
 
-After changing any code, rebuild the blocks with:
+After changing the page text, or the branch it downloads from, rebuild it with:
 
 ```sh
 python3 jarvis/tools/make_install_codes.py

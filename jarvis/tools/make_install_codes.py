@@ -1,25 +1,21 @@
 #!/usr/bin/env python3
-"""Builds one paste-able install block per Raspberry Pi.
+"""Builds the install page: one short line per Raspberry Pi to paste into its terminal.
 
-Each block is a gzipped tar of that Pi's folder, base64-encoded inside a shell
-here-document. Base64 has no characters a terminal or bash can mangle (no `!`,
-tabs or quotes), and gzip's checksum makes a damaged paste fail loudly instead
-of leaving broken code behind.
+Each line downloads this branch from GitHub (the repository must be public), unpacks only
+that Pi's folder into ~/jarvis/ and starts its installer. Settings files such as .env are
+not in the repository, so an update never touches them. A short line pastes reliably in
+Raspberry Pi Connect, where large pasted blocks crash the terminal.
 
 Run from anywhere:  python3 jarvis/tools/make_install_codes.py
 """
-import gzip
-import base64
 import html
-import io
-import tarfile
 from pathlib import Path
 
 JARVIS = Path(__file__).resolve().parent.parent
 OUT = JARVIS / "install-codes"
-SKIP_NAMES = {".env", "passwd", "__pycache__", ".pytest_cache", "config.py", "tests", "pytest.ini"}
-SKIP_SUFFIXES = {".db", ".pyc"}
-
+REPO = "willjrochester3333-cpu/RANDOM-PROJECTS"
+BRANCH = "claude/peaceful-mayer-pfwzre"
+DOWNLOAD = f"https://github.com/{REPO}/archive/refs/heads/{BRANCH}.tar.gz"
 PIS = {
     "core": {
         "title": "CORE server (Raspberry Pi 5)",
@@ -70,26 +66,6 @@ PIS = {
 }
 
 
-def wanted(path: Path) -> bool:
-    return not any(p in SKIP_NAMES for p in path.parts) and path.suffix not in SKIP_SUFFIXES
-
-
-def bundle(folder: str) -> bytes:
-    buf = io.BytesIO()
-    src = JARVIS / folder
-    files = sorted(p for p in src.rglob("*") if p.is_file() and wanted(p.relative_to(src)))
-    with tarfile.open(fileobj=buf, mode="w") as tar:
-        for f in files:
-            info = tarfile.TarInfo(f"jarvis/{folder}/{f.relative_to(src).as_posix()}")
-            data = f.read_bytes()
-            info.size = len(data)
-            info.mode = 0o755 if f.suffix == ".sh" else 0o644
-            info.mtime = 0
-            tar.addfile(info, io.BytesIO(data))
-    # No timestamp in the gzip header either, so unchanged folders give identical blocks.
-    return gzip.compress(buf.getvalue(), compresslevel=9, mtime=0)
-
-
 PAGE = """<title>J.A.R.V.I.S. Install Codes</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
@@ -126,21 +102,22 @@ button { font: 600 1rem var(--body); background: var(--accent); color: var(--on-
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 button.done { background: var(--ok); color: var(--panel); }
 details summary { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+pre.cmd { max-height: none; white-space: pre-wrap; word-break: break-all; font-size: 12px; margin: 0; }
 pre { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 11px/1.45 var(--mono); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 10px; white-space: pre; user-select: all; }
 </style>
 
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>J.A.R.V.I.S. Install Codes</h1>
-    <p>One paste puts all of a Pi's J.A.R.V.I.S. files on it. The block is compressed, so it looks like random letters; the readable code is in the <code>jarvis/</code> folder on GitHub. If any part of the paste goes missing, it stops with an error instead of installing broken code.</p>
+    <p>One short line per Pi. The Pi downloads its J.A.R.V.I.S. files from GitHub itself and installs them, so nothing big goes through the paste. Your settings (passwords, API key) stay as they are. The GitHub repository has to be public for the download to work.</p>
   </header>
   <section style="display:flex;flex-direction:column;gap:10px">
     <h2>How to use</h2>
     <ol>
       <li>Open the Pi's terminal in Raspberry Pi Connect.</li>
-      <li>Click <b>Copy</b> on the block for that Pi below.</li>
+      <li>Click <b>Copy</b> on the line for that Pi below.</li>
       <li>Click in the terminal and paste with <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> or right-click, Paste. If the browser asks to allow the clipboard, allow it.</li>
-      <li>Press <kbd>Enter</kbd> if nothing starts by itself.</li>
+      <li>Press <kbd>Enter</kbd>.</li>
     </ol>
   </section>
   __BLOCKS__
@@ -156,7 +133,7 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
       btn.classList.add("done");
       setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2500);
     } catch {
-      pre.closest("details").open = true;
+      const d = pre.closest("details"); if (d) d.open = true;
       const r = document.createRange(); r.selectNodeContents(pre);
       const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
       btn.textContent = "Selected: press Ctrl+C";
@@ -165,6 +142,12 @@ document.querySelectorAll("button[data-copy]").forEach(btn => {
 });
 </script>
 """
+
+CMD_BLOCK = """<section class="pi" aria-labelledby="h-{id}">
+    <div class="row"><h2 id="h-{id}">{title}</h2><button type="button" id="copy-{id}" data-copy="code-{id}">Copy</button></div>
+    <p>{then}</p>
+    <pre class="cmd" id="code-{id}">{code}</pre>
+  </section>"""
 
 BLOCK = """<section class="pi" aria-labelledby="h-{id}">
     <div class="row"><h2 id="h-{id}">{title}</h2><button type="button" id="copy-{id}" data-copy="code-{id}">Copy</button></div>
@@ -185,21 +168,22 @@ THONNY_FILES = [
 ]
 
 
+def command(folder: str, after: str) -> str:
+    """Download, unpack only jarvis/<folder>, then run the Pi's next step."""
+    return (f"if curl -fsSL {DOWNLOAD} | tar -xz -C ~ --strip-components=1 --wildcards '*/jarvis/{folder}'; "
+            f"then {after}; else echo 'Download failed: is the GitHub repository public, and is this Pi online?'; fi")
+
+
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     blocks = []
     for folder, meta in PIS.items():
-        b64 = base64.b64encode(bundle(folder)).decode()
-        lines = [b64[i:i + 76] for i in range(0, len(b64), 76)]
-        text = (
-            f"cd ~ && base64 -d <<'JARVIS_END' | tar -xz && {meta['after']}\n"
-            + "\n".join(lines)
-            + "\nJARVIS_END\n"
-        )
-        (OUT / f"{folder.replace('/', '-')}.txt").write_text(text)
-        blocks.append(BLOCK.format(id=folder.replace("/", "-"), title=html.escape(meta["title"]), then=html.escape(meta["then"]),
-                                   lines=len(lines) + 2, code=html.escape(text)))
-        print(f"{folder}: {len(text)} bytes, {len(lines) + 2} lines")
+        name = folder.replace("/", "-")
+        cmd = command(folder, meta["after"])
+        (OUT / f"{name}.txt").write_text(cmd + "\n")
+        blocks.append(CMD_BLOCK.format(id=name, title=html.escape(meta["title"]), then=html.escape(meta["then"]),
+                                       code=html.escape(cmd)))
+        print(f"{folder}: {len(cmd)} characters")
     for path, title, then in THONNY_FILES:
         text = (JARVIS / path).read_text()
         blocks.append(BLOCK.format(id=path.replace("/", "-").replace(".", "-"), title=html.escape(title),
