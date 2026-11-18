@@ -26,6 +26,7 @@ if [ "$ver" -lt 4 ]; then
     sed -i "s/^CHAT_BACKEND=auto$/CHAT_BACKEND=ollama/" .env
     sed -i -E '/^(ONLINE_MODEL|ONLINE_EFFORT|ONLINE_FAST_MODE|WEB_SEARCHES|SEARCH_FILTERING|LOCATION_COUNTRY)=/d; /^ANTHROPIC_API_KEY=$/d' .env
     sed -i '/^JARVIS_ENV_VERSION=/d' .env     # the new version line is added just below
+    rm -f set-key.sh                          # the internet version's key helper, no longer used
 fi
 while IFS= read -r line; do
     key="${line%%=*}"
