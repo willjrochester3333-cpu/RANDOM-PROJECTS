@@ -26,6 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 FAST = "--fast" in ARGS
+VIEWS = [a.split("=", 1)[1] for a in ARGS if a.startswith("--view=")]   # render only these views
 SEG = 48 if FAST else 144
 
 D = json.load(open(os.path.join(ROOT, "design.json")))
@@ -336,7 +337,12 @@ def latch_bolt(M, sx):
     L = 13.0
     m = box(L, 4.0, 3.0, sx * (r_tip - L / 2), 0, Z_LATCH)
     m = m - cyl(0.7, 6.0, Z_LATCH - 3.0, sx * 22.0, 0, segs=16)               # 1.4 mm hole for the wire link
-    return register("latch_bolt_" + ("pos" if sx > 0 else "neg"), m, M["black"], note="PETG. Must slide freely; rub with graphite/wax")
+    # snap-in latch: 45 deg bevel (1.6 mm legs) on the TOP outer edge, so the collar sliding down pushes the bolt in;
+    # the bottom stays square and carries the spring load. The springy wire link pushes it back out.
+    a = 1.6 * math.sqrt(2.0)
+    m = m - box(a, 6.0, a).rotate((0, 45, 0)).translate((sx * r_tip, 0, Z_LATCH + 1.5))
+    return register("latch_bolt_" + ("pos" if sx > 0 else "neg"), m, M["black"],
+                    note="PETG. Bevel UP. Must slide freely; rub with graphite/wax")
 
 
 def spring_piston(M):
@@ -468,8 +474,10 @@ def tvc_frame(M):
     # 2 x M3 radial screws (shared with the fin can)
     for a in TAIL_SCREW_ANG:     # nut traps sit above the retainer's swing (gimbal sweep check)
         m = m - polar(xcyl(1.65, 8, 16).translate((ro - 1.5, 0, TAIL_SCREW_Z)), a)
-        m = m + polar((box(6.0, 8.0, 8.0, ri - 2.0, 0, TAIL_SCREW_Z) - box(2.8, 5.9, 6.5, ri - 2.6, 0, TAIL_SCREW_Z) -
-                       xcyl(1.65, 12, 16).translate((ri, 0, TAIL_SCREW_Z))) ^ cyl(ro, 40, 0), a)
+        # nut pocket open towards the inside of the frame so the M3 nut can be pushed in (5.5 mm AF, 2.4 mm thick)
+        m = m + polar((box(6.0, 8.0, 8.0, ri - 2.0, 0, TAIL_SCREW_Z) - box(2.8, 5.9, 6.5, ri - 2.6 - 1.2, 0, TAIL_SCREW_Z) -
+                       box(2.8, 5.9, 6.5, ri - 2.6, 0, TAIL_SCREW_Z) - xcyl(1.65, 12, 16).translate((ri, 0, TAIL_SCREW_Z)))
+                      ^ cyl(ro, 40, 0), a)
     return register("tvc_frame", m, M["grey"], note="PETG, print upright; supports only under the servo bars")
 
 
@@ -493,6 +501,10 @@ def fin_can(M):
     # rounded leading edge: intersect with a slab whose edge is rounded (approximation: chamfer both faces)
     for k in range(f["count"]):
         m = m + polar(fin, 120.0 * k)
+    # fin #1 marker (CAD +X = body +y; the fin 90 deg from the camera pod): a 3 mm pip on both faces near the root,
+    # used by the TVC direction test and the IMU axis calibration instructions
+    for sy in (1, -1):
+        m = m + ycyl(1.5, 1.2, 24).translate((ro + 9.0, sy * (t / 2 + 0.5), 14.0))
     lug = tube(4.75, 3.4, 25.0, 50.0, segs=40).translate((ro + 4.4, 0, 0)) + box(5.0, 3.0, 25.0, ro + 1.6, 0, 62.5)
     m = m + polar(lug, 60)
     for a in TAIL_SCREW_ANG:
@@ -756,14 +768,21 @@ def setup_render(res=(1600, 1000)):
     sc.render.engine = "CYCLES"
     sc.cycles.device = "CPU"
     sc.cycles.samples = 12 if FAST else 64
-    sc.cycles.use_denoising = True
+    sc.cycles.use_denoising = False   # this Blender build has no OpenImageDenoise
+    sc.cycles.use_adaptive_sampling = True
+    sc.cycles.max_bounces = 4
     sc.render.resolution_x, sc.render.resolution_y = res
     w = bpy.data.worlds.new("w")
     w.use_nodes = True
-    w.node_tree.nodes["Background"].inputs[0].default_value = (0.87, 0.90, 0.94, 1)
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.85
+    w.node_tree.nodes["Background"].inputs[0].default_value = (0.80, 0.85, 0.92, 1)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.45
     sc.world = w
-    for nm, en, rot in (("key", 3.2, (50, 10, 30)), ("fill", 1.1, (70, 0, 200)), ("rim", 1.5, (110, 0, 120))):
+    try:
+        sc.view_settings.view_transform = "AgX"
+        sc.view_settings.look = "AgX - Medium High Contrast"
+    except TypeError:
+        pass
+    for nm, en, rot in (("key", 2.4, (50, 10, 30)), ("fill", 0.55, (70, 0, 200)), ("rim", 0.9, (110, 0, 120))):
         l = bpy.data.lights.new(nm, "SUN")
         l.energy = en
         o = bpy.data.objects.new(nm, l)
@@ -901,8 +920,13 @@ def main():
     buy = purchased(M)
     spring_pts = buy.pop("_spring_curve")
     for name, p in PARTS.items():
+        if name in ("pad_leg_foot", "rod_tip_safety_cap"):
+            continue                                  # placed below (feet on the leg tips; cap only when no rocket)
         tgt = {"rocket": c_rk, "pad": c_pad}.get(p["group"], c_tool)
         to_blender(name, p["m"], p["material"], tgt)
+    for k in range(3):                                # feet on the dowel tips
+        foot = leg_axis_transform(PARTS["pad_leg_foot"]["m"].translate((0, 0, -LEG_L + 25.0 - 5.0)), k)
+        to_blender(f"pad_leg_foot_{k + 1}", foot, PARTS["pad_leg_foot"]["material"], c_pad)
     for name, (m, material) in buy.items():
         to_blender(name, m, material, c_buy)
     spring_obj(spring_pts, M, c_buy)
@@ -914,52 +938,83 @@ def main():
             o2 = ob.copy()
             o2.location = (0, 0, tail_z)
             c_on.objects.link(o2)
-    # exploded view
-    offsets = {"nose_cone": 300, UPPER_TUBE: 200, "parachute_24in_packed": 150, "spring_piston": 130,
-               "spring_25x60": 95, "latch_collar": 120, "avbay_coupler": 40, "latch_bolt_pos": 55, "latch_bolt_neg": 55,
-               "servo_horn_deploy": 70, "gps_patch_antenna_18mm": 110, "servo_MG90S_deploy": 18, "avbay_sled": -70,
-               PCB_NAME: -70, "pico2w_on_sockets": -70, "fc_connectors_buzzer_switch": -70, "lipo_2s_200mah": -70,
-               "camera_pod": -30, "camera_SQ12_class": -30, "upper_launch_lug": -40, LOWER_TUBE: 0, "fin_can": -190,
-               "tvc_frame": -300, "servo_MG90S_tvc_ring": -300, "servo_MG90S_tvc_holder": -300,
-               "pushrod_ring_1.2mm": -330, "pushrod_holder_1.2mm": -330, "tvc_gimbal_ring": -370,
-               "tvc_motor_holder": -430, MOTOR_NAME: -560, "tvc_motor_retainer": -640}
+    # half sections for the cutaway renders: everything in front of the section plane (+Y side) is removed
+    shells = {"avbay_coupler", "latch_collar", "fin_can", "tvc_frame", "nose_cone", LOWER_TUBE, UPPER_TUBE}
+    cut_sets = {
+        "Section av-bay": (4.5, shells | {"avbay_sled", "lipo_2s_200mah"}),   # plane just in front of the Pico
+        "Section TVC": (0.0, shells),
+    }
+    c_cuts = {}
+    for cname, (y0, cutnames) in cut_sets.items():
+        cc = collection(cname)
+        c_cuts[cname] = cc
+        half = box(2000.0, 1000.0, 4000.0, 0, 500.0 + y0, 500.0)
+        for name, p in PARTS.items():
+            if p["group"] == "rocket" and name != "upper_launch_lug":
+                m = (p["m"] - half) if name in cutnames else p["m"]
+                if not m.is_empty():
+                    to_blender(name + "_" + cname[-3:], m, p["material"], cc)
+        for name, (m, material) in buy.items():
+            if name == "parachute_24in_packed":
+                continue
+            m = (m - half) if name in cutnames else m
+            if not m.is_empty():
+                to_blender(name + "_" + cname[-3:], m, material, cc)
+        spring_obj(spring_pts, M, cc, name="spring_" + cname[-3:])
+    # exploded view: airframe in the middle, avionics / TVC / recovery sub-assemblies pulled out beside it
+    groups = {
+        "airframe": (0, {"nose_cone": 230, UPPER_TUBE: 150, "latch_collar": 95, "avbay_coupler": 45, LOWER_TUBE: 0,
+                         "upper_launch_lug": 0, "fin_can": -130}),
+        "avionics": (190, {"avbay_sled": -30, PCB_NAME: -30, "pico2w_on_sockets": -30, "fc_connectors_buzzer_switch": -30,
+                           "lipo_2s_200mah": 15, "gps_patch_antenna_18mm": 60, "servo_MG90S_deploy": 30,
+                           "servo_horn_deploy": 40, "latch_bolt_pos": 30, "latch_bolt_neg": 30}),
+        "tvc": (360, {"tvc_frame": 60, "servo_MG90S_tvc_ring": 60, "servo_MG90S_tvc_holder": 60, "pushrod_ring_1.2mm": 60,
+                      "pushrod_holder_1.2mm": 60, "tvc_gimbal_ring": 0, "tvc_motor_holder": -60, MOTOR_NAME: -150,
+                      "tvc_motor_retainer": -200}),
+        "recovery": (-190, {"spring_piston": 60, "spring_25x60": 20, "camera_pod": -60, "camera_SQ12_class": -60}),
+    }
+    placed = {}
+    for gx, items in groups.values():
+        for n, dz in items.items():
+            placed[n] = (gx, dz)
     for coll in (c_rk, c_buy):
         for ob in coll.objects:
-            o2 = ob.copy()
-            dx = 160.0 if ob.name in ("camera_pod", "camera_SQ12_class", "upper_launch_lug") else 0.0
-            o2.location = (dx, 0, offsets.get(ob.name, 0))
-            c_ex.objects.link(o2)
+            if ob.name in placed:
+                o2 = ob.copy()
+                o2.location = (placed[ob.name][0], 0, placed[ob.name][1])
+                c_ex.objects.link(o2)
+    # ground under the launch pad
+    c_gnd = collection("Ground")
+    foot_z = min((ob.matrix_world @ Vector(v)).z for ob in c_pad.objects if ob.type == "MESH" for v in ob.bound_box)
+    gnd = to_blender("ground", cyl(40000.0, 2.0, foot_z - 2.0, segs=96), mat("Ground", (0.30, 0.34, 0.26), rough=0.95), c_gnd)
+    gnd.name = "ground"
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
     if "--no-render" in ARGS:
         return
     setup_render()
+    zc = (Z_AV0 + Z_SH1) / 2.0
+    top = tail_z + Z_NOSE0 + NOSE_L
     views = [
-        ("rocket_on_pad", (1700, -2300, 1300), (0, 0, 600), 50, {c_on.name, c_pad.name}, []),
-        ("rocket_exploded", (2600, -2600, 700), (0, 0, 380), 42, {c_ex.name}, []),
-        ("tvc_gimbal_cutaway", (175, -215, 150), (0, 0, 88), 50, {c_rk.name, c_buy.name},
-         [LOWER_TUBE, "fin_can", "camera_pod", "camera_SQ12_class", "upper_launch_lug"]),
-        ("avbay_cutaway", (215, -250, 650), (0, 0, 560), 50, {c_rk.name, c_buy.name},
-         [LOWER_TUBE, UPPER_TUBE, "latch_collar", "parachute_24in_packed", "camera_pod", "camera_SQ12_class"]),
-        ("launch_pad", (1000, -1250, 650), (0, 0, 120), 40, {c_pad.name}, []),
+        # name, camera, target, lens, collections, resolution
+        ("rocket_on_pad", (900, -2300, 420), (0, 0, (foot_z + top) / 2 + 40), 50, {c_on.name, c_pad.name, c_gnd.name}, (1100, 1600)),
+        ("rocket_exploded", (900, -2050, 520), (85, 0, 420), 50, {c_ex.name}, (1200, 1600)),
+        ("avbay_cutaway", (70, 330, zc + 60), (0, -4, zc + 28), 50, {"Section av-bay"}, (1200, 1600)),
+        ("tvc_gimbal_cutaway", (85, 300, 120), (0, -4, 78), 50, {"Section TVC"}, (1200, 1600)),
+        ("launch_pad", (950, -1150, 380), (0, 0, foot_z / 2 + 60), 40, {c_pad.name, c_gnd.name}, (1600, 1000)),
     ]
     sc = bpy.context.scene
-    for name, loc, tgt, lens, vis, hide in views:
+    for name, loc, tgt, lens, vis, res in views:
+        if VIEWS and name not in VIEWS:
+            continue
         cam = camera_at("cam_" + name, loc, tgt, lens)
         sc.camera = cam
+        sc.render.resolution_x, sc.render.resolution_y = res
         for c in bpy.data.collections:
             c.hide_render = c.name not in vis
-        hidden = []
-        for o in bpy.data.objects:
-            if o.name.split(".")[0] in hide:
-                o.hide_render = True
-                hidden.append(o)
         sc.render.filepath = os.path.join(REN_DIR, name + ".png")
         bpy.ops.render.render(write_still=True)
-        for o in hidden:
-            o.hide_render = False
     for c in bpy.data.collections:
         c.hide_render = False
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
-
 
 main()

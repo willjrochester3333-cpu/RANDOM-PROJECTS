@@ -44,30 +44,30 @@
  {
   "name": "latch_bolt_pos",
   "qty": 1,
-  "note": "PETG. Must slide freely; rub with graphite/wax",
+  "note": "PETG. Bevel UP. Must slide freely; rub with graphite/wax",
   "group": "rocket",
-  "volume_mm3": 151.49964283538634,
-  "area_mm2": 216.10984279468497,
+  "volume_mm3": 146.37964283538713,
+  "area_mm2": 209.8008762022361,
   "centroid_assembly_mm": [
-   20.661383303652638,
-   -1.0699203212042656e-15,
-   553.9999999999975
+   20.451336520275685,
+   1.2944282512185096e-15,
+   553.966188620992
   ],
-  "r_gyr_mm": 21.976789233598264
+  "r_gyr_mm": 22.003752151951307
  },
  {
   "name": "latch_bolt_neg",
   "qty": 1,
-  "note": "PETG. Must slide freely; rub with graphite/wax",
+  "note": "PETG. Bevel UP. Must slide freely; rub with graphite/wax",
   "group": "rocket",
-  "volume_mm3": 151.49964283538648,
-  "area_mm2": 216.10984279468494,
+  "volume_mm3": 146.37964283538724,
+  "area_mm2": 209.80087620223608,
   "centroid_assembly_mm": [
-   -20.661383303652585,
-   -9.333711295254525e-16,
-   553.9999999999969
+   -20.451336520275635,
+   0.0,
+   553.9661886209956
   ],
-  "r_gyr_mm": 21.976789233598264
+  "r_gyr_mm": 22.003752151951307
  },
  {
   "name": "spring_piston",
@@ -130,14 +130,14 @@
   "qty": 1,
   "note": "PETG, print upright; supports only under the servo bars",
   "group": "rocket",
-  "volume_mm3": 18071.048425965626,
-  "area_mm2": 33923.55059326254,
+  "volume_mm3": 18011.018116279447,
+  "area_mm2": 33832.4884480497,
   "centroid_assembly_mm": [
-   0.08083191813667888,
-   0.4037698212959015,
-   69.68578579022662
+   0.11285218197050162,
+   0.3867841937804623,
+   69.86471923462481
   ],
-  "r_gyr_mm": 26.32809923797649
+  "r_gyr_mm": 26.380089326821505
  },
  {
   "name": "tvc_motor_retainer",
@@ -158,14 +158,14 @@
   "qty": 1,
   "note": "PETG, print upright (fins vertical), 3 walls",
   "group": "rocket",
-  "volume_mm3": 28851.49205360614,
-  "area_mm2": 50870.10310606222,
+  "volume_mm3": 28866.86590488524,
+  "area_mm2": 50890.77845740177,
   "centroid_assembly_mm": [
-   0.6209921988109637,
-   1.0623396274013075,
-   37.97693532703876
+   0.6409260516452236,
+   1.06177375078113,
+   37.96416588572389
   ],
-  "r_gyr_mm": 30.48428556892321
+  "r_gyr_mm": 31.430989529643888
  },
  {
   "name": "upper_launch_lug",

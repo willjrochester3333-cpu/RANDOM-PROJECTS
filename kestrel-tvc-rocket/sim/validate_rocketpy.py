@@ -98,7 +98,11 @@ def main():
         sm_r = float(rocket.static_margin(0))
         rp = dict(apogee=fl.apogee - fl.env.elevation, apogee_t=fl.apogee_time, max_speed=fl.max_speed,
                   rail_exit_speed=fl.out_of_rail_velocity, static_margin=sm_r)
-        kk = dict(apogee=ev["apogee"], apogee_t=ev["apogee_t"], max_speed=ev["max_speed"],
+        # ascent only: RocketPy stops at apogee, and this passive run has no parachute (it would fall ballistically)
+        L = sim.log
+        up = L["t"] <= ev["apogee_t"] + 1e-9          # sim clock: ignition at t = 0
+        v_up = np.sqrt(L["vx"][up] ** 2 + L["vy"][up] ** 2 + L["vz"][up] ** 2)
+        kk = dict(apogee=ev["apogee"], apogee_t=ev["apogee_t"], max_speed=float(v_up.max()),
                   rail_exit_speed=ev["rod_exit_speed"], static_margin=sm_k)
         out[motor] = dict(kestrel=kk, rocketpy=rp)
         for k in kk:

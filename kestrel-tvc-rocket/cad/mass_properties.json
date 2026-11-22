@@ -73,10 +73,10 @@
  },
  {
   "name": "tvc_frame",
-  "mass_g": 22.6,
-  "z": 874.3,
+  "mass_g": 22.5,
+  "z": 874.1,
   "length": 0.0,
-  "radius": 26.3,
+  "radius": 26.4,
   "source": "CAD"
  },
  {
@@ -92,7 +92,7 @@
   "mass_g": 36.1,
   "z": 906.0,
   "length": 0.0,
-  "radius": 30.5,
+  "radius": 31.4,
   "source": "CAD"
  },
  {
