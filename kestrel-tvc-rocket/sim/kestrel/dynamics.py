@@ -349,12 +349,13 @@ class Simulation:
                 # pitch/yaw damping
                 Cdamp = rk.pitch_damping_coeff(mp)
                 M_body[1:] += -Cdamp * rho * V * w[1:]
-                # roll: fin cant forcing and damping
-                cr, ct, s, sweep, lm = rk.fin_geometry()
-                cna1 = rk.cn_alpha_components()[1][1] / rk.fin_n
-                r_mac = rk.R + s / 3.0
-                M_body[0] += qdyn * rk.A_ref * cna1 * rk.fin_n * math.radians(c.fin_cant_deg) * r_mac
-                M_body[0] += -0.5 * rho * V * rk.A_ref * cna1 * rk.fin_n * r_mac ** 2 * w[0]
+                # roll: fin cant forcing and damping (a finless rocket has neither)
+                if rk.fin_n > 0:
+                    cr, ct, s, sweep, lm = rk.fin_geometry()
+                    cna1 = rk.cn_alpha_components()[1][1] / rk.fin_n
+                    r_mac = rk.R + s / 3.0
+                    M_body[0] += qdyn * rk.A_ref * cna1 * rk.fin_n * math.radians(c.fin_cant_deg) * r_mac
+                    M_body[0] += -0.5 * rho * V * rk.A_ref * cna1 * rk.fin_n * r_mac ** 2 * w[0]
                 if V > 10.0 and launched and not on_rod:
                     ev["max_aoa_deg"] = max(ev["max_aoa_deg"], math.degrees(aoa))
             elif separated:

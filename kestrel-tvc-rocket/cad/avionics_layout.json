@@ -1,8 +1,26 @@
 {
- "avbay.imu_z (LSM6DSO U4)": 457.0,
- "flight_computer_pcb_pico.z": 460.0,
- "lipo_2s_200mah.z": 467.5,
- "camera_sq12_class.z": 520.4,
+ "avbay.imu_z (LSM6DSO U4)": 612.0,
  "camera_pod.protrusion_mm": 14.5,
- "camera_pod.width_mm": 26.8
+ "camera_pod.width_mm": 26.8,
+ "fins.pod.frontal_area_mm2 /10": 33.7,
+ "fins.pod.length": 62.0,
+ "fins.tab.lever_arm_mm": 14.5,
+ "fins.tab.servo_arm_mm": 6.0,
+ "z_tip_above_tail": 899,
+ "switch_slot_deg": 203.8,
+ "groove_deg": [
+  61.1,
+  151.1,
+  241.1,
+  331.1
+ ],
+ "fin_deg": [
+  45.0,
+  135.0,
+  225.0,
+  315.0
+ ],
+ "lug_deg": 90.0,
+ "camera_deg": 270.0,
+ "door_deg": 0.0
 }

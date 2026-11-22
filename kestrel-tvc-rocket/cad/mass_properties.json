@@ -1,114 +1,154 @@
 [
  {
   "name": "nose_cone",
-  "mass_g": 39.5,
-  "z": 119.4,
+  "mass_g": 34.0,
+  "z": 116.3,
   "length": 0.0,
-  "radius": 21.0,
+  "radius": 20.9,
   "source": "CAD"
  },
  {
-  "name": "latch_collar",
-  "mass_g": 8.2,
-  "z": 390.0,
+  "name": "top_latch_insert",
+  "mass_g": 20.5,
+  "z": 183.0,
   "length": 0.0,
-  "radius": 26.5,
+  "radius": 25.8,
   "source": "CAD"
  },
  {
-  "name": "avbay_coupler",
-  "mass_g": 39.5,
-  "z": 412.1,
+  "name": "latch_bolt",
+  "mass_g": 0.1,
+  "z": 171.3,
   "length": 0.0,
-  "radius": 23.2,
+  "radius": 21.5,
   "source": "CAD"
  },
  {
-  "name": "latch_bolt_pos",
-  "mass_g": 0.2,
-  "z": 390.0,
+  "name": "payload_door_frame",
+  "mass_g": 5.1,
+  "z": 492.5,
   "length": 0.0,
-  "radius": 22.0,
+  "radius": 28.2,
   "source": "CAD"
  },
  {
-  "name": "latch_bolt_neg",
-  "mass_g": 0.2,
-  "z": 390.0,
+  "name": "payload_door",
+  "mass_g": 3.1,
+  "z": 494.2,
   "length": 0.0,
-  "radius": 22.0,
+  "radius": 28.0,
+  "source": "CAD"
+ },
+ {
+  "name": "payload_door_latch_knob",
+  "mass_g": 0.1,
+  "z": 475.0,
+  "length": 0.0,
+  "radius": 27.0,
+  "source": "CAD"
+ },
+ {
+  "name": "payload_door_latch_cam",
+  "mass_g": 0.1,
+  "z": 472.5,
+  "length": 0.0,
+  "radius": 23.9,
+  "source": "CAD"
+ },
+ {
+  "name": "payload_wall",
+  "mass_g": 11.3,
+  "z": 394.6,
+  "length": 0.0,
+  "radius": 20.7,
   "source": "CAD"
  },
  {
   "name": "spring_piston",
-  "mass_g": 8.8,
-  "z": 348.6,
+  "mass_g": 10.8,
+  "z": 307.2,
   "length": 0.0,
-  "radius": 17.4,
+  "radius": 20.7,
+  "source": "CAD"
+ },
+ {
+  "name": "avbay_coupler",
+  "mass_g": 35.2,
+  "z": 570.5,
+  "length": 0.0,
+  "radius": 25.1,
   "source": "CAD"
  },
  {
   "name": "avbay_sled",
-  "mass_g": 19.6,
-  "z": 481.0,
+  "mass_g": 17.4,
+  "z": 637.6,
   "length": 0.0,
-  "radius": 22.0,
+  "radius": 21.9,
   "source": "CAD"
  },
  {
   "name": "tvc_motor_holder",
   "mass_g": 17.2,
-  "z": 893.2,
+  "z": 848.2,
   "length": 0.0,
-  "radius": 13.1,
+  "radius": 13.8,
   "source": "CAD"
  },
  {
   "name": "tvc_gimbal_ring",
   "mass_g": 3.4,
-  "z": 896.0,
+  "z": 851.0,
   "length": 0.0,
-  "radius": 17.1,
+  "radius": 17.4,
   "source": "CAD"
  },
  {
   "name": "tvc_frame",
-  "mass_g": 22.5,
-  "z": 874.1,
+  "mass_g": 27.8,
+  "z": 825.1,
   "length": 0.0,
-  "radius": 26.4,
+  "radius": 25.9,
   "source": "CAD"
  },
  {
   "name": "tvc_motor_retainer",
   "mass_g": 5.3,
-  "z": 944.1,
+  "z": 899.1,
   "length": 0.0,
-  "radius": 14.3,
+  "radius": 14.4,
   "source": "CAD"
  },
  {
   "name": "fin_can",
-  "mass_g": 36.1,
-  "z": 906.0,
+  "mass_g": 132.8,
+  "z": 846.9,
   "length": 0.0,
-  "radius": 31.4,
+  "radius": 48.8,
+  "source": "CAD"
+ },
+ {
+  "name": "fin_control_tab",
+  "mass_g": 6.0,
+  "z": 889.6,
+  "length": 0.0,
+  "radius": 52.7,
   "source": "CAD"
  },
  {
   "name": "upper_launch_lug",
   "mass_g": 1.6,
-  "z": 521.5,
+  "z": 586.5,
   "length": 0.0,
-  "radius": 33.8,
+  "radius": 34.3,
   "source": "CAD"
  },
  {
   "name": "camera_pod",
-  "mass_g": 11.6,
-  "z": 512.9,
+  "mass_g": 11.7,
+  "z": 677.8,
   "length": 0.0,
-  "radius": 30.6,
+  "radius": 31.2,
   "source": "CAD"
  }
 ]

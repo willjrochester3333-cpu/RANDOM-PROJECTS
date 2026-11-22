@@ -10,10 +10,12 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 D = json.load(open(os.path.join(ROOT, "design.json")))
-Z_TIP = D["airframe"]["lower_tube_length"] + D["avbay"]["band"] + D["airframe"]["upper_tube_length"] + D["nose"]["length"]
+Z_TIP = json.load(open(os.path.join(HERE, "component_positions.json")))["_z_tip_above_tail_mm"]   # written by kestrel_cad.py
 
-SETTINGS = {  # (wall mm, infill fraction)
+SETTINGS = {  # (wall mm, infill fraction) - match the print notes in the build guide
     "nose_cone": (1.2, 0.10), "avbay_coupler": (1.6, 0.25), "tvc_frame": (1.2, 0.25), "fin_can": (1.2, 0.20),
+    "tvc_motor_holder": (1.6, 0.30), "tvc_gimbal_ring": (1.2, 0.40), "tvc_motor_retainer": (1.2, 0.40),
+    "payload_wall": (1.2, 0.25), "top_latch_insert": (1.2, 0.25), "fin_control_tab": (1.2, 0.20),
     "default": (1.2, 0.20),
 }
 RHO = 1.25  # g/cm^3

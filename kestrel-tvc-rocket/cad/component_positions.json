@@ -1,0 +1,215 @@
+{
+ "BT70_bottom_tube_340": {
+  "z_from_tip": 729.7,
+  "length": 340.0,
+  "radius": 28.2
+ },
+ "BT70_middle_tube_380": {
+  "z_from_tip": 361.6,
+  "length": 380.0,
+  "radius": 28.2
+ },
+ "motor_TSP_E20_24x95": {
+  "z_from_tip": 855.0,
+  "length": 95.0,
+  "radius": 12.0
+ },
+ "servo_MG90S_tvc_ring": {
+  "z_from_tip": 784.4,
+  "length": 32.2,
+  "radius": 21.1
+ },
+ "horn_tvc_ring": {
+  "z_from_tip": 779.0,
+  "length": 4.5,
+  "radius": 23.9
+ },
+ "servo_MG90S_tvc_holder": {
+  "z_from_tip": 759.4,
+  "length": 32.2,
+  "radius": 21.1
+ },
+ "horn_tvc_holder": {
+  "z_from_tip": 754.0,
+  "length": 4.5,
+  "radius": 23.9
+ },
+ "pushrod_ring_1.2mm": {
+  "z_from_tip": 815.0,
+  "length": 72.0,
+  "radius": 20.7
+ },
+ "pushrod_holder_1.2mm": {
+  "z_from_tip": 796.5,
+  "length": 85.0,
+  "radius": 20.7
+ },
+ "servo_MG90S_tab1": {
+  "z_from_tip": 855.6,
+  "length": 32.2,
+  "radius": 59.5
+ },
+ "horn_tab1": {
+  "z_from_tip": 861.0,
+  "length": 7.0,
+  "radius": 60.1
+ },
+ "pushrod_tab1_1.2mm": {
+  "z_from_tip": 871.9,
+  "length": 23.0,
+  "radius": 60.4
+ },
+ "servo_MG90S_tab2": {
+  "z_from_tip": 855.6,
+  "length": 32.2,
+  "radius": 59.5
+ },
+ "horn_tab2": {
+  "z_from_tip": 861.0,
+  "length": 7.0,
+  "radius": 60.1
+ },
+ "pushrod_tab2_1.2mm": {
+  "z_from_tip": 871.9,
+  "length": 23.0,
+  "radius": 60.4
+ },
+ "servo_MG90S_tab3": {
+  "z_from_tip": 855.6,
+  "length": 32.2,
+  "radius": 59.5
+ },
+ "horn_tab3": {
+  "z_from_tip": 861.0,
+  "length": 7.0,
+  "radius": 60.1
+ },
+ "pushrod_tab3_1.2mm": {
+  "z_from_tip": 871.9,
+  "length": 23.0,
+  "radius": 60.4
+ },
+ "servo_MG90S_tab4": {
+  "z_from_tip": 855.6,
+  "length": 32.2,
+  "radius": 59.5
+ },
+ "horn_tab4": {
+  "z_from_tip": 861.0,
+  "length": 7.0,
+  "radius": 60.1
+ },
+ "pushrod_tab4_1.2mm": {
+  "z_from_tip": 871.9,
+  "length": 23.0,
+  "radius": 60.4
+ },
+ "servo_MG90S_release": {
+  "z_from_tip": 186.1,
+  "length": 27.5,
+  "radius": 27.3
+ },
+ "horn_release": {
+  "z_from_tip": 171.3,
+  "length": 2.0,
+  "radius": 20.8
+ },
+ "latch_spring_link_0.6mm": {
+  "z_from_tip": 169.2,
+  "length": 4.6,
+  "radius": 21.0
+ },
+ "pcb_kestrel_fc_40x82": {
+  "z_from_tip": 615.0,
+  "length": 82.0,
+  "radius": 22.8
+ },
+ "pico2w_on_sockets": {
+  "z_from_tip": 614.2,
+  "length": 51.0,
+  "radius": 17.9
+ },
+ "fc_connectors_buzzer_switch": {
+  "z_from_tip": 620.7,
+  "length": 80.0,
+  "radius": 21.2
+ },
+ "lipo_overlander_350_2s": {
+  "z_from_tip": 625.0,
+  "length": 40.0,
+  "radius": 21.7
+ },
+ "gps_patch_antenna_15mm": {
+  "z_from_tip": 529.0,
+  "length": 4.0,
+  "radius": 10.6
+ },
+ "parachute_24in_packed": {
+  "z_from_tip": 257.7,
+  "length": 92.0,
+  "radius": 21.6
+ },
+ "shock_cord_kevlar_elastic": {
+  "z_from_tip": 199.2,
+  "length": 22.0,
+  "radius": 13.1
+ },
+ "camera_SQ12_class": {
+  "z_from_tip": 685.5,
+  "length": 24.9,
+  "radius": 42.7
+ },
+ "payload_example_25g": {
+  "z_from_tip": 509.5,
+  "length": 29.8,
+  "radius": 20.0
+ },
+ "lead_tvc_ring": {
+  "z_from_tip": 730.1,
+  "length": 144.9,
+  "radius": 11.3,
+  "path_length_mm": 158.0
+ },
+ "lead_tvc_holder": {
+  "z_from_tip": 714.4,
+  "length": 118.9,
+  "radius": 13.7,
+  "path_length_mm": 132.0
+ },
+ "lead_tab1": {
+  "z_from_tip": 755.9,
+  "length": 206.4,
+  "radius": 30.9,
+  "path_length_mm": 218.0
+ },
+ "lead_tab2": {
+  "z_from_tip": 753.7,
+  "length": 206.4,
+  "radius": 30.9,
+  "path_length_mm": 224.0
+ },
+ "lead_tab3": {
+  "z_from_tip": 752.8,
+  "length": 206.4,
+  "radius": 30.9,
+  "path_length_mm": 225.0
+ },
+ "lead_tab4": {
+  "z_from_tip": 752.1,
+  "length": 206.4,
+  "radius": 30.9,
+  "path_length_mm": 226.0
+ },
+ "lead_release": {
+  "z_from_tip": 379.3,
+  "length": 372.2,
+  "radius": 25.5,
+  "path_length_mm": 381.0
+ },
+ "ejection_spring": {
+  "z_from_tip": 349.7,
+  "length": 85.0,
+  "radius": 8.8
+ },
+ "_z_tip_above_tail_mm": 899
+}

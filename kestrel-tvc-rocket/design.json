@@ -1,23 +1,27 @@
 {
-  "_comment": "KESTREL-1 master design parameters. The simulator (sim/), Blender CAD generator (cad/) and firmware config (firmware/) all read this file. Lengths in mm, masses in g unless noted. z is measured from the nose tip, positive towards the tail.",
-  "name": "KESTREL-1",
-  "version": "1.0",
+  "_comment": "KESTREL-2 master design parameters. The simulator (sim/), Blender CAD generator (cad/) and firmware tools all read this file. Lengths in mm, masses in g. Component z is measured from the nose tip, positive towards the tail.",
+  "name": "KESTREL-2",
+  "version": "2.0",
   "airframe": {
-    "tube": "Estes BT-70 (or any 56 mm kraft tube)",
+    "tube": "Estes BT-70 (56.3 mm OD), two 24 in tubes",
     "od": 56.3,
     "id": 55.2,
     "tube_density_kg_m3": 680,
-    "upper_tube_length": 250,
-    "lower_tube_length": 540,
+    "upper_tube_length": 380,
+    "lower_tube_length": 340,
     "surface_roughness_um": 30,
+    "part_names": {
+      "lower": "bottom part: TVC, fins, flight computer, battery, camera",
+      "upper": "middle part: payload bay (door) / wall / parachute section with top release latch"
+    },
     "finish_note": "printed parts sanded 240->400 grit, filler primer, spray paint ('regular paint' ~30 um, OpenRocket default)"
   },
   "nose": {
     "shape": "tangent_ogive",
     "length": 150,
-    "shoulder_length": 30,
+    "sleeve_length": 25,
     "wall": 0.85,
-    "mass_g": 30
+    "note": "printed; its base sleeve (body OD) slides over the latch insert at the top of the middle tube and pops off at apogee"
   },
   "avbay": {
     "length": 120,
@@ -25,22 +29,47 @@
     "wall": 1.6,
     "latch_pins": 2,
     "latch_pin_diameter": 3.0,
-    "imu_z": 457,
+    "imu_z": 612.0,
     "band": 4,
     "lower_insert": 100,
     "shoulder_od": 50.8,
     "insert_od": 55.0
   },
   "fins": {
-    "count": 3,
-    "root_chord": 80,
-    "tip_chord": 35,
-    "span": 48,
-    "sweep": 45,
-    "thickness": 1.8,
+    "count": 4,
+    "layout": "X",
+    "first_fin_deg": 45,
+    "root_chord": 110,
+    "tip_chord": 60,
+    "span": 50,
+    "sweep": 50,
+    "thickness": 2.4,
     "trailing_edge_from_tail": 0,
-    "can_length": 90,
-    "can_wall": 0.8
+    "can_length": 125,
+    "can_wall": 1.2,
+    "leg": {
+      "length": 30,
+      "width": 12,
+      "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins"
+    },
+    "tab": {
+      "chord": 18,
+      "r_from": 6,
+      "r_to": 34,
+      "max_deflection_deg": 15.0,
+      "effectiveness": 0.45,
+      "servo": "MG90S",
+      "servo_speed_s_per_60deg": 0.1,
+      "note": "trailing-edge control tab on every fin, direct pushrod from a pod servo",
+      "horn_mm": 14.5,
+      "servo_arm_mm": 6.0
+    },
+    "pod": {
+      "frontal_area_mm2": 336.5,
+      "length": 62.0,
+      "cd": 0.3,
+      "note": "streamlined pod on the +theta side of each fin root holding the tab's MG90S (shaft radially out); frontal area = (pod top - can) x (pod wall - fin face)"
+    }
   },
   "tvc": {
     "motor_diameter": 24.0,
@@ -55,8 +84,16 @@
   "recovery": {
     "parachute_diameter_in": 24,
     "parachute_cd": 0.8,
-    "shock_cord": "1.5 m Kevlar 100 lb + 0.5 m 6 mm elastic",
-    "deploy": "servo-released radial pin latch + compression spring (no pyrotechnics)"
+    "shock_cord": "2 m Kevlar 1.6 mm + elastic + swivel",
+    "deploy": "nose cone pushed off by a compression spring when the single snap-in latch bolt is pulled by a servo at the top",
+    "spring": {
+      "part": "RS PRO 121-236",
+      "od": 17.6,
+      "free_length": 110,
+      "rate_n_per_mm": 1.3,
+      "packed_length": 85
+    },
+    "release_servo": "MG90S"
   },
   "launch": {
     "rod_length_m": 1.0,
@@ -68,7 +105,7 @@
       "TSP-E12",
       "TSP-E20"
     ],
-    "target_apogee_m": 200
+    "target_apogee_m": 123
   },
   "components": [
     {
@@ -202,5 +239,21 @@
     "protrusion_mm": 14.5,
     "cd": 0.45,
     "note": "external pod, lens axis 1.5 mm outside the tube; frontal area = width x protrusion (drag model)"
+  },
+  "payload": {
+    "max_mass_g": 50,
+    "nominal_mass_g": 25,
+    "bay_length": 130,
+    "door_width": 32,
+    "door_height": 50,
+    "note": "payload bay = lower section of the middle part, under the wall; side door with hinge + turn lock"
+  },
+  "battery": {
+    "part": "Overlander 350 mAh 2S 25C (OL-3492)",
+    "length": 40,
+    "width": 19,
+    "thickness": 15,
+    "mass_g": 21,
+    "note": "JST-PH balance lead -> Overlander JST-PH to JST-XH adapter lead into the board"
   }
 }
