@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "kestrel")(type "KiCad")(uri "${KIPRJMOD}/kestrel.kicad_sym")(options "")(descr "KESTREL custom symbols"))
+)

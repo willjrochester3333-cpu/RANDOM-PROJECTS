@@ -1,0 +1,13 @@
+# build / cache output
+__pycache__/
+*.pyc
+firmware/build-host/
+firmware/build-*/
+firmware/pico/build/
+*.blend1
+# KiCad scratch + per-user state
+pcb/placement_check.*
+*.kicad_prl
+pcb/fp-info-cache
+pcb/*-backups/
+pcb/production/gerbers/

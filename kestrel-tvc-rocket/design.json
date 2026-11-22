@@ -1,0 +1,198 @@
+{
+  "_comment": "KESTREL-1 master design parameters. The simulator (sim/), Blender CAD generator (cad/) and firmware config (firmware/) all read this file. Lengths in mm, masses in g unless noted. z is measured from the nose tip, positive towards the tail.",
+  "name": "KESTREL-1",
+  "version": "1.0",
+  "airframe": {
+    "tube": "Estes BT-70 (or any 56 mm kraft tube)",
+    "od": 56.3,
+    "id": 55.2,
+    "tube_density_kg_m3": 680,
+    "upper_tube_length": 250,
+    "lower_tube_length": 540,
+    "surface_roughness_um": 60
+  },
+  "nose": {
+    "shape": "tangent_ogive",
+    "length": 150,
+    "shoulder_length": 30,
+    "wall": 0.85,
+    "mass_g": 30
+  },
+  "avbay": {
+    "length": 120,
+    "top_shoulder": 25,
+    "wall": 1.6,
+    "latch_pins": 2,
+    "latch_pin_diameter": 3.0,
+    "imu_z": 421,
+    "band": 4,
+    "lower_insert": 100,
+    "shoulder_od": 50.8,
+    "insert_od": 55.0
+  },
+  "fins": {
+    "count": 3,
+    "root_chord": 80,
+    "tip_chord": 35,
+    "span": 48,
+    "sweep": 45,
+    "thickness": 1.8,
+    "trailing_edge_from_tail": 0,
+    "can_length": 90,
+    "can_wall": 0.8
+  },
+  "tvc": {
+    "motor_diameter": 24.0,
+    "max_deflection_deg": 6.0,
+    "pivot_from_tail": 48,
+    "servo": "MG90S",
+    "servo_frame_rate_hz": 50,
+    "servo_speed_s_per_60deg": 0.1,
+    "linkage_ratio": 0.42,
+    "nozzle_protrusion": 4
+  },
+  "recovery": {
+    "parachute_diameter_in": 24,
+    "parachute_cd": 0.8,
+    "shock_cord": "1.5 m Kevlar 100 lb + 0.5 m 6 mm elastic",
+    "deploy": "servo-released radial pin latch + compression spring (no pyrotechnics)"
+  },
+  "launch": {
+    "rod_length_m": 1.0,
+    "rod_diameter_mm": 6.0,
+    "lug_inner_diameter_mm": 6.8,
+    "nominal_motor": "TSP-E20",
+    "test_motors": [
+      "TSP-D20",
+      "TSP-E12",
+      "TSP-E20"
+    ],
+    "target_apogee_m": 200
+  },
+  "components": [
+    {
+      "name": "upper_tube",
+      "auto": "upper_tube"
+    },
+    {
+      "name": "lower_tube",
+      "auto": "lower_tube"
+    },
+    {
+      "name": "printed_parts",
+      "auto": "cad",
+      "note": "masses/positions from cad/mass_properties.json (generated from the Blender CAD)"
+    },
+    {
+      "name": "parachute_24in_nylon",
+      "mass_g": 18.0,
+      "z": 287,
+      "length": 110,
+      "radius": 20
+    },
+    {
+      "name": "kevlar_cord_elastic_swivel",
+      "mass_g": 10.0,
+      "z": 300,
+      "length": 60,
+      "radius": 20
+    },
+    {
+      "name": "spring_25x60",
+      "mass_g": 5.0,
+      "z": 359,
+      "length": 20,
+      "radius": 12
+    },
+    {
+      "name": "deploy_servo_mg90s_horn",
+      "mass_g": 14.4,
+      "z": 404,
+      "length": 29,
+      "radius": 8
+    },
+    {
+      "name": "latch_wire_links",
+      "mass_g": 1.0,
+      "z": 383,
+      "length": 10,
+      "radius": 15
+    },
+    {
+      "name": "gps_patch_antenna_cable",
+      "mass_g": 8.0,
+      "z": 375,
+      "length": 5,
+      "radius": 10
+    },
+    {
+      "name": "flight_computer_pcb_pico",
+      "mass_g": 21.0,
+      "z": 460,
+      "length": 80,
+      "radius": 12
+    },
+    {
+      "name": "lipo_2s_300mah",
+      "mass_g": 20.0,
+      "z": 471,
+      "length": 55,
+      "radius": 10
+    },
+    {
+      "name": "camera_sq12_class",
+      "mass_g": 16.0,
+      "z": 507,
+      "length": 24,
+      "radius": 30,
+      "z_note": "from CAD assembly height 437 mm above tail"
+    },
+    {
+      "name": "servo_extension_cables",
+      "mass_g": 10.0,
+      "z": 644,
+      "length": 350,
+      "radius": 20,
+      "z_note": "from CAD assembly height 300 mm above tail"
+    },
+    {
+      "name": "tvc_servos_mg90s_x2",
+      "mass_g": 26.8,
+      "z": 821,
+      "length": 48,
+      "radius": 12,
+      "z_note": "from CAD assembly height 123 mm above tail"
+    },
+    {
+      "name": "pushrods_1p2mm_wire",
+      "mass_g": 3.0,
+      "z": 849,
+      "length": 90,
+      "radius": 20,
+      "z_note": "from CAD assembly height 95 mm above tail"
+    },
+    {
+      "name": "burnthrough_washer_m10",
+      "mass_g": 5.0,
+      "z": 855,
+      "length": 2,
+      "radius": 10,
+      "z_note": "from CAD assembly height 89 mm above tail"
+    },
+    {
+      "name": "screws_nuts",
+      "mass_g": 8.0,
+      "z": 560,
+      "length": 500,
+      "radius": 20
+    },
+    {
+      "name": "glue_tape_paint_allowance",
+      "mass_g": 10.0,
+      "z": 470,
+      "length": 800,
+      "radius": 28
+    }
+  ],
+  "_cad_notes": "Blender Z = distance above the aft end of the lower body tube (mm). Avionics band (4 mm) sits between lower and upper tubes."
+}

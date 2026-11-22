@@ -1,0 +1,268 @@
+[
+ {
+  "name": "nose_cone",
+  "qty": 1,
+  "note": "Print tip-up, 3 walls, 10% gyroid, no supports. Glue/tape into the upper tube.",
+  "group": "rocket",
+  "volume_mm3": 31621.82036734266,
+  "area_mm2": 46162.40871849607,
+  "centroid_assembly_mm": [
+   -1.178261642438432e-13,
+   -8.19130892487774e-14,
+   824.6309559079729
+  ],
+  "r_gyr_mm": 20.98610612280678
+ },
+ {
+  "name": "latch_collar",
+  "qty": 1,
+  "note": "Epoxy flush with the BOTTOM edge of the upper tube; align its notch with the av-bay band notch",
+  "group": "rocket",
+  "volume_mm3": 6566.738452466009,
+  "area_mm2": 7320.290105986846,
+  "centroid_assembly_mm": [
+   -2.875564542071347e-10,
+   -0.06599386138031291,
+   554.0198187365586
+  ],
+  "r_gyr_mm": 26.50506444151855
+ },
+ {
+  "name": "avbay_coupler",
+  "qty": 1,
+  "note": "Print UPSIDE-DOWN (bulkhead on the bed), 4 walls, 25% gyroid, no supports",
+  "group": "rocket",
+  "volume_mm3": 31635.153159223264,
+  "area_mm2": 40776.28078184695,
+  "centroid_assembly_mm": [
+   -2.4855834644858926e-07,
+   -0.0022758759610843073,
+   531.890027364622
+  ],
+  "r_gyr_mm": 23.202882724712683
+ },
+ {
+  "name": "latch_bolt_pos",
+  "qty": 1,
+  "note": "PETG. Must slide freely; rub with graphite/wax",
+  "group": "rocket",
+  "volume_mm3": 151.49964283538634,
+  "area_mm2": 216.10984279468497,
+  "centroid_assembly_mm": [
+   20.661383303652638,
+   -1.0699203212042656e-15,
+   553.9999999999975
+  ],
+  "r_gyr_mm": 21.976789233598264
+ },
+ {
+  "name": "latch_bolt_neg",
+  "qty": 1,
+  "note": "PETG. Must slide freely; rub with graphite/wax",
+  "group": "rocket",
+  "volume_mm3": 151.49964283538648,
+  "area_mm2": 216.10984279468494,
+  "centroid_assembly_mm": [
+   -20.661383303652585,
+   -9.333711295254525e-16,
+   553.9999999999969
+  ],
+  "r_gyr_mm": 21.976789233598264
+ },
+ {
+  "name": "spring_piston",
+  "qty": 1,
+  "note": "Sits on the spring, under the parachute; notch lets the shock cord pass",
+  "group": "rocket",
+  "volume_mm3": 7573.449558187835,
+  "area_mm2": 5784.533970264813,
+  "centroid_assembly_mm": [
+   -1.6995220601175086e-14,
+   -0.568240393192768,
+   595.4288593140465
+  ],
+  "r_gyr_mm": 17.4205967754277
+ },
+ {
+  "name": "avbay_sled",
+  "qty": 1,
+  "note": "Print with the bulkhead disc on the bed. 4 x M2.5x6 screws hold the PCB",
+  "group": "rocket",
+  "volume_mm3": 14084.283810772573,
+  "area_mm2": 14503.364812059615,
+  "centroid_assembly_mm": [
+   -0.1270180128907186,
+   -1.4501507341212754,
+   462.31975295105497
+  ],
+  "r_gyr_mm": 22.671837172900023
+ },
+ {
+  "name": "tvc_motor_holder",
+  "qty": 1,
+  "note": "PETG/ASA. Press/glue an M10 x 25 mm steel penny washer into the top recess (burn-through shield)",
+  "group": "rocket",
+  "volume_mm3": 13860.398314941722,
+  "area_mm2": 17104.229617781806,
+  "centroid_assembly_mm": [
+   0.3043875138265745,
+   0.12003776918733873,
+   50.733742221135145
+  ],
+  "r_gyr_mm": 13.240205771720552
+ },
+ {
+  "name": "tvc_gimbal_ring",
+  "qty": 1,
+  "note": "PETG",
+  "group": "rocket",
+  "volume_mm3": 2683.697109559246,
+  "area_mm2": 2628.2404485582297,
+  "centroid_assembly_mm": [
+   0.30468424491201496,
+   0.6676249032226776,
+   48.000000000528516
+  ],
+  "r_gyr_mm": 17.15644608349122
+ },
+ {
+  "name": "tvc_frame",
+  "qty": 1,
+  "note": "PETG, print upright; supports only under the servo bars",
+  "group": "rocket",
+  "volume_mm3": 17726.72534333697,
+  "area_mm2": 32167.470496893406,
+  "centroid_assembly_mm": [
+   0.12561792637205496,
+   0.38666231401319684,
+   74.77172299198817
+  ],
+  "r_gyr_mm": 26.213904870322093
+ },
+ {
+  "name": "tvc_motor_retainer",
+  "qty": 1,
+  "note": "Twist-lock: push up over the lugs and turn 45 deg",
+  "group": "rocket",
+  "volume_mm3": 3846.3098855216936,
+  "area_mm2": 3622.1473162134307,
+  "centroid_assembly_mm": [
+   -3.2144631923590186e-09,
+   -1.2394048843836856e-08,
+   -0.8239746871028106
+  ],
+  "r_gyr_mm": 14.250142441196292
+ },
+ {
+  "name": "fin_can",
+  "qty": 1,
+  "note": "PETG, print upright (fins vertical), 3 walls",
+  "group": "rocket",
+  "volume_mm3": 28851.49205360614,
+  "area_mm2": 50870.10310576658,
+  "centroid_assembly_mm": [
+   0.6209921971648663,
+   1.0623396296140266,
+   37.98155864959967
+  ],
+  "r_gyr_mm": 30.484285696542532
+ },
+ {
+  "name": "upper_launch_lug",
+  "qty": 1,
+  "note": "Glue to the lower tube in line with the fin-can lug (slide both on the rod while the glue sets)",
+  "group": "rocket",
+  "volume_mm3": 1307.372074260202,
+  "area_mm2": 1592.4117946026463,
+  "centroid_assembly_mm": [
+   16.397340757376416,
+   28.40102764759375,
+   422.4999999999999
+  ],
+  "r_gyr_mm": 33.77900680564477
+ },
+ {
+  "name": "camera_pod",
+  "qty": 1,
+  "note": "Cut a 27 x 30 mm window in the lower tube at the marked position; glue flange, foam-pad the camera",
+  "group": "rocket",
+  "volume_mm3": 9455.601212184542,
+  "area_mm2": 5516.884217745973,
+  "centroid_assembly_mm": [
+   2.8196037993497917e-10,
+   -28.76260918978699,
+   455.4039072510679
+  ],
+  "r_gyr_mm": 29.88614512840118
+ },
+ {
+  "name": "pad_hub",
+  "qty": 1,
+  "note": "PETG, 5 walls, 40% infill, print upright with tree supports in the leg sockets",
+  "group": "pad",
+  "volume_mm3": 574796.337580597,
+  "area_mm2": 63149.91869291379,
+  "centroid_assembly_mm": [
+   -1.6193919137423588e-08,
+   -3.819489762704945e-10,
+   33.03111361102999
+  ],
+  "r_gyr_mm": 34.104807031609866
+ },
+ {
+  "name": "pad_rod_block",
+  "qty": 1,
+  "note": "Tilts 0-15 deg on an M6 bolt + wing nut; M4 thumb screw clamps the rod",
+  "group": "pad",
+  "volume_mm3": 9471.278515384118,
+  "area_mm2": 4319.83532795914,
+  "centroid_assembly_mm": [
+   -0.02696535595009829,
+   2.737108804226239e-10,
+   63.74861930198456
+  ],
+  "r_gyr_mm": 5.774373032486343
+ },
+ {
+  "name": "pad_rod_stop",
+  "qty": 1,
+  "note": "M3 screw + nut; sets the rocket height (nozzle 45 mm above the plate)",
+  "group": "pad",
+  "volume_mm3": 2553.7527746065402,
+  "area_mm2": 1499.1390072630702,
+  "centroid_assembly_mm": [
+   -0.2940168125318138,
+   -8.309943837569206e-16,
+   164.50000000000017
+  ],
+  "r_gyr_mm": 6.4698425525217305
+ },
+ {
+  "name": "pad_leg_foot",
+  "qty": 3,
+  "note": "Tent peg through the foot holds the pad down",
+  "group": "pad",
+  "volume_mm3": 9320.410671970601,
+  "area_mm2": 6321.6947277116615,
+  "centroid_assembly_mm": [
+   -9.636120594169597e-16,
+   -3.004680640966807e-15,
+   11.057907550355802
+  ],
+  "r_gyr_mm": 12.282376950327825
+ },
+ {
+  "name": "rod_tip_safety_cap",
+  "qty": 1,
+  "note": "Keep on the rod tip whenever there is no rocket on the pad",
+  "group": "pad",
+  "volume_mm3": 4593.506506418171,
+  "area_mm2": 2267.412805655842,
+  "centroid_assembly_mm": [
+   -1.3193270521718508e-16,
+   -1.057008483420535e-17,
+   13.196855318248813
+  ],
+  "r_gyr_mm": 5.905244306333652
+ }
+]

@@ -1,0 +1,13 @@
+** Drc report for /home/user/RANDOM-PROJECTS/kestrel-tvc-rocket/pcb/kestrel_fc.kicad_pcb **
+** Created on 2026-11-22 13:13:12 **
+
+** Found 1 DRC violations **
+[lib_footprint_mismatch]: Footprint 'U.FL_Hirose_U.FL-R-SMT-1_Vertical' does not match copy in library 'Connector_Coaxial'.
+    Local override; Severity: warning
+    @(122.6000 mm, 103.0000 mm): Footprint J8
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **
