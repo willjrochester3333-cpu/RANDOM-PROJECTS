@@ -21,3 +21,12 @@ enable_testing()
 add_executable(core_tests core/tests/test_core.cpp)
 target_link_libraries(core_tests PRIVATE kestrel_core)
 add_test(NAME core_tests COMMAND core_tests)
+
+# Host tests for the hardware-independent parts of the Pico firmware (NMEA, axis calibration,
+# servo mapping, settings CRC, flash logger against a RAM model of the W25Q128).
+add_executable(pico_logic_tests
+    pico/tests/test_logic.cpp
+    pico/src/logic/nmea.cpp pico/src/logic/axis_cal.cpp pico/src/logic/servo_map.cpp
+    pico/src/app/logger.cpp)
+target_include_directories(pico_logic_tests PRIVATE pico/tests/fake pico/src core/include)
+add_test(NAME pico_logic_tests COMMAND pico_logic_tests)

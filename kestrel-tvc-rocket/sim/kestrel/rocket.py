@@ -276,10 +276,10 @@ class Rocket:
         else:
             base_area = self.A_ref
         cd_base = cd_base_coef * base_area / self.A_ref
-        # protuberances: half-recessed camera pod (24 mm wide, protrudes 12 mm, faired nose),
-        # 2 launch lugs, TVC gimbal gap
-        pod_area = 0.024 * 0.012
-        cd_pod = 0.45 * pod_area / self.A_ref
+        # protuberances: external camera pod (size from design.json, faired nose), 2 launch lugs, TVC gimbal gap
+        pod = self.design.get("camera_pod", {"width_mm": 24.0, "protrusion_mm": 12.0, "cd": 0.45})
+        pod_area = pod["width_mm"] * pod["protrusion_mm"] * 1e-6
+        cd_pod = pod["cd"] * pod_area / self.A_ref
         lug_area = 2 * (0.0090 ** 2 - 0.0068 ** 2) * math.pi / 4 + 2 * 0.009 * 0.0012
         cd_lugs = 1.2 * lug_area / self.A_ref
         cd_gap = 0.01  # TVC gimbal gap / nozzle step

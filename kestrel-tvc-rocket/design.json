@@ -9,7 +9,8 @@
     "tube_density_kg_m3": 680,
     "upper_tube_length": 250,
     "lower_tube_length": 540,
-    "surface_roughness_um": 60
+    "surface_roughness_um": 30,
+    "finish_note": "printed parts sanded 240->400 grit, filler primer, spray paint ('regular paint' ~30 um, OpenRocket default)"
   },
   "nose": {
     "shape": "tangent_ogive",
@@ -24,7 +25,7 @@
     "wall": 1.6,
     "latch_pins": 2,
     "latch_pin_diameter": 3.0,
-    "imu_z": 421,
+    "imu_z": 457,
     "band": 4,
     "lower_insert": 100,
     "shoulder_od": 50.8,
@@ -133,19 +134,20 @@
       "radius": 12
     },
     {
-      "name": "lipo_2s_300mah",
-      "mass_g": 20.0,
-      "z": 471,
-      "length": 55,
-      "radius": 10
+      "name": "lipo_2s_200mah",
+      "mass_g": 13.0,
+      "z": 467.5,
+      "length": 45,
+      "radius": 10,
+      "note": "2S 7.4 V 200 mAh 25C+ LiPo, JST-XH balance lead powers the board (~45 x 30 x 10 mm, 12-14 g)"
     },
     {
       "name": "camera_sq12_class",
       "mass_g": 16.0,
-      "z": 507,
+      "z": 520.5,
       "length": 24,
       "radius": 30,
-      "z_note": "from CAD assembly height 437 mm above tail"
+      "z_note": "from CAD: camera centre 423.5 mm above tail (pod base = av-bay bottom - 30 mm)"
     },
     {
       "name": "servo_extension_cables",
@@ -158,18 +160,18 @@
     {
       "name": "tvc_servos_mg90s_x2",
       "mass_g": 26.8,
-      "z": 821,
+      "z": 817,
       "length": 48,
       "radius": 12,
-      "z_note": "from CAD assembly height 123 mm above tail"
+      "z_note": "from CAD assembly: servo bodies centred ~127 mm above tail"
     },
     {
       "name": "pushrods_1p2mm_wire",
       "mass_g": 3.0,
-      "z": 849,
+      "z": 847,
       "length": 90,
       "radius": 20,
-      "z_note": "from CAD assembly height 95 mm above tail"
+      "z_note": "from CAD assembly height ~97 mm above tail"
     },
     {
       "name": "burnthrough_washer_m10",
@@ -194,5 +196,11 @@
       "radius": 28
     }
   ],
-  "_cad_notes": "Blender Z = distance above the aft end of the lower body tube (mm). Avionics band (4 mm) sits between lower and upper tubes."
+  "_cad_notes": "Blender Z = distance above the aft end of the lower body tube (mm). Avionics band (4 mm) sits between lower and upper tubes.",
+  "camera_pod": {
+    "width_mm": 26.8,
+    "protrusion_mm": 14.5,
+    "cd": 0.45,
+    "note": "external pod, lens axis 1.5 mm outside the tube; frontal area = width x protrusion (drag model)"
+  }
 }

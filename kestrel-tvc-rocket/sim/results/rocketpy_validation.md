@@ -2,18 +2,18 @@
 
 | motor | quantity | KESTREL sim | RocketPy | diff |
 |---|---|---|---|---|
-| TSP-E12 | apogee | 207.93 | 207.81 | +0.1% |
-| TSP-E12 | apogee_t | 7.99 | 7.98 | +0.0% |
-| TSP-E12 | max_speed | 53.53 | 53.51 | +0.0% |
-| TSP-E12 | rail_exit_speed | 9.01 | 9.01 | +0.1% |
-| TSP-E12 | static_margin | 1.46 | 1.46 | +0.2% |
-| TSP-E20 | apogee | 237.78 | 237.72 | +0.0% |
-| TSP-E20 | apogee_t | 7.40 | 7.39 | +0.0% |
-| TSP-E20 | max_speed | 67.45 | 67.44 | +0.0% |
-| TSP-E20 | rail_exit_speed | 11.12 | 11.13 | -0.1% |
-| TSP-E20 | static_margin | 1.46 | 1.46 | +0.2% |
-| TSP-D20 | apogee | 108.07 | 108.03 | +0.0% |
-| TSP-D20 | apogee_t | 5.04 | 5.04 | +0.0% |
-| TSP-D20 | max_speed | 43.63 | 43.63 | -0.0% |
-| TSP-D20 | rail_exit_speed | 11.37 | 11.37 | +0.0% |
-| TSP-D20 | static_margin | 1.70 | 1.70 | +0.2% |
+| TSP-E12 | apogee | 160.87 | 160.72 | +0.1% |
+| TSP-E12 | apogee_t | 7.45 | 7.44 | +0.0% |
+| TSP-E12 | max_speed | 48.27 | 43.59 | +10.7% |
+| TSP-E12 | rail_exit_speed | 8.06 | 8.06 | +0.1% |
+| TSP-E12 | static_margin | 1.36 | 1.36 | +0.3% |
+| TSP-E20 | apogee | 196.60 | 196.55 | +0.0% |
+| TSP-E20 | apogee_t | 7.02 | 7.01 | +0.0% |
+| TSP-E20 | max_speed | 56.88 | 56.88 | +0.0% |
+| TSP-E20 | rail_exit_speed | 10.18 | 10.18 | -0.0% |
+| TSP-E20 | static_margin | 1.36 | 1.36 | +0.3% |
+| TSP-D20 | apogee | 82.15 | 82.13 | +0.0% |
+| TSP-D20 | apogee_t | 4.54 | 4.54 | +0.0% |
+| TSP-D20 | max_speed | 37.02 | 35.90 | +3.1% |
+| TSP-D20 | rail_exit_speed | 10.40 | 10.40 | -0.0% |
+| TSP-D20 | static_margin | 1.56 | 1.55 | +0.2% |

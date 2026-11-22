@@ -62,11 +62,51 @@ RING_RI, RING_R = HOLD_R + 1.4, HOLD_R + 4.4
 FRAME_R = INS_R
 FRAME_RI = FRAME_R - 1.6
 SV = dict(L=22.8, W=12.2, H=22.5, tab_L=32.2, tab_t=2.5, tab_z=15.9, shaft_off=5.9, spline=5.0, pitch=27.8)
-SV1_Z, SV2_Z = 116.0, 141.0           # TVC servo shaft heights
+SV1_Z, SV2_Z = 120.0, 145.0           # TVC servo shaft heights (bars clear the holder top at full deflection)
 SV_SHAFT_R = 16.0                     # servo shaft exit distance from the axis
 PR1 = (9.0, 18.0)                     # pushrod 1 (ring, rotates about X): x, y
 PR2 = (18.0, 9.0)                     # pushrod 2 (holder, rotates about Y)
 HOLDER_TAB_Z = Z_PIVOT + 12.0
+TAIL_SCREW_Z, TAIL_SCREW_ANG = 16.0, (90.0, 210.0)   # fin can + tube + TVC frame radial M3 screws
+
+# --------------------------------------------------------------------------------------
+# Flight-computer PCB interface, exported from KiCad by pcb/export_mech.py (run it after any layout change)
+# --------------------------------------------------------------------------------------
+MECH = json.load(open(os.path.join(ROOT, "pcb", "build", "mech_interface.json")))
+BW, BH, BT = MECH["board"]["w"], MECH["board"]["h"], MECH["board"]["thickness"]
+PCB_Z_TOP = Z_AV0 + 3.0 + BH          # board stands on the sled disc; top edge (GPS end) towards the nose
+PCB_Y_BACK = -11.0                    # back face of the board; through-hole pin tails point to -Y (sled plate)
+PCB_Y_FRONT = PCB_Y_BACK + BT
+STANDOFF_H = 4.0                      # pin tails are <= 2.5 mm long: 1.5 mm to spare
+PLATE_T = 2.0
+PLATE_Y = PCB_Y_BACK - STANDOFF_H - PLATE_T / 2
+SOCKET_H = 8.5                        # Pico 2 W female header height
+KNOB = MECH["parts"]["SW1"]["knob"]
+CAM_Z0 = Z_AV0 - 30.0                 # camera pod base: camera stays below the av-bay bulkhead disc
+CAM_POCKET = 23.6                     # pocket for a 23 mm cube camera
+CAM_FLOOR = 1.8                       # floor under the camera (lens recessed in it)
+CAM_RC = R + 1.5                      # lens axis radius: 1.5 mm outside the tube surface
+CAM_WIN_W, CAM_WIN_H = CAM_POCKET + 2 * 1.6 + 0.2, 30.0   # window cut in the lower tube for the pod
+RADIAL_SCREW_ANG = (0.0, 180.0)       # av-bay retention screws (clear of the camera fairing at 270 deg)
+STATIC_PORT_ANG = (30.0, 150.0, 270.0)
+BATT = dict(w=30.0, t=10.0, l=45.0, y0=5.5, z0=Z_AV0 + 14.0)     # 2S 200 mAh LiPo stand-in
+BAY = dict(w=31.0, t=12.0, l=55.0)    # battery tray accepts packs up to 31 x 12 x 55 mm (2S 300 mAh); foam + strap
+
+
+def board_to_rocket(bx, by):
+    """PCB coordinates (mm, component side up, y down towards the servo headers) -> rocket (x, z).
+    The component side faces +Y, so board +x maps to rocket -x."""
+    return BW / 2.0 - bx, PCB_Z_TOP - by
+
+
+SW_X, SW_Z = board_to_rocket(KNOB["tip_x"], KNOB["tip_y"])
+SW_Y = PCB_Y_FRONT + KNOB["height_above_pcb"]
+SW_ANG = math.degrees(math.atan2(SW_Y, SW_X))     # radial direction of the switch/LED access slot
+
+LOWER_TUBE = f"BT70_lower_tube_{L_LOW:.0f}"
+UPPER_TUBE = f"BT70_upper_tube_{L_UP:.0f}"
+MOTOR_NAME = "motor_" + D["launch"]["nominal_motor"].replace("-", "_") + "_24x95"
+PCB_NAME = f"pcb_kestrel_fc_{BW:.0f}x{BH:.0f}"
 
 STL_DIR = os.path.join(HERE, "stl")
 REN_DIR = os.path.join(HERE, "renders")
@@ -276,15 +316,15 @@ def avbay_coupler(M):
     body_cy = -(SV["L"] / 2 - SV["shaft_off"])
     for hy in (body_cy - SV["pitch"] / 2, body_cy + SV["pitch"] / 2):
         off = 1.5 if hy > body_cy else -1.5
-        post = box(7.0, 6.0, Z_SH1 - z_tab_top + 0.6, 0, hy + off, (Z_SH1 + z_tab_top) / 2)
+        post = box(7.0, 6.0, Z_SH1 - z_tab_top + 0.25, 0, hy + off, (Z_SH1 + 0.3 + z_tab_top + 0.05) / 2)
         post = post - cyl(0.8, 10.0, z_tab_top - 1.0, 0, hy, segs=16)         # 1.6 mm pilot for servo screw
         m = m + (post ^ cyl(SH_R - 0.5, 200, Z_AV0))
     # 2 x M3 radial screw holes (through lower tube -> insert -> sled nut traps)
-    for ang in (90, 270):
+    for ang in RADIAL_SCREW_ANG:
         m = m - polar(xcyl(1.65, 12).translate((INS_R, 0, Z_AV0 + 12)), ang)
-    # switch / LED window at -X (aligned with the PCB edge) and 3 static ports
-    m = m - box(8.0, 12.0, 16.0, -(INS_R - 1.0), -2.0, Z_AV0 + 62)
-    for ang in (30, 150, 270):
+    # switch / LED slot on the radial line through the power-switch knob (from the KiCad layout), 3 static ports
+    m = m - polar(box(8.0, 7.0, 20.0, INS_R - 1.0, 0, SW_Z), SW_ANG)
+    for ang in STATIC_PORT_ANG:
         m = m - polar(xcyl(1.0, 8, 16).translate((INS_R, 0, Z_AV0 + 40)), ang)
     m = m - box(2.0, 2.0, 2.2, 0, R - 0.6, Z_BAND0 + 2.9)                       # alignment notch
     return register("avbay_coupler", m, M["white"], print_rot=(180, 0, 0),
@@ -307,29 +347,48 @@ def spring_piston(M):
 
 
 def avbay_sled(M):
+    """Bulkhead disc + backbone plate.  The PCB stands on 4 printed standoffs at its real mounting holes;
+    every through-hole pin tail gets a clearance slot in the plate; the LiPo sits on a ledge in a ribbed tray."""
     z0 = Z_AV0
     rb = INS_R - WALL - 0.25
-    m = cyl(rb, 3.0, z0)
-    plate = box(40.0, 2.0, 83.0, 0, -17.6, z0 + 2.5 + 41.5)
-    plate = plate - box(26.0, 4.0, 22.0, 0, -17.6, z0 + 28.0) - box(26.0, 4.0, 22.0, 0, -17.6, z0 + 58.0)   # lightening
-    m = m + plate
-    for (px, pz) in ((-16.5, 6.5), (16.5, 6.5), (-16.5, 76.5), (16.5, 76.5)):
-        so = ycyl(2.5, 3.0, 24).translate((px, -15.4, z0 + 3 + pz)) - ycyl(1.1, 8.0, 16).translate((px, -16.0, z0 + 3 + pz))
-        m = m + so
-        m = m - ycyl(1.1, 8.0, 16).translate((px, -16.0, z0 + 3 + pz))
-    tray = box(34.0, 1.6, 66.0, 0, 21.0, z0 + 2.5 + 33.0)
-    tray = tray + box(34.0, 6.0, 1.6, 0, 18.4, z0 + 2.8)
+    plate = box(38.0, PLATE_T, BH + 1.0, 0, PLATE_Y, z0 + 2.5 + (BH + 1.0) / 2)
+    # clearance slots behind every group of through-hole pins (Pico sockets, servo headers, battery plug, buzzer)
+    groups = {}
+    for p in MECH["tht_pins"]:
+        groups.setdefault(p["ref"], []).append(board_to_rocket(p["x"], p["y"]))
+    for ref, pts in groups.items():
+        xs, zs = [q[0] for q in pts], [q[1] for q in pts]
+        mg = 1.7
+        plate = plate - box(max(xs) - min(xs) + 2 * mg, 10.0, max(zs) - min(zs) + 2 * mg,
+                            (max(xs) + min(xs)) / 2, PLATE_Y, (max(zs) + min(zs)) / 2)
+    # lightening windows between the pin rows
+    for (xa, xb) in ((-0.9, 11.1), (-17.0, -7.4)):
+        for (za, zb) in ((22.0, 44.0), (48.0, 70.0)):
+            plate = plate - box(xb - xa, 10.0, zb - za, (xa + xb) / 2, PLATE_Y, z0 + (za + zb) / 2)
+    m = cyl(rb, 3.0, z0) + plate
+    # standoffs (M2.5 x 8 self-tapping screws from the component side, 2.1 mm pilot)
+    for h in MECH["holes"]:
+        x, z = board_to_rocket(h["x"], h["y"])
+        L = STANDOFF_H + 0.5
+        m = m + ycyl(2.6, L, 32).translate((x, PCB_Y_BACK - L / 2, z))
+        m = m - ycyl(1.05, 3 * L, 16).translate((x, PCB_Y_BACK - L, z))
+    # battery tray: plate + side ribs + ledge under the pack
+    ty = BATT["y0"] + BAY["t"] + 0.8
+    tray = box(34.0, 1.6, 70.5, 0, ty, z0 + 2.5 + 70.5 / 2)
+    for sx in (1, -1):
+        tray = tray + box(1.6, 5.0, 70.5, sx * (BAY["w"] / 2 + 0.8 + 0.3), ty - 3.3, z0 + 2.5 + 70.5 / 2)
+    tray = tray + box(BAY["w"] - 1.0, BAY["t"] + 1.6, 1.6, 0, BATT["y0"] + (BAY["t"] + 1.6) / 2, BATT["z0"] - 0.8)
+    for zz in (25.0, 55.0):
+        tray = tray - box(26.0, 4.0, 3.2, 0, ty, z0 + zz)                    # velcro-strap slots
     m = m + (tray ^ cyl(rb, 200, z0))
-    for zz in (18, 52):
-        m = m - box(26.0, 4.0, 3.2, 0, 21.0, z0 + 3 + zz)   # closed velcro-strap slots
-    for ang in (90, 270):
-        nt = box(5.9, 6.0, 2.8, rb - 3.2, 0, z0 + 12).rotate((0, 0, 0))
+    for ang in RADIAL_SCREW_ANG:                                              # M3 nut traps for the retention screws
+        nt = box(5.9, 6.0, 2.8, rb - 3.2, 0, z0 + 12)
+        boss = (box(5.0, 9.0, 12.0, rb - 2.6, 0, z0 + 8.0) - nt - xcyl(1.65, 10).translate((rb - 3, 0, z0 + 12)))
         m = m - polar(nt, ang) - polar(xcyl(1.65, 10).translate((rb - 3, 0, z0 + 12)), ang)
-        boss = (box(5.0, 9.0, 12.0, rb - 2.6, 0, z0 + 8.0) - box(5.9, 6.0, 2.8, rb - 3.2, 0, z0 + 12) -
-                xcyl(1.65, 10).translate((rb - 3, 0, z0 + 12)))
         m = m + (polar(boss, ang) ^ cyl(rb, 30, z0))
-    m = m - cyl(4.0, 10.0, z0 - 2.0, 12.0, 4.0, segs=24)                         # cable pass-through
-    return register("avbay_sled", m, M["grey"], note="Print with the bulkhead disc on the bed. 4 x M2.5x6 screws hold the PCB")
+    m = m - cyl(4.0, 10.0, z0 - 2.0, 12.0, 4.0, segs=24)                         # servo-cable pass-through
+    return register("avbay_sled", m, M["grey"],
+                    note="Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB")
 
 
 def tvc_holder(M):
@@ -338,11 +397,11 @@ def tvc_holder(M):
     # single revolved profile: motor bore, 25 mm washer recess, closed thrust cap (no coincident faces)
     m = revolve([(HOLD_RI, 0.0), (HOLD_R, 0.0), (HOLD_R, z1), (0.0, z1), (0.0, zc), (12.6, zc),
                  (12.6, zc - 1.9), (HOLD_RI, zc - 1.9)])
-    for sy in (1, -1):
-        m = m + ycyl(3.4, 2.4, 32).translate((0, sy * (HOLD_R + 0.9), Z_PIVOT))
+    for sy in (1, -1):                 # pivot bosses: 13.4 -> 14.5 mm from the axis (0.2 mm gap to the ring pads)
+        m = m + ycyl(3.4, 1.1, 32).translate((0, sy * (HOLD_R + 0.15), Z_PIVOT))
     # re-cut the M3 pilot only through the bosses (not the bore)
     for sy in (1, -1):
-        m = m - ycyl(1.25, 3.0, 16).translate((0, sy * (HOLD_R + 0.9), Z_PIVOT))
+        m = m - ycyl(1.25, 3.0, 16).translate((0, sy * (HOLD_R + 0.15), Z_PIVOT))
     tab = box(8.5, 4.0, 4.0, HOLD_R + 3.4, PR2[1], HOLDER_TAB_Z) + box(5.0, PR2[1] + 2.0, 4.0, HOLD_R + 0.8, PR2[1] / 2, HOLDER_TAB_Z)
     tab = tab - cyl(HOLD_R - 0.6, 10, HOLDER_TAB_Z - 5)   # tab root buried inside the wall (no coincident faces)
     m = m + tab - cyl(0.7, 6.0, HOLDER_TAB_Z - 3.0, PR2[0], PR2[1], segs=16)
@@ -358,7 +417,7 @@ def tvc_ring(M):
     for sx in (1, -1):
         m = m + xcyl(3.4, 2.4, 32).translate((sx * (RING_R + 0.9), 0, Z_PIVOT))
     for sy in (1, -1):
-        m = m + ycyl(3.0, 2.0, 32).translate((0, sy * (RING_RI + 0.6), Z_PIVOT))   # inner bearing pads
+        m = m + ycyl(3.0, 0.8, 32).translate((0, sy * (RING_RI - 0.1), Z_PIVOT))   # inner bearing pads 14.7 -> 15.5
     m = m - xcyl(1.25, 2 * RING_R + 8, 16).translate((0, 0, Z_PIVOT))
     m = m - ycyl(1.65, 2 * RING_R + 8, 16).translate((0, 0, Z_PIVOT))
     m = m - cyl(HOLD_R + 0.6, 40, Z_PIVOT - 20)                                  # keep the bore clear
@@ -372,14 +431,14 @@ def tvc_frame(M):
     ri = ro - 1.0                      # 1.0 mm skin: the kraft body tube carries the bending loads
     m = tube(ro, ri, 156.0, 0.0)
     # keep solid bands where loads go in (aft ring + screws, pivot posts, servo brackets); open windows elsewhere
-    windows = [(10.0, 40.0), (56.0, 92.0), (101.0, 116.0), (129.0, 143.0)]
+    windows = [(22.0, 40.0), (56.0, 94.0), (105.0, 121.0), (133.0, 149.0)]
     longerons = (30.0, 150.0, 270.0)
     for z0, z1 in windows:
         w = tube(ro + 1.0, ri - 1.0, z1 - z0, z0, segs=96)
         for a in longerons:
             w = w - polar(box(14.0, 9.0, z1 - z0 + 2.0, ro - 2.0, 0, (z0 + z1) / 2), a)
         m = m - w
-    m = m + tube(ro, 23.4, 4.0, 0.0)                                               # aft ring lip
+    m = m + tube(ro, 24.6, 4.0, 0.0)                                               # aft ring lip (clears the swung retainer)
     # pivot posts on +/-X
     for sx in (1, -1):
         post = box(ri - (RING_R + 2.7) + 0.8, 8.0, 12.0, sx * ((ri + RING_R + 2.7) / 2 + 0.4), 0, Z_PIVOT)
@@ -407,16 +466,16 @@ def tvc_frame(M):
         b2 = b2 - cyl(2.2, 12.0, zz2 - 6, PR1[0], PR1[1], segs=16)
         m = m + b2
     # 2 x M3 radial screws (shared with the fin can)
-    for a in (90, 210):
-        m = m - polar(xcyl(1.65, 8, 16).translate((ro - 1.5, 0, 6.0)), a)
-        m = m + polar((box(6.0, 8.0, 8.0, ri - 2.0, 0, 6.0) - box(2.8, 5.9, 6.5, ri - 2.6, 0, 6.0) -
-                       xcyl(1.65, 12, 16).translate((ri, 0, 6.0))) ^ cyl(ro, 40, 0), a)
+    for a in TAIL_SCREW_ANG:     # nut traps sit above the retainer's swing (gimbal sweep check)
+        m = m - polar(xcyl(1.65, 8, 16).translate((ro - 1.5, 0, TAIL_SCREW_Z)), a)
+        m = m + polar((box(6.0, 8.0, 8.0, ri - 2.0, 0, TAIL_SCREW_Z) - box(2.8, 5.9, 6.5, ri - 2.6, 0, TAIL_SCREW_Z) -
+                       xcyl(1.65, 12, 16).translate((ri, 0, TAIL_SCREW_Z))) ^ cyl(ro, 40, 0), a)
     return register("tvc_frame", m, M["grey"], note="PETG, print upright; supports only under the servo bars")
 
 
 def retainer(M):
     z0 = Z_MOTOR0 - 1.5
-    m = tube(HOLD_R + 3.4, HOLD_R + 0.3, 11.5, z0) + tube(HOLD_R + 3.4, 8.0, 1.5, z0)
+    m = tube(HOLD_R + 3.4, HOLD_R + 0.3, 13.0, z0) + tube(HOLD_R + 3.4, 8.0, 1.5, z0)   # 1.7 mm bridge over the lock slot
     for a in (45, 225):
         m = m - polar(box(4.0, 5.6, 7.0, HOLD_R + 1.4, 0, z0 + 1.5 + 3.5 + 4.5), a)
         m = m - polar(box(4.0, 9.0, 3.6, HOLD_R + 1.4, 3.0, 4.0), a)
@@ -436,8 +495,8 @@ def fin_can(M):
         m = m + polar(fin, 120.0 * k)
     lug = tube(4.75, 3.4, 25.0, 50.0, segs=40).translate((ro + 4.4, 0, 0)) + box(5.0, 3.0, 25.0, ro + 1.6, 0, 62.5)
     m = m + polar(lug, 60)
-    for a in (90, 210):
-        m = m - polar(xcyl(1.65, 8, 16).translate((ro - 0.4, 0, 6.0)), a)
+    for a in TAIL_SCREW_ANG:
+        m = m - polar(xcyl(1.65, 8, 16).translate((ro - 0.4, 0, TAIL_SCREW_Z)), a)
     return register("fin_can", m, M["orange"], note="PETG, print upright (fins vertical), 3 walls")
 
 
@@ -450,22 +509,27 @@ def upper_lug(M):
 
 
 def camera_pod(M):
-    """Half-recessed pod for a ~23 mm cube mini camera, lens looking aft. Sits in a 26 x 30 mm
-    window cut in the lower tube; the flange is glued/taped to the tube."""
-    z0, cam = 425.0, 23.6
-    w = cam + 3.2
-    base = box(w, 0.1, cam + 6.0, 0, R + 10.0, z0 + (cam + 6.0) / 2)
-    tip = box(4.0, 0.1, 1.0, 0, R + 2.0, z0 + cam + 26.0)
-    shell = M3.batch_hull([base, tip, box(w, 0.1, cam + 6, 0, R - 6.0, z0 + (cam + 6) / 2),
-                           box(w, 0.1, 1.0, 0, R - 6.0, z0 + cam + 24.0)])
-    shell = shell - box(cam, cam + 2, cam + 1.0, 0, R - 2.5, z0 + cam / 2 + 1.5)             # camera pocket
-    shell = shell - box(14.0, 16.0, 6.0, 0, R - 2.5, z0)                                         # lens opening
-    shell = shell - (cyl(RI - 0.3, 200, z0 - 50) - box(cam + 3.2, 60, 200, 0, RI - 12.0, z0))      # stay outside the bore except pocket
-    flange = (tube(R + 1.2, R + 0.1, cam + 10.0, z0 - 2.0) ^ box(w + 10.0, 30.0, cam + 10.0, 0, R, z0 + cam / 2 + 3.0)) - \
-        box(w - 0.1, 30, cam + 30, 0, R, z0)
+    """Pod for a ~23 mm cube mini camera (SQ12 class), lens looking straight down the body.
+    The lens axis sits 1.5 mm OUTSIDE the tube surface (CAM_RC), so the view clears the airframe: the body tube
+    fills one side of the frame, the ground the rest.  The inner part of the pod drops through a
+    CAM_WIN_W x CAM_WIN_H window cut in the lower tube; the saddle flange is glued to the tube."""
+    z0, cam, wl = CAM_Z0, CAM_POCKET, 1.2
+    rc, w = CAM_RC, CAM_POCKET + 2 * 1.6
+    r_in, r_out = rc - cam / 2 - wl, rc + cam / 2 + wl
+    zt = z0 + CAM_FLOOR + cam + wl                                      # top of the pocket roof
+    base = box(w, r_out - r_in, zt - z0, 0, (r_in + r_out) / 2, (z0 + zt) / 2)
+    tip = box(4.0, 0.1, 1.0, 0, R + 2.0, zt + 24.0)                      # faired nose of the pod
+    shell = M3.batch_hull([base, tip])
+    shell = shell - box(cam, cam, cam, 0, rc, z0 + CAM_FLOOR + cam / 2)  # camera pocket
+    shell = shell - cyl(4.6, 6.0, z0 - 3.0, 0, rc, segs=40)               # lens hole through the floor
+    shell = shell - box(cam - 6.0, 10.0, 8.0, 0, r_out, z0 + CAM_FLOOR + cam - 2.0)   # button / SD access slot (outer face)
+    shell = shell - cyl(R + 0.1, 150.0, zt)                              # above the pocket nothing goes inside the tube
+    flange = (tube(R + 1.2, R + 0.1, CAM_WIN_H + 6.0, z0 - 3.0) ^ box(w + 10.0, 40.0, CAM_WIN_H + 6.0, 0, R, z0 + CAM_WIN_H / 2)) - \
+        box(w - 0.1, 40, CAM_WIN_H + 30, 0, R, z0 + CAM_WIN_H / 2)
     m = shell + flange
-    m = m - box(cam, cam + 2, cam + 1.0, 0, R - 2.5, z0 + cam / 2 + 1.5)
-    return register("camera_pod", polar(m, 180), M["black"], note="Cut a 27 x 30 mm window in the lower tube at the marked position; glue flange, foam-pad the camera")
+    m = m - box(cam, cam, cam, 0, rc, z0 + CAM_FLOOR + cam / 2)
+    return register("camera_pod", polar(m, 180), M["black"],
+                    note=f"Cut a {CAM_WIN_W:.0f} x {CAM_WIN_H:.0f} mm window in the lower tube (drill guide marks it); glue the flange, foam-pad the camera")
 
 
 # ======================================================================================
@@ -522,22 +586,53 @@ def rod_cap(M):
     return register("rod_tip_safety_cap", m, M["orange"], note="Keep on the rod tip whenever there is no rocket on the pad", group="pad")
 
 
+def lower_tube_cut():
+    """The lower body tube as the builder leaves it: camera window, switch/LED slot, static ports, screw holes."""
+    t = tube(R, RI, L_LOW, 0.0)
+    t = t - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
+    t = t - polar(box(8.0, 7.0, 20.0, R, 0, SW_Z), SW_ANG)
+    for a in STATIC_PORT_ANG:
+        t = t - polar(xcyl(1.0, 6, 16).translate((R, 0, Z_AV0 + 40.0)), a)
+    for a in RADIAL_SCREW_ANG:
+        t = t - polar(xcyl(1.65, 6, 16).translate((R, 0, Z_AV0 + 12.0)), a)
+    for a in TAIL_SCREW_ANG:
+        t = t - polar(xcyl(1.65, 6, 16).translate((R, 0, TAIL_SCREW_Z)), a)
+    return t
+
+
+def drill_guide(M):
+    """Build tool: slides down over the top of the lower body tube (lip on the tube end) and marks every hole
+    the airframe needs - 2 x M3 av-bay screws, 3 static ports, the switch/LED slot and the camera window -
+    plus a groove on the launch-lug line.  Drill/cut BEFORE gluing the upper lug."""
+    z_top, z_bot = Z_BAND0, CAM_Z0 - 6.0
+    m = tube(R + 2.2, R + 0.25, z_top - z_bot, z_bot) + tube(R + 2.2, RI - 0.8, 2.0, z_top)
+    for a in RADIAL_SCREW_ANG:
+        m = m - polar(xcyl(1.6, 10, 24).translate((R + 1, 0, Z_AV0 + 12.0)), a)
+    for a in STATIC_PORT_ANG:
+        m = m - polar(xcyl(1.0, 10, 16).translate((R + 1, 0, Z_AV0 + 40.0)), a)
+    m = m - polar(box(8.0, 7.0, 20.0, R + 1.0, 0, SW_Z), SW_ANG)
+    m = m - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R + 1.0, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
+    m = m - polar(box(1.6, 1.2, z_top - z_bot + 10.0, R + 2.2, 0, (z_top + z_bot) / 2), 60)
+    return register("tool_drill_guide_lower_tube", m, M["orange"], print_rot=(180, 0, 0), group="tool",
+                    note="Build tool (not flown). Print lip-down. Slide over the top of the lower tube, then drill/cut through it")
+
+
 # ======================================================================================
 # purchased-part stand-ins
 # ======================================================================================
 def purchased(M):
     s = SV
     out = {}
-    out["BT70_lower_tube_580"] = (tube(R, RI, L_LOW, 0.0), M["kraft"])
-    out["BT70_upper_tube_250"] = (tube(R, RI, L_UP, Z_UP0), M["kraft"])
-    out["motor_TSP_E12_24x95"] = (cyl(MOTOR_D / 2, MOTOR_L, Z_MOTOR0) - cyl(4.0, 12.0, Z_MOTOR0 - 1.0, segs=24), M["motor"])
+    out[LOWER_TUBE] = (lower_tube_cut(), M["kraft"])
+    out[UPPER_TUBE] = (tube(R, RI, L_UP, Z_UP0), M["kraft"])
+    out[MOTOR_NAME] = (cyl(MOTOR_D / 2, MOTOR_L, Z_MOTOR0) - cyl(4.0, 12.0, Z_MOTOR0 - 1.0, segs=24), M["motor"])
     c1 = SV1_Z + s["shaft_off"] - s["L"] / 2
     c2 = SV2_Z + s["shaft_off"] - s["L"] / 2
     sv1 = box(s["W"], s["H"], s["L"], 0, SV_SHAFT_R - s["H"] / 2, c1) + box(s["W"] - 1, 2.5, s["tab_L"], 0, SV_SHAFT_R - s["H"] + s["tab_z"] + 1.25, c1)
-    sv1 = sv1 + ycyl(2.4, s["spline"], 16).translate((0, SV_SHAFT_R + s["spline"] / 2, SV1_Z)) + box(22.0, 2.0, 4.5, PR1[0] - 2.0, SV_SHAFT_R + 4.0, SV1_Z)
+    sv1 = sv1 + ycyl(2.4, s["spline"], 16).translate((0, SV_SHAFT_R + s["spline"] / 2, SV1_Z)) + box(PR1[0] + 6.0, 2.0, 4.5, (PR1[0] - 1.0) / 2, SV_SHAFT_R + 4.0, SV1_Z)
     out["servo_MG90S_tvc_ring"] = (sv1, M["servo"])
     sv2 = box(s["H"], s["W"], s["L"], SV_SHAFT_R - s["H"] / 2, 0, c2) + box(2.5, s["W"] - 1, s["tab_L"], SV_SHAFT_R - s["H"] + s["tab_z"] + 1.25, 0, c2)
-    sv2 = sv2 + xcyl(2.4, s["spline"], 16).translate((SV_SHAFT_R + s["spline"] / 2, 0, SV2_Z)) + box(2.0, 22.0, 4.5, SV_SHAFT_R + 4.0, PR2[1] - 2.0, SV2_Z)
+    sv2 = sv2 + xcyl(2.4, s["spline"], 16).translate((SV_SHAFT_R + s["spline"] / 2, 0, SV2_Z)) + box(2.0, PR2[1] + 6.0, 4.5, SV_SHAFT_R + 4.0, (PR2[1] - 1.0) / 2, SV2_Z)
     out["servo_MG90S_tvc_holder"] = (sv2, M["servo"])
     out["pushrod_ring_1.2mm"] = (cyl(0.6, SV1_Z - Z_PIVOT, Z_PIVOT, PR1[0], PR1[1], segs=12), M["steel"])
     out["pushrod_holder_1.2mm"] = (cyl(0.6, SV2_Z - HOLDER_TAB_Z, HOLDER_TAB_Z, PR2[0], PR2[1], segs=12), M["steel"])
@@ -547,19 +642,36 @@ def purchased(M):
     dep = dep + box(s["W"] - 1, s["tab_L"], 2.5, 0, -(s["L"] / 2 - s["shaft_off"]), zb + s["tab_z"] + 1.25)
     dep = dep + cyl(2.4, s["spline"], z_shaft_top - s["spline"], segs=16)
     out["servo_MG90S_deploy"] = (dep, M["servo"])
-    out["servo_horn_deploy"] = (box(30.0, 5.0, 2.2, 0, 0, z_shaft_top + 0.2), M["white"])
-    out["pcb_kestrel_fc_40x80"] = (box(40.0, 1.6, 80.0, 0, -15.8, Z_AV0 + 3 + 41), M["pcb"])
-    out["pico2w_on_headers"] = (box(21.0, 1.0, 51.0, -6.0, -4.0, Z_AV0 + 3 + 45) + box(2.5, 8.5, 51.0, -14.9, -10.0, Z_AV0 + 48) +
-                                box(2.5, 8.5, 51.0, 2.9, -10.0, Z_AV0 + 48), M["pico"])
-    out["lipo_2s_300mah"] = (box(31.0, 12.0, 55.0, 0, 13.8, Z_AV0 + 3 + 34), M["lipo"])
-    out["gps_patch_antenna"] = (box(25.0, 25.0, 4.0, 0, 0, Z_SH1 - 3.0), M["antenna"])
+    out["servo_horn_deploy"] = (box(30.0, 5.0, 2.2, 0, 0, z_shaft_top + 1.1), M["white"])
+    out[PCB_NAME] = (box(BW, BT, BH, 0, PCB_Y_BACK + BT / 2, PCB_Z_TOP - BH / 2), M["pcb"])
+    x10 = board_to_rocket(MECH["parts"]["J10"]["x"], 0)[0]
+    x11 = board_to_rocket(MECH["parts"]["J11"]["x"], 0)[0]
+    pz = PCB_Z_TOP - (MECH["parts"]["J10"]["y"] + MECH["parts"]["J11"]["y"]) / 2
+    yp = PCB_Y_FRONT + SOCKET_H
+    pico = box(2.5, SOCKET_H, 50.8, x10, PCB_Y_FRONT + SOCKET_H / 2, pz) + box(2.5, SOCKET_H, 50.8, x11, PCB_Y_FRONT + SOCKET_H / 2, pz)
+    pico = pico + box(21.0, 1.0, 51.0, (x10 + x11) / 2, yp + 0.5, pz)                       # Pico 2 W board
+    pico = pico + box(11.0, 1.6, 13.0, (x10 + x11) / 2, yp + 1.8, pz - 12.0)                # radio module can
+    pico = pico + box(8.0, 2.6, 5.5, (x10 + x11) / 2, yp + 2.3, pz + 25.5 - 2.75)            # micro-USB (top end)
+    out["pico2w_on_sockets"] = (pico, M["pico"])
+    bx, bz = board_to_rocket(13.25, 7.15)
+    parts_fc = ycyl(6.0, 9.5, 32).translate((bx, PCB_Y_FRONT + 4.75, bz))                # buzzer
+    jx, jz = board_to_rocket(MECH["parts"]["J1"]["x"], (MECH["parts"]["J1"]["y"] - 2.5))
+    parts_fc = parts_fc + box(5.75, 7.0, 9.9, jx, PCB_Y_FRONT + 3.5, jz)                  # JST-XH balance plug socket
+    sx_, sz_ = board_to_rocket(MECH["parts"]["SW1"]["x"], MECH["parts"]["SW1"]["y"])
+    parts_fc = parts_fc + box(2.6, 1.4, 6.7, sx_ - 0.2, PCB_Y_FRONT + 0.7, sz_)               # PCM12 power switch
+    for r in ("J2", "J3", "J4", "J5"):                                                      # servo plugs on the headers
+        hx, hz = board_to_rocket(MECH["parts"][r]["x"], MECH["parts"][r]["y"] + 2.54)
+        parts_fc = parts_fc + box(2.6, 14.0, 7.6, hx, PCB_Y_FRONT + 2.5 + 7.0, hz)
+    out["fc_connectors_buzzer_switch"] = (parts_fc, M["servo"])
+    out["lipo_2s_200mah"] = (box(BATT["w"], BATT["t"], BATT["l"], 0, BATT["y0"] + BAY["t"] - BATT["t"] / 2, BATT["z0"] + BATT["l"] / 2), M["lipo"])
+    out["gps_patch_antenna_18mm"] = (box(18.0, 18.0, 4.0, 0, -(SV["L"] / 2 - SV["shaft_off"]), Z_SH1 - 3.0), M["antenna"])
     spring = None
     n = 400
     pts = [(12.5 * math.cos(2 * math.pi * 8 * i / n), 12.5 * math.sin(2 * math.pi * 8 * i / n),
             Z_SH1 + BULK_T + 20.0 * i / n) for i in range(n + 1)]
     out["_spring_curve"] = pts
     out["parachute_24in_packed"] = (cyl(21.0, 110.0, Z_SH1 + BULK_T + 27.0, segs=48), M["nylon"])
-    cam = box(23.0, 23.0, 23.0, 0, -(R - 2.5), 425.0 + 13.0) + cyl(4.0, 3.0, 425.0 - 1.0, 0, -(R - 2.5), segs=24)
+    cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)
     out["camera_SQ12_class"] = (cam, M["camera"])
     return out
 
@@ -583,6 +695,7 @@ def build_all(M):
     tail_z = plate_top + 45.0 + TVC["nozzle_protrusion"]
     stop_z = tail_z + 50.0 - 12.0
     pad_rod_stop(M, stop_z); pad_leg_foot(M); rod_cap(M)
+    drill_guide(M)
     return tail_z
 
 
@@ -670,21 +783,125 @@ def camera_at(name, loc, target, lens=50):
     return co
 
 
+def check_layout():
+    """Positions the flight simulator / firmware take from design.json must match this CAD + the PCB layout."""
+    z_tip = Z_NOSE0 + NOSE_L
+    u4 = MECH["parts"]["U4"]
+    imu_from_tip = z_tip - board_to_rocket(u4["x"], u4["y"])[1]
+    comp = {c["name"]: c for c in D["components"]}
+    want = {
+        "avbay.imu_z (LSM6DSO U4)": (D["avbay"]["imu_z"], imu_from_tip),
+        "flight_computer_pcb_pico.z": (comp["flight_computer_pcb_pico"]["z"], z_tip - (PCB_Z_TOP - BH / 2)),
+        "lipo_2s_200mah.z": (comp["lipo_2s_200mah"]["z"], z_tip - (BATT["z0"] + BATT["l"] / 2)),
+        "camera_sq12_class.z": (comp["camera_sq12_class"]["z"], z_tip - (CAM_Z0 + CAM_FLOOR + 0.3 + 11.5)),
+        "camera_pod.protrusion_mm": (D["camera_pod"]["protrusion_mm"], CAM_RC + CAM_POCKET / 2 + 1.2 - R),
+        "camera_pod.width_mm": (D["camera_pod"]["width_mm"], CAM_POCKET + 2 * 1.6),
+    }
+    bad = []
+    for k, (have, real) in want.items():
+        flag = abs(have - real) > 1.5
+        print(f"layout check {k:30s} design.json {have:7.1f} mm  CAD/PCB {real:7.1f} mm  {'MISMATCH' if flag else 'ok'}")
+        if flag:
+            bad.append(f"{k}: set {real:.0f}")
+    json.dump({k: round(v[1], 1) for k, v in want.items()}, open(os.path.join(HERE, "avionics_layout.json"), "w"), indent=1)
+    if bad:
+        raise SystemExit("design.json is out of date with the CAD/PCB layout -> " + "; ".join(bad))
+
+
+def interference_report(buy):
+    """Pairwise solid-solid overlap between every printed rocket part and purchased stand-in (manifold CSG).
+    Writes cad/interference_report.md; fails if any pair overlaps by more than 1 mm^3."""
+    objs = [(n, p["m"]) for n, p in PARTS.items() if p["group"] == "rocket"]
+    objs += [(n, v[0]) for n, v in buy.items() if not n.startswith("_")]
+    boxes = [m.bounding_box() for _, m in objs]
+    rows, bad = [], []
+    for i in range(len(objs)):
+        for j in range(i + 1, len(objs)):
+            a, b = boxes[i], boxes[j]
+            if a[0] > b[3] or b[0] > a[3] or a[1] > b[4] or b[1] > a[4] or a[2] > b[5] or b[2] > a[5]:
+                continue
+            v = (objs[i][1] ^ objs[j][1]).volume()
+            if v > 1.0:
+                bad.append((objs[i][0], objs[j][0], v))
+    n_pairs = len(objs) * (len(objs) - 1) // 2
+    md = [f"# Interference check\n\n{len(objs)} solids ({n_pairs} pairs) checked with exact mesh booleans.\n"]
+    if bad:
+        md.append("| part A | part B | overlap mm^3 |\n|---|---|---|")
+        md += [f"| {a} | {b} | {v:.1f} |" for a, b, v in bad]
+    else:
+        md.append("**No overlaps** (> 1 mm^3) between any printed part and any purchased part.")
+    open(os.path.join(HERE, "interference_report.md"), "w").write("\n".join(md) + "\n")
+    print("\n".join(md))
+    if bad:
+        raise SystemExit(f"{len(bad)} interfering pairs - see cad/interference_report.md")
+
+
+def gimbal_sweep_report(buy, max_deg=None):
+    """Swing the gimbal to every corner of its travel (design max + 1 deg margin on both axes) and check the
+    moving parts (motor, holder, retainer, ring) against the static structure and each other.  Appends to
+    cad/interference_report.md; fails on any contact > 0.5 mm^3."""
+    max_deg = max_deg or TVC["max_deflection_deg"] + 1.0
+    inner = [("tvc_motor_holder", PARTS["tvc_motor_holder"]["m"]), ("tvc_motor_retainer", PARTS["tvc_motor_retainer"]["m"]),
+             (MOTOR_NAME, buy[MOTOR_NAME][0])]
+    ring = ("tvc_gimbal_ring", PARTS["tvc_gimbal_ring"]["m"])
+    static = [(n, PARTS[n]["m"]) for n in ("tvc_frame", "fin_can")]
+    static += [(n, buy[n][0]) for n in (LOWER_TUBE, "servo_MG90S_tvc_ring", "servo_MG90S_tvc_holder")]
+
+    def piv(m, rx, ry):   # holder axis (Y) first, then the ring axis (X), both through the pivot point
+        return m.translate((0, 0, -Z_PIVOT)).rotate((0, ry, 0)).rotate((rx, 0, 0)).translate((0, 0, Z_PIVOT))
+    worst, rows, n = {}, [], 0
+    envelope = [(0.0, 0.0)] + [(max_deg * math.cos(math.radians(a)), max_deg * math.sin(math.radians(a)))
+                               for a in range(0, 360, 15)]        # firmware clamps the deflection VECTOR (circular)
+    for rx, ry in envelope:
+        if True:
+            moving = [(nm, piv(m, rx, ry)) for nm, m in inner] + [(ring[0], piv(ring[1], rx, 0.0))]
+            for nm, m in moving:
+                for sn, sm in static:
+                    x = m ^ sm
+                    n += 1
+                    if x.volume() > 0.5:
+                        rows.append((rx, ry, nm, sn, x.volume(), x.bounding_box()))
+            for nm, m in moving[:2]:
+                x = m ^ moving[-1][1]
+                n += 1
+                if x.volume() > 0.5:
+                    rows.append((rx, ry, nm, ring[0], x.volume(), x.bounding_box()))
+    md = [f"\n## Gimbal sweep\n\nMotor, holder, retainer and ring swung round the whole deflection circle "
+          f"({len(envelope) - 1} directions at {max_deg:.0f} deg = firmware limit {TVC['max_deflection_deg']} deg + 1 deg margin), "
+          f"{n} contact checks.\n"]
+    if rows:
+        md.append("| ring deg | holder deg | moving part | hits | overlap mm^3 | where (x, y, z mm) |\n|---|---|---|---|---|---|")
+        md += [f"| {a:+.0f} | {b:+.0f} | {c} | {d} | {v:.1f} | ({(bb[0]+bb[3])/2:.1f}, {(bb[1]+bb[4])/2:.1f}, {bb[2]:.1f}..{bb[5]:.1f}) |"
+               for a, b, c, d, v, bb in rows]
+    else:
+        md.append("**No contact** anywhere in the travel envelope.")
+    with open(os.path.join(HERE, "interference_report.md"), "a") as fh:
+        fh.write("\n".join(md) + "\n")
+    print("\n".join(md))
+    if rows:
+        raise SystemExit(f"gimbal sweep: {len(rows)} contacts - see cad/interference_report.md")
+
+
 def main():
     reset_scene()
     M = MATS()
     tail_z = build_all(M)
     export_stls()
+    check_layout()
+    buy0 = purchased(M)
+    interference_report(buy0)
+    gimbal_sweep_report(buy0)
     # ---------------- Blender assembly ----------------
     c_rk = collection("Rocket (assembled)")
     c_buy = collection("Rocket purchased parts")
     c_pad = collection("Launch pad")
+    c_tool = collection("Build tools")
     c_on = collection("Rocket on pad")
     c_ex = collection("Exploded view")
     buy = purchased(M)
     spring_pts = buy.pop("_spring_curve")
     for name, p in PARTS.items():
-        tgt = c_rk if p["group"] == "rocket" else c_pad
+        tgt = {"rocket": c_rk, "pad": c_pad}.get(p["group"], c_tool)
         to_blender(name, p["m"], p["material"], tgt)
     for name, (m, material) in buy.items():
         to_blender(name, m, material, c_buy)
@@ -698,14 +915,14 @@ def main():
             o2.location = (0, 0, tail_z)
             c_on.objects.link(o2)
     # exploded view
-    offsets = {"nose_cone": 300, "BT70_upper_tube_250": 200, "parachute_24in_packed": 150, "spring_piston": 130,
+    offsets = {"nose_cone": 300, UPPER_TUBE: 200, "parachute_24in_packed": 150, "spring_piston": 130,
                "spring_25x60": 95, "latch_collar": 120, "avbay_coupler": 40, "latch_bolt_pos": 55, "latch_bolt_neg": 55,
-               "servo_horn_deploy": 70, "gps_patch_antenna": 110, "servo_MG90S_deploy": 18, "avbay_sled": -70,
-               "pcb_kestrel_fc_40x80": -70, "pico2w_on_headers": -70, "lipo_2s_300mah": -70, "camera_pod": -30,
-               "camera_SQ12_class": -30, "upper_launch_lug": -40, "BT70_lower_tube_580": 0, "fin_can": -190,
+               "servo_horn_deploy": 70, "gps_patch_antenna_18mm": 110, "servo_MG90S_deploy": 18, "avbay_sled": -70,
+               PCB_NAME: -70, "pico2w_on_sockets": -70, "fc_connectors_buzzer_switch": -70, "lipo_2s_200mah": -70,
+               "camera_pod": -30, "camera_SQ12_class": -30, "upper_launch_lug": -40, LOWER_TUBE: 0, "fin_can": -190,
                "tvc_frame": -300, "servo_MG90S_tvc_ring": -300, "servo_MG90S_tvc_holder": -300,
                "pushrod_ring_1.2mm": -330, "pushrod_holder_1.2mm": -330, "tvc_gimbal_ring": -370,
-               "tvc_motor_holder": -430, "motor_TSP_E12_24x95": -560, "tvc_motor_retainer": -640}
+               "tvc_motor_holder": -430, MOTOR_NAME: -560, "tvc_motor_retainer": -640}
     for coll in (c_rk, c_buy):
         for ob in coll.objects:
             o2 = ob.copy()
@@ -720,9 +937,9 @@ def main():
         ("rocket_on_pad", (1700, -2300, 1300), (0, 0, 600), 50, {c_on.name, c_pad.name}, []),
         ("rocket_exploded", (2600, -2600, 700), (0, 0, 380), 42, {c_ex.name}, []),
         ("tvc_gimbal_cutaway", (175, -215, 150), (0, 0, 88), 50, {c_rk.name, c_buy.name},
-         ["BT70_lower_tube_580", "fin_can", "camera_pod", "camera_SQ12_class", "upper_launch_lug"]),
+         [LOWER_TUBE, "fin_can", "camera_pod", "camera_SQ12_class", "upper_launch_lug"]),
         ("avbay_cutaway", (215, -250, 650), (0, 0, 560), 50, {c_rk.name, c_buy.name},
-         ["BT70_lower_tube_580", "BT70_upper_tube_250", "latch_collar", "parachute_24in_packed", "camera_pod", "camera_SQ12_class"]),
+         [LOWER_TUBE, UPPER_TUBE, "latch_collar", "parachute_24in_packed", "camera_pod", "camera_SQ12_class"]),
         ("launch_pad", (1000, -1250, 650), (0, 0, 120), 40, {c_pad.name}, []),
     ]
     sc = bpy.context.scene

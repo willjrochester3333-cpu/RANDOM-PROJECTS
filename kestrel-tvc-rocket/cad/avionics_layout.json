@@ -1,0 +1,8 @@
+{
+ "avbay.imu_z (LSM6DSO U4)": 457.0,
+ "flight_computer_pcb_pico.z": 460.0,
+ "lipo_2s_200mah.z": 467.5,
+ "camera_sq12_class.z": 520.4,
+ "camera_pod.protrusion_mm": 14.5,
+ "camera_pod.width_mm": 26.8
+}

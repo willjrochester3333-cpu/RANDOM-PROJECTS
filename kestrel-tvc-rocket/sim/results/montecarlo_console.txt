@@ -1,25 +1,26 @@
 == TSP-E20: n=600 success=100.0%
-   apogee                   mean  193.43  sd  17.64  p5  167.25  p95  223.88  max  254.77
-   max_tilt_burn            mean    2.70  sd   1.07  p5    1.30  p95    4.83  max    6.31
-   max_gimbal               mean    2.96  sd   1.41  p5    0.97  p95    5.39  max    6.50
-   deploy_minus_apogee_s    mean    0.00  sd   0.08  p5   -0.13  p95    0.13  max    0.26
-   deploy_speed             mean    3.15  sd   1.69  p5    0.87  p95    6.17  max    8.33
-   landing_vz               mean    5.55  sd   0.28  p5    5.09  p95    6.04  max    6.58
-   landing_dist             mean  149.17  sd  91.97  p5   21.73  p95  305.21  max  421.80
+   apogee                   mean  196.46  sd  18.05  p5  169.66  p95  227.61  max  259.20
+   max_tilt_burn            mean    2.68  sd   1.07  p5    1.28  p95    4.77  max    6.29
+   max_gimbal               mean    2.93  sd   1.40  p5    0.97  p95    5.36  max    6.50
+   deploy_minus_apogee_s    mean    0.00  sd   0.08  p5   -0.13  p95    0.13  max    0.25
+   deploy_speed             mean    3.18  sd   1.71  p5    0.85  p95    6.24  max    8.41
+   landing_vz               mean    5.54  sd   0.28  p5    5.10  p95    6.04  max    6.58
+   landing_dist             mean  152.84  sd  93.26  p5   23.41  p95  313.69  max  416.66
 == TSP-E12: n=200 success=100.0%
-   apogee                   mean  159.18  sd  19.85  p5  126.23  p95  191.59  max  227.90
-   max_tilt_burn            mean    2.31  sd   0.98  p5    1.04  p95    4.19  max    5.93
-   max_gimbal               mean    2.44  sd   1.15  p5    0.73  p95    4.52  max    6.01
-   deploy_minus_apogee_s    mean    0.01  sd   0.06  p5   -0.10  p95    0.11  max    0.16
-   deploy_speed             mean    3.26  sd   1.81  p5    0.85  p95    6.56  max    8.15
-   landing_vz               mean    5.55  sd   0.29  p5    5.08  p95    5.99  max    6.68
-   landing_dist             mean  119.74  sd  75.62  p5   13.48  p95  257.70  max  292.19
+   apogee                   mean  161.42  sd  20.26  p5  127.80  p95  194.44  max  231.53
+   max_tilt_burn            mean    2.29  sd   0.97  p5    1.03  p95    4.14  max    5.90
+   max_gimbal               mean    2.43  sd   1.15  p5    0.75  p95    4.45  max    5.98
+   deploy_minus_apogee_s    mean    0.01  sd   0.06  p5   -0.10  p95    0.12  max    0.16
+   deploy_speed             mean    3.28  sd   1.82  p5    0.84  p95    6.62  max    8.22
+   landing_vz               mean    5.55  sd   0.29  p5    5.07  p95    5.97  max    6.67
+   landing_dist             mean  122.19  sd  78.11  p5   14.91  p95  261.66  max  316.99
 == TSP-D20: n=200 success=100.0%
-   apogee                   mean   81.27  sd   8.39  p5   67.63  p95   93.85  max  108.41
-   max_tilt_burn            mean    2.53  sd   1.08  p5    1.08  p95    4.73  max    6.27
-   max_gimbal               mean    3.04  sd   1.37  p5    0.86  p95    5.39  max    5.89
-   deploy_minus_apogee_s    mean    0.02  sd   0.07  p5   -0.08  p95    0.12  max    0.21
-   deploy_speed             mean    2.17  sd   1.14  p5    0.59  p95    4.20  max    5.14
-   landing_vz               mean    5.48  sd   0.29  p5    5.09  p95    5.95  max    6.73
-   landing_dist             mean   57.45  sd  34.03  p5    8.79  p95  113.04  max  128.87
-total 747 s
+   apogee                   mean   82.19  sd   8.53  p5   68.35  p95   95.01  max  109.86
+   max_tilt_burn            mean    2.51  sd   1.07  p5    1.11  p95    4.68  max    6.28
+   max_gimbal               mean    2.99  sd   1.36  p5    0.86  p95    5.31  max    5.87
+   deploy_minus_apogee_s    mean    0.02  sd   0.07  p5   -0.09  p95    0.12  max    0.23
+   deploy_speed             mean    2.20  sd   1.15  p5    0.60  p95    4.24  max    5.19
+   landing_vz               mean    5.47  sd   0.29  p5    5.06  p95    5.94  max    6.73
+   landing_dist             mean   58.19  sd  33.88  p5    8.54  p95  113.48  max  135.06
+total 811 s
+mc exit 0

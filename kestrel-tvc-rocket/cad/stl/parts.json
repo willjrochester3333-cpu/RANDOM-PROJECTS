@@ -32,14 +32,14 @@
   "qty": 1,
   "note": "Print UPSIDE-DOWN (bulkhead on the bed), 4 walls, 25% gyroid, no supports",
   "group": "rocket",
-  "volume_mm3": 31635.153159223264,
-  "area_mm2": 40776.28078184695,
+  "volume_mm3": 31607.589688585827,
+  "area_mm2": 40759.74724844177,
   "centroid_assembly_mm": [
-   -2.4855834644858926e-07,
-   -0.0022758759610843073,
-   531.890027364622
+   -1.1329739295008933e-07,
+   0.0022498315523471015,
+   531.8753010070507
   ],
-  "r_gyr_mm": 23.202882724712683
+  "r_gyr_mm": 23.20287916627581
  },
  {
   "name": "latch_bolt_pos",
@@ -86,72 +86,72 @@
  {
   "name": "avbay_sled",
   "qty": 1,
-  "note": "Print with the bulkhead disc on the bed. 4 x M2.5x6 screws hold the PCB",
+  "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
-  "volume_mm3": 14084.283810772573,
-  "area_mm2": 14503.364812059615,
+  "volume_mm3": 15653.982501403994,
+  "area_mm2": 17732.014857602175,
   "centroid_assembly_mm": [
-   -0.1270180128907186,
-   -1.4501507341212754,
-   462.31975295105497
+   -0.06834326830890837,
+   2.013520893642187,
+   463.04679818183996
   ],
-  "r_gyr_mm": 22.671837172900023
+  "r_gyr_mm": 22.009293854818907
  },
  {
   "name": "tvc_motor_holder",
   "qty": 1,
   "note": "PETG/ASA. Press/glue an M10 x 25 mm steel penny washer into the top recess (burn-through shield)",
   "group": "rocket",
-  "volume_mm3": 13860.398314941722,
-  "area_mm2": 17104.229617781806,
+  "volume_mm3": 13765.834017508561,
+  "area_mm2": 17025.62886188274,
   "centroid_assembly_mm": [
-   0.3043875138265745,
-   0.12003776918733873,
-   50.733742221135145
+   0.306478501858385,
+   0.12086236785625609,
+   50.75252164612799
   ],
-  "r_gyr_mm": 13.240205771720552
+  "r_gyr_mm": 13.097439126929478
  },
  {
   "name": "tvc_gimbal_ring",
   "qty": 1,
   "note": "PETG",
   "group": "rocket",
-  "volume_mm3": 2683.697109559246,
-  "area_mm2": 2628.2404485582297,
+  "volume_mm3": 2687.6487418019283,
+  "area_mm2": 2634.0644824484307,
   "centroid_assembly_mm": [
-   0.30468424491201496,
-   0.6676249032226776,
-   48.000000000528516
+   0.3042362682340926,
+   0.6666432955706958,
+   48.00000000052778
   ],
-  "r_gyr_mm": 17.15644608349122
+  "r_gyr_mm": 17.148576570107924
  },
  {
   "name": "tvc_frame",
   "qty": 1,
   "note": "PETG, print upright; supports only under the servo bars",
   "group": "rocket",
-  "volume_mm3": 17726.72534333697,
-  "area_mm2": 32167.470496893406,
+  "volume_mm3": 18071.048425965626,
+  "area_mm2": 33923.55059326254,
   "centroid_assembly_mm": [
-   0.12561792637205496,
-   0.38666231401319684,
-   74.77172299198817
+   0.08083191813667888,
+   0.4037698212959015,
+   69.68578579022662
   ],
-  "r_gyr_mm": 26.213904870322093
+  "r_gyr_mm": 26.32809923797649
  },
  {
   "name": "tvc_motor_retainer",
   "qty": 1,
   "note": "Twist-lock: push up over the lugs and turn 45 deg",
   "group": "rocket",
-  "volume_mm3": 3846.3098855216936,
-  "area_mm2": 3622.1473162134307,
+  "volume_mm3": 4251.052128426593,
+  "area_mm2": 3902.237260430541,
   "centroid_assembly_mm": [
-   -3.2144631923590186e-09,
-   -1.2394048843836856e-08,
-   -0.8239746871028106
+   -1.0778858661709642e-08,
+   1.2446139978571312e-08,
+   -0.10285732428523327
   ],
-  "r_gyr_mm": 14.250142441196292
+  "r_gyr_mm": 14.254453310715029
  },
  {
   "name": "fin_can",
@@ -159,13 +159,13 @@
   "note": "PETG, print upright (fins vertical), 3 walls",
   "group": "rocket",
   "volume_mm3": 28851.49205360614,
-  "area_mm2": 50870.10310576658,
+  "area_mm2": 50870.10310606222,
   "centroid_assembly_mm": [
-   0.6209921971648663,
-   1.0623396296140266,
-   37.98155864959967
+   0.6209921988109637,
+   1.0623396274013075,
+   37.97693532703876
   ],
-  "r_gyr_mm": 30.484285696542532
+  "r_gyr_mm": 30.48428556892321
  },
  {
   "name": "upper_launch_lug",
@@ -184,16 +184,16 @@
  {
   "name": "camera_pod",
   "qty": 1,
-  "note": "Cut a 27 x 30 mm window in the lower tube at the marked position; glue flange, foam-pad the camera",
+  "note": "Cut a 27 x 30 mm window in the lower tube (drill guide marks it); glue the flange, foam-pad the camera",
   "group": "rocket",
-  "volume_mm3": 9455.601212184542,
-  "area_mm2": 5516.884217745973,
+  "volume_mm3": 9307.849000139064,
+  "area_mm2": 9175.592314731472,
   "centroid_assembly_mm": [
-   2.8196037993497917e-10,
-   -28.76260918978699,
-   455.4039072510679
+   -7.390999538430639e-08,
+   -30.520634433997948,
+   431.1467521344529
   ],
-  "r_gyr_mm": 29.88614512840118
+  "r_gyr_mm": 30.579952585539985
  },
  {
   "name": "pad_hub",
@@ -264,5 +264,19 @@
    13.196855318248813
   ],
   "r_gyr_mm": 5.905244306333652
+ },
+ {
+  "name": "tool_drill_guide_lower_tube",
+  "qty": 1,
+  "note": "Build tool (not flown). Print lip-down. Slide over the top of the lower tube, then drill/cut through it",
+  "group": "tool",
+  "volume_mm3": 48113.08344440859,
+  "area_mm2": 50844.09393196287,
+  "centroid_assembly_mm": [
+   0.11159762868827151,
+   0.9595379198274735,
+   475.3665372742096
+  ],
+  "r_gyr_mm": 28.951212707329947
  }
 ]

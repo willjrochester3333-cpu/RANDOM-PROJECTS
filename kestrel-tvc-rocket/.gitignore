@@ -11,3 +11,5 @@ pcb/placement_check.*
 pcb/fp-info-cache
 pcb/*-backups/
 pcb/production/gerbers/
+firmware/tools/*.png
+!firmware/tools/example_flight_sim.png

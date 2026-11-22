@@ -54,7 +54,7 @@ def main():
         fits = all(sorted(ext)[i] <= sorted(BED)[i] for i in range(3))
         wall = wall_probe(m) if ok_w else float("nan")
         mass = effective_density(m.volume / 1000.0, m.area / 100.0) * p["qty"] if ok_v else float("nan")
-        if not p["name"].startswith(("pad_", "rod_tip")):
+        if not p["name"].startswith(("pad_", "rod_tip", "tool_")):
             total_rocket += 0 if np.isnan(mass) else mass
         ok = ok_w and ok_v and fits and len(bodies) == 1
         fails += not ok

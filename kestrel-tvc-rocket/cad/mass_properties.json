@@ -49,18 +49,18 @@
  },
  {
   "name": "avbay_sled",
-  "mass_g": 17.6,
-  "z": 481.7,
+  "mass_g": 19.6,
+  "z": 481.0,
   "length": 0.0,
-  "radius": 22.7,
+  "radius": 22.0,
   "source": "CAD"
  },
  {
   "name": "tvc_motor_holder",
-  "mass_g": 17.3,
-  "z": 893.3,
+  "mass_g": 17.2,
+  "z": 893.2,
   "length": 0.0,
-  "radius": 13.2,
+  "radius": 13.1,
   "source": "CAD"
  },
  {
@@ -68,21 +68,21 @@
   "mass_g": 3.4,
   "z": 896.0,
   "length": 0.0,
-  "radius": 17.2,
+  "radius": 17.1,
   "source": "CAD"
  },
  {
   "name": "tvc_frame",
-  "mass_g": 22.2,
-  "z": 869.2,
+  "mass_g": 22.6,
+  "z": 874.3,
   "length": 0.0,
-  "radius": 26.2,
+  "radius": 26.3,
   "source": "CAD"
  },
  {
   "name": "tvc_motor_retainer",
-  "mass_g": 4.8,
-  "z": 944.8,
+  "mass_g": 5.3,
+  "z": 944.1,
   "length": 0.0,
   "radius": 14.3,
   "source": "CAD"
@@ -105,10 +105,10 @@
  },
  {
   "name": "camera_pod",
-  "mass_g": 9.0,
-  "z": 488.6,
+  "mass_g": 11.6,
+  "z": 512.9,
   "length": 0.0,
-  "radius": 29.9,
+  "radius": 30.6,
   "source": "CAD"
  }
 ]
