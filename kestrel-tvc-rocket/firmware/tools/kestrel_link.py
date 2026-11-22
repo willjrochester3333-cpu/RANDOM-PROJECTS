@@ -96,8 +96,12 @@ def load(path):
             if len(v) < 23:
                 continue
             keys = ["t_ms", "state", "flags", "gx", "gy", "gz", "ax", "ay", "az", "alt", "vz", "baro_alt", "tilt",
-                    "gimbal_y", "gimbal_z", "vbat", "lat", "lon", "gps_alt", "sats", "qx", "qy", "qz"]
-            cur["rows"].append({k: float(x) for k, x in zip(keys, v)})
+                    "gimbal_y", "gimbal_z", "vbat", "lat", "lon", "gps_alt", "sats", "qx", "qy", "qz",
+                    "tab1", "tab2", "tab3", "tab4", "roll"]          # KESTREL-2 (fw 2.00) adds the fin tabs + roll
+            row = {k: float(x) for k, x in zip(keys, v)}
+            for k in keys[23:]:
+                row.setdefault(k, 0.0)
+            cur["rows"].append(row)
     return [f for f in flights if f["rows"]]
 
 
@@ -153,12 +157,15 @@ def cmd_plot(a):
     a2.set_xlim(-0.5, (boost[-1]["t_ms"] - t0) / 1000 + 2 if boost else None)
     a2.set_title("Attitude and thrust vectoring (deg)", loc="left"); a2.legend(); a2.grid(alpha=0.3)
     a3 = ax[1][1]
-    a3.plot(t, [r["state"] for r in rows], color="#52514e", drawstyle="steps-post")
-    a3.set_yticks(range(len(STATES))); a3.set_yticklabels(STATES); a3.grid(alpha=0.3)
-    a3.set_title("Flight state", loc="left")
+    for k, c in enumerate(("#2a78d6", "#eb6834", "#1baf7a", "#eda100")):
+        a3.plot(t, [r[f"tab{k + 1}"] for r in rows], color=c, lw=0.9, label=f"tab {k + 1}")
+    a3.plot(t, [r["gx"] / 10.0 for r in rows], color="#52514e", lw=0.8, ls="--", label="roll rate / 10 (deg/s)")
+    a3.set_xlim(-0.5, (boost[-1]["t_ms"] - t0) / 1000 + 6 if boost else None)
+    a3.set_title("Fin tabs (deg) and roll rate", loc="left"); a3.legend(ncol=2, fontsize=8); a3.grid(alpha=0.3)
     a4 = ax[2][0]
-    a4.plot(t, [r["vbat"] for r in rows], color="#2a78d6")
-    a4.set_title("Battery (V)", loc="left"); a4.grid(alpha=0.3)
+    a4.plot(t, [r["state"] for r in rows], color="#52514e", drawstyle="steps-post")
+    a4.set_yticks(range(len(STATES))); a4.set_yticklabels(STATES); a4.grid(alpha=0.3)
+    a4.set_title(f"Flight state (battery {min(r['vbat'] for r in rows):.2f}-{max(r['vbat'] for r in rows):.2f} V)", loc="left")
     for axx in (a0, a1, a2, a3, a4):
         axx.set_xlabel("time since launch (s)")
     a5 = ax[2][1]

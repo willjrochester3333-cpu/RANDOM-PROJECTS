@@ -8,11 +8,11 @@
 
 namespace hw {
 
-void io_init();                              // GPIO directions + safe defaults (AUX off, servo power on)
+void io_init();                              // GPIO directions + safe defaults (servo power on)
 
 // ------------------------------------------------------------------ servos (50 Hz, 1 us resolution)
 void servo_init();
-void servo_write_us(int ch, float us);       // ch 0..3, pulse clamped to 800..2200 us
+void servo_write_us(int ch, float us);       // ch 0..6, pulse clamped to 800..2200 us
 float servo_last_us(int ch);
 void servo_power(bool on);
 

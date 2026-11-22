@@ -44,4 +44,15 @@ void gimbal_to_pulses(const Settings& s, float gy, float gz, float& ring_us, flo
     motor_us = clamp_pulse(1500.0f + s.trim_us[SERVO_TVC_MOTOR] + s.dir[SERVO_TVC_MOTOR] * k * gz);
 }
 
+float tab_to_pulse(const Settings& s, int k, float tab_deg) {
+    const int ch = SERVO_TAB1 + k;
+    if (tab_deg > s.max_tab_deg) tab_deg = s.max_tab_deg;
+    if (tab_deg < -s.max_tab_deg) tab_deg = -s.max_tab_deg;
+    float x = s.tab_horn_mm * std::sin(tab_deg * 0.017453292f) / s.tab_servo_arm_mm;
+    if (x > 1.0f) x = 1.0f;
+    if (x < -1.0f) x = -1.0f;
+    const float servo_deg = std::asin(x) * 57.29578f;
+    return clamp_pulse(1500.0f + s.trim_us[ch] + s.dir[ch] * s.us_per_servo_deg * servo_deg);
+}
+
 }  // namespace kestrel

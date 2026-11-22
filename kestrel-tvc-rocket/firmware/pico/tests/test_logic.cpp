@@ -263,6 +263,19 @@ static void test_servo_settings() {
     settings_seal(t);
     CHECK(settings_valid(t));
     CHECK(sizeof(Settings) <= 256);
+    // fin tabs: linkage horn*sin(tab) = arm*sin(servo); 15 deg tab -> asin(14.5/6*sin15) = 38.7 deg servo
+    Settings u;
+    NEAR(tab_to_pulse(u, 0, 0.0f), 1500.0f, 1e-3f);
+    NEAR(tab_to_pulse(u, 0, 15.0f) - 1500.0f, 10.5f * 38.73f, 0.6f);
+    NEAR(tab_to_pulse(u, 2, -15.0f) - 1500.0f, -10.5f * 38.73f, 0.6f);
+    NEAR(tab_to_pulse(u, 1, 40.0f), tab_to_pulse(u, 1, 15.0f), 1e-3f);      // clamped to max_tab_deg
+    u.dir[SERVO_TAB4] = -1;
+    u.trim_us[SERVO_TAB4] = -20.0f;
+    NEAR(tab_to_pulse(u, 3, 5.0f), 1500.0f - 20.0f - 10.5f * 12.157f, 0.2f);
+    for (float d = -15.0f; d < 14.9f; d += 0.5f) {                            // monotonic, inside the servo range
+        const float a0 = tab_to_pulse(u, 0, d), a1 = tab_to_pulse(u, 0, d + 0.5f);
+        CHECK(a1 > a0 && a0 >= 1000.0f && a1 <= 2000.0f);
+    }
     const char* v = "123456789";
     CHECK(crc32(v, 9) == 0xCBF43926u);                        // standard check values
     CHECK(crc16_ccitt(v, 9) == 0x29B1u);

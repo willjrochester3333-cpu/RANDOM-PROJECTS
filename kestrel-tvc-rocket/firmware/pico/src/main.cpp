@@ -26,7 +26,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 100;            // 1.00
+constexpr uint16_t kFwVersion = 200;            // 2.00 (KESTREL-2: fin tabs, 7 servos)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 
@@ -41,7 +41,7 @@ bool settings_ok = false;
 FlightComputer fc;
 Config cfg;
 
-enum class Mode : uint8_t { FLIGHT, BENCH, AXIS_CAL, TVC_TEST, DIR_TEST };
+enum class Mode : uint8_t { FLIGHT, BENCH, AXIS_CAL, TVC_TEST, DIR_TEST, TAB_TEST, FIN_TEST };
 Mode mode = Mode::FLIGHT;
 bool recovery_mode = false;                     // came back from a watchdog reset while flying
 
@@ -69,8 +69,16 @@ void apply_config() {
     cfg.motor = &kMotors[mi];
     cfg.logic.hold_launch_attitude = S.hold_launch_attitude != 0;
     cfg.tvc.max_gimbal_deg = S.max_gimbal_deg;
+    cfg.airframe = &kAirframe;
+    cfg.fins.enabled = S.tabs_enabled != 0;
+    cfg.fins.max_tab_deg = S.max_tab_deg;
+    cfg.fins.roll_program_dps = S.roll_program_dps;
     fc.init(cfg);
     t0_us = time_us_64();
+}
+
+void write_tabs(const float* tab_deg) {      // nullptr = all four centred
+    for (int k = 0; k < 4; ++k) hw::servo_write_us(SERVO_TAB1 + k, tab_to_pulse(S, k, tab_deg ? tab_deg[k] : 0.0f));
 }
 
 void outputs_safe() {
@@ -79,6 +87,7 @@ void outputs_safe() {
     hw::servo_write_us(SERVO_TVC_RING, r);
     hw::servo_write_us(SERVO_TVC_MOTOR, m);
     hw::servo_write_us(SERVO_DEPLOY, S.deploy_latched_us + S.trim_us[SERVO_DEPLOY]);
+    write_tabs(nullptr);
 }
 
 float pad_tilt_deg() {
@@ -109,6 +118,7 @@ struct Bench {
     // tvc test
     AttitudeEstimator att;
     TvcController tvc;
+    Quat q_lock{};
     Vec3 target{1, 0, 0};
     float t_start{0};
     uint64_t t_mode_us{0};
@@ -131,11 +141,16 @@ void print_help() {
         "  status                 sensors, battery, GPS, log, settings\n"
         "  calaxes                measure IMU->rocket axes (2 still poses) - REQUIRED once\n"
         "  dirtest                move each TVC axis +3 deg so you can check the direction\n"
-        "  dir <1|2> <1|-1>       flip a TVC servo direction\n"
+        "  tabtest                move each fin tab +10 deg in turn so you can check the direction\n"
+        "  dir <1-7> <1|-1>       flip a servo direction (1-2 TVC, 4-7 fin tabs 1-4)\n"
         "  tvctest                live closed-loop TVC on the bench (tilt the rocket, watch the nozzle)\n"
-        "  center                 TVC servos to centre, deploy latch locked\n"
-        "  servo <1-4> <us>       raw servo pulse (bench only)\n"
-        "  trim <1-4> <us>        centre offset per servo\n"
+        "  fintest                live closed-loop fin tabs on the bench (twist / tilt the rocket, watch the tabs)\n"
+        "  center                 TVC + tabs to centre, parachute latch locked\n"
+        "  servo <1-7> <us>       raw servo pulse (bench only)\n"
+        "  trim <1-7> <us>        centre offset per servo\n"
+        "  tabs <1|0>             fin-tab control on / off\n"
+        "  tabmax <deg>           tab deflection limit (default 15)\n"
+        "  rollprog <deg/s>       camera panorama roll in the coast (0 = hold the launch roll angle)\n"
         "  deploy <lock|release>  move the parachute latch\n"
         "  deployus <lock> <rel>  latch pulse widths (us)\n"
         "  motor [n]              list / choose the motor profile\n"
@@ -170,21 +185,29 @@ void print_status() {
     printf("log flash %s (jedec %06lX): %lu records, %lu kB verified blank ahead, %lu dropped\n", flash.ok() ? "ok" : "FAIL",
            static_cast<unsigned long>(flash.jedec()), static_cast<unsigned long>(logger.count_records()),
            static_cast<unsigned long>(logger.ready_bytes() / 1024u), static_cast<unsigned long>(logger.dropped()));
-    printf("motor %s, hold %s, max gimbal %.1f deg, trims %.0f %.0f %.0f %.0f us, dirs %d %d, deploy %.0f/%.0f us, flights %lu%s\n",
+    printf("motor %s, hold %s, max gimbal %.1f deg, deploy %.0f/%.0f us, flights %lu%s\n",
            cfg.motor->name, S.hold_launch_attitude ? "rod" : "vertical", static_cast<double>(S.max_gimbal_deg),
-           static_cast<double>(S.trim_us[0]), static_cast<double>(S.trim_us[1]), static_cast<double>(S.trim_us[2]),
-           static_cast<double>(S.trim_us[3]), S.dir[0], S.dir[1], static_cast<double>(S.deploy_latched_us),
-           static_cast<double>(S.deploy_released_us), static_cast<unsigned long>(S.flights), settings_ok ? "" : " (defaults - not saved)");
+           static_cast<double>(S.deploy_latched_us), static_cast<double>(S.deploy_released_us), static_cast<unsigned long>(S.flights),
+           settings_ok ? "" : " (defaults - not saved)");
+    printf("servo trims us:");
+    for (int i = 0; i < kServoCount; ++i) printf(" %d:%.0f", i + 1, static_cast<double>(S.trim_us[i]));
+    printf("   dirs:");
+    for (int i = 0; i < kServoCount; ++i) printf(" %d:%+d", i + 1, S.dir[i]);
+    printf("\nfin tabs %s, limit %.1f deg, linkage %.1f/%.1f mm, roll programme %.0f deg/s\n", S.tabs_enabled ? "ON" : "OFF",
+           static_cast<double>(S.max_tab_deg), static_cast<double>(S.tab_servo_arm_mm), static_cast<double>(S.tab_horn_mm),
+           static_cast<double>(S.roll_program_dps));
     const auto& fs = fc.stats();
     if (fs.t_launch > 0)
-        printf("last flight: apogee %.1f m at %.2f s, max tilt %.1f deg, deploy reason %u%s%s\n", static_cast<double>(fs.max_alt_m),
-               static_cast<double>(fs.t_apogee - fs.t_launch), static_cast<double>(fs.max_tilt_deg), fs.deploy_reason,
+        printf("last flight: apogee %.1f m at %.2f s, max tilt %.1f deg, max roll rate %.0f deg/s, deploy reason %u%s%s\n",
+               static_cast<double>(fs.max_alt_m), static_cast<double>(fs.t_apogee - fs.t_launch), static_cast<double>(fs.max_tilt_deg),
+               static_cast<double>(fs.max_roll_rate_dps), fs.deploy_reason,
                fs.abort ? " ABORT" : "", fs.unarmed_launch ? " (launched before READY)" : "");
 }
 
 void dump_log(uint32_t first) {
     const uint32_t n = logger.count_records();
-    printf("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,vbat,lat,lon,gps_alt,sats,qx,qy,qz\n");
+    printf("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,vbat,lat,lon,gps_alt,sats,"
+           "qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n");
     LogRecord r;
     uint32_t bad = 0;
     for (uint32_t i = first; i < n; ++i) {
@@ -196,13 +219,15 @@ void dump_log(uint32_t first) {
                    r.flags < kNumMotors ? kMotors[r.flags].name : "?");
             continue;
         }
-        printf("%lu,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.3f,%.7f,%.7f,%d,%u,%.4f,%.4f,%.4f\n",
+        printf("%lu,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.3f,%.7f,%.7f,%d,%u,%.4f,%.4f,%.4f,"
+               "%.2f,%.2f,%.2f,%.2f,%.2f\n",
                static_cast<unsigned long>(r.t_ms), r.state, r.flags, r.gyro_cdps[0] * 0.01, r.gyro_cdps[1] * 0.01,
                r.gyro_cdps[2] * 0.01, r.accel_cmss[0] * 0.01, r.accel_cmss[1] * 0.01, r.accel_cmss[2] * 0.01,
                static_cast<double>(r.alt_m), static_cast<double>(r.vz_ms), static_cast<double>(r.baro_alt_m), r.tilt_cdeg * 0.01,
                r.gimbal_y_cdeg * 0.01, r.gimbal_z_cdeg * 0.01, r.vbat_mv * 0.001, static_cast<double>(r.lat_deg),
-               static_cast<double>(r.lon_deg), r.gps_alt_m, r.sats, static_cast<double>(r.q[0]), static_cast<double>(r.q[1]),
-               static_cast<double>(r.q[2]));
+               static_cast<double>(r.lon_deg), r.gps_alt_m, r.sats, r.q_i16[0] / 32767.0, r.q_i16[1] / 32767.0,
+               r.q_i16[2] / 32767.0, r.tab_qdeg[0] * 0.25, r.tab_qdeg[1] * 0.25, r.tab_qdeg[2] * 0.25, r.tab_qdeg[3] * 0.25,
+               r.roll_cdeg * 0.01);
         if ((i & 63u) == 0) watchdog_update();
     }
     printf("# end: %lu records, %lu failed CRC\n", static_cast<unsigned long>(n - first), static_cast<unsigned long>(bad));
@@ -237,8 +262,56 @@ void handle_command(char* cmd) {
         bench.t_mode_us = time_us_64();
         printf("\nDIRECTION TEST (nozzle = bottom of the motor):\n"
                " 0-2 s  servo 1 at +3 deg: nozzle must swing AWAY from the CAMERA POD\n"
-               " 3-5 s  servo 2 at +3 deg: nozzle must swing AWAY from FIN #1 (marked fin, 90 deg from the camera)\n"
+               " 3-5 s  servo 2 at +3 deg: nozzle must swing AWAY from the PAYLOAD-DOOR side\n"
                "If one is wrong: dir <1|2> -1, save, repeat.\n");
+        return;
+    }
+    if (!std::strcmp(c, "tabtest")) {
+        if (!need_ground()) return;
+        mode = Mode::TAB_TEST;
+        bench = Bench{};
+        bench.t_mode_us = time_us_64();
+        printf("\nTAB DIRECTION TEST: tabs 1-4 (fin #1 has the pip, then going round towards the launch lug)\n"
+               "move to +10 deg one after another for 1.5 s. Each tab's TRAILING EDGE must move AWAY from its\n"
+               "servo pod. If one is wrong: dir <4-7> -1 (tab 1 = servo 4), save, repeat.\n");
+        return;
+    }
+    if (!std::strcmp(c, "fintest")) {
+        if (!need_ground()) return;
+        if (!S.axes_valid) { printf("run calaxes first\n"); return; }
+        mode = Mode::FIN_TEST;
+        bench = Bench{};
+        bench.t_mode_us = time_us_64();
+        printf("\nFIN-TAB BENCH TEST (gains for ~30 m/s): hold the rocket upright and still for 2 s, then\n"
+               " * twist it about its long axis: all four tabs swing the same way, trying to twist it back;\n"
+               " * tilt it: the tabs on the two fins nearest the tilt plane swing to push the nose back up.\n"
+               "60 s limit; press Enter to stop.\n");
+        return;
+    }
+    if (!std::strcmp(c, "tabs") && argc == 2) {
+        if (!need_ground()) return;
+        S.tabs_enabled = std::atoi(argv[1]) ? 1 : 0;
+        apply_config();
+        printf("fin-tab control %s (save to keep)\n", S.tabs_enabled ? "ON" : "OFF");
+        return;
+    }
+    if (!std::strcmp(c, "tabmax") && argc == 2) {
+        if (!need_ground()) return;
+        const float v = static_cast<float>(std::atof(argv[1]));
+        if (v < 2.0f || v > 15.0f) { printf("tabmax 2..15 deg\n"); return; }
+        S.max_tab_deg = v;
+        apply_config();
+        printf("tab limit %.1f deg (save to keep)\n", static_cast<double>(v));
+        return;
+    }
+    if (!std::strcmp(c, "rollprog") && argc == 2) {
+        if (!need_ground()) return;
+        const float v = static_cast<float>(std::atof(argv[1]));
+        if (v < 0.0f || v > 180.0f) { printf("rollprog 0..180 deg/s\n"); return; }
+        S.roll_program_dps = v;
+        apply_config();
+        if (v > 0.0f) printf("camera panorama: %.0f deg/s roll in the coast (save to keep)\n", static_cast<double>(v));
+        else printf("roll held at the launch angle (save to keep)\n");
         return;
     }
     if (!std::strcmp(c, "tvctest")) {
@@ -263,7 +336,7 @@ void handle_command(char* cmd) {
         if (!need_ground()) return;
         const int ch = std::atoi(argv[1]) - 1;
         const float us = static_cast<float>(std::atof(argv[2]));
-        if (ch < 0 || ch > 3 || us < 800 || us > 2200) { printf("usage: servo <1-4> <800-2200>\n"); return; }
+        if (ch < 0 || ch >= kServoCount || us < 800 || us > 2200) { printf("usage: servo <1-7> <800-2200>\n"); return; }
         mode = Mode::BENCH;
         hw::servo_write_us(ch, us);
         printf("servo %d -> %.0f us\n", ch + 1, static_cast<double>(us));
@@ -271,7 +344,7 @@ void handle_command(char* cmd) {
     }
     if (!std::strcmp(c, "trim") && argc == 3) {
         const int ch = std::atoi(argv[1]) - 1;
-        if (ch < 0 || ch > 3) { printf("usage: trim <1-4> <us>\n"); return; }
+        if (ch < 0 || ch >= kServoCount) { printf("usage: trim <1-7> <us>\n"); return; }
         if (!need_ground()) return;
         S.trim_us[ch] = static_cast<float>(std::atof(argv[2]));
         mode = Mode::BENCH;
@@ -282,7 +355,7 @@ void handle_command(char* cmd) {
     if (!std::strcmp(c, "dir") && argc == 3) {
         const int ch = std::atoi(argv[1]) - 1;
         const int d = std::atoi(argv[2]);
-        if (ch < 0 || ch > 1 || (d != 1 && d != -1)) { printf("usage: dir <1|2> <1|-1>\n"); return; }
+        if (ch < 0 || ch >= kServoCount || ch == SERVO_DEPLOY || (d != 1 && d != -1)) { printf("usage: dir <1,2,4-7> <1|-1>\n"); return; }
         S.dir[ch] = static_cast<int8_t>(d);
         printf("servo %d direction %d (save to keep)\n", ch + 1, d);
         return;
@@ -371,7 +444,7 @@ void poll_cli() {
         const int ch = getchar_timeout_us(0);
         if (ch == PICO_ERROR_TIMEOUT) return;
         if (ch == '\r' || ch == '\n') {
-            if (mode == Mode::AXIS_CAL || mode == Mode::TVC_TEST) bench.enter_pressed = true;
+            if (mode == Mode::AXIS_CAL || mode == Mode::TVC_TEST || mode == Mode::FIN_TEST) bench.enter_pressed = true;
             line[line_len] = '\0';
             if (line_len > 0) {
                 printf("\n");
@@ -466,6 +539,51 @@ void bench_step(uint64_t now) {
         if (t > 60.0f || bench.enter_pressed) leave_bench("TVC test stopped");
         return;
     }
+    if (mode == Mode::TAB_TEST) {
+        const float t = static_cast<float>((now - bench.t_mode_us) * 1e-6);
+        float tabs[4] = {0, 0, 0, 0};
+        const int k = static_cast<int>(t / 2.0f);
+        if (k < 4 && std::fmod(t, 2.0f) < 1.5f) tabs[k] = 10.0f;
+        write_tabs(tabs);
+        if (t > 8.5f) leave_bench("tab direction test finished");
+        return;
+    }
+    if (mode == Mode::FIN_TEST) {
+        const float t = static_cast<float>((now - bench.t_mode_us) * 1e-6);
+        const Vec3 g{body_g[0], body_g[1], body_g[2]};
+        const Vec3 a{body_a[0], body_a[1], body_a[2]};
+        if (t < 2.0f) {
+            bench.att.pad_update(g, a, dt);
+            write_tabs(nullptr);
+            return;
+        }
+        if (bench.t_start == 0.0f) {
+            bench.att.lock_pad_attitude();
+            bench.target = bench.att.q().rotate(Vec3{1, 0, 0}).normalized();
+            bench.q_lock = bench.att.q();
+            bench.t_start = t;
+            printf("locked - twist or tilt the rocket now\n");
+        }
+        bench.att.propagate(g, dt);
+        const Vec3 w = g - bench.att.bias();
+        const Vec3 e = attitude_error(bench.att.q(), bench.target);
+        const float roll = twist_about_x(bench.q_lock, bench.att.q());
+        Vec3 alpha{cfg.fins.roll_kp * (-roll) - cfg.fins.roll_kd * w.x, cfg.fins.coast_kp * e.y - cfg.fins.coast_kd * w.y,
+                   cfg.fins.coast_kp * e.z - cfg.fins.coast_kd * w.z};
+        const MotorProfile& mp = *cfg.motor;
+        const float tm = mp.burn_time + 0.5f;
+        float tabs[4];
+        FinMixer::allocate(alpha, 600.0f, kAirframe.i_roll, motor_interp(mp, mp.i_lat, tm),
+                           motor_interp(mp, mp.lever, tm) + kAirframe.tab_dz_m, kAirframe, S.max_tab_deg, tabs);
+        write_tabs(tabs);
+        static uint32_t k = 0;
+        if (++k % 100 == 0)
+            printf("  roll %+.0f deg  tilt %.1f deg  tabs %+.1f %+.1f %+.1f %+.1f\n", static_cast<double>(rad2deg(roll)),
+                   static_cast<double>(rad2deg(e.norm())), static_cast<double>(tabs[0]), static_cast<double>(tabs[1]),
+                   static_cast<double>(tabs[2]), static_cast<double>(tabs[3]));
+        if (t > 60.0f || bench.enter_pressed) leave_bench("fin test stopped");
+        return;
+    }
     // Mode::BENCH: servos hold whatever the CLI set
 }
 
@@ -533,8 +651,9 @@ int main() {
         // ---------------- control
         if (mode == Mode::FLIGHT) {
             ActuatorCmd out = fc.step(in);
-            if (recovery_mode) {                     // after an in-flight reset: chute out, TVC centred, beacon
+            if (recovery_mode) {                     // after an in-flight reset: chute out, TVC + tabs centred, beacon
                 out.gimbal_y_deg = out.gimbal_z_deg = 0;
+                for (float& d : out.tab_deg) d = 0.0f;
                 out.deploy_release = true;
                 out.buzzer = Buzz::DESCENT_BEACON;
             }
@@ -543,7 +662,7 @@ int main() {
             hw::servo_write_us(SERVO_TVC_RING, ring_us);
             hw::servo_write_us(SERVO_TVC_MOTOR, motor_us);
             hw::servo_write_us(SERVO_DEPLOY, (out.deploy_release ? S.deploy_released_us : S.deploy_latched_us) + S.trim_us[SERVO_DEPLOY]);
-            gpio_put(board::AUX_PWR_EN, out.camera_power);
+            write_tabs(out.tab_deg);
             last_out = out;
             LogRecord r;
             fc.fill_log(r, in, out);

@@ -1,4 +1,4 @@
-// KESTREL FC v1.0 - Raspberry Pi Pico 2 W pin map (source of truth: pcb/circuit.py)
+// KESTREL FC v2.0 - Raspberry Pi Pico 2 W pin map (source of truth: pcb/circuit.py)
 #pragma once
 #include "pico/types.h"
 
@@ -6,17 +6,17 @@ namespace board {
 
 constexpr uint GPS_TX = 0;          // UART0 TX -> ATGM336H RXD
 constexpr uint GPS_RX = 1;          // UART0 RX <- ATGM336H TXD
-constexpr uint GPS_PPS = 2;
 constexpr uint SERVO_PWR_OFF = 3;   // high = servo 5 V buck OFF (board pull-down keeps it ON by default)
 constexpr uint I2C_SDA = 4;         // Qwiic expansion (I2C0), 4.7k pull-ups on the board
 constexpr uint I2C_SCL = 5;
-constexpr uint SERVO_PWM[4] = {6, 7, 8, 9};   // 1 TVC ring, 2 TVC motor holder, 3 deploy latch, 4 aux/camera
+// Servo ports 1-7 (PWM slices 3A 3B 4A 4B 1A 6B 7B, all 50 Hz):
+//   1 TVC ring, 2 TVC motor holder, 3 parachute release latch, 4-7 fin tabs 1-4 (fins at 45/135/225/315 deg)
+constexpr int SERVO_COUNT = 7;
+constexpr uint SERVO_PWM[SERVO_COUNT] = {6, 7, 8, 9, 2, 13, 15};
 constexpr uint BUZZER = 10;         // high = on (active 3 V buzzer via AO3400A)
 constexpr uint LED_GREEN = 11;      // high = on
 constexpr uint LED_RED = 12;        // high = on
-constexpr uint AUX_PWR_EN = 13;     // high = AUX 5 V on (camera / Qwiic accessories)
 constexpr uint BUTTON = 14;         // USER button to GND (internal pull-up)
-constexpr uint IMU_INT1 = 15;
 constexpr uint SPI_MISO = 16;       // SPI0 RX
 constexpr uint CS_IMU = 17;         // LSM6DSO
 constexpr uint SPI_SCK = 18;

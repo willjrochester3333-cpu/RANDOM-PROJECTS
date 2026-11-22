@@ -31,8 +31,8 @@ def main():
     rows = 0
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
-                 "vbat,lat,lon,gps_alt,sats,qx,qy,qz\n")
-        fh.write("# session: fw 100 flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
+                 "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n")
+        fh.write("# session: fw 200 flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
         vz_prev, t_prev = 0.0, t[0]
         for k in range(len(t)):
             s = st[k]
@@ -43,13 +43,14 @@ def main():
             az = (L["vz"][k] - vz_prev) / dt + 9.81 if s in (3, 4) else 9.81
             vz_prev, t_prev = L["vz"][k], t[k]
             last_t = t[k]
-            flags = (1 if s == 3 else 0) | (2 if s >= 5 else 0) | 4 | 8
+            flags = (1 if s == 3 else 0) | (2 if s >= 5 else 0) | 4 | 8 | (32 if s in (3, 4) else 0)
             lat = LAT0 + L["y"][k] / 111320.0
             lon = LON0 + L["x"][k] / (111320.0 * math.cos(math.radians(LAT0)))
             fh.write(f"{int(round((t[k] - t_launch + 60.0) * 1000))},{s},{flags},{L['p_dps'][k]:.2f},{L['q_dps'][k]:.2f},"
                      f"{L['r_dps'][k]:.2f},{az:.2f},0.00,0.00,{L['alt_est'][k]:.2f},{L['vz_est'][k]:.2f},{L['z'][k]:.2f},"
                      f"{L['tilt'][k]:.2f},{L['gimbal_y'][k]:.2f},{L['gimbal_z'][k]:.2f},7.900,{lat:.7f},{lon:.7f},"
-                     f"{int(95 + L['z'][k])},9,0,0,0\n")
+                     f"{int(95 + L['z'][k])},9,{L['qx'][k]:.4f},{L['qy'][k]:.4f},{L['qz'][k]:.4f},"
+                     f"{L['tab1'][k]:.2f},{L['tab2'][k]:.2f},{L['tab3'][k]:.2f},{L['tab4'][k]:.2f},{L['roll'][k]:.2f}\n")
             rows += 1
         fh.write(f"# end: {rows} records, 0 failed CRC\n")
     print(f"apogee {ev['apogee']:.1f} m, wrote {rows} rows -> {os.path.relpath(out)}")

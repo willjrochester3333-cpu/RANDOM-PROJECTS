@@ -18,16 +18,16 @@ using kestrel::Buzz;
 using kestrel::FlightState;
 
 void io_init() {
-    const uint outs[] = {board::SERVO_PWR_OFF, board::BUZZER, board::LED_GREEN, board::LED_RED, board::AUX_PWR_EN};
+    const uint outs[] = {board::SERVO_PWR_OFF, board::BUZZER, board::LED_GREEN, board::LED_RED};
     for (uint p : outs) {
         gpio_init(p);
         gpio_set_dir(p, GPIO_OUT);
-        gpio_put(p, 0);              // servo power ON, buzzer off, LEDs off, AUX off
+        gpio_put(p, 0);              // servo power ON, buzzer off, LEDs off
     }
     gpio_init(board::BUTTON);
     gpio_set_dir(board::BUTTON, GPIO_IN);
     gpio_pull_up(board::BUTTON);
-    for (uint p : {board::IMU_INT1, board::BARO_INT, board::GPS_PPS}) {
+    for (uint p : {board::BARO_INT}) {
         gpio_init(p);
         gpio_set_dir(p, GPIO_IN);   // driven push-pull by the sensors; no pulls (RP2350-E9)
         gpio_disable_pulls(p);
@@ -40,12 +40,12 @@ void io_init() {
 
 // ============================================================================ servos
 namespace {
-float g_last_us[4] = {1500, 1500, 1500, 1500};
+float g_last_us[board::SERVO_COUNT] = {1500, 1500, 1500, 1500, 1500, 1500, 1500};
 }
 
 void servo_init() {
     const float div = static_cast<float>(clock_get_hz(clk_sys)) / 1.0e6f;   // 1 MHz counter
-    for (int ch = 0; ch < 4; ++ch) {
+    for (int ch = 0; ch < board::SERVO_COUNT; ++ch) {
         const uint pin = board::SERVO_PWM[ch];
         gpio_set_function(pin, GPIO_FUNC_PWM);
         const uint slice = pwm_gpio_to_slice_num(pin);
@@ -54,19 +54,19 @@ void servo_init() {
         pwm_config_set_wrap(&c, 19999);                                   // 20 ms frame (50 Hz)
         pwm_init(slice, &c, false);
     }
-    for (int ch = 0; ch < 4; ++ch) servo_write_us(ch, g_last_us[ch]);
-    for (int ch = 0; ch < 4; ++ch) pwm_set_enabled(pwm_gpio_to_slice_num(board::SERVO_PWM[ch]), true);
+    for (int ch = 0; ch < board::SERVO_COUNT; ++ch) servo_write_us(ch, g_last_us[ch]);
+    for (int ch = 0; ch < board::SERVO_COUNT; ++ch) pwm_set_enabled(pwm_gpio_to_slice_num(board::SERVO_PWM[ch]), true);
 }
 
 void servo_write_us(int ch, float us) {
-    if (ch < 0 || ch > 3) return;
+    if (ch < 0 || ch >= board::SERVO_COUNT) return;
     if (us < 800.0f) us = 800.0f;
     if (us > 2200.0f) us = 2200.0f;
     g_last_us[ch] = us;
     pwm_set_gpio_level(board::SERVO_PWM[ch], static_cast<uint16_t>(us + 0.5f));
 }
 
-float servo_last_us(int ch) { return (ch >= 0 && ch < 4) ? g_last_us[ch] : 0.0f; }
+float servo_last_us(int ch) { return (ch >= 0 && ch < board::SERVO_COUNT) ? g_last_us[ch] : 0.0f; }
 
 void servo_power(bool on) { gpio_put(board::SERVO_PWR_OFF, on ? 0 : 1); }
 
