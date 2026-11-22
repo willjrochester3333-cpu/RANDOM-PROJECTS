@@ -1,10 +1,10 @@
 [
  {
   "name": "nose_cone",
-  "mass_g": 34.0,
+  "mass_g": 34.1,
   "z": 116.3,
   "length": 0.0,
-  "radius": 20.9,
+  "radius": 21.0,
   "source": "CAD"
  },
  {
@@ -12,7 +12,7 @@
   "mass_g": 20.5,
   "z": 183.0,
   "length": 0.0,
-  "radius": 25.8,
+  "radius": 26.1,
   "source": "CAD"
  },
  {
@@ -20,7 +20,7 @@
   "mass_g": 0.1,
   "z": 171.3,
   "length": 0.0,
-  "radius": 21.5,
+  "radius": 21.6,
   "source": "CAD"
  },
  {
@@ -28,7 +28,7 @@
   "mass_g": 5.1,
   "z": 492.5,
   "length": 0.0,
-  "radius": 28.2,
+  "radius": 27.5,
   "source": "CAD"
  },
  {
@@ -36,7 +36,7 @@
   "mass_g": 3.1,
   "z": 494.2,
   "length": 0.0,
-  "radius": 28.0,
+  "radius": 27.9,
   "source": "CAD"
  },
  {
@@ -60,31 +60,31 @@
   "mass_g": 11.3,
   "z": 394.6,
   "length": 0.0,
-  "radius": 20.7,
+  "radius": 20.2,
   "source": "CAD"
  },
  {
   "name": "spring_piston",
-  "mass_g": 10.8,
-  "z": 307.2,
+  "mass_g": 10.7,
+  "z": 307.1,
   "length": 0.0,
   "radius": 20.7,
   "source": "CAD"
  },
  {
   "name": "avbay_coupler",
-  "mass_g": 35.2,
+  "mass_g": 35.3,
   "z": 570.5,
   "length": 0.0,
-  "radius": 25.1,
+  "radius": 25.8,
   "source": "CAD"
  },
  {
   "name": "avbay_sled",
-  "mass_g": 17.4,
+  "mass_g": 17.5,
   "z": 637.6,
   "length": 0.0,
-  "radius": 21.9,
+  "radius": 22.2,
   "source": "CAD"
  },
  {
@@ -92,7 +92,7 @@
   "mass_g": 17.2,
   "z": 848.2,
   "length": 0.0,
-  "radius": 13.8,
+  "radius": 13.1,
   "source": "CAD"
  },
  {
@@ -100,15 +100,15 @@
   "mass_g": 3.4,
   "z": 851.0,
   "length": 0.0,
-  "radius": 17.4,
+  "radius": 17.2,
   "source": "CAD"
  },
  {
   "name": "tvc_frame",
-  "mass_g": 27.8,
+  "mass_g": 27.9,
   "z": 825.1,
   "length": 0.0,
-  "radius": 25.9,
+  "radius": 26.3,
   "source": "CAD"
  },
  {
@@ -116,23 +116,23 @@
   "mass_g": 5.3,
   "z": 899.1,
   "length": 0.0,
-  "radius": 14.4,
+  "radius": 14.3,
   "source": "CAD"
  },
  {
   "name": "fin_can",
-  "mass_g": 132.8,
-  "z": 846.9,
+  "mass_g": 119.0,
+  "z": 846.6,
   "length": 0.0,
-  "radius": 48.8,
+  "radius": 43.5,
   "source": "CAD"
  },
  {
   "name": "fin_control_tab",
-  "mass_g": 6.0,
-  "z": 889.6,
+  "mass_g": 5.2,
+  "z": 889.3,
   "length": 0.0,
-  "radius": 52.7,
+  "radius": 52.6,
   "source": "CAD"
  },
  {
@@ -140,15 +140,15 @@
   "mass_g": 1.6,
   "z": 586.5,
   "length": 0.0,
-  "radius": 34.3,
+  "radius": 34.0,
   "source": "CAD"
  },
  {
   "name": "camera_pod",
-  "mass_g": 11.7,
-  "z": 677.8,
+  "mass_g": 11.6,
+  "z": 677.9,
   "length": 0.0,
-  "radius": 31.2,
+  "radius": 30.7,
   "source": "CAD"
  }
 ]

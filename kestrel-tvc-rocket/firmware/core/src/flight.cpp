@@ -105,17 +105,34 @@ void TvcController::reset() {
     err_deg_ = 0;
 }
 
-void TvcController::update(const Quat& q, const Vec3& target_w, const Vec3& gyro_corr, float t_motor,
-                           float t_active, const TvcGains& g, const MotorProfile& m, float dt,
-                           float& gy_deg, float& gz_deg) {
+Vec3 attitude_error(const Quat& q, const Vec3& target_w, float* ang_deg) {
     // Target direction expressed in the body frame
     const Vec3 tb = q.rotate_inv(target_w).normalized();
     // Rotation axis that takes body x onto the target: x × t = (0, -tz, ty)
     Vec3 e{0.0f, -tb.z, tb.y};
     const float s = e.norm();
     const float ang = std::atan2(s, tb.x);
-    err_deg_ = rad2deg(ang);
-    Vec3 err = (s > 1e-7f) ? e * (ang / s) : Vec3{};
+    if (ang_deg) *ang_deg = rad2deg(ang);
+    return (s > 1e-7f) ? e * (ang / s) : Vec3{};
+}
+
+float wrap_pi(float a) {
+    const float twopi = 6.283185307179586f;
+    while (a > 3.14159265f) a -= twopi;
+    while (a <= -3.14159265f) a += twopi;
+    return a;
+}
+
+float twist_about_x(const Quat& q_ref, const Quat& q) {
+    const Quat r = q_ref.conj() * q;
+    if (std::fabs(r.w) + std::fabs(r.x) < 1e-9f) return 3.14159265f;
+    return wrap_pi(2.0f * std::atan2(r.x, r.w));
+}
+
+void TvcController::update(const Quat& q, const Vec3& target_w, const Vec3& gyro_corr, float t_motor,
+                           float t_active, const TvcGains& g, const MotorProfile& m, float dt,
+                           float& gy_deg, float& gz_deg, float tvc_share, Vec3* alpha_out) {
+    Vec3 err = attitude_error(q, target_w, &err_deg_);
 
     // low-pass the lateral body rates for the D term
     const float a = clampf(dt * 2.0f * 3.14159265f * g.rate_lpf_hz, 0.0f, 1.0f);
@@ -128,6 +145,8 @@ void TvcController::update(const Quat& q, const Vec3& target_w, const Vec3& gyro
     Vec3 alpha;   // desired angular acceleration (body y,z)
     alpha.y = ramp * (g.kp * err.y + g.ki * integ_.y - g.kd * rate_f_.y);
     alpha.z = ramp * (g.kp * err.z + g.ki * integ_.z - g.kd * rate_f_.z);
+    if (alpha_out) *alpha_out = alpha;
+    alpha = alpha * clampf(tvc_share, 0.0f, 1.0f);
 
     const float I = motor_interp(m, m.i_lat, t_motor);
     const float l = motor_interp(m, m.lever, t_motor);
@@ -160,6 +179,75 @@ void TvcController::update(const Quat& q, const Vec3& target_w, const Vec3& gyro
 }
 
 // ===========================================================================
+void FinMixer::allocate(const Vec3& alpha, float qbar, float i_roll, float i_lat, float l_tab, const Airframe& af,
+                        float max_tab_deg, float tab_deg[4], float* scale_out) {
+    const float qe = qbar * af.tab_E_m2;
+    const float r = af.tab_r_m;
+    const float l = l_tab > 0.02f ? l_tab : 0.02f;
+    const float lim = deg2rad(max_tab_deg);
+    if (qe <= 1e-9f) {
+        for (int k = 0; k < 4; ++k) tab_deg[k] = 0.0f;
+        if (scale_out) *scale_out = 0.0f;
+        return;
+    }
+    // Roll has priority: a rocket whose roll is not under control cannot be steered in pitch/yaw by fins.
+    // The roll part is common to all four tabs; pitch/yaw are added and each tab then saturates on its own,
+    // so one stuck or jammed tab cannot limit what the other three do (tested in the SIL fault cases).
+    float d_roll = i_roll * alpha.x / (4.0f * r) / qe;
+    d_roll = clampf(d_roll, -lim, lim);
+    float scale = 1.0f;
+    for (int k = 0; k < 4; ++k) {
+        const float phi = deg2rad(af.fin_deg[k]);
+        const float d_py = i_lat * (alpha.y * std::cos(phi) + alpha.z * std::sin(phi)) / (2.0f * l) / qe;
+        const float dk = d_roll + d_py;
+        if (std::fabs(dk) > lim) scale = std::fmin(scale, lim / std::fabs(dk));
+        tab_deg[k] = rad2deg(clampf(dk, -lim, lim));
+    }
+    if (scale_out) *scale_out = scale;
+}
+
+float FinMixer::pitch_authority(float qbar, float i_lat, float l_tab, const Airframe& af, float max_tab_deg) {
+    return 2.0f * qbar * af.tab_E_m2 * l_tab * deg2rad(max_tab_deg) / (i_lat > 1e-6f ? i_lat : 1e-6f);
+}
+
+void FlightComputer::fin_control(const Vec3& w_corr, const Vec3& alpha_boost, float dt, ActuatorCmd& out,
+                                 const MotorProfile& m) {
+    const FinGains& g = cfg_.fins;
+    if (!cfg_.airframe || !g.enabled || stats_.abort || stats_.unarmed_launch) return;   // tabs stay centred
+    // give-up rule: if the tabs cannot hold the attitude in COAST (e.g. one tab jammed hard-over), centre them all
+    // for the rest of the flight. A spinning rocket averages a stuck tab out; a roll-held one is pushed sideways.
+    if (state_ == FlightState::COAST && tilt_deg_ > g.coast_giveup_deg) fins_safe_ = true;
+    if (fins_safe_) return;
+    const Airframe& af = *cfg_.airframe;
+    if (v_in_.norm() < g.v_min_mps) return;
+    const float a = clampf(dt * 2.0f * 3.14159265f * g.rate_lpf_hz, 0.0f, 1.0f);
+    rate_fin_f_ = rate_fin_f_ * (1.0f - a) + w_corr * a;
+    Vec3 alpha;
+    float psi_t = 0.0f;
+    if (state_ == FlightState::COAST && g.roll_program_dps > 0.0f)
+        psi_t = wrap_pi(deg2rad(g.roll_program_dps) * (t_prev_ - stats_.t_burnout));
+    alpha.x = g.roll_kp * wrap_pi(psi_t - roll_) - g.roll_kd * rate_fin_f_.x;
+    // spin guard: with the roll out of control (e.g. a jammed tab) fin steering in pitch/yaw goes unstable,
+    // so it is suspended until the roll rate is back under control
+    const float p_abs = std::fabs(rad2deg(w_corr.x));
+    if (p_abs > g.spin_guard_dps) spin_guard_ = true;
+    else if (p_abs < 0.5f * g.spin_guard_dps) spin_guard_ = false;
+    if (state_ == FlightState::BOOST) {
+        alpha.y = alpha_boost.y;
+        alpha.z = alpha_boost.z;
+    } else if (!spin_guard_) {
+        const Vec3 e = g.coast_hold_attitude ? attitude_error(att_.q(), target_w_) : Vec3{};
+        alpha.y = g.coast_kp * e.y - g.coast_kd * rate_fin_f_.y;
+        alpha.z = g.coast_kp * e.z - g.coast_kd * rate_fin_f_.z;
+    }
+    const float I = motor_interp(m, m.i_lat, t_motor_);
+    const float l = motor_interp(m, m.lever, t_motor_) + af.tab_dz_m;
+    const float qb = qbar_ > g.q_floor_pa ? qbar_ : g.q_floor_pa;
+    FinMixer::allocate(alpha, qb, af.i_roll, I, l, af, g.max_tab_deg, out.tab_deg);
+    out.fins_active = true;
+}
+
+// ===========================================================================
 void FlightComputer::init(const Config& cfg) {
     cfg_ = cfg;
     att_.reset();
@@ -172,6 +260,12 @@ void FlightComputer::init(const Config& cfg) {
     baro_seen_ = false;
     apogee_count_ = 0;
     v_in_ = Vec3{};
+    q_launch_ = Quat{};
+    roll_ = qbar_ = tab_share_ = 0.0f;
+    spin_guard_ = false;
+    fins_safe_ = false;
+    rho_ = 1.2f;
+    rate_fin_f_ = Vec3{};
 }
 
 void FlightComputer::enter(FlightState s, float t) {
@@ -202,6 +296,7 @@ ActuatorCmd FlightComputer::step(const SensorFrame& in) {
         }
         baro_alt_ = pressure_to_alt(in.baro_pa);
         t_last_baro_ = in.t;
+        rho_ = in.baro_pa / (287.05f * 288.15f);          // air density for the tab mixer (ISA temperature)
     }
 
     // ---- attitude / inertial ----------------------------------------------
@@ -263,6 +358,7 @@ ActuatorCmd FlightComputer::step(const SensorFrame& in) {
                     kf_.reset(0.0f);
                     v_in_ = Vec3{};
                     tvc_.reset();
+                    q_launch_ = att_.q();
                     enter(FlightState::BOOST, in.t);
                     break;
                 }
@@ -300,6 +396,7 @@ ActuatorCmd FlightComputer::step(const SensorFrame& in) {
                     kf_.reset(0.0f);
                     v_in_ = Vec3{};
                     tvc_.reset();
+                    q_launch_ = att_.q();
                     enter(FlightState::BOOST, in.t);
                 }
             } else {
@@ -398,16 +495,39 @@ ActuatorCmd FlightComputer::step(const SensorFrame& in) {
         case FlightState::LANDED: out.buzzer = Buzz::LANDED_REPORT; break;
         default: out.buzzer = Buzz::OFF; break;
     }
+    if (state_ == FlightState::BOOST || state_ == FlightState::COAST) {
+        roll_ = twist_about_x(q_launch_, q);
+        const float V = v_in_.norm();
+        qbar_ = 0.5f * rho_ * V * V;
+        const float pr = std::fabs(rad2deg(w_corr.x));
+        if (pr > stats_.max_roll_rate_dps) stats_.max_roll_rate_dps = pr;
+    }
     if (state_ == FlightState::BOOST) {
         t_since_launch = in.t - t_launch_;
         t_motor_ = t_since_launch + m.detect_offset;
         float gy = 0, gz = 0;
         Vec3 w = in.gyro - att_.bias();
-        tvc_.update(q, target_w_, w, t_motor_, t_since_launch, cfg_.tvc, m, dt, gy, gz);
+        // share of the pitch/yaw demand given to the fin tabs, in proportion to their authority
+        tab_share_ = 0.0f;
+        if (cfg_.airframe && cfg_.fins.enabled) {
+            const float I = motor_interp(m, m.i_lat, t_motor_);
+            const float l = motor_interp(m, m.lever, t_motor_);
+            float T = motor_interp(m, m.thrust, t_motor_);
+            if (T < cfg_.tvc.thrust_floor_n) T = cfg_.tvc.thrust_floor_n;
+            const float a_tvc = T * l * std::sin(deg2rad(cfg_.tvc.max_gimbal_deg)) / I;
+            const float a_tab = (v_in_.norm() < cfg_.fins.v_min_mps) ? 0.0f :
+                FinMixer::pitch_authority(qbar_, I, l + cfg_.airframe->tab_dz_m, *cfg_.airframe, cfg_.fins.max_tab_deg);
+            tab_share_ = clampf(cfg_.fins.boost_share, 0.0f, 1.0f) * a_tab / (a_tab + a_tvc);
+        }
+        Vec3 alpha_des;
+        tvc_.update(q, target_w_, w, t_motor_, t_since_launch, cfg_.tvc, m, dt, gy, gz, 1.0f - tab_share_, &alpha_des);
         if (stats_.abort || stats_.unarmed_launch) { gy = 0.0f; gz = 0.0f; }   // fly as a finned rocket
         out.gimbal_y_deg = gy;
         out.gimbal_z_deg = gz;
         out.tvc_active = !(stats_.abort || stats_.unarmed_launch);
+        fin_control(w, alpha_des * tab_share_, dt, out, m);
+    } else if (state_ == FlightState::COAST) {
+        fin_control(in.gyro - att_.bias(), Vec3{}, dt, out, m);
     }
     return out;
 }
@@ -426,7 +546,7 @@ void FlightComputer::fill_log(LogRecord& r, const SensorFrame& in, const Actuato
     r.t_ms = static_cast<uint32_t>(in.t * 1000.0f);
     r.state = static_cast<uint8_t>(state_);
     r.flags = (out.tvc_active ? 1 : 0) | (out.deploy_release ? 2 : 0) | (in.baro_new ? 4 : 0) |
-              (in.gps.valid ? 8 : 0) | (stats_.abort ? 16 : 0);
+              (in.gps.valid ? 8 : 0) | (stats_.abort ? 16 : 0) | (out.fins_active ? 32 : 0) | (fins_safe_ ? 64 : 0);
     r.gyro_cdps[0] = s16(rad2deg(in.gyro.x) * 100); r.gyro_cdps[1] = s16(rad2deg(in.gyro.y) * 100); r.gyro_cdps[2] = s16(rad2deg(in.gyro.z) * 100);
     r.accel_cmss[0] = s16(in.accel.x * 100); r.accel_cmss[1] = s16(in.accel.y * 100); r.accel_cmss[2] = s16(in.accel.z * 100);
     r.alt_m = kf_.h();
@@ -441,7 +561,11 @@ void FlightComputer::fill_log(LogRecord& r, const SensorFrame& in, const Actuato
     r.gps_alt_m = s16(in.gps.alt_m);
     r.sats = in.gps.sats;
     r.reserved = 0;
-    r.q[0] = att_.q().x; r.q[1] = att_.q().y; r.q[2] = att_.q().z;
+    Quat qq = att_.q();
+    if (qq.w < 0.0f) qq = Quat{-qq.w, -qq.x, -qq.y, -qq.z};
+    r.q_i16[0] = s16(qq.x * 32767.0f); r.q_i16[1] = s16(qq.y * 32767.0f); r.q_i16[2] = s16(qq.z * 32767.0f);
+    for (int k = 0; k < 4; ++k) r.tab_qdeg[k] = static_cast<int8_t>(clampf(std::round(out.tab_deg[k] * 4.0f), -127.0f, 127.0f));
+    r.roll_cdeg = s16(rad2deg(roll_) * 100.0f);
     r.crc16 = crc16_ccitt(reinterpret_cast<const uint8_t*>(&r), 62);
 }
 

@@ -1,4 +1,4 @@
-"""6-DOF flight simulator for KESTREL-1 with thrust vector control.
+"""6-DOF flight simulator for KESTREL-2: thrust vector control + four servo-driven fin control tabs.
 
 World frame: ENU (x east, y north, z up), origin at the pad.
 Body frame : +x along the rocket axis towards the nose, y/z lateral (right-handed).
@@ -66,6 +66,13 @@ def q_between(u, v):
     return q / np.linalg.norm(q)
 
 
+def roll_deg(q0, q):
+    """rotation about the body x axis since q0 (twist part of the swing-twist decomposition), degrees in (-180, 180]"""
+    w0, x0, y0, z0 = q0
+    qr = q_mul(np.array([w0, -x0, -y0, -z0]), q)
+    return math.degrees(2.0 * math.atan2(qr[1], qr[0])) if abs(qr[0]) + abs(qr[1]) > 1e-12 else 0.0
+
+
 def tilt_deg(q):
     """Angle between body x axis and world vertical."""
     xb = q_to_R(q)[:, 0]
@@ -110,6 +117,7 @@ class SimConfig:
     # vehicle dispersions
     mass_scale: float = 1.0
     cg_shift: float = 0.0
+    payload_g: float | None = None    # None = nominal payload from design.json
     cd_scale: float = 1.0
     cna_scale: float = 1.0
     impulse_scale: float = 1.0
@@ -129,6 +137,20 @@ class SimConfig:
     servo_trim_err_deg: tuple = (0.0, 0.0)  # residual gimbal trim error after calibration
     servo_failure: str = ""           # "", "stuck_y", "stuck_z", "dead", "hardover_y" (y servo jams at +limit)
     servo_failure_t: float = 0.5      # s after ignition when a hard-over occurs
+    # fin control tabs (4 x MG90S in fin-root pods, pushrod linkage)
+    tabs_enabled: bool = True
+    tab_rate_dps: float = 600.0       # servo horn slew limit
+    tab_tau: float = 0.012
+    tab_deadband_deg: float = 0.5     # servo deadband (horn deg)
+    tab_backlash_deg: float = 0.3     # tab deg
+    tab_limit_deg: float = 16.0       # mechanical stop
+    tab_servo_arm_mm: float = 6.0
+    tab_horn_mm: float = 14.5
+    tab_trim_err_deg: tuple = (0.0, 0.0, 0.0, 0.0)
+    tab_eff_scale: float = 1.0        # uncertainty on the tab effectiveness
+    tab_failure: str = ""             # "", "stuck1".."stuck4" (frozen at 0), "hardover1".."hardover4", "dead" (all frozen)
+    tab_failure_t: float = 1.0
+    fin_misalign_deg: tuple = (0.0, 0.0, 0.0, 0.0)   # per-fin cant (manufacturing), adds to fin_cant_deg
     baro_fail_after: float = 1e9      # s after ignition: barometer stops delivering data
     # sensors
     imu_rate_hz: float = 500.0
@@ -143,8 +165,8 @@ class SimConfig:
     baro_port_cp: float = -0.02       # static-port pressure error coefficient (x dynamic pressure)
     gps_rate_hz: float = 5.0
     # recovery
-    chute_diameter_m: float = 0.61
-    chute_cd: float = 0.80
+    chute_diameter_m: float | None = None   # None = design.json recovery.parachute_diameter_in
+    chute_cd: float | None = None
     deploy_latch_delay: float = 0.15  # servo travel to release the pins
     deploy_sep_time: float = 0.35     # spring separation + line stretch
     chute_fill_time: float = 0.6
@@ -158,6 +180,7 @@ class SimConfig:
 class FswOutput:
     gimbal_y_deg: float = 0.0
     gimbal_z_deg: float = 0.0
+    tab_deg: tuple = (0.0, 0.0, 0.0, 0.0)
     deploy: bool = False
     state: int = 0
     state_name: str = "IDLE"
@@ -199,13 +222,68 @@ class ServoAxis:
         return self.gimbal
 
 
+class TabServo:
+    """MG90S driving a control tab through a horn/pushrod linkage: sin(tab) * horn = sin(servo) * servo_arm."""
+
+    def __init__(self, cfg: SimConfig, k: int):
+        self.cfg = cfg
+        self.k = k
+        self.psi = 0.0             # servo horn angle (deg)
+        self.latched = 0.0
+        self.delta = 0.0           # tab angle after backlash (deg)
+        self.trim = cfg.tab_trim_err_deg[k]
+        f = cfg.tab_failure
+        self.stuck = f == "dead" or f == f"stuck{k + 1}"
+        self.hardover = f == f"hardover{k + 1}"
+        self.t_next_frame = 0.0
+
+    def servo_for_tab(self, d):
+        c = self.cfg
+        x = c.tab_horn_mm * math.sin(math.radians(d)) / c.tab_servo_arm_mm
+        return math.degrees(math.asin(max(-1.0, min(1.0, x))))
+
+    def tab_for_servo(self, p):
+        c = self.cfg
+        x = c.tab_servo_arm_mm * math.sin(math.radians(p)) / c.tab_horn_mm
+        return math.degrees(math.asin(max(-1.0, min(1.0, x))))
+
+    def update(self, t, dt, cmd_deg):
+        c = self.cfg
+        if self.hardover and t >= c.tab_failure_t:
+            self.delta = c.tab_limit_deg
+            return self.delta
+        if self.stuck and t >= c.tab_failure_t:
+            return self.delta
+        if t >= self.t_next_frame:
+            self.latched = self.servo_for_tab(cmd_deg)
+            self.t_next_frame = t + 1.0 / c.servo_frame_hz
+        err = self.latched - self.psi
+        if abs(err) > c.tab_deadband_deg:
+            rate = np.clip(err / c.tab_tau, -c.tab_rate_dps, c.tab_rate_dps)
+            self.psi += rate * dt
+        target = self.tab_for_servo(self.psi) + self.trim
+        b = c.tab_backlash_deg / 2
+        if target > self.delta + b:
+            self.delta = target - b
+        elif target < self.delta - b:
+            self.delta = target + b
+        self.delta = float(np.clip(self.delta, -c.tab_limit_deg, c.tab_limit_deg))
+        return self.delta
+
+
 class Simulation:
     def __init__(self, cfg: SimConfig, fsw, design: dict | None = None):
         self.cfg = cfg
         self.design = design or load_design()
         self.rng = np.random.default_rng(cfg.seed)
         self.motor = Motor(cfg.motor, cfg.impulse_scale, cfg.burn_time_scale)
-        self.rocket = Rocket(self.design, self.motor, mass_scale=cfg.mass_scale, cg_shift=cfg.cg_shift)
+        self.rocket = Rocket(self.design, self.motor, mass_scale=cfg.mass_scale, cg_shift=cfg.cg_shift,
+                             payload_kg=None if cfg.payload_g is None else cfg.payload_g / 1000.0)
+        rec = self.design["recovery"]
+        if cfg.chute_diameter_m is None:
+            cfg.chute_diameter_m = rec["parachute_diameter_in"] * 0.0254
+        if cfg.chute_cd is None:
+            cfg.chute_cd = rec["parachute_cd"]
         self.fsw = fsw
         self.z_imu = self.design["avbay"].get("imu_z", 445) / 1000.0   # IMU position (m from nose tip)
 
@@ -246,6 +324,11 @@ class Simulation:
         # actuators
         sy = ServoAxis(c, c.servo_trim_err_deg[0], c.servo_failure in ("stuck_y", "dead"), c.servo_failure == "hardover_y")
         sz = ServoAxis(c, c.servo_trim_err_deg[1], c.servo_failure in ("stuck_z", "dead"))
+        tabs = [TabServo(c, k) for k in range(rk.fin_n)] if rk.fin_n == 4 else []
+        tab = np.zeros(4)
+        fin_ang = np.radians(rk.fin_angles_deg()) if rk.fin_n else np.zeros(0)
+        tabE, tab_zcp, tab_r = rk.tab_params() if rk.fin_n else (0.0, 0.0, 0.0)
+        q0 = q.copy()
         self.fsw.reset(self)
         out = FswOutput()
 
@@ -255,7 +338,8 @@ class Simulation:
                   deploy_cmd_t=None, deploy_alt=None, deploy_speed=None, chute_full_t=None, landing_t=None,
                   landing_speed=None, landing_pos=None, max_speed=0.0, max_accel_g=0.0, max_tilt_burn=0.0,
                   tilt_burnout=None, max_gimbal=0.0, max_q=0.0, max_aoa_deg=0.0, max_rate_dps=0.0,
-                  max_opening_g=0.0, fsw_apogee_err=None, deploy_vz=None)
+                  max_opening_g=0.0, fsw_apogee_err=None, deploy_vz=None, max_roll_rate_burn=0.0, max_roll_rate_coast=0.0,
+                  max_abs_roll_deg=0.0, max_tab=0.0, max_tilt_coast=0.0, tilt_apogee=None)
         on_rod = True
         launched = False
         s_rod = 0.0
@@ -354,8 +438,18 @@ class Simulation:
                     cr, ct, s, sweep, lm = rk.fin_geometry()
                     cna1 = rk.cn_alpha_components()[1][1] / rk.fin_n
                     r_mac = rk.R + s / 3.0
-                    M_body[0] += qdyn * rk.A_ref * cna1 * rk.fin_n * math.radians(c.fin_cant_deg) * r_mac
+                    cant = c.fin_cant_deg + (float(np.mean(c.fin_misalign_deg)) if rk.fin_n == 4 else 0.0)
+                    M_body[0] += qdyn * rk.A_ref * cna1 * rk.fin_n * math.radians(cant) * r_mac
                     M_body[0] += -0.5 * rho * V * rk.A_ref * cna1 * rk.fin_n * r_mac ** 2 * w[0]
+                # control tabs: force q*E*delta along each fin's normal at (tab_zcp, tab_r)
+                if len(tabs) and V > 1.0:
+                    Fq = qdyn * tabE * c.tab_eff_scale * (1.0 if u > 0 else 0.0)
+                    l_t = tab_zcp - mp.z_cg
+                    Fk = Fq * np.radians(tab)
+                    cph, sph = np.cos(fin_ang), np.sin(fin_ang)
+                    Fa_t = np.array([0.0, float(-(Fk * sph).sum()), float((Fk * cph).sum())])
+                    F_world += R @ Fa_t
+                    M_body += np.array([float(Fk.sum()) * tab_r, float((Fk * cph).sum()) * l_t, float((Fk * sph).sum()) * l_t])
                 if V > 10.0 and launched and not on_rod:
                     ev["max_aoa_deg"] = max(ev["max_aoa_deg"], math.degrees(aoa))
             elif separated:
@@ -431,6 +525,9 @@ class Simulation:
                 gimbal[1] = sz.update(t, dt, out.gimbal_z_deg)
             else:
                 gimbal[:] = 0.0
+            if len(tabs):
+                for k in range(4):
+                    tab[k] = tabs[k].update(t, dt, out.tab_deg[k] if c.tabs_enabled else 0.0)
             # ------------------------------------------------------------------
             # integrate: semi-implicit Euler at 1 kHz (step-size convergence is checked in tests/test_sim.py)
             v = v + a * dt
@@ -456,9 +553,18 @@ class Simulation:
                 ev["max_rate_dps"] = max(ev["max_rate_dps"], math.degrees(float(np.linalg.norm(w[1:]))))
                 if separated:
                     ev["max_opening_g"] = max(ev["max_opening_g"], float(np.linalg.norm(a + np.array([0, 0, G0]))) / G0)
+                roll = roll_deg(q0, q)
                 if motor_on:
                     ev["max_tilt_burn"] = max(ev["max_tilt_burn"], tilt_deg(q))
                     ev["max_gimbal"] = max(ev["max_gimbal"], abs(gimbal[0]), abs(gimbal[1]))
+                    if not on_rod:
+                        ev["max_roll_rate_burn"] = max(ev["max_roll_rate_burn"], abs(math.degrees(w[0])))
+                elif not apogee_reached:
+                    ev["max_roll_rate_coast"] = max(ev["max_roll_rate_coast"], abs(math.degrees(w[0])))
+                    ev["max_tilt_coast"] = max(ev["max_tilt_coast"], tilt_deg(q))
+                if not separated and not apogee_reached:
+                    ev["max_abs_roll_deg"] = max(ev["max_abs_roll_deg"], abs(roll))
+                    ev["max_tab"] = max(ev["max_tab"], float(np.abs(tab).max()))
                 if ev["burnout"] is None and t >= self.motor.burn_time:
                     ev["burnout"] = t
                     ev["tilt_burnout"] = tilt_deg(q)
@@ -466,6 +572,7 @@ class Simulation:
                     ev["burnout_alt"] = r[2]
                 if not apogee_reached and t > 0.5 and v[2] < 0:
                     apogee_reached = True
+                    ev["tilt_apogee"] = tilt_deg(q)
                     ev["apogee_t"] = t
                     ev["apogee"] = float(r[2])
                     ev["apogee_xy"] = (float(r[0]), float(r[1]))
@@ -479,7 +586,8 @@ class Simulation:
             if n % c.log_every == 0:
                 log.append((t, r[0], r[1], r[2], v[0], v[1], v[2], tilt_deg(q), gimbal[0], gimbal[1],
                             math.degrees(w[0]), math.degrees(w[1]), math.degrees(w[2]), T_thrust, m, aoa, last_fsw_state,
-                            chute_area_frac, out.extra.get("alt_est", float("nan")), out.extra.get("vz_est", float("nan"))))
+                            chute_area_frac, out.extra.get("alt_est", float("nan")), out.extra.get("vz_est", float("nan")),
+                            tab[0], tab[1], tab[2], tab[3], roll_deg(q0, q), qdyn, q[0], q[1], q[2], q[3]))
             n += 1
             t += dt
             if ev["chute_full_t"] is not None and t > ev["chute_full_t"] + 1.0:
@@ -502,7 +610,8 @@ class Simulation:
                 t += 0.002
             ev["landed_detect_state"] = last_fsw_state
         cols = ["t", "x", "y", "z", "vx", "vy", "vz", "tilt", "gimbal_y", "gimbal_z", "p_dps", "q_dps", "r_dps",
-                "thrust", "mass", "aoa", "fsw_state", "chute_frac", "alt_est", "vz_est"]
+                "thrust", "mass", "aoa", "fsw_state", "chute_frac", "alt_est", "vz_est",
+                "tab1", "tab2", "tab3", "tab4", "roll", "qdyn", "qw", "qx", "qy", "qz"]
         self.log = {k: np.array([row[i] for row in log]) for i, k in enumerate(cols)}
         if ev["deploy_cmd_t"] is not None and ev["apogee_t"] is not None:
             ev["deploy_minus_apogee_s"] = ev["deploy_cmd_t"] - ev["apogee_t"]

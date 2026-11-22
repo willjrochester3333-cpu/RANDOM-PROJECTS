@@ -215,7 +215,100 @@ static void test_robust_arming() {
     }
 }
 
+// Fin-tab mixer: the four deflections must reproduce the requested moments exactly (when not saturated),
+// roll must be common to all tabs, saturation must respect the limit, and the roll angle helper must work.
+static void test_fin_mixer() {
+    const Airframe& af = kAirframe;
+    const float qbar = 800.0f, I_lat = 0.043f, I_roll = af.i_roll, l = 0.21f;
+    std::mt19937 rng(7);
+    std::uniform_real_distribution<float> u(-1.0f, 1.0f);
+    for (int n = 0; n < 2000; ++n) {
+        Vec3 alpha{u(rng) * 60.0f, u(rng) * 4.0f, u(rng) * 4.0f};
+        float tab[4], scale = 0;
+        FinMixer::allocate(alpha, qbar, I_roll, I_lat, l, af, 15.0f, tab, &scale);
+        for (int k = 0; k < 4; ++k) CHECK(std::fabs(tab[k]) <= 15.0f + 1e-4f, "tab %d = %g", k, double(tab[k]));
+        if (scale > 0.9999f) {
+            float Mx = 0, My = 0, Mz = 0;
+            for (int k = 0; k < 4; ++k) {
+                const float F = qbar * af.tab_E_m2 * deg2rad(tab[k]);
+                const float phi = deg2rad(af.fin_deg[k]);
+                Mx += F * af.tab_r_m; My += F * l * std::cos(phi); Mz += F * l * std::sin(phi);
+            }
+            NEAR(Mx, I_roll * alpha.x, 2e-5f);
+            NEAR(My, I_lat * alpha.y, 2e-4f);
+            NEAR(Mz, I_lat * alpha.z, 2e-4f);
+        }
+    }
+    // pure roll: all four identical, positive command for positive roll acceleration
+    float tab[4];
+    FinMixer::allocate(Vec3{20.0f, 0, 0}, qbar, I_roll, I_lat, l, af, 15.0f, tab);
+    for (int k = 1; k < 4; ++k) NEAR(tab[k], tab[0], 1e-5f);
+    CHECK(tab[0] > 0.0f, "roll sign %g", double(tab[0]));
+    // pure pitch (about body y): fins at 45/315 deg push one way, 135/225 the other, sum zero (no roll)
+    FinMixer::allocate(Vec3{0, 2.0f, 0}, qbar, I_roll, I_lat, l, af, 15.0f, tab);
+    NEAR(tab[0] + tab[1] + tab[2] + tab[3], 0.0f, 1e-4f);
+    CHECK(tab[0] > 0.0f && tab[3] > 0.0f && tab[1] < 0.0f && tab[2] < 0.0f, "pitch pattern %g %g %g %g",
+          double(tab[0]), double(tab[1]), double(tab[2]), double(tab[3]));
+    // a demand far beyond the authority saturates every tab at the limit, never beyond
+    FinMixer::allocate(Vec3{5000.0f, 300.0f, -300.0f}, 50.0f, I_roll, I_lat, l, af, 15.0f, tab);
+    for (int k = 0; k < 4; ++k) CHECK(std::fabs(tab[k]) <= 15.0f + 1e-4f, "sat tab %d = %g", k, double(tab[k]));
+    // roll angle (twist about body x), independent of a small tilt
+    Quat q0{};
+    Quat q1 = Quat::from_axis_angle(Vec3{1, 0, 0}, deg2rad(30.0f));
+    NEAR(rad2deg(twist_about_x(q0, q1)), 30.0f, 1e-3f);
+    Quat q2 = Quat::from_axis_angle(Vec3{0, 1, 0}, deg2rad(5.0f)) * q1;
+    NEAR(rad2deg(twist_about_x(q0, q2)), 30.0f, 0.5f);
+    NEAR(rad2deg(wrap_pi(deg2rad(190.0f))), -170.0f, 1e-3f);
+}
+
+// Full computer: in BOOST and COAST the tabs must oppose a roll rate, stay centred on the pad, under the
+// parachute and when the feature is switched off.
+static void test_fins_in_flight() {
+    for (int enabled = 0; enabled < 2; ++enabled) {
+        FlightComputer fc;
+        Config cfg;
+        cfg.motor = &kMotors[kDefaultMotor];
+        cfg.airframe = &kAirframe;
+        cfg.fins.enabled = enabled != 0;
+        fc.init(cfg);
+        const float dt = 0.002f;
+        float t = 0, v = 0, h = 0;
+        bool saw_boost_tabs = false, saw_coast_tabs = false;
+        for (int i = 0; i < 20 * 500; ++i, t += dt) {
+            SensorFrame s;
+            s.t = t;
+            const float t_ign = 6.0f;
+            float a_kin = 0.0f;
+            if (t >= t_ign && t < t_ign + 2.0f) a_kin = 30.0f;
+            else if (t >= t_ign + 2.0f) a_kin = -kG0 - 0.003f * v * std::fabs(v);
+            if (t >= t_ign) { v += a_kin * dt; h += v * dt; }
+            s.accel = Vec3{a_kin + kG0, 0, 0};
+            s.gyro = (t > t_ign + 0.5f) ? Vec3{deg2rad(40.0f), 0, 0} : Vec3{};   // rolling at +40 deg/s
+            s.baro_new = (i % 20) == 0;
+            s.baro_pa = 101325.0f * std::pow(1.0f - h / 44330.0f, 5.255f);
+            ActuatorCmd o = fc.step(s);
+            const bool flying = o.state == FlightState::BOOST || o.state == FlightState::COAST;
+            if (!flying) {
+                for (int k = 0; k < 4; ++k) NEAR(o.tab_deg[k], 0.0f, 1e-6f);
+            } else if (t > t_ign + 1.0f && v > 10.0f && std::fabs(fc.roll_deg()) < 150.0f) {
+                // (beyond 180 deg of accumulated roll the angle-hold term legitimately takes the shorter way back)
+                if (enabled) {
+                    // roll +40 deg/s must be met with a negative (anti-roll) command on all four tabs
+                    const float mean = 0.25f * (o.tab_deg[0] + o.tab_deg[1] + o.tab_deg[2] + o.tab_deg[3]);
+                    CHECK(mean < 0.0f, "t=%g mean tab %g", double(t), double(mean));
+                    if (o.state == FlightState::BOOST) saw_boost_tabs = true; else saw_coast_tabs = true;
+                } else {
+                    for (int k = 0; k < 4; ++k) NEAR(o.tab_deg[k], 0.0f, 1e-6f);
+                }
+            }
+        }
+        if (enabled) CHECK(saw_boost_tabs && saw_coast_tabs, "tabs used in boost %d and coast %d", int(saw_boost_tabs), int(saw_coast_tabs));
+    }
+}
+
 int main() {
+    test_fin_mixer();
+    test_fins_in_flight();
     test_robust_arming();
     test_quaternions();
     test_attitude();

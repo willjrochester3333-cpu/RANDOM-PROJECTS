@@ -165,14 +165,14 @@
   "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 13971.176770221395,
-  "area_mm2": 15737.00989053741,
+  "volume_mm3": 13798.184770221393,
+  "area_mm2": 15706.577800724182,
   "centroid_assembly_mm": [
-   -0.37449533937154467,
-   1.3366941482007966,
-   261.3583166157779
+   -0.303339753549312,
+   1.5540497377386855,
+   261.5306835794543
   ],
-  "r_gyr_mm": 22.156454664639384,
+  "r_gyr_mm": 22.080323548299322,
   "z_len_mm": 85.5
  },
  {
@@ -213,14 +213,14 @@
   "note": "PETG, print upright; supports only under the servo bars",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 22292.226316672855,
-  "area_mm2": 38829.86401719801,
+  "volume_mm3": 22295.084091919565,
+  "area_mm2": 38843.884461480426,
   "centroid_assembly_mm": [
-   0.09405251590895991,
-   0.30568241792143475,
-   73.86810868172067
+   0.09311694558038325,
+   0.30772958126561406,
+   73.8749773632193
   ],
-  "r_gyr_mm": 26.321387934361983,
+  "r_gyr_mm": 26.328702838834722,
   "z_len_mm": 156.0
  },
  {
@@ -245,30 +245,30 @@
   "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Fins + legs + 4 servo pods in one piece",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 105926.334698278,
-  "area_mm2": 92485.85159789436,
+  "volume_mm3": 95191.75031301634,
+  "area_mm2": 91815.77995466466,
   "centroid_assembly_mm": [
-   0.006952316850708383,
-   0.34078664884894,
-   52.32415755146736
+   0.0072677335408315325,
+   0.37721215623180515,
+   52.4435939733164
   ],
-  "r_gyr_mm": 45.828824009542345,
+  "r_gyr_mm": 43.47784498292514,
   "z_len_mm": 155.0
  },
  {
   "name": "fin_control_tab",
   "qty": 4,
-  "note": "PETG, print flat. Hinge pin: 1.2 mm music wire pushed in from the fin tip (drop of CA at the tip)",
+  "note": "PETG, print flat. Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 1194.087379095361,
-  "area_mm2": 1396.207764870724,
+  "volume_mm3": 1046.6100150062962,
+  "area_mm2": 1363.6324580804735,
   "centroid_assembly_mm": [
-   34.83576318561812,
-   36.12589062839854,
-   9.376853066075807
+   34.70544760290144,
+   36.14218168519912,
+   9.695197985114753
   ],
-  "r_gyr_mm": 52.65537506494694,
+  "r_gyr_mm": 52.63927649296087,
   "z_len_mm": 17.599999994039536
  },
  {
@@ -278,13 +278,13 @@
   "group": "rocket",
   "part": "bottom",
   "volume_mm3": 1307.4643260056864,
-  "area_mm2": 1592.534036650015,
+  "area_mm2": 1592.533994789192,
   "centroid_assembly_mm": [
-   6.376492018420408e-16,
-   33.01448490238663,
-   312.4999999999999
+   2.8984048294959493e-15,
+   32.90441963916952,
+   312.5000000000001
   ],
-  "r_gyr_mm": 34.15074728839057,
+  "r_gyr_mm": 33.96351175981892,
   "z_len_mm": 25.0
  },
  {

@@ -15,9 +15,9 @@
 | tvc_gimbal_ring | 1 | 40.6 x 39.2 x 8.0 | 2.7 | 3.4 | 2.15 | yes | 1 | yes | PASS |
 | tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.3 | 27.9 | 1.00 | yes | 1 | yes | PASS |
 | tvc_motor_retainer | 1 | 34.4 x 34.4 x 13.0 | 4.3 | 5.3 | 1.50 | yes | 1 | yes | PASS |
-| fin_can | 1 | 114.3 x 114.3 x 155.0 | 105.9 | 132.4 | 1.00 | yes | 1 | yes | PASS |
-| fin_control_tab | 4 | 20.9 x 17.6 x 27.7 | 1.2 | 6.0 | 1.10 | yes | 1 | yes | PASS |
-| upper_launch_lug | 1 | 9.5 x 10.5 x 25.0 | 1.3 | 1.6 | 1.34 | yes | 1 | yes | PASS |
+| fin_can | 1 | 114.1 x 114.1 x 155.0 | 95.2 | 119.0 | 1.00 | yes | 1 | yes | PASS |
+| fin_control_tab | 4 | 20.6 x 17.6 x 27.5 | 1.0 | 5.2 | 1.18 | yes | 1 | yes | PASS |
+| upper_launch_lug | 1 | 9.5 x 10.3 x 25.0 | 1.3 | 1.6 | 1.34 | yes | 1 | yes | PASS |
 | camera_pod | 1 | 36.8 x 26.0 x 54.1 | 9.3 | 11.6 | 1.01 | yes | 1 | yes | PASS |
 | pad_hub | 1 | 110.0 x 110.0 x 101.6 | 574.7 | 219.5 | 3.19 | yes | 1 | yes | PASS |
 | pad_rod_block | 1 | 15.0 x 16.0 x 46.0 | 9.5 | 7.6 | 3.55 | yes | 1 | yes | PASS |
@@ -28,4 +28,4 @@
 | tool_drill_guide_bottom_tube | 1 | 60.7 x 60.7 x 148.0 | 51.7 | 64.6 | 1.95 | yes | 1 | yes | PASS |
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.8 | 1.95 | yes | 1 | yes | PASS |
 
-Estimated printed rocket parts total: **343 g** (walls 1.2 mm + 20% infill assumption)
+Estimated printed rocket parts total: **329 g** (walls 1.2 mm + 20% infill assumption)

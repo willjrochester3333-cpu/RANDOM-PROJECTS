@@ -65,6 +65,10 @@ def build(routes_path):
         r.SetTextSize(pcbnew.VECTOR2I(MM(0.8), MM(0.8)))
         r.SetTextThickness(MM(0.15))
         fp.Value().SetVisible(False)
+    # J10 pin 13 (GND) has a signal track squeezing one thermal spoke on B.Cu: connect it solid (JLCPCB solders it)
+    for pad in fps["J10"].Pads():
+        if pad.GetNumber() == "13":
+            pad.SetZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
     routes = json.load(open(routes_path))
     for (net, l, x0, y0, x1, y1, w) in routes["tracks"]:
         if abs(x0 - x1) < 1e-6 and abs(y0 - y1) < 1e-6:
@@ -90,20 +94,20 @@ def build(routes_path):
     B.add_zone(b, nets["GND"], pcbnew.F_Cu, priority=0, clearance=0.25, smd_solid=True)
     B.add_zone(b, nets["GND"], pcbnew.B_Cu, priority=0, clearance=0.25, smd_solid=True)
     # ---- silkscreen: short markers on the crowded front, full labels on the roomy back ----
-    for i, x in enumerate((8.8, 13.3, 17.8, 22.3)):
-        text(b, str(i + 1), x + 2.25, 74.85, 0.8)                      # servo port numbers (front)
+    for i, x in enumerate(C.SERVO_X):
+        text(b, str(i + 1), x, 67.3 if i == 5 else 69.4, 0.8)         # servo port numbers (front, above each resistor)
     for s_, y in (("S", 74.85), ("+", 77.39), ("-", 79.93)):
         text(b, s_, 6.3, y, 0.8)
     text(b, "USB", 15.0, 32.8, 0.8)
     text(b, "^ PICO 2 W", 15.0, 34.0, 0.8)
     # back side (mirrored), positioned under the parts they describe
     BS = pcbnew.B_SilkS
-    title = "KESTREL FC v1.0"
+    title = "KESTREL FC v2.0"
     tx, ty = free_spot(b, len(title) * 1.0 * 0.95 + 0.6, 1.6, [(15.0, y / 2.0) for y in range(60, 130)])
     text(b, title, tx, ty, 1.0, layer=BS, mirror=True, bold=True)
-    for i, (x, n) in enumerate(((8.8, "RING"), (13.3, "MOTOR"), (17.8, "DEPLOY"), (22.3, "AUX/CAM"))):
-        text(b, f"{i+1}:{n}", x, 70.0 - (i % 2) * 1.2, 0.8, layer=BS, mirror=True)
-    text(b, "SERVO  S + -", 15.5, 66.6, 0.8, layer=BS, mirror=True)
+    for i, (x, n) in enumerate(zip(C.SERVO_X, ("RING", "MOTOR", "CHUTE", "T1", "T2", "T3", "T4"))):
+        text(b, f"{i+1}{n}" if i >= 3 else f"{i+1}:{n}", x, 69.4 - (i % 2) * 1.2, 0.8, layer=BS, mirror=True)
+    text(b, "SERVO  S + -   (T = FIN TAB)", 17.0, 66.4, 0.8, layer=BS, mirror=True)
     text(b, "BATT 2S", 35.0, 63.4, 0.8, layer=BS, mirror=True)
     text(b, "balance plug", 35.0, 62.2, 0.8, layer=BS, mirror=True)
     text(b, "QWIIC I2C", 4.0, 64.6, 0.8, layer=BS, mirror=True, rot=90)
@@ -151,5 +155,8 @@ def drc(path):
 
 
 if __name__ == "__main__":
-    out = build(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "build", "routes.json"))
-    drc(out)
+    if len(sys.argv) > 1 and sys.argv[1] == "--drc":
+        drc(os.path.join(HERE, "kestrel_fc.kicad_pcb"))      # run in a fresh process so the patched rule severities load
+    else:
+        out = build(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "build", "routes.json"))
+        patch_project(out)

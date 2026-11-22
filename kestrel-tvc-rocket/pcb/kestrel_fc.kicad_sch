@@ -3446,7 +3446,7 @@
         (size 1 1))
       (justify right bottom))
     (uuid e1699300-ed3c-58fc-a9c5-3984ec69524b))
-  (label "AUX_PWR_EN"
+  (label "SERVO6_PWM"
     (at 210.82 78.74 180)
     (fields_autoplaced)
     (effects
@@ -3478,7 +3478,7 @@
         (size 1 1))
       (justify right bottom))
     (uuid 74a9f1fe-7e7d-57c6-bacb-b3c80d7efe82))
-  (label "IMU_INT1"
+  (label "SERVO7_PWM"
     (at 210.82 86.36 180)
     (fields_autoplaced)
     (effects
@@ -3494,7 +3494,7 @@
         (size 1 1))
       (justify right bottom))
     (uuid c5428c7c-46dd-5fed-9cdf-dcaebb6f2cd1))
-  (label "GPS_PPS"
+  (label "SERVO5_PWM"
     (at 210.82 45.72 180)
     (fields_autoplaced)
     (effects
@@ -6855,14 +6855,9 @@
         (size 1 1))
       (justify right bottom))
     (uuid 5cc1d5f2-2255-56c1-bc9f-23d8d3836476))
-  (label "IMU_INT1"
-    (at 345.44 53.34 0)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1 1))
-      (justify left bottom))
-    (uuid a6c797ba-dbf6-5fec-8862-c3439ae37a17))
+  (no_connect
+    (at 345.44 53.34)
+    (uuid 46df6275-69e9-54e6-86a6-97e3879a3a50))
   (label "+3V3"
     (at 330.2 45.72 90)
     (fields_autoplaced)
@@ -7813,14 +7808,9 @@
         (size 1 1))
       (justify right bottom))
     (uuid 3e19ae04-3070-525e-b2c3-c6055f95f2e4))
-  (label "GPS_PPS"
-    (at 345.44 208.28 0)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1 1))
-      (justify left bottom))
-    (uuid 7731dbd1-3c0b-56e7-be78-12cf2a7bacae))
+  (no_connect
+    (at 345.44 208.28)
+    (uuid 76ae1fe5-643c-562a-abd9-bf10f6c9b4cf))
   (no_connect
     (at 314.96 205.74)
     (uuid 7976a937-1773-5314-b7c1-b59f7038fc97))
@@ -8703,7 +8693,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SERVO3 DEPLOY"
+    (property "Value" "SERVO3 RELEASE"
       (at 442.42 90.36 0)
       (effects
         (font
@@ -8839,7 +8829,7 @@
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "SERVO4 AUX/CAM"
+    (property "Value" "SERVO4 TAB1"
       (at 493.22 90.36 0)
       (effects
         (font
@@ -8883,7 +8873,7 @@
         (size 1 1))
       (justify right bottom))
     (uuid e78710d3-1152-5779-a68c-e0549f8c6603))
-  (label "AUX_5V"
+  (label "5V_SERVO"
     (at 485.14 86.36 180)
     (fields_autoplaced)
     (effects
@@ -8963,24 +8953,24 @@
       (justify right bottom))
     (uuid 7c0be17f-d8c6-56b8-a04a-6e89cbe65d4f))
   (symbol
-    (lib_id "Transistor_FET:AO3401A")
+    (lib_id "Connector_Generic:Conn_01x03")
     (at 439.42 111.76 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid 8a8e7f55-fa95-5ab6-b587-5cd5417d930a)
-    (property "Reference" "Q5"
+    (uuid 6cabbf43-d3ec-59e8-9393-0eb22b8c4557)
+    (property "Reference" "J12"
       (at 442.42 107.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "AO3401A"
+    (property "Value" "SERVO5 TAB2"
       (at 442.42 115.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
       (at 439.42 111.76 0)
       (effects
         (font
@@ -8990,51 +8980,51 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "LCSC" "C15127"
+    (property "LCSC" "C49257"
       (at 439.42 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "MPN" "AO3401A"
+    (property "MPN" "Male header 1x3 2.54 mm"
       (at 439.42 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid 287d19aa-c9c1-5ac1-ab0b-ad1fec91ccff))
+      (uuid 9cbc852b-d312-5fc6-b117-48071734d1c0))
     (pin "2"
-      (uuid 39602de9-08b9-5d85-a0f0-0ceddfebd4fc))
+      (uuid f44a8383-bc3f-5b3e-93cb-5bdb43741038))
     (pin "3"
-      (uuid dcd278e9-708a-5ca0-9bd3-750186df902a))
+      (uuid a424f094-7c54-5ec4-b63e-fbd077bc56df))
     (instances
       (project "kestrel_fc"
         (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
-          (reference "Q5")
+          (reference "J12")
           (unit 1)))))
-  (label "Q5_G"
+  (label "S5"
+    (at 434.34 109.22 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid 2d1a0d41-6dd5-58a4-8b47-b70a05a46012))
+  (label "5V_SERVO"
     (at 434.34 111.76 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid 2a614f0b-2b28-5dec-b46e-260dc0e33183))
-  (label "5V_SERVO"
-    (at 441.96 116.84 270)
+    (uuid deb5a91b-8b3f-5146-8f34-229ca112c9d0))
+  (label "GND"
+    (at 434.34 114.3 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid c482ec46-a6a3-5576-aa34-9ce3be365eaf))
-  (label "AUX_5V"
-    (at 441.96 106.68 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1 1))
-      (justify left bottom))
-    (uuid 0df36167-8152-567f-a6f3-4cd5815cbc82))
+    (uuid bd85cf6a-b5e8-5ca4-ac4a-7645c088876c))
   (symbol
     (lib_id "Device:R")
     (at 464.82 111.76 0)
@@ -9042,13 +9032,13 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid bc278c41-cef0-522e-9d32-114486333e62)
-    (property "Reference" "R29"
+    (uuid ff7b58da-9d02-5708-bf70-e8a1d636e80f)
+    (property "Reference" "R37"
       (at 467.82 107.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "100k"
+    (property "Value" "220"
       (at 467.82 115.76 0)
       (effects
         (font
@@ -9063,60 +9053,60 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "LCSC" "C25741"
+    (property "LCSC" "C25091"
       (at 464.82 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "MPN" "0402 100k 1%"
+    (property "MPN" "0402 220 1%"
       (at 464.82 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid 665f1ea6-c3d4-508c-9f37-1b93b136b62f))
+      (uuid 981939c1-5328-5583-ab87-596f9d8c71b8))
     (pin "2"
-      (uuid a7d543dc-07fb-567e-a22c-0228554f5ca5))
+      (uuid fb0a5d14-30b5-511a-a39a-23cf44e3a3db))
     (instances
       (project "kestrel_fc"
         (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
-          (reference "R29")
+          (reference "R37")
           (unit 1)))))
-  (label "Q5_G"
+  (label "SERVO5_PWM"
     (at 464.82 107.95 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify left bottom))
-    (uuid 92c0491a-fdb8-57aa-83cd-adfeb11aca77))
-  (label "5V_SERVO"
+    (uuid 4ddf8baa-40e2-5a22-8b4a-7de6dccd97fa))
+  (label "S5"
     (at 464.82 115.57 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid 230bdd70-2b23-5066-ab4e-5900eefcaa52))
+    (uuid c09a51ed-5dae-5ba6-afb4-4f0debf33448))
   (symbol
-    (lib_id "Transistor_FET:2N7002")
+    (lib_id "Connector_Generic:Conn_01x03")
     (at 490.22 111.76 0)
     (unit 1)
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid 7273eb11-1b2d-5766-bd7f-6d4d9da5500d)
-    (property "Reference" "Q6"
+    (uuid 0445354e-b9b4-5c47-9146-63c142530d8e)
+    (property "Reference" "J13"
       (at 493.22 107.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "2N7002"
+    (property "Value" "SERVO6 TAB3"
       (at 493.22 115.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
       (at 490.22 111.76 0)
       (effects
         (font
@@ -9126,51 +9116,51 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "LCSC" "C8545"
+    (property "LCSC" "C49257"
       (at 490.22 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "MPN" "2N7002"
+    (property "MPN" "Male header 1x3 2.54 mm"
       (at 490.22 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid 3ef9929d-7766-5512-af99-35e7cd972633))
+      (uuid fe60dc35-0d21-5e18-8763-d521900085e9))
     (pin "2"
-      (uuid 10d5a786-b708-5118-8af3-8814a330e781))
+      (uuid b2283e8c-7a96-5410-b3bc-7fc4ffaad5a7))
     (pin "3"
-      (uuid eb4e7f39-734c-579e-bea4-8332e1f06b5c))
+      (uuid ac2606a4-3269-56cd-bc0e-cbca824265ca))
     (instances
       (project "kestrel_fc"
         (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
-          (reference "Q6")
+          (reference "J13")
           (unit 1)))))
-  (label "AUX_PWR_EN"
+  (label "S6"
+    (at 485.14 109.22 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid 25380d4a-bad1-5af0-801a-63307128dc4f))
+  (label "5V_SERVO"
     (at 485.14 111.76 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid 1739b5d2-ae09-5c37-a762-68d74e859303))
+    (uuid 77e43683-aa19-51d4-9446-54f1e70bb3e4))
   (label "GND"
-    (at 492.76 116.84 270)
+    (at 485.14 114.3 180)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid 78fc541d-40d3-56e4-bf3d-84da4b298e8f))
-  (label "Q5_G"
-    (at 492.76 106.68 90)
-    (fields_autoplaced)
-    (effects
-      (font
-        (size 1 1))
-      (justify left bottom))
-    (uuid b1694860-2268-5f3f-8eb3-f3a3e22d4d33))
+    (uuid 31d672c9-40e6-53ce-a242-50cb09efbd53))
   (symbol
     (lib_id "Device:R")
     (at 515.62 111.76 0)
@@ -9178,13 +9168,13 @@
     (in_bom yes)
     (on_board yes)
     (dnp no)
-    (uuid 39212386-5e84-5145-b554-e4475e672bf9)
-    (property "Reference" "R30"
+    (uuid 3aabb3e7-9923-57fd-bd57-f704f258422b)
+    (property "Reference" "R38"
       (at 518.62 107.76 0)
       (effects
         (font
           (size 1.27 1.27))))
-    (property "Value" "100k"
+    (property "Value" "220"
       (at 518.62 115.76 0)
       (effects
         (font
@@ -9199,41 +9189,177 @@
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "LCSC" "C25741"
+    (property "LCSC" "C25091"
       (at 515.62 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
-    (property "MPN" "0402 100k 1%"
+    (property "MPN" "0402 220 1%"
       (at 515.62 111.76 0)
       (effects
         (font
           (size 1.27 1.27)) hide))
     (pin "1"
-      (uuid d7dcbd03-7aad-5baf-b87e-34f198adaa71))
+      (uuid ac47b21a-525a-5659-b295-69dba72024b8))
     (pin "2"
-      (uuid 57bf7445-0a67-5e84-951a-a0ecf1a2d8e8))
+      (uuid c49001f6-14e0-55fa-b289-11ddd313447b))
     (instances
       (project "kestrel_fc"
         (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
-          (reference "R30")
+          (reference "R38")
           (unit 1)))))
-  (label "AUX_PWR_EN"
+  (label "SERVO6_PWM"
     (at 515.62 107.95 90)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify left bottom))
-    (uuid 9672dddf-18ec-5e13-bd8f-60c76a746307))
-  (label "GND"
+    (uuid 2f71205c-01d0-5071-8d9d-132d2306fe2d))
+  (label "S6"
     (at 515.62 115.57 270)
     (fields_autoplaced)
     (effects
       (font
         (size 1 1))
       (justify right bottom))
-    (uuid a5bf144d-cb25-5258-b043-51ffb8b3f619))
+    (uuid a5963953-8d1d-58de-a393-4b9fdc729290))
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x03")
+    (at 439.42 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid c3f04cea-d92d-52bd-a9c3-57f9c07c4fcd)
+    (property "Reference" "J14"
+      (at 442.42 133.16 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "SERVO7 TAB4"
+      (at 442.42 141.16 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+      (at 439.42 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 439.42 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "LCSC" "C49257"
+      (at 439.42 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "MPN" "Male header 1x3 2.54 mm"
+      (at 439.42 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 3264f946-dbf3-5f67-b900-b41b6a9f6585))
+    (pin "2"
+      (uuid 7e31b01d-bf0a-5f77-b51b-e61331387094))
+    (pin "3"
+      (uuid 9cc7768b-0c30-58c8-b242-d690dca38f68))
+    (instances
+      (project "kestrel_fc"
+        (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
+          (reference "J14")
+          (unit 1)))))
+  (label "S7"
+    (at 434.34 134.62 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid e0fa2bb0-6494-566e-aada-df8187137c95))
+  (label "5V_SERVO"
+    (at 434.34 137.16 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid 3407f993-67b3-5e3a-8bbd-4cd53c490db7))
+  (label "GND"
+    (at 434.34 139.7 180)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid c165912d-e281-5a22-9620-f215cc3ca4e7))
+  (symbol
+    (lib_id "Device:R")
+    (at 464.82 137.16 0)
+    (unit 1)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid 596bd883-1fc4-5284-9e0c-c8abd04c9bd5)
+    (property "Reference" "R39"
+      (at 467.82 133.16 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Value" "220"
+      (at 467.82 141.16 0)
+      (effects
+        (font
+          (size 1.27 1.27))))
+    (property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+      (at 464.82 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "Datasheet" ""
+      (at 464.82 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "LCSC" "C25091"
+      (at 464.82 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (property "MPN" "0402 220 1%"
+      (at 464.82 137.16 0)
+      (effects
+        (font
+          (size 1.27 1.27)) hide))
+    (pin "1"
+      (uuid 025b00e2-50ac-56ae-a72f-96efa83229a3))
+    (pin "2"
+      (uuid 254e8113-d1b5-5411-b3dc-20530b07d4ee))
+    (instances
+      (project "kestrel_fc"
+        (path "/6d0efa4b-c089-5491-845b-82f51ad4a6c3"
+          (reference "R39")
+          (unit 1)))))
+  (label "SERVO7_PWM"
+    (at 464.82 133.35 90)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify left bottom))
+    (uuid b44154d1-e514-5187-a861-ee654df9c4a1))
+  (label "S7"
+    (at 464.82 140.97 270)
+    (fields_autoplaced)
+    (effects
+      (font
+        (size 1 1))
+      (justify right bottom))
+    (uuid 64efa8b3-ca53-5396-a64e-452700c46177))
   (symbol
     (lib_id "Device:Buzzer")
     (at 439.42 200.66 0)

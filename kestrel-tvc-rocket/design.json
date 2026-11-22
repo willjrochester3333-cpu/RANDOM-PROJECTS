@@ -43,14 +43,15 @@
     "tip_chord": 60,
     "span": 50,
     "sweep": 50,
-    "thickness": 2.4,
+    "thickness": 2.0,
     "trailing_edge_from_tail": 0,
     "can_length": 125,
-    "can_wall": 1.2,
+    "can_wall": 1.0,
     "leg": {
       "length": 30,
       "width": 12,
-      "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins"
+      "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins",
+      "foot_base_mm2": 55.0
     },
     "tab": {
       "chord": 18,
@@ -62,7 +63,9 @@
       "servo_speed_s_per_60deg": 0.1,
       "note": "trailing-edge control tab on every fin, direct pushrod from a pod servo",
       "horn_mm": 14.5,
-      "servo_arm_mm": 6.0
+      "servo_arm_mm": 6.0,
+      "linkage_cda_mm2": 40.0,
+      "linkage_note": "per fin: servo horn + tab horn + pushrod Z-bends (~58 mm2 edge-on) and the hinge knuckle beads (~45 mm2), x cd 0.4"
     },
     "pod": {
       "frontal_area_mm2": 336.5,
@@ -82,7 +85,7 @@
     "nozzle_protrusion": 4
   },
   "recovery": {
-    "parachute_diameter_in": 24,
+    "parachute_diameter_in": 30,
     "parachute_cd": 0.8,
     "shock_cord": "2 m Kevlar 1.6 mm + elastic + swivel",
     "deploy": "nose cone pushed off by a compression spring when the single snap-in latch bolt is pulled by a servo at the top",
@@ -93,7 +96,8 @@
       "rate_n_per_mm": 1.3,
       "packed_length": 85
     },
-    "release_servo": "MG90S"
+    "release_servo": "MG90S",
+    "note": "30 in thin ripstop chute (24 in gave 6.7 m/s landings at the KESTREL-2 mass); packs to ~33 x 115 mm"
   },
   "launch": {
     "rod_length_m": 1.0,
@@ -122,114 +126,139 @@
       "note": "masses/positions from cad/mass_properties.json (generated from the Blender CAD)"
     },
     {
-      "name": "parachute_24in_nylon",
-      "mass_g": 18.0,
-      "z": 287,
-      "length": 110,
-      "radius": 20
+      "name": "servo_MG90S_with_horn",
+      "mass_g": 14.2,
+      "cad_ref": [
+        "servo_MG90S_tvc_ring",
+        "servo_MG90S_tvc_holder",
+        "servo_MG90S_tab1",
+        "servo_MG90S_tab2",
+        "servo_MG90S_tab3",
+        "servo_MG90S_tab4",
+        "servo_MG90S_release"
+      ],
+      "note": "MG90S 13.4 g incl. 25 cm lead + horn and screws; one entry per servo, position from the CAD"
     },
     {
-      "name": "kevlar_cord_elastic_swivel",
-      "mass_g": 10.0,
-      "z": 300,
-      "length": 60,
-      "radius": 20
+      "name": "pushrods_1.2mm",
+      "mass_g": 0.7,
+      "cad_ref": [
+        "pushrod_ring_1.2mm",
+        "pushrod_holder_1.2mm",
+        "pushrod_tab1_1.2mm",
+        "pushrod_tab2_1.2mm",
+        "pushrod_tab3_1.2mm",
+        "pushrod_tab4_1.2mm"
+      ]
     },
     {
-      "name": "spring_25x60",
-      "mass_g": 5.0,
-      "z": 359,
-      "length": 20,
-      "radius": 12
+      "name": "servo_extension_tab",
+      "mass_g": 2.0,
+      "cad_ref": [
+        "lead_tab1",
+        "lead_tab2",
+        "lead_tab3",
+        "lead_tab4"
+      ],
+      "note": "15 cm servo extension each"
     },
     {
-      "name": "deploy_servo_mg90s_horn",
-      "mass_g": 14.4,
-      "z": 404,
-      "length": 29,
-      "radius": 8
+      "name": "servo_extension_release",
+      "mass_g": 6.0,
+      "cad_ref": [
+        "lead_release"
+      ],
+      "note": "30 cm extension + routing clips; plug sits at the middle/bottom joint"
     },
     {
-      "name": "latch_wire_links",
-      "mass_g": 1.0,
-      "z": 383,
-      "length": 10,
-      "radius": 15
+      "name": "flight_computer_pcb",
+      "mass_g": 12.0,
+      "cad_ref": [
+        "pcb_kestrel_fc_40x82"
+      ]
     },
     {
-      "name": "gps_patch_antenna_cable",
-      "mass_g": 8.0,
-      "z": 375,
-      "length": 5,
-      "radius": 10
+      "name": "pico2w_on_sockets",
+      "mass_g": 7.0,
+      "cad_ref": [
+        "pico2w_on_sockets"
+      ]
     },
     {
-      "name": "flight_computer_pcb_pico",
-      "mass_g": 21.0,
-      "z": 460,
-      "length": 80,
-      "radius": 12
+      "name": "fc_connectors_buzzer",
+      "mass_g": 3.0,
+      "cad_ref": [
+        "fc_connectors_buzzer_switch"
+      ]
     },
     {
-      "name": "lipo_2s_200mah",
-      "mass_g": 13.0,
-      "z": 467.5,
-      "length": 45,
-      "radius": 10,
-      "note": "2S 7.4 V 200 mAh 25C+ LiPo, JST-XH balance lead powers the board (~45 x 30 x 10 mm, 12-14 g)"
+      "name": "lipo_overlander_350_2s_plus_adapter",
+      "mass_g": 24.0,
+      "cad_ref": [
+        "lipo_overlander_350_2s"
+      ]
+    },
+    {
+      "name": "gps_patch_antenna",
+      "mass_g": 5.5,
+      "cad_ref": [
+        "gps_patch_antenna_15mm"
+      ]
     },
     {
       "name": "camera_sq12_class",
       "mass_g": 16.0,
-      "z": 520.5,
-      "length": 24,
-      "radius": 30,
-      "z_note": "from CAD: camera centre 423.5 mm above tail (pod base = av-bay bottom - 30 mm)"
+      "cad_ref": [
+        "camera_SQ12_class"
+      ]
     },
     {
-      "name": "servo_extension_cables",
+      "name": "parachute_30in_nylon",
+      "mass_g": 24.0,
+      "cad_ref": [
+        "parachute_packed"
+      ]
+    },
+    {
+      "name": "kevlar_cord_elastic_swivel",
       "mass_g": 10.0,
-      "z": 644,
-      "length": 350,
-      "radius": 20,
-      "z_note": "from CAD assembly height 300 mm above tail"
+      "cad_ref": [
+        "shock_cord_kevlar_elastic"
+      ]
     },
     {
-      "name": "tvc_servos_mg90s_x2",
-      "mass_g": 26.8,
-      "z": 817,
-      "length": 48,
-      "radius": 12,
-      "z_note": "from CAD assembly: servo bodies centred ~127 mm above tail"
+      "name": "ejection_spring",
+      "mass_g": 6.0,
+      "cad_ref": [
+        "ejection_spring"
+      ]
     },
     {
-      "name": "pushrods_1p2mm_wire",
-      "mass_g": 3.0,
-      "z": 847,
-      "length": 90,
-      "radius": 20,
-      "z_note": "from CAD assembly height ~97 mm above tail"
+      "name": "latch_spring_link",
+      "mass_g": 0.3,
+      "cad_ref": [
+        "latch_spring_link_0.6mm"
+      ]
     },
     {
       "name": "burnthrough_washer_m10",
       "mass_g": 5.0,
-      "z": 855,
+      "z_above_tail": 95.5,
       "length": 2,
-      "radius": 10,
-      "z_note": "from CAD assembly height 89 mm above tail"
+      "radius": 10
     },
     {
-      "name": "screws_nuts",
-      "mass_g": 8.0,
-      "z": 560,
-      "length": 500,
+      "name": "screws_nuts_pins",
+      "mass_g": 10.0,
+      "z_above_tail": 300,
+      "length": 600,
       "radius": 20
     },
     {
       "name": "glue_tape_paint_allowance",
-      "mass_g": 10.0,
-      "z": 470,
-      "length": 800,
+      "mass_g": 15.0,
+      "z_above_tail": 400,
+      "length": 850,
       "radius": 28
     }
   ],
@@ -246,7 +275,7 @@
     "bay_length": 130,
     "door_width": 32,
     "door_height": 50,
-    "note": "payload bay = lower section of the middle part, under the wall; side door with hinge + turn lock"
+    "note": "payload bay = lower section of the middle part, under the wall; side door with a hinge + quarter-turn latch. The simulator adds the payload at the bay floor (nominal 25 g, max 50 g)"
   },
   "battery": {
     "part": "Overlander 350 mAh 2S 25C (OL-3492)",

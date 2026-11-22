@@ -1,4 +1,4 @@
-"""KESTREL-1 rocket model: geometry, mass properties, Barrowman aerodynamics and drag build-up.
+"""KESTREL-2 rocket model: geometry, mass properties, Barrowman aerodynamics, control tabs and drag build-up.
 
 Everything is driven by the project-level ``design.json`` so that the simulator,
 the Blender CAD generator and the firmware configuration never disagree.
@@ -98,6 +98,7 @@ class Rocket:
     extra_mass: list = field(default_factory=list)   # [(name, kg, z_m)] for Monte-Carlo / payload tweaks
     mass_scale: float = 1.0
     cg_shift: float = 0.0                              # m, +aft
+    payload_kg: float | None = None                    # None = nominal payload from design.json
 
     def __post_init__(self):
         d = self.design
@@ -109,7 +110,8 @@ class Rocket:
         self.L_upper = af["upper_tube_length"] / 1000.0
         self.L_lower = af["lower_tube_length"] / 1000.0
         self.L_band = d["avbay"].get("band", 0) / 1000.0
-        self.L_body = self.L_upper + self.L_lower + self.L_band
+        self.L_sleeve = d["nose"].get("sleeve_length", 0) / 1000.0      # body-diameter sleeve at the nose base
+        self.L_body = self.L_upper + self.L_lower + self.L_band + self.L_sleeve
         self.z_tail = self.L_nose + self.L_body
         self.length = self.z_tail + d["tvc"]["nozzle_protrusion"] / 1000.0
         f = d["fins"]
@@ -142,12 +144,24 @@ class Rocket:
 
     def _build_components(self):
         comps = []
+        pos_path = os.path.join(ROOT, "cad", "component_positions.json")
+        pos = json.load(open(pos_path)) if os.path.exists(pos_path) else {}
         for c in self.design["components"]:
             if c.get("auto") == "upper_tube":
-                comps.append(("upper_tube", self._tube_mass(self.L_upper), self.L_nose + self.L_upper / 2, self.L_upper, self.R))
+                z0 = self.L_nose + self.L_sleeve
+                comps.append(("upper_tube", self._tube_mass(self.L_upper), z0 + self.L_upper / 2, self.L_upper, self.R))
             elif c.get("auto") == "lower_tube":
-                z0 = self.L_nose + self.L_upper
+                z0 = self.L_nose + self.L_sleeve + self.L_upper + self.L_band
                 comps.append(("lower_tube", self._tube_mass(self.L_lower), z0 + self.L_lower / 2, self.L_lower, self.R))
+            elif "cad_ref" in c:
+                refs = c["cad_ref"] if isinstance(c["cad_ref"], list) else [c["cad_ref"]]
+                for ref in refs:
+                    q = pos[ref]
+                    comps.append((ref, c["mass_g"] / 1000.0, q["z_from_tip"] / 1000.0, q["length"] / 1000.0,
+                                  q["radius"] / 1000.0))
+            elif "z_above_tail" in c:
+                comps.append((c["name"], c["mass_g"] / 1000.0, self.z_tail - c["z_above_tail"] / 1000.0, c["length"] / 1000.0,
+                              c["radius"] / 1000.0))
             elif c.get("auto") == "fin_can":
                 f = self.design["fins"]
                 comps.append(("fin_can", self.fin_can_mass(), self.z_tail - f["can_length"] / 2000.0, f["can_length"] / 1000.0, self.R + self.fin_s / 2))
@@ -157,6 +171,11 @@ class Rocket:
                     comps.append(("cad:" + q["name"], q["mass_g"] / 1000.0, q["z"] / 1000.0, q["length"] / 1000.0, q["radius"] / 1000.0))
             else:
                 comps.append((c["name"], c["mass_g"] / 1000.0, c["z"] / 1000.0, c["length"] / 1000.0, c["radius"] / 1000.0))
+        pl = self.design["payload"]["nominal_mass_g"] / 1000.0 if self.payload_kg is None else self.payload_kg
+        if pl > 0:
+            q = pos.get("payload_example_25g", {"z_from_tip": (self.L_nose + self.L_sleeve + self.L_upper - 0.115) * 1000,
+                                                "length": 30.0, "radius": 15.0})
+            comps.append(("payload", pl, q["z_from_tip"] / 1000.0, q["length"] / 1000.0, q["radius"] / 1000.0))
         for name, m, z in self.extra_mass:
             comps.append((name, m, z, 0.0, 0.0))
         self.components = comps
@@ -171,7 +190,8 @@ class Rocket:
             m_list.append(m)
             z_list.append(z)
             k2_lat.append(L ** 2 / 12.0 + r ** 2 / 4.0)
-            k2_roll.append(r ** 2 / 2.0)
+            # CAD parts and tubes are shells/plates: their radius is a radius of gyration; small parts are solid
+            k2_roll.append(r ** 2 if (name.startswith("cad:") or name.endswith("_tube")) else r ** 2 / 2.0)
         if include_motor:
             mm = self.motor.m_case + self.motor.prop_mass(t)
             m_list.append(mm)
@@ -213,6 +233,34 @@ class Rocket:
         out.append(("fins", cna_f, xf))
         return out
 
+    # ---- control tabs -------------------------------------------------------
+    def fin_angles_deg(self):
+        f = self.design["fins"]
+        return [f.get("first_fin_deg", 0.0) + 360.0 * k / self.fin_n for k in range(self.fin_n)]
+
+    def fin_cna_single(self, mach: float = 0.0) -> float:
+        """normal-force slope of ONE fin along its own normal (per rad, ref. area A_ref), incl. body interference.
+        For N >= 3 fins the set gives (N/2) x this in any plane."""
+        return 2.0 * self.cn_alpha_components(mach)[1][1] / self.fin_n
+
+    def tab_params(self, mach: float = 0.0):
+        """(E, z_cp, r_cp): tab force = q * E * delta (delta in rad) along the fin normal, acting z_cp from the tip at
+        radius r_cp. E = A_ref * CNa(one fin) * tau * (fraction of the fin planform spanned by the tab)."""
+        f = self.design["fins"]
+        tab = f["tab"]
+        cr, ct, s = f["root_chord"], f["tip_chord"], f["span"]
+        a, b = tab["r_from"], tab["r_to"]
+
+        def area(y0, y1):          # integral of the chord between two span stations (straight taper)
+            return cr * (y1 - y0) - (cr - ct) * (y1 ** 2 - y0 ** 2) / (2 * s)
+        frac = area(a, b) / area(0, s)
+        k_tab = tab["effectiveness"] * frac
+        ym = (a + b) / 2
+        chord_m = cr - (cr - ct) * ym / s
+        z_cp = self.z_tail - f["trailing_edge_from_tail"] / 1000.0 - chord_m / 2000.0
+        r_cp = self.R + f["can_wall"] / 1000.0 + ym / 1000.0
+        return self.A_ref * self.fin_cna_single(mach) * k_tab, z_cp, r_cp
+
     def cn_alpha_cp(self, mach: float = 0.0, alpha: float = 0.0):
         comps = self.cn_alpha_components(mach)
         cna = sum(c[1] for c in comps)
@@ -239,7 +287,9 @@ class Rocket:
         S_body = math.pi * self.D * self.L_body
         cr, ct, s, sweep, lm = self.fin_geometry()
         S_fin_planform = 0.5 * (cr + ct) * s
-        S_fins = 2.0 * self.fin_n * S_fin_planform
+        leg = self.design["fins"].get("leg")
+        S_legs = 2.0 * self.fin_n * (leg["length"] * leg["width"] * 1e-6) if leg else 0.0
+        S_fins = 2.0 * self.fin_n * S_fin_planform + S_legs
         return S_nose, S_body, S_fins, S_fin_planform
 
     def cd0(self, v: float, motor_on: bool, rho: float = 1.225, mu: float = 1.81e-5, sos: float = 340.3,
@@ -283,7 +333,15 @@ class Rocket:
         lug_area = 2 * (0.0090 ** 2 - 0.0068 ** 2) * math.pi / 4 + 2 * 0.009 * 0.0012
         cd_lugs = 1.2 * lug_area / self.A_ref
         cd_gap = 0.01  # TVC gimbal gap / nozzle step
-        cd = (cd_fric_body + cd_fric_fins + cd_fin_le + cd_fin_te + cd_nose + cd_base + cd_pod + cd_lugs + cd_gap)
+        # KESTREL-2 control fins: tab-servo pods, linkages (horns, pushrods, hinge beads), blunt feet under the legs
+        fd = self.design["fins"]
+        cd_ctrl = 0.0
+        if fd.get("pod"):
+            cd_ctrl += fd["pod"]["cd"] * fd["pod"]["frontal_area_mm2"] * 1e-6 * self.fin_n / self.A_ref
+        cd_ctrl += fd.get("tab", {}).get("linkage_cda_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
+        if fd.get("leg"):
+            cd_ctrl += cd_base_coef * fd["leg"].get("foot_base_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
+        cd = (cd_fric_body + cd_fric_fins + cd_fin_le + cd_fin_te + cd_nose + cd_base + cd_pod + cd_lugs + cd_gap + cd_ctrl)
         cd *= 1.08   # parasitic allowance (tape, joints, fin can step)
         return cd * cd_scale
 

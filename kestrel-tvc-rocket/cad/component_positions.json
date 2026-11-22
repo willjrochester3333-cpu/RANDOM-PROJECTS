@@ -57,7 +57,12 @@
  "pushrod_tab1_1.2mm": {
   "z_from_tip": 871.9,
   "length": 23.0,
-  "radius": 60.4
+  "radius": 60.3
+ },
+ "hinge_pin_tab1_1.2mm": {
+  "z_from_tip": 882.8,
+  "length": 1.2,
+  "radius": 63.1
  },
  "servo_MG90S_tab2": {
   "z_from_tip": 855.6,
@@ -72,7 +77,12 @@
  "pushrod_tab2_1.2mm": {
   "z_from_tip": 871.9,
   "length": 23.0,
-  "radius": 60.4
+  "radius": 60.3
+ },
+ "hinge_pin_tab2_1.2mm": {
+  "z_from_tip": 882.8,
+  "length": 1.2,
+  "radius": 63.1
  },
  "servo_MG90S_tab3": {
   "z_from_tip": 855.6,
@@ -87,7 +97,12 @@
  "pushrod_tab3_1.2mm": {
   "z_from_tip": 871.9,
   "length": 23.0,
-  "radius": 60.4
+  "radius": 60.3
+ },
+ "hinge_pin_tab3_1.2mm": {
+  "z_from_tip": 882.8,
+  "length": 1.2,
+  "radius": 63.1
  },
  "servo_MG90S_tab4": {
   "z_from_tip": 855.6,
@@ -102,7 +117,12 @@
  "pushrod_tab4_1.2mm": {
   "z_from_tip": 871.9,
   "length": 23.0,
-  "radius": 60.4
+  "radius": 60.3
+ },
+ "hinge_pin_tab4_1.2mm": {
+  "z_from_tip": 882.8,
+  "length": 1.2,
+  "radius": 63.1
  },
  "servo_MG90S_release": {
   "z_from_tip": 186.1,
@@ -144,15 +164,15 @@
   "length": 4.0,
   "radius": 10.6
  },
- "parachute_24in_packed": {
-  "z_from_tip": 257.7,
-  "length": 92.0,
-  "radius": 21.6
+ "parachute_packed": {
+  "z_from_tip": 247.7,
+  "length": 112.0,
+  "radius": 23.6
  },
  "shock_cord_kevlar_elastic": {
-  "z_from_tip": 199.2,
-  "length": 22.0,
-  "radius": 13.1
+  "z_from_tip": 180.7,
+  "length": 20.0,
+  "radius": 14.1
  },
  "camera_SQ12_class": {
   "z_from_tip": 685.5,
@@ -177,27 +197,27 @@
   "path_length_mm": 132.0
  },
  "lead_tab1": {
-  "z_from_tip": 755.9,
+  "z_from_tip": 755.8,
   "length": 206.4,
-  "radius": 30.9,
+  "radius": 30.8,
   "path_length_mm": 218.0
  },
  "lead_tab2": {
   "z_from_tip": 753.7,
   "length": 206.4,
-  "radius": 30.9,
+  "radius": 30.8,
   "path_length_mm": 224.0
  },
  "lead_tab3": {
   "z_from_tip": 752.8,
   "length": 206.4,
-  "radius": 30.9,
+  "radius": 30.8,
   "path_length_mm": 225.0
  },
  "lead_tab4": {
-  "z_from_tip": 752.1,
+  "z_from_tip": 752.0,
   "length": 206.4,
-  "radius": 30.9,
+  "radius": 30.8,
   "path_length_mm": 226.0
  },
  "lead_release": {

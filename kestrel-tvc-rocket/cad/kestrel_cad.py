@@ -674,10 +674,12 @@ def fin_local():
             (TIP_R, FOOT_Z + 1.0), (TIP_R, ct), (CAN_RO - 0.6, cr)]
     f = xz_plate(prof, FT)
     f = f + bx(LEG_R0 + 4.6, TIP_R - 1.6, -3.0, 3.0, FOOT_Z, FOOT_Z + 2.6)                     # foot pad
-    f = f + xcyl(HINGE_RB, TIP_R - TAB_R0 - 1.0, 32).translate(((TAB_R0 + TIP_R - 1.0) / 2, 0, HINGE_Z))   # hinge rib
+    f = f + xcyl(HINGE_RB, TAB_R1 - TAB_R0, 32).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))   # knuckle bead
     f = f - bx(TAB_R0 + KN, TAB_R1 - KN, -5, 5, -1.0, TABP["chord"] + 0.4)                    # tab cut-out
     f = f - bx(TAB_R0, TAB_R1, -5, 5, -1.0, HINGE_Z - HINGE_RB - 0.4)                          # (under the fin knuckles too)
-    f = f - xcyl(0.62, TIP_R - TAB_R0, 16).translate(((TAB_R0 + 0.6 + TIP_R + 1.0) / 2, 0, HINGE_Z))   # hinge-pin hole from the tip
+    # the two fin knuckles are C-clips: the tab's 1.2 mm wire pin snaps in from behind through a 0.95 mm slot
+    f = f - xcyl(0.63, TAB_R1 - TAB_R0 + 1.0, 16).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
+    f = f - bx(TAB_R0 - 0.5, TAB_R1 + 0.5, -0.475, 0.475, HINGE_Z - HINGE_RB - 1.0, HINGE_Z)
     return f
 
 
@@ -711,8 +713,12 @@ def tab_local(delta=0.0):
     horn = bx(HORN_X - 0.8, HORN_X + 0.8, 0.0, PUSH_Y + 2.0, HINGE_Z - 3.6, HINGE_Z + 1.6)
     horn = horn - xcyl(0.7, 4, 16).translate((HORN_X, PUSH_Y, HINGE_Z))
     t = t + horn
-    t = t - xcyl(0.7, TAB_R1 - TAB_R0 + 2, 16).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
+    t = t - xcyl(0.62, TAB_R1 - TAB_R0 + 2, 16).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))   # pin glued in the tab
     return t.translate((0, 0, -HINGE_Z)).rotate((delta, 0, 0)).translate((0, 0, HINGE_Z))
+
+
+def tab_pin_local():
+    return xcyl(0.6, TAB_R1 - TAB_R0 - 0.4, 12).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
 
 
 def tab_servo_local():
@@ -751,7 +757,6 @@ def fin_can(M):
         m = m + polar(fin, a) + polar(pod, a)
     for a in FIN_ANG:
         m = m - polar(hole, a)
-        m = m - polar(xcyl(0.62, TIP_R - TAB_R0, 16).translate(((TAB_R0 + 0.6 + TIP_R + 1.0) / 2, 0, HINGE_Z)), a)
     # fin #1 marker pip (fin at FIN_ANG[0]) on both faces near the root
     for sy in (1, -1):
         m = m + polar(ycyl(1.5, 1.2, 24).translate((CAN_RO + 14.0, sy * (FT / 2 + 0.5), 95.0)), FIN_ANG[0])
@@ -767,7 +772,7 @@ def fin_tabs(M):
     t = tab_local(0.0)
     inst = [polar(t, a) for a in FIN_ANG]
     return register("fin_control_tab", inst[0], M["blue"], print_rot=(90, 0, 0), qty=NF, inst=inst, part="bottom",
-                    note="PETG, print flat. Hinge pin: 1.2 mm music wire pushed in from the fin tip (drop of CA at the tip)")
+                    note="PETG, print flat. Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips")
 
 
 def upper_lug(M):
@@ -944,6 +949,7 @@ def purchased(M, tab_delta=0.0, latch_open=False):
         out[f"servo_MG90S_tab{k + 1}"] = (polar(tab_servo_local(), a), M["servo"])
         out[f"horn_tab{k + 1}"] = (polar(tab_horn_local(psi), a), M["horn"])
         out[f"pushrod_tab{k + 1}_1.2mm"] = (polar(tab_pushrod_local(dz), a), M["steel"])
+        out[f"hinge_pin_tab{k + 1}_1.2mm"] = (polar(tab_pin_local(), a), M["steel"])
     # release servo, horn, spring link
     phi = 30.0 if latch_open else 0.0
     out["servo_MG90S_release"] = (release_servo_solid(0.0), M["servo"])
@@ -977,8 +983,8 @@ def purchased(M, tab_delta=0.0, latch_open=False):
     out["fc_connectors_buzzer_switch"] = (parts_fc, M["servo"])
     out["lipo_overlander_350_2s"] = (box(BATT["w"], BATT["t"], BATT["l"], 0, BATT["y0"] + BATT["t"] / 2 + 0.5, BATT["z0"] + BATT["l"] / 2), M["lipo"])
     out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, 0, 0, SH_TOP - 2.05), M["antenna"])
-    out["parachute_24in_packed"] = (cyl(15.5, 92.0, Z_PISTON + 3.5, 6.0, -1.0, segs=48), M["nylon"])
-    out["shock_cord_kevlar_elastic"] = (cyl(7.0, 22.0, Z_PISTON + 97.0, 6.0, -1.0, segs=32), M["cord"])
+    out["parachute_packed"] = (cyl(16.5, 112.0, Z_PISTON + 3.5, 7.0, -1.0, segs=48), M["nylon"])
+    out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 116.5, 7.0, -1.0, segs=32), M["cord"])
     cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)
     out["camera_SQ12_class"] = (cam, M["camera"])
     out["payload_example_25g"] = (bx(-8.0, 16.0, -12.0, 12.0, Z_FLOOR + 0.2, Z_FLOOR + 30.0), M["payload"])
@@ -1485,7 +1491,7 @@ def main():
               "payload_door_frame", LOWER_TUBE, MID_TUBE}
     cut_sets = {"Section av-bay": (4.5, shells | {"avbay_sled", "lipo_overlander_350_2s"}),
                 "Section TVC": (0.0, shells),
-                "Section latch": (BOLT_Y, shells | {"latch_bolt", "parachute_24in_packed", "shock_cord_kevlar_elastic"})}
+                "Section latch": (BOLT_Y, shells | {"latch_bolt", "parachute_packed", "shock_cord_kevlar_elastic"})}
     for cname, cut in cut_sets.items():
         cc = collection(cname)
         add_solids(rocket_items(buy, cut=cut, skip=("upper_launch_lug",)), cc, suffix="_" + cname[-3:])
@@ -1574,7 +1580,7 @@ def main():
     # rocket hangs from the cord leaving the open top of the middle tube; nose cone on the cord in between
     tilt = 14.0
     hang = (60.0, 0.0, 950.0)
-    skip = {"nose_cone", "parachute_24in_packed", "shock_cord_kevlar_elastic", "pad_rod_stop"}
+    skip = {"nose_cone", "parachute_packed", "shock_cord_kevlar_elastic", "pad_rod_stop"}
     rk = [it for it in rocket_items(buy, skip=skip)]
     ob_list = add_solids(rk, c_ch)
     lead_objects(M, c_ch)

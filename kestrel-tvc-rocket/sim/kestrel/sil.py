@@ -67,7 +67,7 @@ class SilFsw:
         self.h = None
         self._g = (ctypes.c_float * 3)()
         self._a = (ctypes.c_float * 3)()
-        self._o = (ctypes.c_float * 11)()
+        self._o = (ctypes.c_float * 24)()
         self.trace = []
 
     def reset(self, sim):
@@ -88,10 +88,11 @@ class SilFsw:
         st = L.ksil_step(self.h, float(t - self.t0), self._g, self._a, 1 if baro_new else 0,
                          float(baro_pa) if baro_new else 0.0, self.vbat, self._o)
         o = self._o
-        return FswOutput(gimbal_y_deg=o[0], gimbal_z_deg=o[1], deploy=o[2] > 0.5, state=st,
+        return FswOutput(gimbal_y_deg=o[0], gimbal_z_deg=o[1], tab_deg=(o[11], o[12], o[13], o[14]), deploy=o[2] > 0.5, state=st,
                          state_name=STATE_NAMES[st] if 0 <= st < len(STATE_NAMES) else "?",
                          extra=dict(alt_est=o[4], vz_est=o[5], tilt=o[6], deploy_reason=int(o[7]), abort=o[8] > 0.5,
-                                    baro_alt=o[9], max_alt=o[10]))
+                                    baro_alt=o[9], max_alt=o[10], roll_est=o[15], qbar_est=o[16], tab_share=o[17],
+                                    fins_active=o[18] > 0.5))
 
     def __del__(self):
         try:

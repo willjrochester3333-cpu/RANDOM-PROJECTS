@@ -34,6 +34,35 @@ struct TvcGains {
     float soft_start_s{0.20f};    // gain ramp while on the launch rod
 };
 
+// Four servo-driven control tabs (one per fin, X layout). Roll is held in BOOST and COAST (the TVC cannot
+// control roll); pitch/yaw are shared with the TVC in BOOST (by available authority) and handled by the tabs
+// alone in COAST, when the motor has burnt out.
+struct FinGains {
+    bool enabled{true};
+    float roll_kp{90.0f};          // rad/s^2 per rad of roll-angle error
+    float roll_kd{14.0f};          // rad/s^2 per rad/s of roll rate
+    float coast_kp{45.0f};         // pitch/yaw in COAST: rad/s^2 per rad of attitude error
+    float coast_kd{9.0f};          // rad/s^2 per rad/s
+    bool coast_hold_attitude{true};// false: COAST only damps pitch/yaw rates
+    float boost_share{1.0f};       // 0..1 scales the tabs' share of the pitch/yaw demand in BOOST
+    float max_tab_deg{15.0f};
+    float q_floor_pa{60.0f};       // never divide by less dynamic pressure than this
+    float v_min_mps{6.0f};         // below this airspeed estimate the tabs stay centred
+    float roll_program_dps{0.0f};  // >0: turn the camera round at this rate during COAST (panorama)
+    float rate_lpf_hz{30.0f};
+    float spin_guard_dps{150.0f};  // COAST: above this roll rate the tabs only fight the roll (pitch/yaw suspended)
+    float coast_giveup_deg{25.0f}; // COAST: further than this off target => tabs centred for the rest of the flight
+};
+
+// Airframe constants for the tab mixer (generated with the motor table from design.json)
+struct Airframe {
+    float tab_E_m2;                // tab normal force = qbar * E * delta[rad], along the fin normal
+    float tab_r_m;                 // radius of that force (roll arm)
+    float tab_dz_m;                // tab centre of pressure aft of the gimbal pivot (tab lever = CG->pivot + this)
+    float i_roll;                  // roll inertia, kg m^2
+    float fin_deg[4];              // fin angles in the body y-z plane, from +y towards +z
+};
+
 struct FlightLogicConfig {
     float launch_accel_g{2.0f};          // body-axis specific force for launch detect
     float launch_hold_s{0.030f};
@@ -63,9 +92,11 @@ struct KfConfig {
 
 struct Config {
     TvcGains tvc;
+    FinGains fins;
     FlightLogicConfig logic;
     KfConfig kf;
     const MotorProfile* motor{nullptr};
+    const Airframe* airframe{nullptr};   // nullptr = no tabs (KESTREL-1 airframe)
 };
 
 }  // namespace kestrel

@@ -56,6 +56,8 @@ enum class Buzz : uint8_t { OFF = 0, CHIRP_READY, FAST_ERROR, DESCENT_BEACON, LA
 struct ActuatorCmd {
     float gimbal_y_deg{0};      // commanded rotation of the thrust line about body y
     float gimbal_z_deg{0};      // commanded rotation of the thrust line about body z
+    float tab_deg[4]{0, 0, 0, 0};  // control tabs: + = force along the fin normal (towards +roll), see FinGains
+    bool fins_active{false};
     bool deploy_release{false}; // true = latch pins retracted (parachute released)
     bool tvc_active{false};
     bool camera_power{false};
@@ -83,7 +85,9 @@ struct LogRecord {
     int16_t gps_alt_m;
     uint8_t sats;
     uint8_t reserved;
-    float q[3];                 // attitude quaternion x,y,z (w recoverable)
+    int16_t q_i16[3];           // attitude quaternion x,y,z x 32767 (w recoverable, sign w >= 0)
+    int8_t tab_qdeg[4];         // control-tab commands, 0.25 deg
+    int16_t roll_cdeg;          // roll angle since launch, centi-deg
     uint16_t crc16;             // CRC-16/CCITT of the preceding 62 bytes
 };
 #pragma pack(pop)
