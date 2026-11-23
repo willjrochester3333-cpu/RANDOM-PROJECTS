@@ -11,7 +11,7 @@ How to read the prices:
 - Links marked **search** open an Amazon UK search for the exact brand and type; pick the listing sold by the
   brand or by Amazon. (Product pages on Amazon change too often to link one by one.)
 
-Assumed you already have: a 3D printer that prints PETG, a craft knife, a drill with 2 mm, 3.3 mm and 6 mm bits,
+Assumed you already have: a 3D printer that prints PETG, a craft knife, a drill (or pin vice) with 1.3 mm, 2 mm, 3.3 mm and 6 mm bits,
 needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No soldering iron is needed.**
 
 ## 1. Flight computer and electronics
@@ -58,7 +58,8 @@ Some SQ12 clones stop recording in 1080p after a while; record in 720p if yours 
 | 19 | Superglue (CA) | 1 | **Loctite** Super Glue | Amazon UK [search](https://www.amazon.co.uk/s?k=Loctite+super+glue) | ≈ £5 |
 | 20 | Filler primer spray (+ a colour if you like) | 1–2 cans | **Rust-Oleum** filler primer (or Halfords) | Amazon UK [search](https://www.amazon.co.uk/s?k=Rust-Oleum+filler+primer) | ≈ £8–14 |
 | 21 | Hook-and-loop strap 10–20 mm | 1 | **VELCRO** brand ONE-WRAP | Amazon UK [search](https://www.amazon.co.uk/s?k=VELCRO+ONE-WRAP) | ≈ £5 |
-| 22 | Screws, nuts and washers (list below) | kit | **Accu** (UK) or a branded M2.5/M3/M4 assortment | [accu.co.uk](https://accu.co.uk/) or Amazon UK [search](https://www.amazon.co.uk/s?k=M3+stainless+screw+nut+assortment) | ≈ £10 |
+| 22 | Double-sided foam tape, 1–2 mm | 1 roll | **Tesa** or **3M** mounting tape | Amazon UK [search](https://www.amazon.co.uk/s?k=tesa+double+sided+foam+tape) | ≈ £4 |
+| 23 | Screws, nuts and washers (list below) | kit | **Accu** (UK) or a branded M2.5/M3/M4 assortment | [accu.co.uk](https://accu.co.uk/) or Amazon UK [search](https://www.amazon.co.uk/s?k=M3+stainless+screw+nut+assortment) | ≈ £10 |
 
 Screws used: M2.5 × 8 self-tapping (4, the PCB); M3 × 10–16 + nuts (12: av-bay 2, fin can 2, gimbal pivots 4,
 middle-part joint 2, pad legs 3, rod stop 1); the small screws that come with the servos (servo tabs); M4 × 16 (4,
@@ -69,11 +70,11 @@ tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt
 
 | # | Item | Qty | Brand / exact part | Where | Price |
 |---|---|---|---|---|---|
-| 23 | Hardwood dowel 22 mm × 2.4 m (cut 3 × 600 mm) | 1 | any (DIY store) | Wickes / B&Q | ≈ £8 |
-| 24 | Steel rod 6 mm × 1 m (1.5 m in strong wind, see the test plan) | 1 | silver steel or stainless | B&Q / Amazon UK [search](https://www.amazon.co.uk/s?k=6mm+steel+rod+1m) | ≈ £8 |
-| 25 | Ceramic floor tile 200 × 200 mm (blast plate the rocket stands on) | 1 | any | Wickes / B&Q / Topps Tiles | ≈ £3 |
-| 26 | Tent pegs | 3 | **Vango** or **Coleman** | Amazon UK [search](https://www.amazon.co.uk/s?k=Vango+tent+pegs) | ≈ £5 |
-| 27 | Launch controller with safety key (skip if your club provides one) | 1 | e.g. **Estes** Electron Beam | UK rocketry shops | ≈ £20 |
+| 24 | Hardwood dowel 22 mm × 2.4 m (cut 3 × 600 mm) | 1 | any (DIY store) | Wickes / B&Q | ≈ £8 |
+| 25 | Steel rod 6 mm × 1 m; optional second rod 6 mm × 1.5 m for winds above 3 m/s (see the test plan) | 1 | silver steel or stainless | B&Q / Amazon UK [search](https://www.amazon.co.uk/s?k=6mm+steel+rod+1m) | ≈ £8 |
+| 26 | Ceramic floor tile 200 × 200 mm (blast plate the rocket stands on) | 1 | any | Wickes / B&Q / Topps Tiles | ≈ £3 |
+| 27 | Tent pegs | 3 | **Vango** or **Coleman** | Amazon UK [search](https://www.amazon.co.uk/s?k=Vango+tent+pegs) | ≈ £5 |
+| 28 | Launch controller with safety key (skip if your club provides one) | 1 | e.g. **Estes** Electron Beam | UK rocketry shops | ≈ £20 |
 
 ## 6. Motors (per flight, not in the build total)
 
@@ -96,13 +97,13 @@ mass) and the 29 mm F35 (does not fit the 24 mm gimbal).
 | 1. Flight computer + electronics (without charger) | ≈ 100 |
 | 2. Servos, wiring, linkages | ≈ 37 |
 | 3. Camera + card | ≈ 20 |
-| 4. Airframe, recovery, consumables | ≈ 116 |
+| 4. Airframe, recovery, consumables | ≈ 120 |
 | 5. Launch pad (without controller) | ≈ 24 |
-| **Total** | **≈ £297** |
-| with one primer can and a cheaper 30 in chute | ≈ £285 |
+| **Total** | **≈ £301** |
+| with one primer can and a cheaper 30 in chute | ≈ £289 |
 | plus charger / launch controller if you have neither | + £35–48 |
 
-This is about **£10–30 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
+This is about **£20–30 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
 four more servos, the bigger 30 in parachute it needs for gentle landings at its weight, and the ejection spring,
 which RS only sells in packs of 10 (£21). Biggest single item: the PCB order (≈ £80), which gives you **two**
 assembled flight computers.

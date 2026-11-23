@@ -179,7 +179,10 @@ and `rollprog` turns the coast into a slow camera panorama.
 | Build-guide walk-through | the GPS antenna bias resistor would put 3.3 V on a passive antenna | R24 not fitted |
 | Passive-flight scenarios | with every steering servo dead the rocket is safe in 3 m/s but not in 6 m/s | wind limit 3 m/s for flights 1–3; 1.5 m rod above 3 m/s |
 | Balance check | the limit did not allow for an empty payload bay | limit 640 mm from the nose tip |
-| Firmware tests | a synthetic boost was too strong for the rated-impulse timing | test profile corrected; 377,492 core checks pass |
+| Firmware tests | a synthetic boost was too strong for the rated-impulse timing | test profile corrected; 377,489 core checks pass |
+| New overhang check (every STL in its print orientation) | flat 55 mm ceilings printed in mid-air (nose bulkhead, parachute wall), a piston and a door laid the wrong way up, an unsupported GPS shelf, hanging nut blocks and lug | 45° conical nose bulkhead, wall skirt moved up, orientations fixed, gusseted GPS platform, 45° wedges: only 4 parts still need supports, and the check now runs on every CAD build |
+| GPS platform re-design | the old antenna shelf sat 20 mm above the Pico's USB socket and had no way out for the antenna lead | U-shaped platform beside the socket: a USB cable plugs in with the av-bay assembled |
+| New CAD ↔ design check | the TVC linkage is 9 mm horn / 18 mm arm = 0.50 gimbal degrees per servo degree, but firmware and simulator assumed 0.42 (the gimbal would have moved 19 % more than commanded, to 7.1° at the 6° limit); the tab horn was 14.3 mm, not 14.5 | `design.json`, simulator and firmware 2.01 corrected; the CAD script now refuses to build if they disagree |
 
 ## 8. The launch video
 

@@ -55,3 +55,12 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 - 01:25 Mon: 6 new scenarios (1.5 m rod, 50 g in 6 m/s, all-steering-dead calm/3 m/s/empty bay/6 m/s):
   40/40 graded pass; passive flight unsafe in 6 m/s -> first-flight wind limit 3 m/s, 1.5 m rod above 3 m/s.
   RocketPy re-validation for KESTREL-2: all within 0.3 %.
+- 01:30–01:50 Mon: overhang check added to check_parts.py (every STL in print orientation). Fixed: conical nose
+  bulkhead, wall skirt on top, piston/door/frame/knob/insert orientations, coupler nut wedges, GPS platform
+  (gusseted, beside the USB socket, U-shaped for the lead), battery-ledge wedge, lug lead-in, camera-pod flange.
+  Supports now only for tvc_frame, tvc_motor_holder tab, fin_control_tab, pad_hub.
+- 01:45 Mon: new CAD<->design check found TVC linkage 0.50 (CAD) vs 0.42 (firmware/sim) and tab horn 14.3 vs 14.5.
+  Fixed in design.json, sim (now reads design.json), firmware 2.01 (settings v4). Tests 377,489 + 125 pass;
+  scenarios 40/40; RocketPy within 0.3 %.
+- Next: video (old CAD) finishing -> final Monte Carlo -> final CAD renders -> final video re-render -> docs.
+

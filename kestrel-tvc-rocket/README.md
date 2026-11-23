@@ -6,7 +6,7 @@ with a servo latch under the nose cone (no pyrotechnics), carries a **payload of
 door, films the flight with a downward-looking camera, and logs IMU, barometer and GPS data on a **custom
 flight-computer PCB** built around a Raspberry Pi Pico 2 W. It comes with its own launch pad. **No soldering
 anywhere**: the PCB comes assembled from JLCPCB and everything else plugs, screws or glues together. Estimated
-build cost **≈ £297** (motors extra).
+build cost **≈ £301** (motors extra).
 
 <p>
 <img src="cad/renders/rocket_on_pad.png" width="24%" alt="KESTREL-2 standing on its fins on the launch pad">
@@ -53,7 +53,7 @@ flight): [`sim/results/video/kestrel2_flight_seed7.mp4`](sim/results/video/kestr
   generated from the PCB's KiCad layout.
 - **PCB**: schematic checked pin-for-pin against the circuit source, DRC 0 violations, all 65 nets routed, gerbers
   re-read by an independent viewer. → [docs/PCB.md](docs/PCB.md)
-- **Firmware**: 377,492 flight-core checks, 124 firmware-logic checks, a 0-warning cross-compile and a ready-to-flash
+- **Firmware**: 377,489 flight-core checks, 125 firmware-logic checks, a 0-warning cross-compile and a ready-to-flash
   UF2. → [docs/FIRMWARE.md](docs/FIRMWARE.md)
 
 Two honest gaps against what we agreed:
@@ -61,7 +61,7 @@ Two honest gaps against what we agreed:
 - **Apogee**: I estimated ~123 m on the E20 when we chose the motor. The finished rocket is heavier (721 g, not
   ~650 g), and the E20 is rated at 36 Ns, not the 40 Ns of its test curve, so it reaches 78 m (about 95 m if the
   motors match their curve). The details, with what-if numbers, are in the simulation report, section 3.
-- **Budget**: ≈ £297 against the ~£270 we aimed for, because of the four extra servos, the larger 30 in parachute
+- **Budget**: ≈ £301 against the ~£270 we aimed for, because of the four extra servos, the larger 30 in parachute
   and the ejection spring that only comes in a pack of 10. → [docs/BOM.md](docs/BOM.md)
 
 Real flights then confirm what models cannot; [docs/TEST_PLAN.md](docs/TEST_PLAN.md) takes you from the bench to

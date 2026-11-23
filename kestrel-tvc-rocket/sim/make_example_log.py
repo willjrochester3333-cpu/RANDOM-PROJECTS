@@ -32,7 +32,7 @@ def main():
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
                  "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n")
-        fh.write("# session: fw 200 flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
+        fh.write("# session: fw 201 flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
         vz_prev, t_prev = 0.0, t[0]
         for k in range(len(t)):
             s = st[k]

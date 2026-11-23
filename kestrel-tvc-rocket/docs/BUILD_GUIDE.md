@@ -46,33 +46,36 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 
 ## 2. Print the parts
 
-All STLs are in `cad/stl/`, already in print orientation. `cad/stl/check_report.md` lists sizes, estimated
-masses and the automatic printability checks: all 27 parts are watertight, one body each, and fit a
-220 × 220 × 250 mm bed. Print the rocket in **PETG** (PLA softens in a hot car and near the motor).
+All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
+lists sizes, estimated masses and the automatic printability checks: all 27 parts are watertight, one body each,
+and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **four parts
+need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
+in **PETG** (PLA softens in a hot car and near the motor).
 
 | Part | Qty | Settings | Notes |
 |---|---|---|---|
 | **Bottom part** | | | |
-| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 % | fins, legs and the 4 servo pods in one piece; the largest print (114 × 114 × 155 mm) |
-| `fin_control_tab` | 4 | flat, 3 walls | |
-| `tvc_frame` | 1 | upright, 3 walls, 25 %, supports only under the servo bars | |
-| `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat) | |
+| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | fins, legs and the 4 servo pods in one piece; the largest print (114 × 114 × 155 mm) |
+| `fin_control_tab` | 4 | lying on the plain face (horn up), 3 walls; **supports on the build plate only** (they fill the 0.8 mm under the face beside the hinge bead) | |
+| `tvc_frame` | 1 | upright, 3 walls, 25 %; **supports under the four servo bars** | |
+| `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat); **support under the pushrod tab** | the 25 mm roof of the motor bore is a bridge; the penny washer covers it |
 | `tvc_gimbal_ring`, `tvc_motor_retainer` | 1 each | 3 walls, 40 % | |
 | `avbay_coupler` | 1 | **upside down** (bulkhead on the bed), 4 walls, 25 % gyroid | its bulkhead is the payload-bay floor and carries the parachute load path |
 | `avbay_sled` | 1 | bulkhead disc on the bed, 3 walls, 20 % | |
-| `camera_pod` | 1 | 3 walls, 20 %, supports for the lens hole | |
+| `camera_pod` | 1 | floor and flange on the bed, 3 walls, 20 %, no supports | |
 | `upper_launch_lug` | 1 | 3 walls | |
 | **Middle part** | | | |
-| `payload_wall` | 1 | disc on the bed, 3 walls, 25 % | carries the parachute load |
-| `spring_piston` | 1 | 3 walls, 20 % | |
-| `payload_door_frame`, `payload_door` | 1 each | as oriented in the STL (door: outer face down) | |
-| `payload_door_latch_knob`, `payload_door_latch_cam` | 1 each | 100 % infill | small: print several and keep the best |
-| `top_latch_insert` | 1 | shoulder down, 3 walls, 25 % | |
+| `payload_wall` | 1 | disc on the bed, skirt up, 3 walls, 25 % | carries the parachute load |
+| `spring_piston` | 1 | flat face on the bed, 3 walls, 20 % | |
+| `payload_door_frame` | 1 | upright, 3 walls | |
+| `payload_door` | 1 | standing on its hinge end, **with a brim** | |
+| `payload_door_latch_knob`, `payload_door_latch_cam` | 1 each | knob head-down; 100 % infill | small: print several and keep the best |
+| `top_latch_insert` | 1 | shoulder up, 3 walls, 25 % | |
 | `latch_bolt` | 1 | 100 % infill | must slide freely: rub it with graphite (soft pencil) |
 | **Nose** | | | |
-| `nose_cone` | 1 | tip up, 3 walls, 10 % gyroid, no supports | |
+| `nose_cone` | 1 | tip up, 3 walls, 10 % gyroid, no supports | its bulkhead is a 45° cone with a cord bar inside |
 | **Launch pad** | | | |
-| `pad_hub` | 1 | upright, 5 walls, 40 %, tree supports in the leg sockets | |
+| `pad_hub` | 1 | upright, 5 walls, 40 %; **tree supports in the leg sockets** | |
 | `pad_rod_block`, `pad_rod_stop`, `rod_tip_safety_cap` | 1 each | 4 walls, 40 % | |
 | `pad_leg_foot` | 3 | 4 walls, 40 % | |
 | `pad_tile_clamp` | 4 | 100 % | |
@@ -106,7 +109,8 @@ Printed rocket parts ≈ **330 g**. The simulator uses the masses computed from 
 It is a separate unit (`cad/kestrel_tvc_module.blend`): frame, gimbal ring, motor holder, retainer, two servos
 and two pushrods. **Its two servo leads come out of the top**, straight up to the flight computer.
 
-1. **Burn-through shield:** epoxy an M10 × 25 mm steel penny washer into the recess on top of the motor holder.
+1. **Burn-through shield:** push an M10 × 25 mm steel penny washer up the motor bore into the recess at its closed
+   (top) end and fix it with a dab of epoxy: it shields the plastic from the motor's hot forward end.
 2. **Holder → ring:** put the holder inside the gimbal ring. An M3 screw through each of the ring's two
    side holes (the ones with 3.3 mm clearance) threads into the holder's bosses. Tighten until there is no play,
    then back off a quarter turn: the holder must swing freely.
@@ -118,7 +122,9 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
    Do not fit the horns yet.
 5. Centre the servos: plug them into ports 1 and 2 of the board and type `center` (section 10). Now fit a
    single-arm horn on each, pointing towards its pushrod, with its hole **9 mm** from the shaft (trim the arm 2.5 mm
-   beyond the hole).
+   beyond the hole). If no hole sits at exactly 9 mm, drill one with a 1.3 mm bit: the firmware's linkage maths
+   (gimbal moves 0.5° per servo degree) depends on it. The same goes for the 6 mm tab horns and the 7 mm release
+   horn below.
 6. **Pushrods:** 1.2 mm music wire with a Z-bend at each end (pliers only). Bend one end, hook it into the horn,
    mark the length so the motor holder hangs perfectly straight with the servos centred, bend the other end.
 7. Route both leads up through the frame and out of its top. That completes the module.
@@ -164,8 +170,10 @@ The av-bay is the **coupler** (a tube with a bulkhead on top: the payload-bay fl
 1. **Board on the sled:** 4 × M2.5 × 8 self-tapping screws into the standoffs. The servo headers point down
    (towards the tail), the U.FL GPS connector up.
 2. **Pico 2 WH** into its two sockets, USB connector up (as printed on the board).
-3. **GPS antenna:** stick the 15 × 15 mm patch, **ceramic side up**, on the shelf just above the board's U.FL
-   connector (double-sided tape). Push its U.FL plug on straight until it clicks.
+3. **GPS antenna:** stick the 15 × 15 mm patch, **ceramic side up**, on the U-shaped platform at the top of the
+   sled (double-sided tape on the two arms and the back bar). Its lead goes down through the open middle of the U to
+   the board's U.FL connector: push the plug on straight until it clicks. The platform sits beside the Pico's USB
+   socket, so a USB cable still plugs in.
 4. **LiPo:** check the pack measures about 40 × 19 × 15 mm before you fit it (the tray takes up to 16 mm; one shop
    lists this pack as 25 mm thick, which would not fit). Put it on the tray behind the Pico, foam pad behind it,
    velcro strap through the two slots. The pack has a small JST-PH balance plug: push it into the PH → XH adapter
@@ -199,10 +207,10 @@ av-bay screws and slide the av-bay up out of the tube. The tab extensions give t
 3. **Release lead:** run the servo lead down the inside of the middle tube on the 180° side and tape it flat in
    three places.
 4. **Wall:** thread the **Kevlar shock cord** through the bridge on top of the wall and tie it (double fisherman's
-   knot, then a drop of CA on the knot). Slide the wall into the middle tube from the bottom, **bridge up**,
-   with the release lead lying in the notch in its edge, until the lower edge of its skirt is **148 mm** from the
-   bottom end of the tube (use a stick marked at 148 mm as a depth gauge). The payload bay below it is then 130 mm
-   tall. Epoxy it all round: it carries the parachute load.
+   knot, then a drop of CA on the knot). Slide the wall into the middle tube from the bottom, **bridge and skirt
+   up**, with the release lead lying in the notch in its edge, until its flat underside is **160 mm** from the
+   bottom end of the tube (use a stick marked at 160 mm as a depth gauge). The payload bay below it is then 130 mm
+   tall. Epoxy the skirt all round: it carries the parachute load.
 5. **Payload door:** epoxy the door frame inside the tube behind the door window, its hinge knuckles at the
    bottom. Fit the door with a 22 mm piece of 1.75 mm filament as the hinge pin (melt or glue the ends). Push the
    **latch knob** through the door from outside and press the **latch cam** onto its square end from inside with
@@ -218,14 +226,14 @@ is allowed (the simulator flew the whole 0–50 g range).
 ## 9. Recovery
 
 1. Shock cord: Kevlar from the wall's bridge (step 8.4), up through the notch in the **spring piston**,
-   30 cm of Kevlar, the elastic section, a swivel with the **parachute's shroud lines**, then on to the bridge
-   inside the nose cone.
+   30 cm of Kevlar, the elastic section, a swivel with the **parachute's shroud lines**, then on to the bar inside
+   the nose cone's conical bulkhead (reach in from the open end with long tweezers, tie a bowline, then a drop of CA).
 2. Put the **spring** on the wall's spring boss, the **piston** on the spring (its notches over the release lead
    and the cord), fold the parachute (Z-fold, then roll) and put it on the piston, coil the cord on top.
 3. **Power the board** (the latch is commanded locked from the first instant), then push the nose cone on
    (alignment groove over the insert's rib) until the bolt **clicks**. Pull gently: it must not come off.
 4. On the bench, `deploy release` must make the spring throw the nose cone clear and pull the parachute out.
-   Do this **ten times** before the first flight (test plan A9).
+   Do this **ten times** before the first flight (test plan A13).
 
 ## 10. Firmware and set-up (USB, no tools needed)
 
