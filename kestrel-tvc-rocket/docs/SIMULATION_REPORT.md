@@ -170,6 +170,26 @@ Two things in the histograms are expected, not faults:
 
 Run time: about 13 minutes on 4 CPU cores.
 
+### Stress Monte Carlo: where the margins end
+
+`sim/stress_montecarlo.py` flies 1000 more E20 flights with every error source about **twice as wide** as above
+(thrust misalignment, mass, CG, drag, fin lift, gyro and accelerometer bias, servo trim and speed, tab
+effectiveness 0.4–1.6, parachute Cd and fill time) and wind **0–9 m/s**, using the documented launch procedure
+(1.5 m rod above 3 m/s):
+
+| Wind | Flights | Meets every normal-flight criterion |
+|---|---|---|
+| 0–3 m/s | 337 | 100 % |
+| 3–6 m/s | 316 | 99.7 % |
+| 6–9 m/s | 347 | 98.0 % |
+| **all** | **1000** | **99.2 %**; parachute out and landing below 7 m/s in **100 %** |
+
+The 8 flights that miss a criterion all tilt 10.5–42° during the burn; 7 of them combine a badly seated motor
+(1.1–1.6° of thrust misalignment, three times the normal spread) with 7–9 m/s of wind. Every one still releases
+its parachute and lands gently. That is why the pre-flight checklist insists on the motor being pushed fully home
+against the washer and why the wind limits are 3 m/s for the first flights and 6 m/s afterwards (9 m/s ever).
+Apogee 58 m mean (36–86 m), 95 % of landings within 163 m.
+
 ## 6. What the fin tabs do
 
 With the tabs switched off (`tabs_disabled`) the rocket rolls at 75 °/s during the burn and 97 °/s in the coast:

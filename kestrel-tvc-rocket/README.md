@@ -49,7 +49,9 @@ payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
 - **Simulation with the real flight code in the loop.** A 6-DOF simulator, checked against RocketPy (every
   quantity within 0.3 %), flies the actual C++ flight software 500 times a second, including the fin-tab mixer.
   **Scenario and fault suite: 40 of 40 graded cases pass** (plus 3 informational cases).
-  **1000-flight Monte Carlo: 100 % success** (after two fixes it found in the thick-fin version: see the report). → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
+  **1000-flight Monte Carlo: 100 % success** (after two fixes it found in the servos-in-the-fins version: see the
+  report). A stress Monte Carlo with about twice the error spreads and wind up to 9 m/s: 99.2 % meet every
+  normal-flight criterion and 100 % recover safely. → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
 - **CAD checked automatically on every run.** All 27 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three
   marked parts excepted). Exact-geometry interference checks cover 1326 part pairs, plus sweeps of every mechanism
