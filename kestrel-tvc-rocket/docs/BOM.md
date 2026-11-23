@@ -61,8 +61,8 @@ Some SQ12 clones stop recording in 1080p after a while; record in 720p if yours 
 | 22 | Double-sided foam tape, 1–2 mm | 1 roll | **Tesa** or **3M** mounting tape | Amazon UK [search](https://www.amazon.co.uk/s?k=tesa+double+sided+foam+tape) | ≈ £4 |
 | 23 | Screws, nuts and washers (list below) | kit | **Accu** (UK) or a branded M2.5/M3/M4 assortment | [accu.co.uk](https://accu.co.uk/) or Amazon UK [search](https://www.amazon.co.uk/s?k=M3+stainless+screw+nut+assortment) | ≈ £10 |
 
-Screws used: M2.5 × 8 self-tapping (4, the PCB); M3 × 10–16 + nuts (12: av-bay 2, fin can 2, gimbal pivots 4,
-middle-part joint 2, pad legs 3, rod stop 1); the small screws that come with the servos (servo tabs); M4 × 16 (4,
+Screws used: M2.5 × 8 self-tapping (4, the PCB); M3 × 10–16 + nuts (14: av-bay 2, fin can 2, gimbal pivots 4,
+middle-part joint 2, pad legs 3, rod stop 1; plus 4 if you screw a payload to the bay floor); the small screws that come with the servos (servo tabs); M4 × 16 (4,
 tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt); one M10 × 25 mm penny washer
 (burn-through shield on top of the motor). The payload-door hinge pin is a 22 mm piece of your 1.75 mm filament.
 

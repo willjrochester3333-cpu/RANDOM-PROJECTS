@@ -48,10 +48,12 @@ flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.m
   **Scenario and fault suite: 40 of 40 graded cases pass** (plus 3 informational cases).
   **1000-flight Monte Carlo: 100 % success.** → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
 - **CAD checked automatically on every run.** All 27 printed parts are watertight, single-body and fit a
-  220 × 220 × 250 mm bed. Exact-geometry interference checks cover 1711 part pairs, plus sweeps of every mechanism
+  220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (four
+  marked parts excepted). Exact-geometry interference checks cover 1711 part pairs, plus sweeps of every mechanism
   through its full travel: the gimbal in 24 directions at 7°, all four tabs at ±17°, the payload door through
-  0–100° and the release latch. All come back clean. Masses and positions feed the simulator, and the av-bay is
-  generated from the PCB's KiCad layout.
+  0–100° and the release latch. All come back clean. Masses and positions feed the simulator, the av-bay is
+  generated from the PCB's KiCad layout, and every number the firmware and simulator take from `design.json`
+  (linkage ratios, IMU position, pod and camera-pod sizes) is checked against the CAD.
 - **PCB**: schematic checked pin-for-pin against the circuit source, DRC 0 violations, all 65 nets routed, gerbers
   re-read by an independent viewer. → [docs/PCB.md](docs/PCB.md)
 - **Firmware**: 377,489 flight-core checks, 125 firmware-logic checks, a 0-warning cross-compile and a ready-to-flash
