@@ -13,3 +13,4 @@ pcb/*-backups/
 pcb/production/gerbers/
 firmware/tools/*.png
 !firmware/tools/example_flight_sim.png
+sim/results/video/seed*/

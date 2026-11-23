@@ -1146,7 +1146,10 @@ def check_layout():
             bad.append(f"{k}: set {real:.1f}")
     lay = {k: round(v[1], 1) for k, v in want.items()}
     lay.update(dict(z_tip_above_tail=Z_TIP, switch_slot_deg=round(SW_ANG, 1), groove_deg=[round(g, 1) for g in GROOVE_ANG],
-                    fin_deg=FIN_ANG, lug_deg=LUG_ANG, camera_deg=270.0, door_deg=0.0))
+                    fin_deg=FIN_ANG, lug_deg=LUG_ANG, camera_deg=270.0, door_deg=0.0,
+                    rocket_xy_on_pad=[round(v, 2) for v in ROCKET_XY], tail_z_on_pad=PAD_TOP - FOOT_Z,
+                    camera_lens_xyz=[0.0, -round(CAM_RC, 2), CAM_Z0], cord_exit_xyz=[0.0, 18.5, Z_MID1],
+                    nozzle_z=Z_MOTOR0, mid_top_z=Z_MID1))
     json.dump(lay, open(os.path.join(HERE, "avionics_layout.json"), "w"), indent=1)
     # angular clearances on the airframe surface: things that must not land on top of each other
     for nm, ang, z in (("switch slot", SW_ANG, SW_Z), ("upper lug", LUG_ANG, UPPER_LUG_Z + 12)):

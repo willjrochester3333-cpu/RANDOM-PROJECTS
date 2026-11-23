@@ -22,5 +22,22 @@
  ],
  "lug_deg": 90.0,
  "camera_deg": 270.0,
- "door_deg": 0.0
+ "door_deg": 0.0,
+ "rocket_xy_on_pad": [
+  -0.0,
+  -33.65
+ ],
+ "tail_z_on_pad": 108.0,
+ "camera_lens_xyz": [
+  0.0,
+  -29.65,
+  200.0
+ ],
+ "cord_exit_xyz": [
+  0.0,
+  18.5,
+  724
+ ],
+ "nozzle_z": -4,
+ "mid_top_z": 724
 }
