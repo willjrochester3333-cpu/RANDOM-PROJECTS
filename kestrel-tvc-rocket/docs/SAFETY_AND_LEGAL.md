@@ -37,7 +37,7 @@ Every number in this table comes from the simulator flying the real flight code 
 | Spectators **≥ 40 m** from the pad for the F35 (≥ 30 m for the D20 / E20), behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 23–26 m from the pad with the F35 (6 wind seeds; 20–22 m on the E20, 9–12 m on the D20) |
 | **Wind ≤ 3 m/s for the first three flights** (D20, D20, E20) | with all six steering servos dead, the rocket still flies and recovers normally in 3 m/s on the D20 and the E20 (E20: tilting 21° in the boost, 42° in the coast). In 6 m/s the E20 tumbles in the boost and the parachute comes out early, 23 m/s, 1.4 s before apogee |
 | Afterwards (F35) ≤ 6 m/s with the **1.5 m rod**, never above 9 m/s, and only as much wind as the recovery area allows | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); even with every steering servo dead the F35 (10 m/s off the rod) recovers normally in 3 m/s (`passive_wind3`). It drifts about 60 m per 1 m/s of wind: 170 m in 3 m/s, 340 m in 6 m/s, 520 m in 9 m/s |
-| Recovery area **≥ «F35_AREA» m** clear downwind for the F35 in up to 6 m/s of wind, or **«F35_AREA3» m** if it flies only in 3 m/s or less; «E20_AREA» m (E20), «D20_AREA» m (D20) | Monte Carlo: 95 % of F35 flights land within «F35_DRIFT95» m (wind up to 6 m/s), farthest «F35_DRIFTMAX» m; in 3 m/s or less farthest «F35_DRIFTMAX3» m; E20 farthest «E20_DRIFTMAX» m; D20 farthest «D20_DRIFTMAX» m |
+| Recovery area **≥ 550 m** clear downwind for the F35 in up to 6 m/s of wind, or **300 m** if it flies only in 3 m/s or less; 200 m (E20), 60 m (D20) | Monte Carlo: 95 % of F35 flights land within 358 m (wind up to 6 m/s), farthest 498 m; in 3 m/s or less farthest 232 m; E20 farthest 141 m; D20 farthest 31 m |
 | Rod tilt 0–5° **downwind** only, never towards people | the rocket holds the rod direction during the burn (`rod_tilt5`) |
 | Electric ignition with a key-switch controller, 5 s countdown | standard model-rocket safety code |
 | Misfire: key out, wait **60 s** before approaching | |
@@ -47,7 +47,7 @@ Every number in this table comes from the simulator flying the real flight code 
 | Power the flight computer on only when the rocket is on the rod | in READY, a hard jolt can look like a launch to the sensors |
 
 The ten-out-of-ten ejection test in [TEST_PLAN.md](TEST_PLAN.md) is not optional: a rocket that comes down without
-its parachute hits the ground at about 32 m/s (`no_chute`).
+its parachute hits the ground at about 53 m/s after an F35 flight (`no_chute`).
 
 ## Built-in protections (all exercised in the simulator)
 

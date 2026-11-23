@@ -114,3 +114,8 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   Mass 856 g (F35, 25 g payload), margins +0.69..+0.82 cal (lift-off), +0.90..+1.03 (burn-out); F35 188 m.
   Firmware 2.03: F35 = motor 5 (default), settings v6, linkage 0.4091; 376,013 + 128 checks, UF2 0 warnings.
   Hand checks at 55.5 m/s: tab hinge 0.15 kgf.cm (12x), flutter >= 450 m/s (8x). Scenarios 41/41 (+3 info).
+- 18:40-19:19 Mon: Monte Carlo 1000/1000 (F35 600: mean 198 m, 164-236 m, drift up to 498 m in 6 m/s and 232 m in
+  <= 3 m/s; E20 200: 58 m; D20 200: 20 m). F35 roll held less tightly (p95 17 deg, peak at burn-out, tabs 3-5 deg;
+  tab backlash ruled out). Stress Monte Carlo 99.3 % / 100 % safe recovery; tab effectiveness x1.2: 200/200;
+  RocketPy within 0.33 % (F35 188.31 vs 188.24 m). Hard-over containment 23-26 m (F35), so spectators 40 m for
+  the F35. Docs filled from the results; recovery area 550 m (6 m/s) or 300 m (3 m/s) for the F35.

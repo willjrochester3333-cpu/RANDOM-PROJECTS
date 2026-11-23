@@ -53,11 +53,11 @@ sets the wind limit for an F35 flight.
 | 1 | TSP D20-0 in the 24 mm adapter (`motor 0`) | `tabs 0` (TVC only) | proves launch detect, TVC, apogee detection, latch, parachute, landing and logging, with as few active parts as possible | ≈ 19 m | deploy within 1 s of apogee; tilt in boost < 10°; rocket undamaged; the log matches the simulation (`kestrel_link.py plot`) |
 | 2 | TSP D20-0 in the adapter | `tabs 1` | first flight with the fin tabs: roll hold and coast steering | ≈ 19 m | as flight 1, plus roll rate in boost < 60 °/s and no tab oscillation in the log |
 | 3 | TSP E20-0 in the adapter (`motor 2`) | `tabs 1` | a full 2 s burn with steering, to about 53 m, before the big motor | ≈ 53 m | as flight 2 |
-| 4+ | **TSP F35-0** (`motor 5`, F35 retainer) | `tabs 1` | **the mission** | **188 m** nominal; Monte Carlo «F35_P5»–«F35_P95» m (5–95 %) | |
+| 4+ | **TSP F35-0** (`motor 5`, F35 retainer) | `tabs 1` | **the mission** | **188 m** nominal; Monte Carlo 164–236 m (5–95 %) | |
 
-Recovery area: at least «F35_AREA» m clear downwind for an F35 in winds up to 6 m/s (simulated 95th-percentile drift
-«F35_DRIFT95» m, farthest «F35_DRIFTMAX» m), or «F35_AREA3» m if you fly it only in 3 m/s or less (farthest «F35_DRIFTMAX3» m);
-«E20_AREA» m for an E20 and «D20_AREA» m for a D20.
+Recovery area: at least 550 m clear downwind for an F35 in winds up to 6 m/s (simulated 95th-percentile drift
+358 m, farthest 498 m), or 300 m if you fly it only in 3 m/s or less (farthest 232 m);
+200 m for an E20 and 60 m for a D20.
 
 After every flight: download and plot the log, compare apogee, deploy time, tilt and roll with the simulation,
 check the gimbal pivots, the tab hinges and the latch for wear, recharge, `status` before packing again.

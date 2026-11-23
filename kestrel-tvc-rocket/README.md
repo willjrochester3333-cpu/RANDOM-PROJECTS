@@ -25,8 +25,8 @@ build cost **≈ £312** (motors extra).
 </p>
 
 **Simulated launch video** (ground camera, onboard camera, live telemetry bottom left, graphs below; every seed is a
-different flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (TSP F35, «VID_WIND» m/s
-wind, «VID_PAYLOAD» g payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
+different flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (TSP F35, 4.9 m/s
+wind, 20 g payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
 
 | | |
 |---|---|
@@ -34,7 +34,7 @@ wind, «VID_PAYLOAD» g payload). Make another with `python3 sim/video/make_flig
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
 | Lift-off mass | 856 g with a TSP F35 and 25 g of payload (764 g without motor) |
 | Motors | 29 mm TSP **F35-0** (mission); 24 mm TSP D20-0 and E20-0 for the test flights, in a printed adapter sleeve |
-| Apogee (simulated, F35) | **188 m** nominal with 25 g of payload (198 m with an empty bay); Monte Carlo mean «F35_MEAN» m, 90 % of flights «F35_P5»–«F35_P95» m. Test motors: D20 19 m, E20 53 m |
+| Apogee (simulated, F35) | **188 m** nominal with 25 g of payload (198 m with an empty bay); Monte Carlo mean 198 m, 90 % of flights 164–236 m. Test motors: D20 19 m, E20 53 m |
 | Stability | +0.69 to +0.82 calibres at lift-off (empty to full payload bay, with 33 g of nose ballast), +0.90 to +1.03 at burn-out: still stable if all steering fails |
 | TVC | 2-axis gimbal for 29 mm motors, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
 | Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick, joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band, tabs and legs taper to thin trailing edges below the tail |
@@ -49,10 +49,10 @@ wind, «VID_PAYLOAD» g payload). Make another with `python3 sim/video/make_flig
 
 - **Simulation with the real flight code in the loop.** A 6-DOF simulator, checked against RocketPy (every
   quantity within 0.3 %), flies the actual C++ flight software 500 times a second, including the fin-tab mixer.
-  **Scenario and fault suite: «SC_PASS» of «SC_GRADED» graded cases pass** (plus 3 informational cases).
-  **1000-flight Monte Carlo** (600 on the F35, 200 each on the E20 and D20 test motors): **«MC_OK» of «MC_N»**
+  **Scenario and fault suite: 41 of 41 graded cases pass** (plus 3 informational cases).
+  **1000-flight Monte Carlo** (600 on the F35, 200 each on the E20 and D20 test motors): **1000 of 1000**
   meet every normal-flight criterion. A stress Monte Carlo with about twice the error spreads and wind up to 9 m/s:
-  «STRESS_OK» % meet every normal-flight criterion and «STRESS_SAFE» % recover safely.
+  99.3 % meet every normal-flight criterion and 100.0 % recover safely.
   → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
 - **CAD checked automatically on every run.** All 30 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three
@@ -73,7 +73,7 @@ Two honest gaps against what we agreed:
   instead of the 24 mm E20, which gives **188 m** with 25 g of payload (198 m with an empty bay; 200 m would need
   it about 35 g lighter). The TVC module now takes 29 mm motors; the D20 and E20 still fly in a printed adapter
   for the low test flights. The price is drift: about 40 s under the parachute, so it needs a recovery area of
-  about «F35_AREA» m downwind in winds up to 6 m/s, or «F35_AREA3» m if you fly it only in 3 m/s or less. The details,
+  about 550 m downwind in winds up to 6 m/s, or 300 m if you fly it only in 3 m/s or less. The details,
   with what-if numbers, are in the simulation report, section 3.
 - **Budget**: ≈ £312 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
   the ejection spring that only comes in a pack of 10, and about £11 of extras for the servos-in-the-fins design. → [docs/BOM.md](docs/BOM.md)
