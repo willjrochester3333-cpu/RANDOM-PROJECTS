@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 
+import matplotlib
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -20,14 +21,17 @@ MUTED = "#8b8a83"
 GRID = "#2c2c2a"
 S = ["#3987e5", "#d95926", "#199e70", "#c98500"]          # palette slots 1-4, dark-surface steps
 PHASE = {3: ("BOOST", "#3a2418"), 4: ("COAST", "#17283a"), 5: ("DESCENT", "#15302a"), 6: ("LANDED", "#262624")}
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-FONTB = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
-MONOB = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
+FONT, FONTB, MONO, MONOB = "DejaVuSans.ttf", "DejaVuSans-Bold.ttf", "DejaVuSansMono.ttf", "DejaVuSansMono-Bold.ttf"
+# the system's DejaVu fonts (Linux); otherwise the copies that ship with matplotlib (any system)
+_FONT_DIRS = ["/usr/share/fonts/truetype/dejavu", os.path.join(matplotlib.get_data_path(), "fonts", "ttf")]
 
 
-def f(path, size):
-    return ImageFont.truetype(path, size)
+def f(name, size):
+    for d in _FONT_DIRS:
+        p = os.path.join(d, name)
+        if os.path.exists(p):
+            return ImageFont.truetype(p, size)
+    raise FileNotFoundError(f"font {name} not found in {_FONT_DIRS}")
 
 
 def phase_name(st):

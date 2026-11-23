@@ -152,7 +152,8 @@ def main():
     if not a.skip_render:
         procs = []
         for cam in ("ground", "onboard"):
-            cmd = ["blender", "-b", "-P", os.path.join(HERE, "blender_scene.py"), "--", "--traj", tp, "--camera", cam,
+            cmd = [os.environ.get("BLENDER", "blender"),            # BLENDER=/path/to/blender if not on PATH
+                   "-b", "-P", os.path.join(HERE, "blender_scene.py"), "--", "--traj", tp, "--camera", cam,
                    "--out", os.path.join(out_dir, cam)]
             if a.draft:
                 cmd.append("--draft")

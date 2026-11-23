@@ -4,6 +4,7 @@ from __future__ import annotations
 import ctypes
 import os
 import subprocess
+import sys
 
 import numpy as np
 
@@ -12,7 +13,7 @@ from .dynamics import FswOutput
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 FW = os.path.join(ROOT, "firmware")
 BUILD = os.path.join(FW, "build-host")
-LIB = os.path.join(BUILD, "libkestrel_sil.so")
+LIB = os.path.join(BUILD, "libkestrel_sil.dylib" if sys.platform == "darwin" else "libkestrel_sil.so")
 
 STATE_NAMES = ["BOOT", "CALIBRATING", "READY", "BOOST", "COAST", "DESCENT", "LANDED", "ERROR"]
 
