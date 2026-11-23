@@ -91,3 +91,8 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   clean. Fin can 181 -> 165 g, Cd0 0.94 -> 0.85 (new drag terms), margins +0.84..+0.97 cal.
   Scenarios 40/40, E20 57 m. Video render made resumable (frames on disk are kept).
 - 13:15 Mon: seed-7 video and the 1000-flight Monte Carlo running.
+- 13:36 Mon: Monte Carlo (thin fins + servo band) 1000/1000: E20 mean 62 m (47-79), landing 4.9 m/s, 95 % within
+  101 m; RocketPy within 0.3 %; hard-over 18-23 m from the pad (6 seeds); PCB DRC 0/0.
+- 14:01 Mon: stress Monte Carlo (2x spreads, wind 0-9 m/s): 99.2 % meet every criterion, 100 % safe recovery; the
+  8 misses are 1.1-1.6 deg motor misalignment in 7-9 m/s wind (tilt 10-42 deg in the burn).
+- 14:15 Mon: launch video seed 7 rendered with the final CAD (1920x1080, 20.8 s). Delivery 15:30-16:00.
