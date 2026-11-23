@@ -89,7 +89,7 @@ RK = bpy.data.objects.new("RK", None); link_to_scene(RK)
 NOSE = bpy.data.objects.new("NOSE", None); link_to_scene(NOSE)
 off = Matrix.Translation((0, 0, -ZCG))
 for o in rocket_objs:
-    o.parent = NOSE if o.name.startswith("nose_cone") else RK
+    o.parent = NOSE if o.name.startswith(("nose_cone", "nose_ballast")) else RK      # the ballast rides in the nose
     o.matrix_parent_inverse = off
 TOP = bpy.data.objects.new("CORD_TOP", None); link_to_scene(TOP)
 TOP.parent = RK; TOP.matrix_parent_inverse = off; TOP.location = LAY["cord_exit_xyz"]

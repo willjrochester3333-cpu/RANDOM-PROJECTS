@@ -1571,7 +1571,9 @@ def main():
             if name == n2 or name.startswith(n2 + "_"):
                 pname = p["part"]
         if pname is None:
-            if name.startswith(("servo_MG90S_tvc", "horn_tvc", "pushrod_ring", "pushrod_holder", MOTOR_NAME)):
+            if name.startswith("nose_ballast"):
+                pname = "nose"
+            elif name.startswith(("servo_MG90S_tvc", "horn_tvc", "pushrod_ring", "pushrod_holder", MOTOR_NAME)):
                 pname = "tvc"
             elif name.startswith(("servo_MG90S_release", "horn_release", "latch_spring", MID_TUBE, "parachute", "shock_cord", "payload")):
                 pname = "middle"
@@ -1634,6 +1636,24 @@ def main():
     lead1 = [q for q in lead1 if q[0] > CAN_RI - 6.0 and q[2] < FIN["root_chord"]]
     for i, c in enumerate((M["wire_br"], M["wire_r"], M["wire_or"])):
         curve_obj(f"lead_tab1_fs_{i}", [(x, y - 1.6 + (i - 1) * 0.9, z) for x, y, z in lead1], c, c_fs, radius=0.45)
+    # labels (the camera looks at the cut face from +y, so the fin tip is on the left of the picture)
+    lab_fs = mat("Label", (0.05, 0.05, 0.06), rough=0.6)
+    for txt, x, z in (("MG90S tab servo,\nslid in from the fin tip", TIP_R + 47.0, SV_ZC + 2.0),
+                      ("lead groove", TIP_R + 30.0, (SV_Z0 + SV["L"] + CH_Z0) / 2 - 1.0),
+                      ("lead channel to the can", TAB_X1 + 12.0, CH_Z1 + 4.0),
+                      ("control tab", TAB_X1 - 4.0, -9.0),
+                      ("horn glued in the tab,\non the servo spline", TAB_X1 + 4.0, -17.0),
+                      ("root pin", CAN_RO - 1.5, HINGE_Z - 1.0),
+                      ("leg / foot", TIP_R + 30.0, FOOT_Z + 8.0)):
+        cu = bpy.data.curves.new("label_fs", "FONT")
+        cu.body = txt
+        cu.size = 3.6
+        cu.space_line = 1.1
+        ob = bpy.data.objects.new("label_fs_" + txt.split()[0], cu)
+        ob.data.materials.append(lab_fs)
+        ob.location = (x, 3.0, z)
+        ob.rotation_euler = (math.radians(90), 0, math.radians(180))
+        c_fs.objects.link(ob)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
     if "--no-render" not in ARGS:
         setup_render()
@@ -1721,7 +1741,7 @@ def main():
     # rocket hangs from the cord leaving the open top of the middle tube; nose cone on the cord in between
     tilt = 14.0
     hang = (60.0, 0.0, 950.0)
-    skip = {"nose_cone", "parachute_packed", "shock_cord_kevlar_elastic", "pad_rod_stop"}
+    skip = {"nose_cone", "nose_ballast_M3_nuts", "parachute_packed", "shock_cord_kevlar_elastic", "pad_rod_stop"}
     rk = [it for it in rocket_items(buy, skip=skip)]
     ob_list = add_solids(rk, c_ch)
     lead_objects(M, c_ch)

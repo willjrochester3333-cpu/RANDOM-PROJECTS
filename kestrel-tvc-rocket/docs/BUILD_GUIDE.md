@@ -159,7 +159,9 @@ goes straight into a servo horn glued inside the tab. The tab turns exactly as f
    reaching in through the open fin tip. **Not longer than 6 mm** (servo bags often hold longer ones): the lower
    hole ends 0.35 mm short of the tab gap, and a longer screw would break through and jam the tab.
 6. **Leads:** lay each lead in the groove in the fin tip, from the servo up to the channel, and put a strip of
-   tape over the tip. Label the leads: **fin 1 = port 4, fin 2 = port 5, fin 3 = port 6, fin 4 = port 7**. Fit a
+   tape over the tip. (The groove is placed for a lead that leaves the servo case at the end away from the output
+   shaft. If yours leaves at the shaft end, bring it out of the bottom of the pocket and up the fin tip under the
+   tape instead.) Label the leads: **fin 1 = port 4, fin 2 = port 5, fin 3 = port 6, fin 4 = port 7**. Fit a
    150 mm extension lead to each and pull all four up and out of the top of the bottom tube. With the board on,
    `servo 4 1343` and `servo 4 1657` (±15° of tab) must swing tab 1 freely each way without touching the fin;
    the same for servos 5–7.

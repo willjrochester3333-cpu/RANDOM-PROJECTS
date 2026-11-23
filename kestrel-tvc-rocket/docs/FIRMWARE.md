@@ -18,7 +18,7 @@ BOOT ──sensors ok──▶ CALIBRATING ──still 3 s, battery ok──▶ 
                         │   parachute logic still runs)                                  ▼
 ERROR ◀─ sensor failure / IMU axes not calibrated            COAST ◀── thrust gone (< 0.25 g after 0.4 s)
                                                                 │
-                      apogee: 3 baro samples falling, > 15 m   ▼
+                      apogee: 3 baro samples falling, > 8 m    ▼
             backup: nominal apogee time + 3 s, or falling > 12 m/s,
                     or ABORT (tilt > 50° / tumbling) once below 30 m/s ──▶ DESCENT ──still 5 s──▶ LANDED
 ```
@@ -163,7 +163,8 @@ tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo
 ## Updating from 2.00 / 2.01
 
 2.02 is for the thick fins with the tab servos inside them: the tabs are driven directly (servo angle = tab
-angle), and the motor and airframe tables include the heavier fin can and the nose ballast. 2.01 corrected the
+angle), the motor and airframe tables include the heavier fin can, the nose ballast and the 36 in parachute, and
+the apogee detector arms from 8 m instead of 15 m (the heavier rocket can peak at 14 m on a weak D20). 2.01 corrected the
 TVC linkage ratio (0.42 → 0.5). Both changed the settings layout version, so a board that ran an older version
 starts with factory settings: run `calaxes`, `dirtest`, `tabtest`, the trims and `deployus` again, then `save`.
 
