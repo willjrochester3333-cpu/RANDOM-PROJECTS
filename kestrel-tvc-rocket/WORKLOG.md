@@ -102,3 +102,15 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   checks (tab hinge torque 29-57x vs MG90S, fin root ~1 kN, leg ~225 N sideways, spring ejection 2.5 m/s ideal ->
   A13 note); tabs 21 mm clear of the exhaust plume; example log regenerated (fw 202); 200-flight Monte Carlo with
   tabs 20 % more effective: 200/200.
+- 17:15-17:47 Mon: user: a cheaper, lower-resolution camera (to shrink the pod): researched split / spy / FPV cameras;
+  questions to the user open (exact listing, receiving device). Video code packaged as a zip (fonts fall back to
+  matplotlib's DejaVu, .dylib on macOS, BLENDER env var); clean-copy draft render passed.
+- 17:50-18:30 Mon: user: "it should go 200 m high" -> agreed: the airframe as it is on the 29 mm TSP F35 (about 190 m).
+  29 mm TVC module: holder/ring +2.5 mm radius, gimbal arms 18 -> 22 mm with round bosses (linkage 0.5 -> 0.4091),
+  F35 retainer (22 mm opening), frame window 56 -> 54 mm and bottom ring 24.6 -> 26 mm (the sweep, now with the
+  pushrods and horns, found the holder arm and retainer touching at 7 deg), 0.3 mm play above the motor. 24 mm
+  adapter set for the D20/E20 test flights (sleeve, 24 mm retainer, 25 mm D spacer: the 70 mm D20 had nothing
+  above it in the 95 mm bore before). 30 STLs PASS, 1326 pairs no overlap, 1350 gimbal checks clean.
+  Mass 856 g (F35, 25 g payload), margins +0.69..+0.82 cal (lift-off), +0.90..+1.03 (burn-out); F35 188 m.
+  Firmware 2.03: F35 = motor 5 (default), settings v6, linkage 0.4091; 376,013 + 128 checks, UF2 0 warnings.
+  Hand checks at 55.5 m/s: tab hinge 0.15 kgf.cm (12x), flutter >= 450 m/s (8x). Scenarios 41/41 (+3 info).

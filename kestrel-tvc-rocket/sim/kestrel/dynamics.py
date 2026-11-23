@@ -95,7 +95,7 @@ def isa(h_asl):
 
 @dataclass
 class SimConfig:
-    motor: str = "TSP-E20"
+    motor: str = "TSP-F35"
     motor_basis: str = "rated"        # "rated" = manufacturer's impulse/burn time, "curve" = published curve file as is
     seed: int = 1
     dt: float = 0.001

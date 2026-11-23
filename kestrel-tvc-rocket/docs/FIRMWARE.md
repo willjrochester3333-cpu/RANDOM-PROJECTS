@@ -1,11 +1,11 @@
-# Flight firmware (v2.02, KESTREL-2)
+# Flight firmware (v2.03, KESTREL-2)
 
 Two layers, one code base:
 
 | Layer | Where | What it does | Tested by |
 |---|---|---|---|
-| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,034 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
-| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 127 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
+| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,013 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
+| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 128 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
 
 Ready-to-flash binary: **`firmware/pico/kestrel_fc.uf2`** (hold BOOTSEL, plug in USB, drag the file onto the
 `RP2350` drive).
@@ -25,8 +25,9 @@ ERROR ◀─ sensor failure / IMU axes not calibrated            COAST ◀──
 
 - **TVC** runs in BOOST. It holds the direction the rocket had on the launch rod (`hold 1`, default) or vertical
   (`hold 0`). Gains are scheduled with the selected motor's thrust curve; the deflection is clamped as a vector to
-  6° (the CAD gimbal sweep verifies clearance to 7° in every direction). The linkage moves the gimbal 0.5° per servo
-  degree (9 mm horn hole, 18 mm gimbal arm; the CAD script checks that `design.json` agrees).
+  6° (the CAD gimbal sweep verifies clearance to 7° in every direction). The linkage moves the gimbal 0.41° per
+  servo degree (9 mm horn hole, 22 mm gimbal arm on the 29 mm mount; the CAD script checks that `design.json`
+  agrees).
 - **Fin tabs** (four, one per fin, fins at 45/135/225/315°) run in BOOST and COAST:
   - **roll** is held at the launch angle in both phases (a 2-axis gimbal cannot control roll). This keeps the
     onboard camera's view steady; with the tabs off the simulated rocket rolls at 130–300 °/s.
@@ -105,7 +106,7 @@ Commands that move servos or write flash are refused unless the rocket is on the
 | `rollprog <°/s>` | camera panorama roll in the coast (0 = hold the launch roll angle) |
 | `deploy lock` / `deploy release` | move the parachute latch |
 | `deployus <lock> <release>` | latch pulse widths |
-| `motor [n]` | list / select the motor profile (TSP D20, E12, E20, Estes E12, Estes D12) |
+| `motor [n]` | list / select the motor profile: 0 TSP D20, 1 TSP E12, 2 TSP E20, 3 Estes E12, 4 Estes D12, **5 TSP F35 (default, the mission)**. The 24 mm motors fly in the printed adapter sleeve; their tables include its mass |
 | `hold <1\|0>` | hold the launch-rod direction / vertical |
 | `save`, `defaults` | store settings in the Pico's flash / factory settings |
 | `log`, `dump [first]` | log summary / CSV of the whole log over USB |
@@ -114,7 +115,7 @@ Commands that move servos or write flash are refused unless the rocket is on the
 
 Download and plot: `python firmware/tools/kestrel_link.py dump --port COMx -o flight.csv`, then
 `... plot flight.csv` (altitude, speed, tilt and gimbal, **fin tabs and roll rate**, states, GPS track with the
-landing point). `firmware/tools/example_flight_sim.csv` is a simulated E20 flight in the same format to try it on.
+landing point). `firmware/tools/example_flight_sim.csv` is a simulated F35 flight in the same format to try it on.
 
 ## Flight log format
 
@@ -160,7 +161,13 @@ After changing `design.json`, the CAD or the motor list, regenerate the motor an
 (`python3 firmware/tools/gen_motor_db.py`: thrust, inertia and lever arm against time for every motor, plus the
 tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo.py`.
 
-## Updating from 2.00 / 2.01
+## Updating from 2.00 – 2.02
+
+2.03 is for the 29 mm TVC mount and the TSP F35: the F35 is added to the motor tables (`motor 5`, now the default),
+the tables and the fin-tab mixer are recomputed for the F35 at lift-off, and the TVC linkage ratio changes from 0.5
+to 0.41 because the gimbal arms are 22 mm long instead of 18 mm. The settings layout version goes from 5 to 6, so
+a board that ran 2.02 starts with factory settings: run `calaxes`, `dirtest`, `tabtest`, the trims and `deployus`
+again, then `save`.
 
 2.02 is for the fins with the tab servos inside their thick bottom band: the tabs are driven directly (servo angle = tab
 angle), the motor and airframe tables include the heavier fin can, the nose ballast and the 36 in parachute, and

@@ -6,8 +6,8 @@
  "fins.tab.r_to": 26.1,
  "fins.tab.chord": 34.2,
  "fins.leg.foot_base_mm2 /10": 8.2,
- "tvc.linkage_ratio x100 (ring)": 50.0,
- "tvc.linkage_ratio x100 (motor holder)": 50.0,
+ "tvc.linkage_ratio x100 (ring)": 40.9,
+ "tvc.linkage_ratio x100 (motor holder)": 40.9,
  "z_tip_above_tail": 899,
  "switch_slot_deg": 203.8,
  "groove_deg": [

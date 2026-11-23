@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Monte-Carlo dispersion analysis, real flight code in the loop (KESTREL-2: TVC + 4 fin tabs).
 
-    python3 montecarlo.py [N_E20] [N_D20]
+    python3 montecarlo.py [N_F35] [N_E20] [N_D20]     (default 600 + 200 + 200)
 """
 import json
 import math
@@ -84,11 +84,13 @@ def summarise(rows):
 
 
 def main():
-    n20 = int(sys.argv[1]) if len(sys.argv) > 1 else 800
-    nd = int(sys.argv[2]) if len(sys.argv) > 2 else 200
+    n35 = int(sys.argv[1]) if len(sys.argv) > 1 else 600
+    n20 = int(sys.argv[2]) if len(sys.argv) > 2 else 200
+    nd = int(sys.argv[3]) if len(sys.argv) > 3 else 200
     from kestrel.sil import build
     build()
-    jobs = [(i, "TSP-E20") for i in range(n20)] + [(200_000 + i, "TSP-D20") for i in range(nd)]
+    jobs = ([(i, "TSP-F35") for i in range(n35)] + [(100_000 + i, "TSP-E20") for i in range(n20)] +
+            [(200_000 + i, "TSP-D20") for i in range(nd)])
     t0 = time.time()
     res = {}
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:

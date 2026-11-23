@@ -17,18 +17,19 @@ Drag build-up at 40 m/s, coasting (`Cd0` = 0.85, every term includes the 8 % all
 | tab hinges / linkages | 0.017 |
 | gimbal gap | 0.011 |
 
-Dry mass with 25 g payload, no motor: 761 g
+Dry mass with 25 g payload, no motor: 764 g
 
-| Change (passive, calm, 1 m rod) | E20 apogee | rod-exit speed |
+| Change (passive, calm, 1 m rod) | F35 apogee | rod-exit speed |
 |---|---|---|
-| **as designed** (rated 36 Ns, 25 g payload) | 57.5 m | 6.8 m/s |
-| empty payload bay | 61.9 m | 7.0 m/s |
-| maximum 50 g payload | 53.4 m | 6.6 m/s |
-| E20 delivering its published curve (40 Ns) | 70.7 m | 7.1 m/s |
-| 33 g lighter (= no nose ballast; margin would fall to +0.47 cal) | 63.4 m | 7.1 m/s |
-| 50 g lighter | 66.7 m | 7.2 m/s |
-| 100 g lighter | 77.5 m | 7.7 m/s |
-| drag 20 % lower | 58.2 m | 6.8 m/s |
-| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 190 m | 10.0 m/s |
+| **as designed** (rated 65 Ns, 25 g payload) | 188.3 m | 10.0 m/s |
+| empty payload bay | 197.6 m | 10.2 m/s |
+| maximum 50 g payload | 179.4 m | 9.8 m/s |
+| F35 delivering its published curve (67 Ns) | 195.5 m | 9.7 m/s |
+| 33 g lighter (= no nose ballast; margin would fall to +0.33 cal) | 200.6 m | 10.3 m/s |
+| 50 g lighter | 207.2 m | 10.4 m/s |
+| 100 g lighter | 227.7 m | 10.8 m/s |
+| drag 20 % lower | 196.0 m | 10.0 m/s |
+| TSP E20 in the 24 mm adapter (second test flights) | 53.3 m | 6.6 m/s |
+| TSP D20 in the 24 mm adapter (first test hops) | 18.9 m | 6.9 m/s |
 
-(16 s)
+(24 s)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fly the baseline case (E20, 3 m/s wind) with the real flight code (SIL) and write the result in the exact CSV
+"""Fly the baseline case (F35, 3 m/s wind) with the real flight code (SIL) and write the result in the exact CSV
 format the flight computer's `dump` command produces -> firmware/tools/example_flight_sim.csv.
 Lets you try firmware/tools/kestrel_link.py (summary / plot) before you have a real flight.
 GPS positions are offsets from an arbitrary reference point (52.0 N, 1.0 W)."""
@@ -39,7 +39,7 @@ def main():
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
                  "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n")
-        fh.write(f"# session: fw {fw_version()} flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
+        fh.write(f"# session: fw {fw_version()} flight 1 motor {BASE['motor']} (SIMULATED - sim/make_example_log.py)\n")
         vz_prev, t_prev = 0.0, t[0]
         for k in range(len(t)):
             s = st[k]

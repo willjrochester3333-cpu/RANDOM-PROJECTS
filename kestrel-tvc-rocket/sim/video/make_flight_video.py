@@ -34,7 +34,7 @@ STATE_NAMES = ["BOOT", "CALIBRATING", "READY", "BOOST", "COAST", "DESCENT", "LAN
 
 
 def fly(seed):
-    cfg = montecarlo.sample(seed, "TSP-E20")
+    cfg = montecarlo.sample(seed, "TSP-F35")
     cfg["t_pad"] = 6.0
     cfg["log_every"] = 2
     sim = Simulation(SimConfig(**cfg), SilFsw({}))

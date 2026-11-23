@@ -85,7 +85,7 @@ def main():
         fits = all(sorted(ext)[i] <= sorted(BED)[i] for i in range(3))
         wall = wall_probe(m) if ok_w else float("nan")
         mass = effective_density(m.volume / 1000.0, m.area / 100.0) * p["qty"] if ok_v else float("nan")
-        if not p["name"].startswith(("pad_", "rod_tip", "tool_")):
+        if p.get("group", "rocket") == "rocket":            # pad, build tools and the 24 mm adapter set left out
             total_rocket += 0 if np.isnan(mass) else mass
         ov_area, ov_largest = overhang(m) if ok_w else (float("nan"), float("nan"))
         sup = SUPPORTS.get(p["name"], "")
@@ -100,7 +100,8 @@ def main():
     md = ("| part | qty | size mm | solid cm³ | est. printed g | thinnest wall mm (2nd pct) | watertight | bodies | fits 220x220x250 | "
           "overhang mm² (>45°) / largest flat region | supports | result |\n"
           "|---|---|---|---|---|---|---|---|---|---|---|---|\n" + "\n".join(rows) +
-          f"\n\nEstimated printed rocket parts total: **{total_rocket:.0f} g** (walls 1.2 mm + 20% infill assumption)\n\n"
+          f"\n\nEstimated printed rocket parts total: **{total_rocket:.0f} g** as flown with the F35 (walls 1.2 mm + 20% infill "
+          f"assumption; the 24 mm adapter set, launch pad and build tools not included)\n\n"
           f"Overhangs are measured in the exported print orientation. A part without listed supports passes only if no flat "
           f"downward region is larger than {MAX_UNSUPPORTED_MM2:.0f} mm² apart from narrow bridges; see the table for the parts "
           f"that are printed with support material.\n")

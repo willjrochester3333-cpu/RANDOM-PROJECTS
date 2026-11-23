@@ -13,11 +13,11 @@ enum ServoChannel : uint8_t { SERVO_TVC_RING = 0, SERVO_TVC_MOTOR = 1, SERVO_DEP
 
 struct Settings {
     uint32_t magic{0x4B535431u};          // "KST1"
-    uint16_t version{5};                  // 5 = direct-drive fin tabs (servo inside the fin); 4 had pushrod tabs
+    uint16_t version{6};                  // 6 = 29 mm TVC mount (gimbal arms 22 mm); 5 = direct-drive fin tabs; 4 had pushrod tabs
     uint16_t size{sizeof(Settings)};
     AxisMap axes{};
     uint8_t axes_valid{0};                // 0 until the two-pose calibration has been done
-    uint8_t motor_index{2};               // index into kMotors (motor_db.hpp); default TSP-E20
+    uint8_t motor_index{5};               // index into kMotors (motor_db.hpp); default TSP-F35 (0 = D20, 2 = E20)
     uint8_t hold_launch_attitude{1};
     uint8_t reserved0{0};
     float trim_us[kServoCount]{0, 0, 0, 0, 0, 0, 0};
@@ -25,7 +25,7 @@ struct Settings {
     uint8_t tabs_enabled{1};              // fin-tab control on/off
     uint8_t reserved1{0};
     float us_per_servo_deg{10.5f};        // MG90S: ~1000-2000 us for ~95 deg
-    float linkage_ratio{0.5f};            // gimbal deg per servo deg: 9 mm horn / 18 mm gimbal arm (design.json tvc.linkage_ratio)
+    float linkage_ratio{0.4091f};         // gimbal deg per servo deg: 9 mm horn / 22 mm gimbal arm (design.json tvc.linkage_ratio)
     float deploy_latched_us{1050.0f};     // latch bolts out (locked)
     float deploy_released_us{1950.0f};    // latch bolts pulled in (parachute free)
     float max_gimbal_deg{6.0f};

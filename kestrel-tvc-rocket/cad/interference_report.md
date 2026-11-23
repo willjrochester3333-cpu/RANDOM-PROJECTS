@@ -6,7 +6,11 @@
 
 ## Gimbal sweep
 
-Motor, holder, retainer and ring swung round the whole deflection circle (24 directions at 7 deg = firmware limit 6.0 deg + 1 deg margin): 550 contact checks.
+Motor, holder, both retainers, the 24 mm adapter sleeve and the ring swung round the whole deflection circle (24 directions at 7 deg = firmware limit 6.0 deg + 1 deg margin) against the frame, fin can, tube, servos, horns and pushrods: 1350 contact checks.
+
+## 24 mm adapter
+
+Adapter sleeve, 24 mm retainer, D-motor spacer, a 24 x 95 mm (E) and a 24 x 70 mm (D) motor checked against each other and the holder: 9 checks; the D motor + spacer stack is 0.7 mm short of the washer ledge.
 
 ## Control-tab sweep
 

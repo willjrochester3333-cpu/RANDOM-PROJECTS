@@ -180,6 +180,10 @@ class Rocket:
             elif c.get("auto") == "cad":
                 mp_path = os.path.join(ROOT, "cad", "mass_properties.json")
                 for q in json.load(open(mp_path)):
+                    ow = q.get("only_with")        # motor-specific parts: 29 mm retainer, 24 mm adapter set
+                    if ow and (abs(self.motor.diameter * 1000.0 - ow["motor_d"]) > 0.6 or
+                               ("motor_len" in ow and abs(self.motor.length * 1000.0 - ow["motor_len"]) > 1.0)):
+                        continue
                     comps.append(("cad:" + q["name"], q["mass_g"] / 1000.0, q["z"] / 1000.0, q["length"] / 1000.0, q["radius"] / 1000.0))
             else:
                 comps.append((c["name"], c["mass_g"] / 1000.0, c["z"] / 1000.0, c["length"] / 1000.0, c["radius"] / 1000.0))

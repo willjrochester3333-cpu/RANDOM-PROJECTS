@@ -20,7 +20,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "sim"))
 from kestrel.rocket import Rocket, Motor, load_design, G0  # noqa: E402
 
-MOTORS = ["TSP-D20", "TSP-E12", "TSP-E20", "Estes-E12", "Estes-D12"]
+MOTORS = ["TSP-D20", "TSP-E12", "TSP-E20", "Estes-E12", "Estes-D12", "TSP-F35"]   # new motors go at the end (indices are stored in Settings)
 DETECT_G = 2.0
 NPTS = 24
 

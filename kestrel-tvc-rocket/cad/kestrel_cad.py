@@ -73,7 +73,9 @@ NS_W = 1.2
 SHO_R = R - NS_W - 0.10                 # 26.85
 SHO_RI = SHO_R - 1.6                    # 25.25
 Z_TOPI0 = Z_MID1 - 36.0                 # bottom of the top (release-latch) insert
-# TVC (unchanged from KESTREL-1, flight-proven geometry in the gimbal sweep)
+# TVC: 29 mm mount for the TSP F35 (the 24 mm D20 / E20 fit with a printed adapter sleeve and their own retainer).
+# Same layout as the 24 mm module; the holder and ring are 2.5 mm larger in radius and the pushrods sit 4 mm further
+# out (gimbal arms 22 mm) so that they clear the bigger holder when it swings
 MOTOR_D = TVC["motor_diameter"]
 MOTOR_L = 95.0
 Z_MOTOR0 = -TVC["nozzle_protrusion"]
@@ -83,12 +85,14 @@ HOLD_R = HOLD_RI + 1.6
 RING_RI, RING_R = HOLD_R + 1.4, HOLD_R + 4.4
 FRAME_R = INS_R
 FRAME_TOP = 156.0
+FRAME_BOT_RI = 26.0                     # bottom ring of the TVC frame (24.6 on the 24 mm mount): clears the 29 mm retainer
 SV = dict(L=22.8, W=12.2, H=22.5, tab_L=32.2, tab_t=2.5, tab_z=15.9, shaft_off=5.9, spline=5.0, pitch=27.8)
 SV_MASS = 13.4
 SV1_Z, SV2_Z = 120.0, 145.0
 SV_SHAFT_R = 16.0
-PR1 = (9.0, 18.0)
-PR2 = (18.0, 9.0)
+PR1 = (9.0, 22.0)                       # ring pushrod: horn hole radius 9 mm, gimbal arm 22 mm (linkage 9/22)
+PR2 = (22.0, 9.0)                       # motor-holder pushrod
+TAB_BOSS_R = 2.0                        # round boss round each pushrod hole (keeps the tabs inside the frame)
 HOLDER_TAB_Z = Z_PIVOT + 12.0
 TAIL_SCREW_Z, TAIL_SCREW_ANG = 16.0, (90.0, 210.0)
 # fins, legs, control tabs.  KESTREL-2c: normal 4 mm fins; only the bottom band that holds the tab hinge, the tab servo
@@ -185,7 +189,7 @@ SW_ANG = math.degrees(math.atan2(SW_Y, SW_X)) % 360.0
 
 LOWER_TUBE = f"BT70_bottom_tube_{L_LOW:.0f}"
 MID_TUBE = f"BT70_middle_tube_{L_MID:.0f}"
-MOTOR_NAME = "motor_" + D["launch"]["nominal_motor"].replace("-", "_") + "_24x95"
+MOTOR_NAME = "motor_" + D["launch"]["nominal_motor"].replace("-", "_") + f"_{MOTOR_D:.0f}x{MOTOR_L:.0f}"
 PCB_NAME = f"pcb_kestrel_fc_{BW:.0f}x{BH:.0f}"
 
 STL_DIR = os.path.join(HERE, "stl")
@@ -655,7 +659,9 @@ def avbay_sled(M):
 
 
 def tvc_holder(M):
-    z1 = Z_MOTOR0 + MOTOR_L + 1.5 + 2.5
+    # closed top: 2.2 mm roof, a 1.9 mm deep recess for the 25 mm penny washer, and 0.3 mm of play above the motor
+    # (the F35's rim bears on the ledge round the recess, a 24 mm motor on the washer)
+    z1 = Z_MOTOR0 + MOTOR_L + 0.3 + 1.9 + 2.2
     zc = z1 - 2.2
     m = revolve([(HOLD_RI, 0.0), (HOLD_R, 0.0), (HOLD_R, z1), (0.0, z1), (0.0, zc), (12.6, zc),
                  (12.6, zc - 1.9), (HOLD_RI, zc - 1.9)])
@@ -663,7 +669,9 @@ def tvc_holder(M):
         m = m + ycyl(3.4, 1.1, 32).translate((0, sy * (HOLD_R + 0.15), Z_PIVOT))
     for sy in (1, -1):
         m = m - ycyl(1.25, 3.0, 16).translate((0, sy * (HOLD_R + 0.15), Z_PIVOT))
-    tab = box(8.5, 4.0, 4.0, HOLD_R + 3.4, PR2[1], HOLDER_TAB_Z) + box(5.0, PR2[1] + 2.0, 4.0, HOLD_R + 0.8, PR2[1] / 2, HOLDER_TAB_Z)
+    tab = (bx(HOLD_R - 0.85, PR2[0], PR2[1] - 2.0, PR2[1] + 2.0, HOLDER_TAB_Z - 2.0, HOLDER_TAB_Z + 2.0)
+           + cyl(TAB_BOSS_R, 4.0, HOLDER_TAB_Z - 2.0, PR2[0], PR2[1], segs=32)
+           + box(5.0, PR2[1] + 2.0, 4.0, HOLD_R + 0.8, PR2[1] / 2, HOLDER_TAB_Z))
     tab = tab - cyl(HOLD_R - 0.6, 10, HOLDER_TAB_Z - 5)
     m = m + tab - cyl(0.7, 6.0, HOLDER_TAB_Z - 3.0, PR2[0], PR2[1], segs=16)
     for a in (45, 225):
@@ -682,7 +690,9 @@ def tvc_ring(M):
     m = m - xcyl(1.25, 2 * RING_R + 8, 16).translate((0, 0, Z_PIVOT))
     m = m - ycyl(1.65, 2 * RING_R + 8, 16).translate((0, 0, Z_PIVOT))
     m = m - cyl(HOLD_R + 0.6, 40, Z_PIVOT - 20)
-    tab = box(6.0, 5.0, 3.0, PR1[0], PR1[1] + 0.5, Z_PIVOT) + box(5.0, 6.0, 3.0, PR1[0] - 2.0, RING_R - 0.5, Z_PIVOT)
+    tab = (bx(PR1[0] - 2.0, PR1[0] + 2.0, RING_R - 1.0, PR1[1], Z_PIVOT - 1.5, Z_PIVOT + 1.5)
+           + cyl(TAB_BOSS_R, 3.0, Z_PIVOT - 1.5, PR1[0], PR1[1], segs=32)
+           + box(5.0, 6.0, 3.0, PR1[0] - 2.0, RING_R - 0.5, Z_PIVOT))
     m = m + tab - cyl(0.7, 6.0, Z_PIVOT - 3.0, PR1[0], PR1[1], segs=16)
     return register("tvc_gimbal_ring", m, M["orange"], part="tvc", note="PETG")
 
@@ -691,7 +701,7 @@ def tvc_frame(M):
     ro = FRAME_R
     ri = ro - 1.0
     m = tube(ro, ri, FRAME_TOP, 0.0)
-    windows = [(22.0, 40.0), (56.0, 94.0), (105.0, 121.0), (133.0, 149.0)]
+    windows = [(22.0, 40.0), (54.0, 94.0), (105.0, 121.0), (133.0, 149.0)]   # 54: the holder's pushrod tab swings here
     for z0, z1 in windows:
         w = tube(ro + 1.0, ri - 1.0, z1 - z0, z0, segs=96)
         for a in GROOVE_ANG:
@@ -702,7 +712,7 @@ def tvc_frame(M):
         lon = polar(bx(ro - 3.0, ro, -3.5, 3.5, CAB_Z0 - 4.0, FRAME_TOP), a) ^ cyl(ro, 300, -1)
         m = m + lon
         m = m - polar(bx(ro - 1.6, ro + 1.0, -2.1, 2.1, CAB_Z0 - 2.0, FRAME_TOP + 1.0), a)
-    m = m + tube(ro, 24.6, 4.0, 0.0)
+    m = m + tube(ro, FRAME_BOT_RI, 4.0, 0.0)
     for sx in (1, -1):
         post = box(ri - (RING_R + 2.7) + 0.8, 8.0, 12.0, sx * ((ri + RING_R + 2.7) / 2 + 0.4), 0, Z_PIVOT)
         m = m + post
@@ -735,13 +745,38 @@ def tvc_frame(M):
     return register("tvc_frame", m, M["grey"], part="tvc", note="PETG, print upright; supports only under the servo bars")
 
 
-def retainer(M):
+def retainer_solid(lip_r):
     z0 = Z_MOTOR0 - 1.5
-    m = tube(HOLD_R + 3.4, HOLD_R + 0.3, 13.0, z0) + tube(HOLD_R + 3.4, 8.0, 1.5, z0)
+    m = tube(HOLD_R + 3.4, HOLD_R + 0.3, 13.0, z0) + tube(HOLD_R + 3.4, lip_r, 1.5, z0)
     for a in (45, 225):
         m = m - polar(box(4.0, 5.6, 7.0, HOLD_R + 1.4, 0, z0 + 1.5 + 3.5 + 4.5), a)
         m = m - polar(box(4.0, 9.0, 3.6, HOLD_R + 1.4, 3.0, 4.0), a)
-    return register("tvc_motor_retainer", m, M["orange"], part="tvc", note="Twist-lock: push up over the lugs and turn 45 deg")
+    return m
+
+
+RET_LIP_R = 11.0          # 29 mm retainer: 22 mm opening, the lip holds the F35 by its case (3.5 mm of lip)
+RET24_LIP_R = 8.0         # 24 mm retainer: 16 mm opening, holds a 24 mm motor in the adapter sleeve
+ADAPT_RO = MOTOR_D / 2 - 0.05             # adapter sleeve: slides into the 29 mm bore like the F35 does
+ADAPT_RI = 12.0 + 0.2                     # 24 mm motor + 0.2 mm
+D_MOTOR_L = 70.0                          # TSP D20 / D12 length; the spacer fills the rest of the 95 mm bore
+
+
+def retainer(M):
+    return register("tvc_motor_retainer", retainer_solid(RET_LIP_R), M["orange"], part="tvc",
+                    note="Twist-lock: push up over the lugs and turn 45 deg. For the 29 mm F35")
+
+
+def motor_adapter(M):
+    """24 mm motors (D20, E20) in the 29 mm mount: a sleeve as long as the bore, their own retainer with a smaller
+    opening, and a spacer above the 70 mm D motors so that every motor sits against the penny washer"""
+    sleeve = tube(ADAPT_RO, ADAPT_RI, MOTOR_L - 0.2, Z_MOTOR0)
+    register("tvc_motor_adapter_24mm", sleeve, M["orange"], part="tvc", group="adapter",
+             note="24 mm motors only: slide it into the motor holder, then the motor into it. PETG, 3 walls")
+    register("tvc_motor_retainer_24mm", retainer_solid(RET24_LIP_R), M["orange"], part="tvc", group="adapter",
+             note="24 mm motors only (with the adapter sleeve): its 16 mm opening holds the 24 mm motor")
+    spacer = cyl(ADAPT_RI - 0.3, MOTOR_L - D_MOTOR_L - 0.4, Z_MOTOR0 + D_MOTOR_L, segs=64)
+    register("tvc_motor_spacer_D", spacer, M["orange"], part="tvc", group="adapter",
+             note="D20 / D12 only (70 mm long): goes into the sleeve first, above the motor. 3 walls, 30 %")
 
 
 # ---------------- fins, legs, control tabs and their servos (built for one fin in the local frame) ----------------
@@ -1154,7 +1189,7 @@ def build_all(M):
     register("latch_bolt", latch_bolt(M), M["black"], part="middle", note="PETG. Bevel UP. Must slide freely; rub with graphite")
     door_frame(M); payload_door_parts(M); payload_wall(M); spring_piston(M)
     avbay_coupler(M); avbay_sled(M)
-    tvc_holder(M); tvc_ring(M); tvc_frame(M); retainer(M)
+    tvc_holder(M); tvc_ring(M); tvc_frame(M); retainer(M); motor_adapter(M)
     fin_can(M); fin_tabs(M); upper_lug(M); camera_pod(M)
     pad_hub(M); pad_rod_block(M)
     tail_z = PAD_TOP - FOOT_Z
@@ -1341,7 +1376,11 @@ def sweep_reports(buy):
              (MOTOR_NAME, buy[MOTOR_NAME][0])]
     ring = ("tvc_gimbal_ring", PARTS["tvc_gimbal_ring"]["m"])
     static = [(n, PARTS[n]["m"]) for n in ("tvc_frame", "fin_can")]
-    static += [(n, buy[n][0]) for n in (LOWER_TUBE, "servo_MG90S_tvc_ring", "servo_MG90S_tvc_holder")]
+    static += [(n, buy[n][0]) for n in (LOWER_TUBE, "servo_MG90S_tvc_ring", "servo_MG90S_tvc_holder",
+                                        "pushrod_ring_1.2mm", "pushrod_holder_1.2mm", "horn_tvc_ring", "horn_tvc_holder")]
+    # the 24 mm adapter sleeve and retainer swing with the holder too
+    inner += [(n, PARTS[n]["m"]) for n in ("tvc_motor_adapter_24mm", "tvc_motor_retainer_24mm")]
+    linked = {("tvc_gimbal_ring", "pushrod_ring_1.2mm"), ("tvc_motor_holder", "pushrod_holder_1.2mm")}  # rod in its tab hole
 
     def piv(m, rx, ry):
         return m.translate((0, 0, -Z_PIVOT)).rotate((0, ry, 0)).rotate((rx, 0, 0)).translate((0, 0, Z_PIVOT))
@@ -1351,6 +1390,8 @@ def sweep_reports(buy):
         moving = [(nm, piv(m, rx, ry)) for nm, m in inner] + [(ring[0], piv(ring[1], rx, 0.0))]
         for nm, m in moving:
             for sn, sm in static:
+                if (nm, sn) in linked:
+                    continue
                 v = (m ^ sm).volume()
                 n += 1
                 if v > 0.5:
@@ -1360,8 +1401,29 @@ def sweep_reports(buy):
             n += 1
             if v > 0.5:
                 rows.append(("gimbal", f"{rx:+.1f}/{ry:+.1f} deg", nm, ring[0], v))
-    md.append(f"\n## Gimbal sweep\n\nMotor, holder, retainer and ring swung round the whole deflection circle ({len(envelope) - 1} directions at "
-              f"{max_deg:.0f} deg = firmware limit {TVC['max_deflection_deg']} deg + 1 deg margin): {n} contact checks.")
+    md.append(f"\n## Gimbal sweep\n\nMotor, holder, both retainers, the 24 mm adapter sleeve and the ring swung round the whole "
+              f"deflection circle ({len(envelope) - 1} directions at {max_deg:.0f} deg = firmware limit {TVC['max_deflection_deg']} deg "
+              f"+ 1 deg margin) against the frame, fin can, tube, servos, horns and pushrods: {n} contact checks.")
+    # 24 mm motors in the 29 mm mount: sleeve, retainer, spacer and a D / E motor must fit together and in the holder
+    hold = PARTS["tvc_motor_holder"]["m"]
+    sleeve = PARTS["tvc_motor_adapter_24mm"]["m"]
+    ret24 = PARTS["tvc_motor_retainer_24mm"]["m"]
+    spacer = PARTS["tvc_motor_spacer_D"]["m"]
+    e_mot = cyl(12.0, MOTOR_L, Z_MOTOR0, segs=64)
+    d_mot = cyl(12.0, D_MOTOR_L, Z_MOTOR0, segs=64)
+    fit = [("adapter sleeve", sleeve, "motor holder", hold), ("adapter sleeve", sleeve, "24 mm retainer", ret24),
+           ("24 mm retainer", ret24, "motor holder", hold), ("E motor 24 x 95", e_mot, "adapter sleeve", sleeve),
+           ("E motor 24 x 95", e_mot, "24 mm retainer", ret24), ("E motor 24 x 95", e_mot, "motor holder", hold),
+           ("D motor 24 x 70", d_mot, "D spacer", spacer), ("D spacer", spacer, "adapter sleeve", sleeve),
+           ("D spacer", spacer, "motor holder", hold)]
+    for an, am, bn, bm in fit:
+        v = (am ^ bm).volume()
+        if v > 0.5:
+            rows.append(("24 mm adapter", "fitted", an, bn, v))
+    gap_top = (Z_MOTOR0 + MOTOR_L + 0.3) - (Z_MOTOR0 + D_MOTOR_L + (MOTOR_L - D_MOTOR_L - 0.4))
+    md.append(f"\n## 24 mm adapter\n\nAdapter sleeve, 24 mm retainer, D-motor spacer, a 24 x 95 mm (E) and a 24 x 70 mm (D) motor "
+              f"checked against each other and the holder: {len(fit)} checks; the D motor + spacer stack is {gap_top:.1f} mm "
+              f"short of the washer ledge.")
     # 2) control tabs: every fin, tab + its glued-in horn through +/- (limit + 2 deg)
     lim = TABP["max_deflection_deg"] + 2.0
     fc = PARTS["fin_can"]["m"]
@@ -1568,7 +1630,9 @@ LAYOUT = [
         ("part", "camera_pod", "camera pod"), ("part", "upper_launch_lug", "upper\nlaunch lug")]),
     ("TVC module (printed)", [
         ("part", "tvc_frame", "TVC frame"), ("part", "tvc_gimbal_ring", "gimbal ring"),
-        ("part", "tvc_motor_holder", "motor holder"), ("part", "tvc_motor_retainer", "motor retainer")]),
+        ("part", "tvc_motor_holder", "motor holder"), ("part", "tvc_motor_retainer", "motor retainer"),
+        ("part", "tvc_motor_adapter_24mm", "24 mm adapter\n(D20 / E20)"),
+        ("part", "tvc_motor_retainer_24mm", "24 mm motor\nretainer"), ("part", "tvc_motor_spacer_D", "D-motor\nspacer")]),
     ("Electronics (bought; the PCB comes assembled from JLCPCB)", [
         ("buy", "pcb_kestrel_fc_40x82", "flight-computer\nPCB"), ("buy", "pico2w_on_sockets", "Pico 2 W\non its sockets"),
         ("buy", "fc_connectors_buzzer_switch", "servo headers,\nbuzzer, switch"),
@@ -1580,7 +1644,7 @@ LAYOUT = [
         ("buy", "pushrod_ring_1.2mm", "1.2 mm pushrod\nx 2 (TVC)"), ("buy", "latch_spring_link_0.6mm", "0.6 mm\nlatch link")]),
     ("Airframe, motor and recovery (bought)", [
         ("buyflat", LOWER_TUBE, "BT-70 bottom tube, 340 mm"), ("buyflat", MID_TUBE, "BT-70 middle tube, 380 mm"),
-        ("buy", MOTOR_NAME, "TSP E20\nmotor"), ("buy", "parachute_packed", "36 in parachute\n(packed)"),
+        ("buy", MOTOR_NAME, D["launch"]["nominal_motor"].replace("-", " ") + "\nmotor"), ("buy", "parachute_packed", "36 in parachute\n(packed)"),
         ("buy", "shock_cord_kevlar_elastic", "shock cord\n(coiled)"), ("spring", None, "ejection\nspring"),
         ("buy", "nose_ballast_M3_nuts", "nose ballast:\nM3 nuts + epoxy"), ("buy", "payload_example_25g", "example\npayload 25 g")]),
     ("Launch pad", [

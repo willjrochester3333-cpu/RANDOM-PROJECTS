@@ -89,35 +89,72 @@
  },
  {
   "name": "tvc_motor_holder",
-  "mass_g": 17.2,
-  "z": 848.2,
+  "mass_g": 21.3,
+  "z": 846.4,
   "length": 0.0,
-  "radius": 13.1,
+  "radius": 15.5,
   "source": "CAD"
  },
  {
   "name": "tvc_gimbal_ring",
-  "mass_g": 3.4,
+  "mass_g": 3.8,
   "z": 851.0,
   "length": 0.0,
-  "radius": 17.2,
+  "radius": 19.9,
   "source": "CAD"
  },
  {
   "name": "tvc_frame",
-  "mass_g": 27.7,
-  "z": 824.9,
+  "mass_g": 25.7,
+  "z": 821.0,
   "length": 0.0,
-  "radius": 26.3,
+  "radius": 26.5,
   "source": "CAD"
  },
  {
   "name": "tvc_motor_retainer",
-  "mass_g": 5.3,
+  "mass_g": 6.2,
   "z": 899.1,
   "length": 0.0,
-  "radius": 14.3,
-  "source": "CAD"
+  "radius": 16.8,
+  "source": "CAD",
+  "only_with": {
+   "motor_d": 29.0
+  }
+ },
+ {
+  "name": "tvc_motor_adapter_24mm",
+  "mass_g": 22.3,
+  "z": 855.6,
+  "length": 0.0,
+  "radius": 13.3,
+  "source": "CAD",
+  "only_with": {
+   "motor_d": 24.0
+  }
+ },
+ {
+  "name": "tvc_motor_retainer_24mm",
+  "mass_g": 6.6,
+  "z": 899.3,
+  "length": 0.0,
+  "radius": 16.2,
+  "source": "CAD",
+  "only_with": {
+   "motor_d": 24.0
+  }
+ },
+ {
+  "name": "tvc_motor_spacer_D",
+  "mass_g": 7.0,
+  "z": 820.7,
+  "length": 0.0,
+  "radius": 10.5,
+  "source": "CAD",
+  "only_with": {
+   "motor_d": 24.0,
+   "motor_len": 70.0
+  }
  },
  {
   "name": "fin_can",

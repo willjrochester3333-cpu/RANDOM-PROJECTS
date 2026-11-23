@@ -181,15 +181,15 @@
   "note": "PETG/ASA. Press/glue an M10 x 25 mm steel penny washer into the top recess (burn-through shield)",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 13764.78797891964,
-  "area_mm2": 17025.15419278726,
+  "volume_mm3": 17069.177582702898,
+  "area_mm2": 20414.830129580776,
   "centroid_assembly_mm": [
-   0.30651855415635104,
-   0.12087513559515434,
-   50.752443894733574
+   0.2741687375944622,
+   0.09335087802214517,
+   52.63974839577858
   ],
-  "r_gyr_mm": 13.14936002848759,
-  "z_len_mm": 95.0
+  "r_gyr_mm": 15.480007042932547,
+  "z_len_mm": 95.4000015258789
  },
  {
   "name": "tvc_gimbal_ring",
@@ -197,14 +197,14 @@
   "note": "PETG",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 2687.4780689781833,
-  "area_mm2": 2634.1941580201265,
+  "volume_mm3": 3041.2308361560613,
+  "area_mm2": 2955.2016785647475,
   "centroid_assembly_mm": [
-   0.30428630954801383,
-   0.6667648555573162,
-   48.00000000024452
+   0.18808719012666567,
+   0.5129148182858493,
+   47.999999999844185
   ],
-  "r_gyr_mm": 17.1527172781611,
+  "r_gyr_mm": 19.854737568372695,
   "z_len_mm": 8.0
  },
  {
@@ -213,31 +213,79 @@
   "note": "PETG, print upright; supports only under the servo bars",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 22180.95909516219,
-  "area_mm2": 38783.42060201733,
+  "volume_mm3": 20585.96351855027,
+  "area_mm2": 37604.59911794837,
   "centroid_assembly_mm": [
-   0.09158141274512101,
-   0.313966184462293,
-   74.1258486632623
+   0.08211536496093014,
+   0.3217304486548165,
+   78.04772865829453
   ],
-  "r_gyr_mm": 26.329897989831487,
+  "r_gyr_mm": 26.526627540608725,
   "z_len_mm": 156.0
  },
  {
   "name": "tvc_motor_retainer",
   "qty": 1,
-  "note": "Twist-lock: push up over the lugs and turn 45 deg",
+  "note": "Twist-lock: push up over the lugs and turn 45 deg. For the 29 mm F35",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 4250.685347188969,
-  "area_mm2": 3902.0377107816394,
+  "volume_mm3": 4974.57878872848,
+  "area_mm2": 4533.845292782027,
   "centroid_assembly_mm": [
-   3.4429827812809926e-09,
-   9.203847225543527e-10,
-   -0.10286543199571548
+   1.3519208062053771e-08,
+   -2.4878563016652936e-08,
+   -0.05106719820779839
   ],
-  "r_gyr_mm": 14.25087344098562,
+  "r_gyr_mm": 16.815760128877557,
   "z_len_mm": 13.0
+ },
+ {
+  "name": "tvc_motor_adapter_24mm",
+  "qty": 1,
+  "note": "24 mm motors only: slide it into the motor holder, then the motor into it. PETG, 3 walls",
+  "group": "adapter",
+  "part": "tvc",
+  "volume_mm3": 17851.03974692699,
+  "area_mm2": 16248.976065263989,
+  "centroid_assembly_mm": [
+   -1.0869144050631583e-15,
+   -1.023228014141489e-15,
+   43.40000152587887
+  ],
+  "r_gyr_mm": 13.347784683177354,
+  "z_len_mm": 94.80000305175781
+ },
+ {
+  "name": "tvc_motor_retainer_24mm",
+  "qty": 1,
+  "note": "24 mm motors only (with the adapter sleeve): its 16 mm opening holds the 24 mm motor",
+  "group": "adapter",
+  "part": "tvc",
+  "volume_mm3": 5243.077102648111,
+  "area_mm2": 4863.571541977602,
+  "centroid_assembly_mm": [
+   8.11689432777168e-09,
+   2.899507758170752e-09,
+   -0.29169984199585836
+  ],
+  "r_gyr_mm": 16.245302281513695,
+  "z_len_mm": 13.0
+ },
+ {
+  "name": "tvc_motor_spacer_D",
+  "qty": 1,
+  "note": "D20 / D12 only (70 mm long): goes into the sleeve first, above the motor. 3 walls, 30 %",
+  "group": "adapter",
+  "part": "tvc",
+  "volume_mm3": 10926.499140956772,
+  "area_mm2": 2726.934231783114,
+  "centroid_assembly_mm": [
+   -1.456656710738211e-15,
+   5.271710000766859e-16,
+   78.29999923706058
+  ],
+  "r_gyr_mm": 10.46018692556963,
+  "z_len_mm": 24.599998474121094
  },
  {
   "name": "fin_can",

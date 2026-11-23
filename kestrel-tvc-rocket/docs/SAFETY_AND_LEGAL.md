@@ -1,10 +1,12 @@
 # Safety and the rules (UK)
 
-KESTREL-2 is a model rocket: an E motor (TSP E20, rated 36 Ns), about 0.83 kg at lift-off, and no pyrotechnic
-ejection charge. That keeps it in the simplest category. But a rocket that steers itself with six servos has
-failure modes that a passive rocket does not have: a servo that jams can push it sideways. It also leaves its
-launch rod slowly (about 7 m/s), so it relies on its steering more than a light rocket would. Everything below
-assumes you take that seriously.
+KESTREL-2 is a model rocket: an F motor (TSP F35, rated 65 Ns), about 0.86 kg at lift-off, and no pyrotechnic
+ejection charge. With under 160 Ns of total impulse it stays in the simplest category (UKRA's "model rocket"; no
+CAA permission needed, see below). But a rocket that steers itself with six servos has failure modes that a passive
+rocket does not have: a servo that jams can push it sideways. It flies about **190 m** high, so it drifts a long
+way under its parachute, and on the small D20 / E20 test motors it leaves its launch rod slowly (about 7 m/s; 10 m/s
+on the F35), so it relies on its steering more than a light rocket would. Everything below assumes you take that
+seriously.
 
 This page is guidance, not legal advice. Rules change; check the current versions of the sources linked here.
 
@@ -16,10 +18,11 @@ This page is guidance, not legal advice. Rules change; check the current version
   The [BMFA](https://www.bmfa.org/) also covers model rocketry for its members.
 - **Anywhere else you need the landowner's permission** and a field big enough for the recovery (see below).
 - **Airspace**: under the Air Navigation Order, the CAA treats a rocket like this one as a "small rocket"
-  (total impulse up to 10,240 Ns). Small rockets have the lightest rules, but you still need permission to fly
-  inside controlled airspace or an aerodrome traffic zone, and you must never fly where you could endanger an
-  aircraft. Check a current air chart or a drone app for airspace before choosing a site. See the
-  [CAA](https://www.caa.co.uk/) for the current rules.
+  (total impulse up to 10,240 Ns), and rockets of 160 Ns or less need no CAA permission
+  ([CAA: notifications for smaller rockets](https://www.caa.co.uk/space/licences-and-permissions/large-rocket-permission/notifications-for-smaller-rockets/)).
+  You still must not enter controlled airspace without permission ([UKRA](https://ukra.org.uk/safety/launching-rockets/))
+  or fly inside an aerodrome traffic zone, and you must never fly where you could endanger an aircraft. The F35
+  flights reach about 190 m (620 ft): check a current air chart or a drone app for airspace before choosing a site.
 - **Motors**: buy certified motors from a UK rocketry retailer; they will apply age (normally 18+) and storage
   rules. Store them cool and dry, away from igniters. Use **"-0" (plugged) motors only**: KESTREL-2 has no use for
   an ejection charge, and a delay/ejection charge would fire into the TVC mount.
@@ -31,10 +34,10 @@ Every number in this table comes from the simulator flying the real flight code 
 
 | Rule | Why |
 |---|---|
-| Spectators **≥ 30 m** from the pad, behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 18–23 m from the pad (6 wind seeds) |
-| **Wind ≤ 3 m/s for the first three flights** | `passive_wind3`: even with all six steering servos dead, the rocket still flies (tilting 23–33°) and recovers normally in 3 m/s. In 6 m/s (`passive_wind6`) it weathercocks hard and turns right over before apogee |
-| Afterwards ≤ 6 m/s with the **1.5 m rod**; never above 9 m/s | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); the longer rod raises the rod-exit speed from 6.8 to 7.7 m/s |
-| Recovery area **≥ 200 m** clear downwind (E20), 60 m (D20) | Monte Carlo: 95 % of E20 flights land within 101 m (wind up to 6 m/s), farthest 151 m; D20 farthest 38 m |
+| Spectators **≥ 40 m** from the pad for the F35 (≥ 30 m for the D20 / E20), behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 23–26 m from the pad with the F35 (6 wind seeds; 20–22 m on the E20, 9–12 m on the D20) |
+| **Wind ≤ 3 m/s for the first three flights** (D20, D20, E20) | with all six steering servos dead, the rocket still flies and recovers normally in 3 m/s on the D20 and the E20 (E20: tilting 21° in the boost, 42° in the coast). In 6 m/s the E20 tumbles in the boost and the parachute comes out early, 23 m/s, 1.4 s before apogee |
+| Afterwards (F35) ≤ 6 m/s with the **1.5 m rod**, never above 9 m/s, and only as much wind as the recovery area allows | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); even with every steering servo dead the F35 (10 m/s off the rod) recovers normally in 3 m/s (`passive_wind3`). It drifts about 60 m per 1 m/s of wind: 170 m in 3 m/s, 340 m in 6 m/s, 520 m in 9 m/s |
+| Recovery area **≥ «F35_AREA» m** clear downwind (F35), «E20_AREA» m (E20), «D20_AREA» m (D20) | Monte Carlo: 95 % of F35 flights land within «F35_DRIFT95» m (wind up to 6 m/s), farthest «F35_DRIFTMAX» m; E20 farthest «E20_DRIFTMAX» m; D20 farthest «D20_DRIFTMAX» m |
 | Rod tilt 0–5° **downwind** only, never towards people | the rocket holds the rod direction during the burn (`rod_tilt5`) |
 | Electric ignition with a key-switch controller, 5 s countdown | standard model-rocket safety code |
 | Misfire: key out, wait **60 s** before approaching | |
@@ -54,9 +57,9 @@ its parachute hits the ground at about 32 m/s (`no_chute`).
 - **A tab jammed, frozen or dead**: roll is controlled first and each tab saturates on its own, so the others
   keep working (`tab_stuck`, `tabs_dead`); a fully jammed tab can still tumble it in the coast, so a **give-up rule**
   centres all tabs if it is more than 25° off course, and the parachute still opens at apogee (`tab_hardover`).
-- **All six steering servos dead**: it is still statically stable (+0.84 to +0.97 calibres depending on payload,
-  thanks to the nose ballast)
-  and recovers normally in light wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
+- **All six steering servos dead**: it is still statically stable (+0.69 to +0.82 calibres at lift-off with the
+  F35 depending on payload, +0.90 to +1.03 at burn-out, thanks to the nose ballast) and recovers normally in light
+  wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
 - **Excessive tilt (> 50°) or tumbling during the burn**: abort, parachute out as soon as it is slower than 30 m/s.
 - **Barometer failure**: apogee detected from the inertial estimate, with a backup timer (`baro_dead`).
 - **No apogee detected**: backup release at the motor's nominal apogee time + 3 s, or as soon as it falls faster

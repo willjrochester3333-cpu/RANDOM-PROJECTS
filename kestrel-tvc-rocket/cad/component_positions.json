@@ -9,10 +9,10 @@
   "length": 380.0,
   "radius": 28.2
  },
- "motor_TSP_E20_24x95": {
-  "z_from_tip": 855.0,
+ "motor_TSP_F35_29x95": {
+  "z_from_tip": 855.1,
   "length": 95.0,
-  "radius": 12.0
+  "radius": 14.5
  },
  "nose_ballast_M3_nuts": {
   "z_from_tip": 34.6,
@@ -42,12 +42,12 @@
  "pushrod_ring_1.2mm": {
   "z_from_tip": 815.0,
   "length": 72.0,
-  "radius": 20.7
+  "radius": 24.4
  },
  "pushrod_holder_1.2mm": {
   "z_from_tip": 796.5,
   "length": 85.0,
-  "radius": 20.7
+  "radius": 24.4
  },
  "servo_MG90S_tab1": {
   "z_from_tip": 878.6,

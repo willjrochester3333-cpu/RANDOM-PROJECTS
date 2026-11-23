@@ -2,7 +2,7 @@
 """Stress Monte Carlo: the same real-flight-code simulation as montecarlo.py, but with every error source widened
 well beyond what we expect (about twice the normal spread), to find where the design's margins end.
 
-    python3 stress_montecarlo.py [N]        (default 1000 flights, TSP-E20)
+    python3 stress_montecarlo.py [N]        (default 1000 flights, TSP-F35)
 
 The launch procedure is the documented one: the 1.5 m rod above 3 m/s of wind, never above 9 m/s.
 Writes results/stress_montecarlo.json and prints success rates by wind band and every failure.
@@ -21,7 +21,7 @@ import montecarlo as MC  # noqa: E402
 RES = MC.RES
 
 
-def sample_stress(i, motor="TSP-E20"):
+def sample_stress(i, motor="TSP-F35"):
     rng = np.random.default_rng(500_000 + i)
     wind = float(rng.uniform(0.0, 9.0))
     return dict(
@@ -107,7 +107,7 @@ def main():
                    failures=[dict(i=r["i"], wind=round(r["wind"], 1), tab_eff=round(r["tab_eff"], 2), misalign=round(r["misalign"], 2),
                                   why=w) for r, w in fails])
     json.dump(dict(summary=summary, runs=rows), open(os.path.join(RES, "stress_montecarlo.json"), "w"), indent=1, default=str)
-    print(f"stress Monte Carlo, TSP-E20, n={n}: success {100 * summary['success']:.1f} %, "
+    print(f"stress Monte Carlo, TSP-F35, n={n}: success {100 * summary['success']:.1f} %, "
           f"parachute out and landing < 7 m/s in {100 * summary['safe_recovery']:.1f} %")
     for k, v in by_band.items():
         print(f"   wind {k}: n={v['n']} success {100 * v['success']:.1f} %")

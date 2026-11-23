@@ -1,13 +1,17 @@
 # Simulation and test report (KESTREL-2)
 
-**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP E20 reaches **57 m** in
-calm air with a 25 g payload (Monte Carlo mean **62 m**, 90 % of flights between 47 and 79 m). It held its roll
-angle to within 4° and the launch direction to within 3.3° during the burn (95th percentile). It released the
-parachute within ±0.1 s of apogee and landed at about 4.9 m/s in **1000 of 1000 randomised flights** (E20 and D20).
-**40 of 40 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within 0.3 %.
+**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP F35 reaches **188 m** in
+calm air with a 25 g payload (Monte Carlo mean **«F35_MEAN» m**, 90 % of flights between «F35_P5» and «F35_P95» m).
+It held its roll angle to within «F35_ROLL95»° and the launch direction to within «F35_TILT95»° during the burn
+(95th percentile). It released the parachute within «DEP_WINDOW» s of apogee and landed at about «LAND_MEAN» m/s in
+**«MC_OK» of «MC_N» randomised flights** (F35, and the E20 and D20 test motors in their 24 mm adapter).
+**«SC_PASS» of «SC_GRADED» graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within
+«RP_WORST» %.
 
-The apogee is well below the ~123 m I estimated when we chose the motor. Section 3 explains why, with numbers;
-putting the tab servos inside the fins is about 20 m of it.
+You asked for 200 m. With the airframe exactly as it is, the 29 mm F35 gives 188 m (198 m with an empty payload
+bay); section 3 shows what the last metres would cost. The price of the height is drift: under its parachute the
+rocket comes down for about 40 s, so it lands «F35_DRIFT_MEAN» m from the pad on average and up to «F35_DRIFTMAX» m
+in winds up to 6 m/s.
 
 ## 1. How the rocket is simulated
 
@@ -16,12 +20,12 @@ putting the tab servos inside the fins is about 20 m of it.
 | Model | Details |
 |---|---|
 | Rigid body | quaternion attitude, 500 Hz; mass, CG and inertia (roll and pitch) vary as the propellant burns |
-| Mass properties | printed parts from the **actual CAD meshes** with their print settings (`cad/mass_properties.json`), tubes from density, every bought part where the CAD puts it (`cad/component_positions.json`), payload 0–50 g in the bay |
+| Mass properties | printed parts from the **actual CAD meshes** with their print settings (`cad/mass_properties.json`), tubes from density, every bought part where the CAD puts it (`cad/component_positions.json`), payload 0–50 g in the bay; the 24 mm adapter sleeve, its retainer and the D spacer are added only when a 24 mm motor is loaded |
 | Aerodynamics | Barrowman normal force and centre of pressure (nose, body, 4 fins with body interference), pitch and roll damping; drag build-up: roughness-limited skin friction (body, fins, legs), fin leading edges (4 mm, rounded), the wedge that fairs the 15 mm bottom band into the fin, tapered trailing edges, base drag (reduced while the motor burns), camera pod, **tab hinge gaps and fin feet**, launch lugs, gimbal gap, +8 % allowance |
 | Fin tabs | each tab's force acts along its own fin's normal at its own position, so the four tabs make roll, pitch and yaw moments exactly as their geometry dictates; effectiveness 0.45 of an all-moving surface of the same area; servo model with speed limit, lag, dead-band, backlash, trim error, direct drive (the servo inside the fin turns the tab: servo angle = tab angle), and fault modes (stuck, hard-over, dead) |
-| Motors | TSP D20, E12, E20, F35 and Estes thrust curves (ThrustCurve.org data via OpenRocket), **scaled to the manufacturer's rated impulse and burn time** (UKROC list); `KESTREL_MOTOR_BASIS=curve` flies the raw curves |
+| Motors | TSP F35 (mission), D20, E12, E20 and Estes thrust curves (ThrustCurve.org data via OpenRocket), **scaled to the manufacturer's rated impulse and burn time** (UKROC list); `KESTREL_MOTOR_BASIS=curve` flies the raw curves |
 | Environment | ISA atmosphere at the site altitude, wind with Gauss–Markov gusts, launch rod (length and tilt) with friction |
-| TVC | two-axis gimbal with 50 Hz servo frames, servo speed limit, lag, dead-band, backlash, trim error |
+| TVC | two-axis gimbal with 50 Hz servo frames, servo speed limit, lag, dead-band, backlash, trim error; 0.41 gimbal degrees per servo degree (9 mm horn, 22 mm gimbal arm) |
 | Sensors | IMU noise, bias, bias drift, misalignment and lever-arm effects; barometer noise, rate and static-port error; GPS at 5 Hz |
 | Recovery | latch delay, parachute fill time and drag; ground contact and landing detection |
 | **Flight software** | **`firmware/core` compiled as a shared library and called 500 times a second, exactly as on the Pico (software-in-the-loop)**: every number on this page comes from the code that will fly |
@@ -32,31 +36,26 @@ The same airframe (same drag curve, mass properties, motor) flown passively in
 [RocketPy](https://github.com/RocketPy-Team/RocketPy), no wind (`sim/validate_rocketpy.py` →
 `sim/results/rocketpy_validation.md`):
 
-| Motor | Apogee | Apogee time | Max speed | Rod-exit speed | Static margin |
-|---|---|---|---|---|---|
-| TSP E20 | 57.51 vs 57.46 m (+0.1 %) | 4.39 vs 4.38 s | 24.83 vs 24.82 m/s | 6.81 vs 6.80 m/s | 0.91 vs 0.90 cal |
-| TSP D20 | 20.83 vs 20.81 m (+0.1 %) | 2.53 vs 2.53 s | 15.62 vs 15.62 m/s | 7.18 vs 7.18 m/s | 0.99 vs 0.98 cal |
-| TSP E12 | 47.83 vs 47.79 m (+0.1 %) | 5.05 vs 5.04 s | 18.28 vs 18.27 m/s | 5.30 vs 5.30 m/s | 0.91 vs 0.90 cal |
+«RP_TABLE»
 
-Every quantity agrees within 0.3 %. This checks the flight mechanics; the drag and mass inputs are checked in
+Every quantity agrees within «RP_WORST» %. This checks the flight mechanics; the drag and mass inputs are checked in
 section 3 and by real flights.
 
-## 3. Why ~57 m and not the ~123 m estimate
+## 3. Apogee: from the ~123 m estimate to 188 m
 
-When we chose the motor I estimated about 123 m on the E20 for a rocket of about 650 g with 50 g of payload, using
-the E20's published thrust curve (40 Ns). Three things differ in the finished design:
+When we chose the motor I estimated about 123 m on the 24 mm TSP E20 for a rocket of about 650 g. The finished
+rocket weighs about 830 g, and the E20 is rated at 36 Ns rather than the 40 Ns of its test curve, so on the E20 it
+reached only 57 m. You then asked for 200 m. No 24 mm TSP motor gets close: even 100 g lighter the E20 would reach
+about 77 m. TSP's 29 mm **F35** (65 Ns, 92 g) does, so the TVC module now takes 29 mm motors:
 
-1. **Mass.** The finished rocket weighs **825 g** at lift-off with 25 g of payload (850 g with 50 g). Seven servos
-   are 99 g; the one-piece fin can is 165 g (normal 4 mm fins, but with the 15 mm bottom band that holds the tab
-   servos); the nose carries 33 g of ballast; the 36 in parachute is 35 g; the latch insert and coupler are 56 g.
-   Putting the tab servos inside the fins cost about 20 m of apogee compared with the old 2 mm fins with servo pods
-   (77.5 m): the band puts about 50 g more at the tail, which needs the 33 g of nose ballast to keep the balance
-   point where it was (+0.84 … +0.97 calibres), and the extra weight needs the 36 in parachute for gentle landings.
-2. **Rated impulse.** The UK approved-motor list rates the E20 at **36 Ns**; the published test curve integrates to
-   40 Ns. The simulator uses the rated value. If your motors match the curve, add about 13 m.
-3. **Drag.** The fins are thin where they meet the air first, the band is faired in with a gentle wedge and every
-   trailing edge tapers to 1.5 mm, so the fins add little drag; at these speeds (25 m/s at most) drag hardly matters
-   anyway: 20 % less drag adds less than 1 m.
+- **Mass.** **856 g** at lift-off with the F35 and 25 g of payload (831 g with an empty bay, 881 g with 50 g). The
+  F35 is 28 g heavier than the E20; the 29 mm module itself is only about 3 g heavier (bigger holder and ring,
+  frame slightly lighter).
+- **Stability.** +0.69 to +0.82 calibres at lift-off (empty to full bay), +0.90 to +1.03 at burn-out, with the
+  same 33 g of nose ballast: lower than on the E20 (+0.84 … +0.97) because the heavier motor sits at the tail, but
+  still positive with every steering servo dead (section 4, `passive_*`).
+- **Speed.** 55.5 m/s at burn-out instead of 25 m/s: about 1.9 kPa of dynamic pressure, five times the E20's
+  (section 6b checks the tab servos and the fins for it). It leaves a 1 m rod at 10 m/s instead of 6.8 m/s.
 
 Drag build-up at 40 m/s, coasting (`Cd0` = 0.85, every term including the 8 % allowance; `sim/whatif.py` →
 `sim/results/whatif.md`):
@@ -75,142 +74,88 @@ very little pressure drag); they are spread over ±8 % in the Monte Carlo and ±
 
 What-if flights (passive, calm, same simulator, `sim/whatif.py`):
 
-| Change | E20 apogee |
+| Change | F35 apogee |
 |---|---|
-| **as designed** (rated 36 Ns, 25 g payload, 36 in chute) | **57.5 m** |
-| empty payload bay / maximum 50 g payload | 61.9 m / 53.4 m |
-| E20 delivering its published curve (40 Ns) | 70.7 m |
-| without the nose ballast (but then only +0.47 calibres: not recommended) | 63.4 m |
-| 50 g lighter / 100 g lighter | 66.7 m / 77.5 m |
-| 20 % less drag | 58.2 m |
-| the previous whole-fin 15 mm design (earlier today) / the 2 mm fins with servo pods (earlier version) | 55.5 m / 77.5 m |
-| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 190 m |
+| **as designed** (rated 65 Ns, 25 g payload, 36 in chute) | **188.3 m** |
+| empty payload bay / maximum 50 g payload | 197.6 m / 179.4 m |
+| F35 delivering its published test curve (67 Ns) | 195.5 m |
+| without the nose ballast (33 g lighter, but then only +0.33 calibres: not recommended) | 200.6 m |
+| 50 g lighter / 100 g lighter | 207.2 m / 227.7 m |
+| 20 % less drag | 196.0 m |
+| TSP E20 / D20 in the 24 mm adapter (the test flights) | 53.3 m / 18.9 m |
 
-So each 10 g saved is worth about 2 m, and drag is almost irrelevant at these speeds. Reaching ~123 m on an E20
-would need the rocket to lose roughly 300 g, which it cannot do with every agreed feature on board. The motor that
-would clearly exceed it is the TSP F35, at the cost of a 29 mm TVC module.
+So 200 m needs the rocket about 35 g lighter, an empty bay on a motor that performs a little above its rating, or
+both. Each 10 g saved is now worth about 4 m; drag matters more than on the E20 (20 % less drag is 8 m) but still
+much less than mass.
 
 ## 4. Scenario and fault-injection suite
 
-`sim/scenarios.py`: 43 deterministic cases, each flying the real flight code
+`sim/scenarios.py`: «SC_N» deterministic cases, each flying the real flight code
 (all results: `sim/results/scenarios.md`; plots: `sim/results/scenario_*.png`).
 
 Pass criteria for normal flights: tilt during the burn < 10°, roll rate during the burn < 60 °/s (the tabs hold
 roll), parachute released within 1.5 s of true apogee at < 15 m/s, landing < 7 m/s, firmware reaches LANDED.
 Fault cases must end with a parachute and a landing below 7 m/s; the jammed-TVC case must also stay near the pad.
 
-| Case | Apogee | Tilt burn / coast | Roll rate burn | Deploy − apogee | Landing | Result |
-|---|---|---|---|---|---|---|
-| E20, calm | 57 m | 0.3° / 0.1° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| E20, 3 m/s + gusts (baseline) | 57 m | 0.3° / 1.9° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| E20, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 57 / 57 m | 0.4° / 5.2° | 2 °/s | +0.05 / +0.05 s | 4.8 m/s | PASS |
-| E20, 9 m/s + 2 m/s gusts (wind limit) | 57 m | 0.8° / 14.6° | 1 °/s | +0.05 s | 4.6 m/s | PASS |
-| payload 0 g / 50 g / 50 g in 6 m/s wind | 62 / 53 / 53 m | ≤ 0.4° | ≤ 3 °/s | ≤ +0.05 s | 4.8–5.0 m/s | PASS |
-| rod tilted 5° downwind | 57 m | 5.0° / 5.0° | 3 °/s | +0.04 s | 4.8 m/s | PASS |
-| 1.5° thrust misalignment | 57 m | 1.0° / 2.1° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| 2° fin cant (strong roll torque) / crooked fins | 57 / 57 m | 0.3° / 0.3° | 10 / 4 °/s | +0.04 s | 4.9 m/s | PASS |
-| CG 20 mm aft / 15 % heavier / 20 % more drag | 57 / 41 / 57 m | ≤ 0.3° | ≤ 2 °/s | ≤ +0.05 s | 4.8–5.2 m/s | PASS |
-| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 57 m | ≤ 0.9° | 2–6 °/s | +0.04 s | 4.9 m/s | PASS |
-| tabs 40 % less / more effective | 57 m | 0.4° / 0.3° | 3 / 3 °/s | +0.04 s | 4.9 m/s | PASS |
-| slow servos, IMU 2° crooked, gyro drift 10× | 57 m | ≤ 0.5° | ≤ 3 °/s | +0.04 s | 4.9 m/s | PASS |
-| camera panorama roll (90 °/s in the coast) | 57 m | 0.3° / 1.4° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| tabs switched off (TVC only, like KESTREL-1) | 57 m | 0.3° / 23.4° | **75 °/s** | +0.05 s | 4.9 m/s | PASS (rolls fast) |
-| TSP D20 / E20 performing like its curve (40 Ns) | 21 / 71 m | 0.4° | 1–3 °/s | +0.04 s | 4.9 m/s | PASS |
-| **FAULT** launched 1 s after switch-on | 56 m | 21° / 27° | 75 °/s | +0.03 s | 4.9 m/s | PASS (steering stays centred) |
-| **FAULT** TVC servos dead, calm / 3 m/s | 57 / 57 m | 3.4° / 4.1° | 2 / 3 °/s | +0.04 s | 4.9 m/s | PASS (tabs steer) |
-| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 16 m | loops | 18 °/s | −0.96 s (abort) | 4.9 m/s | PASS: abort, parachute out, lands 19 m from the pad |
-| **FAULT** tab 1 jams at full deflection at T+1 s | 57 m | 0.6° / 37° | 25 °/s | +0.04 s | 4.8 m/s | PASS (give-up rule, chute at apogee) |
-| **FAULT** tab 2 freezes / all four tab servos dead | 57 / 57 m | 0.4° / 0.4° | 2 / 75 °/s | +0.04 / +0.05 s | 4.9 m/s | PASS |
-| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 56 / 56 / 60 m | 17° / 23° / 22° | 73–83 °/s | +0.05 s | 4.8–4.9 m/s | PASS (passively stable) |
-| **FAULT** barometer dies at T+1 s | 57 m | 0.4° / 0.4° | 4 °/s | +1.26 s | 4.8 m/s | PASS (inertial apogee) |
-| **FAULT** all steering dead in 6 m/s wind | 48 m | 24° / 169° | 75 °/s | +0.03 s | 4.9 m/s | INFO: turns right over; why flights 1–3 need ≤ 3 m/s |
-| **FAULT** parachute never opens | 57 m |  |  |  | **32 m/s** | INFO: why ground ejection tests matter |
-| TSP E12-0 | 48 m | 0.2° | 2 °/s | +0.06 s | 4.9 m/s | INFO: leaves the rod at only 5.3 m/s, not recommended |
+«SCENARIO_TABLE»
 
 ![baseline flight](../sim/results/scenario_nominal_wind3.png)
 
 ## 5. Monte Carlo
 
-`sim/montecarlo.py`: 1000 flights, each with everything randomised at once: wind 0–6 m/s from any direction plus
-gusts, payload 0–50 g, motor impulse (mean +3 %, 1 σ 5 %: the rated value is the conservative end) and burn time,
-mass (4 %), CG (8 mm), drag (8 %), fin lift (7 %), thrust misalignment, fin cant and per-fin misalignment, rod
-tilt, TVC and tab servo trim/speed/lag/backlash, tab effectiveness (15 %), gyro and accelerometer bias, IMU
-misalignment, baro noise and port error, parachute Cd and fill time, latch delay, site altitude. A flight counts as
-a success only if it meets all the normal-flight pass criteria above.
+`sim/montecarlo.py`: 1000 flights (600 on the F35, 200 each on the E20 and D20 in the 24 mm adapter), each with
+everything randomised at once: wind 0–6 m/s from any direction plus gusts, payload 0–50 g, motor impulse (mean
++3 %, 1 σ 5 %: the rated value is the conservative end) and burn time, mass (4 %), CG (8 mm), drag (8 %), fin lift
+(7 %), thrust misalignment, fin cant and per-fin misalignment, rod tilt, TVC and tab servo trim/speed/lag/backlash,
+tab effectiveness (15 %), gyro and accelerometer bias, IMU misalignment, baro noise and port error, parachute Cd
+and fill time, latch delay, site altitude. A flight counts as a success only if it meets all the normal-flight pass
+criteria above.
 
 ![Monte Carlo summary](../sim/results/montecarlo_summary.png)
 
-| | TSP E20 (800 flights) | TSP D20 (200 flights) |
-|---|---|---|
-| **Success** | **100 %** | **100 %** |
-| Apogee mean (5–95 %) | **62 m** (47–79) | 22 m (17–28) |
-| Max tilt during the burn, mean / 95 % | 1.6° / 3.3° | 1.5° / 3.2° |
-| Max roll rate during the burn, mean / 95 % | 2.2 / 4.8 °/s | 1.4 / 2.8 °/s |
-| Largest roll-angle error before apogee, 95 % | 3.9° | 9.4° |
-| Max gimbal, mean / 95 % | 1.0° / 1.8° | 1.0° / 1.9° |
-| Deploy − apogee, 5–95 % | −0.04 … +0.10 s | −0.01 … +0.08 s |
-| Airspeed at deploy, mean / 95 % | 2.9 / 5.9 m/s | 1.8 / 3.6 m/s |
-| Landing speed, mean / max | 4.9 / 5.9 m/s | 4.8 / 5.9 m/s |
-| Landing distance, mean / 95 % / max | 49 / 101 / 151 m | 14 / 31 / 38 m |
-| Rod-exit speed, mean | 7.0 m/s | 7.4 m/s |
-
-This table is the final design (thin fins with the 15 mm servo band). The first Monte Carlo of the servos-in-the-fins
-design earlier today was not clean (E20 99.9 %, D20 98 %): see section 7 for the two causes and their fixes.
+«MC_TABLE»
 
 ![Apogee against payload](../sim/results/montecarlo_payload.png)
 
-Two things in the histograms are expected, not faults:
+«MC_NOTES»
 
-- **Tabs at their 15° limit near apogee.** In wind, as the rocket slows, the coast attitude hold asks the tabs to
-  keep it vertical against weathercocking. Below about 15 m/s they cannot (holding an angle of attack α needs about
-  0.8 α of tab), so they saturate. Once the rocket is 25° off course the give-up rule centres them.
-- **A few large tilts at apogee on the D20** (95 % below 24°, a handful above 60°). At 6 m/s near apogee in 5 m/s
-  of wind the rocket turns to follow the relative wind, as any stable rocket does. The parachute still opens within
-  0.12 s of apogee at under 5 m/s in every case.
-
-Run time: about 13 minutes on 4 CPU cores.
+Run time: about «MC_MIN» minutes on 4 CPU cores.
 
 ### Stress Monte Carlo: where the margins end
 
-`sim/stress_montecarlo.py` flies 1000 more E20 flights with every error source about **twice as wide** as above
+`sim/stress_montecarlo.py` flies 1000 more F35 flights with every error source about **twice as wide** as above
 (thrust misalignment, mass, CG, drag, fin lift, gyro and accelerometer bias, servo trim and speed, tab
 effectiveness 0.4–1.6, parachute Cd and fill time) and wind **0–9 m/s**, using the documented launch procedure
 (1.5 m rod above 3 m/s):
 
-| Wind | Flights | Meets every normal-flight criterion |
-|---|---|---|
-| 0–3 m/s | 337 | 100 % |
-| 3–6 m/s | 316 | 99.7 % |
-| 6–9 m/s | 347 | 98.0 % |
-| **all** | **1000** | **99.2 %**; parachute out and landing below 7 m/s in **100 %** |
+«STRESS_TABLE»
 
-The 8 flights that miss a criterion all tilt 10.5–42° during the burn; 7 of them combine a badly seated motor
-(1.1–1.6° of thrust misalignment, three times the normal spread) with 7–9 m/s of wind. Every one still releases
-its parachute and lands gently. That is why the pre-flight checklist insists on the motor being pushed fully home
-against the washer and why the wind limits are 3 m/s for the first flights and 6 m/s afterwards (9 m/s ever).
-Apogee 58 m mean (36–86 m), 95 % of landings within 163 m.
+«STRESS_NOTES»
 
 ## 6. What the fin tabs do
 
-With the tabs switched off (`tabs_disabled`) the rocket rolls at 75 °/s during the burn and 97 °/s in the coast:
-fine for the flight, useless for the camera. With the tabs it holds its roll angle to within 4° (95 %) and
-tilts less in the coast (1.9° instead of 23.4° in the baseline wind). They also steer on their own if the TVC fails,
-and `rollprog` turns the coast into a slow camera panorama.
+With the tabs switched off (`tabs_disabled`) the F35 rocket rolls at 258 °/s during the burn and 304 °/s in the
+coast: fine for the flight, useless for the camera. With the tabs it holds its roll angle to within «F35_ROLL95»°
+(95 %) and tilts less in the coast (1.1° instead of 18.8° in the baseline wind). They also steer on their own if the
+TVC fails, and `rollprog` turns the coast into a slow camera panorama.
 
 ![tabs switched off](../sim/results/scenario_tabs_disabled.png)
 
 ## 6b. Hand checks of the final design
 
-Things the simulator does not cover, checked by hand for the final fins and recovery set-up:
+Things the simulator does not cover, checked by hand for the final fins, the F35 and the recovery set-up:
 
 | Check | Result | Margin / what to do |
 |---|---|---|
-| Tab hinge moment against the MG90S (1.8 kgf·cm stall at 4.8 V, [datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/MG90S_Micro_Servo_Datenblatt_AZ-Delivery_Vertriebs_GmbH.pdf)) | at most 0.03 kgf·cm at 25 m/s and 0.06 at 35 m/s, even taking the whole tab-induced force at mid-tab | 57× / 29× |
+| Tab hinge moment against the MG90S (1.8 kgf·cm stall at 4.8 V, [datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/MG90S_Micro_Servo_Datenblatt_AZ-Delivery_Vertriebs_GmbH.pdf)) | at most 0.15 kgf·cm at the F35's 55.5 m/s (1.86 kPa) with a full 15° of tab, taking the whole tab-induced force (q × 22.9 cm² × δ) at the middle of the 27 mm behind the hinge | 12× (8× with tabs 40 % more effective than modelled) |
+| Fin flutter (NACA TN 4197 estimate for the thin 4 mm part of the fin: root chord 110 mm, tip 60 mm, span 50 mm, sea level) | flutter speed at least 450 m/s even with a deliberately low shear modulus of 0.3 GPa for printed PETG | 8× the F35's top speed; the low aspect ratio (0.6) and the 15 mm band at the root make these fins very stiff |
+| TVC pivots and servos | the F35's peak thrust (55 N on its test curve) passes through the gimbal pivot, so the servos carry only friction and the motor's inertia; the two M3 pivots each carry about 28 N | large |
+| Acceleration | 6.0 g peak at lift-off (F35), 1.8 g when the parachute opens at apogee | the 50 g payload weighs about 0.3 kg-force in the boost: screw it to the bay floor |
 | Tab servo speed | the simulator uses the datasheet's 0.10 s/60° (4.8 V) | matches |
-| Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test; `sim/mc_tab_effectiveness.py` flies 200 Monte Carlo flights with it centred 20 % higher: 200 / 200 succeed, attitude and roll held slightly tighter |
+| Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test; `sim/mc_tab_effectiveness.py` flies 200 F35 Monte Carlo flights with it centred 20 % higher: «TABEFF_OK» / 200 succeed |
 | Fin root, sideways load on a foot | section modulus ≈ 1900 mm³ (the 15 mm band carries it) | about 1 kN at the foot |
 | Leg, where it leaves the band (12 × 15 mm, stress across the print layers) | about 225 N sideways or 180 N radially at the foot | the weakest structural point: land on grass and check the legs and the thin tab edges after every flight (the fin can and tabs reprint) |
-| Spring ejection | 32.5 N packed, 0.41 J stored; 126 g to move (nose, ballast, 36 in chute, cord, piston): ideal separation 2.5 m/s (3.2 m/s before the ballast and the bigger chute) | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |
+| Spring ejection | 32.5 N packed, 0.41 J stored; 126 g to move (nose, ballast, 36 in chute, cord, piston): ideal separation 2.5 m/s | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |
 
 ## 7. Design iterations: what testing changed
 
@@ -218,7 +163,7 @@ Things the simulator does not cover, checked by hand for the final fins and reco
 |---|---|---|
 | Interference check (1711 part pairs) | nose sleeve and insert shoulder overlapped; door-frame arm poked through the tube; servo horns sat on the splines | shoulder shortened, arm clipped to the tube, horns bored: **no overlaps** |
 | Release-latch check | the bolt engaged the nose sleeve by only 0.85 mm | bolt lengthened: 1.05 mm engagement when locked, 2.45 mm clearance when released |
-| Printability check | sealed nose cavity, coincident faces, tiny gaps made several STLs non-watertight or multi-body | vent hole, merged solids: **all 27 parts single-body and watertight** |
+| Printability check | sealed nose cavity, coincident faces, tiny gaps made several STLs non-watertight or multi-body | vent hole, merged solids: **all parts single-body and watertight** (now 30) |
 | Fault scenario (jammed tab) | one tab jammed at 8° made the rocket tumble | mixer controls roll first and clips each tab on its own; spin guard; give-up rule. An 8° jam now flies normally; a full hard-over still tumbles in the coast but the parachute opens at apogee |
 | Motor data check | the E20 curve file integrates to 40 Ns but the motor is rated 36 Ns | simulator scales every curve to its rated impulse (apogee 95 → 78 m) |
 | PCB DRC | silkscreen overlaps after adding 3 servo ports; a starved thermal relief | labels moved, solid connection: **0 violations** |
@@ -226,25 +171,30 @@ Things the simulator does not cover, checked by hand for the final fins and reco
 | Build-guide walk-through | the CAD drew only 4 of the 7 servo plugs on the board | mechanical export fixed; the other 3 checked for interference: none |
 | Build-guide walk-through | a servo plug cannot pass the notch in the parachute wall | release lead is laid along the tube before the wall is glued in |
 | Build-guide walk-through | the GPS antenna bias resistor would put 3.3 V on a passive antenna | R24 not fitted |
-| Passive-flight scenarios | with every steering servo dead the rocket is safe in 3 m/s but not in 6 m/s | wind limit 3 m/s for flights 1–3; 1.5 m rod above 3 m/s |
+| Passive-flight scenarios | with every steering servo dead the rocket is safe in 3 m/s but not in 6 m/s on the small motors | wind limit 3 m/s for flights 1–3; 1.5 m rod above 3 m/s |
 | Balance check | the limit did not allow for an empty payload bay | limit 640 mm from the nose tip |
-| Firmware tests | a synthetic boost was too strong for the rated-impulse timing | test profile corrected; 377,489 core checks pass |
+| Firmware tests | a synthetic boost was too strong for the rated-impulse timing | test profile corrected |
 | New overhang check (every STL in its print orientation) | flat 55 mm ceilings printed in mid-air (nose bulkhead, parachute wall), a piston and a door laid the wrong way up, an unsupported GPS shelf, hanging nut blocks and lug | 45° conical nose bulkhead, wall skirt moved up, orientations fixed, gusseted GPS platform, 45° wedges: only 4 parts still need supports, and the check now runs on every CAD build |
 | GPS platform re-design | the old antenna shelf sat 20 mm above the Pico's USB socket and had no way out for the antenna lead | U-shaped platform beside the socket: a USB cable plugs in with the av-bay assembled |
 | New CAD ↔ design check | the TVC linkage is 9 mm horn / 18 mm arm = 0.50 gimbal degrees per servo degree, but firmware and simulator assumed 0.42 (the gimbal would have moved 19 % more than commanded, to 7.1° at the 6° limit); the tab horn was 14.3 mm, not 14.5 | `design.json`, simulator and firmware 2.01 corrected; the CAD script now refuses to build if they disagree |
 | Your change: 15 mm fins with the tab servos inside (build check) | the lower servo-mounting screw had only 4.3 mm of plastic before the tab gap: a long screw would come through and jam the tab | blind pilot holes and M2 × 6 mm screws (shopping list row 9) |
 | Your change (build check) | the first 4 mm lead channel through the fin was no taller than a servo plug; the lead ran outside the fin tip | 5 mm channel; a groove in the fin tip keeps the lead below the surface |
-| Your change (stability check) | the thick fins put about 70 g at the tail: static margin fell from +0.70 to +0.39 calibres | 33 g of nose ballast (M3 nuts in epoxy through a fill hole in the nose bulkhead): +0.75 … +0.88 calibres again (+0.83 … +0.96 with the 36 in chute below) |
+| Your change (stability check) | the thick fins put about 70 g at the tail: static margin fell from +0.70 to +0.39 calibres | 33 g of nose ballast (M3 nuts in epoxy through a fill hole in the nose bulkhead) |
 | Your change (Monte Carlo) | 3 of 200 D20 flights peaked below 15 m, the apogee detector's arming height: parachute out 1.3 s after apogee, 16 m/s landings | arming height 15 → 8 m (firmware 2.02): all D20 flights deploy at apogee |
 | Your change (Monte Carlo) | the heavier rocket came down at 5.8 m/s on the 30 in chute, 2 of 1000 flights just over the 7 m/s limit | 36 in parachute (fill time modelled 20 % longer): 4.9 m/s |
 | Your change: "only the part that needs it thick, the rest normal, very aerodynamic" | the whole-fin 15 mm design had a 15 mm blunt leading edge and blunt bases at the tail | fins are now 4 mm with a half-round leading edge; only the 45 mm bottom band (tab hinge, servo, lead channel) is 15 mm, joined by a 15° wedge; tab, band and legs taper to 1.5 mm trailing edges 12 mm below the tail. Fin can 181 → 165 g, drag coefficient 0.94 → 0.85, E20 apogee 55 → 57 m |
+| Your change: "it should go 200 m high" → the F35 with the airframe as it is | the E20 tops out near 77 m even 100 g lighter; the 29 mm F35 needs a 29 mm gimbal, and with the holder 2.5 mm bigger the old pushrods (18 mm out) would sit inside its swing | 29 mm TVC module: holder and ring 2.5 mm larger in radius, gimbal arms 18 → 22 mm with round bosses (linkage 0.50 → 0.41 gimbal degrees per servo degree), F35 retainer with a 22 mm opening; firmware 2.03 adds the F35 (`motor 5`, the default) and settings layout 6. F35 apogee 188 m |
+| Gimbal sweep (now including the pushrods and horns) | at 7° the holder's pushrod arm touched the frame just below a window; the bigger retainer would have hit the frame's bottom ring | window 2 mm lower, bottom ring opened from 24.6 to 26 mm radius: no contact in 1350 checks, both motor set-ups |
+| Fit check of the motor bore | the F35's top rim would have pressed 0.1 mm into the ledge round the washer recess | 0.3 mm of play above the motor |
+| Build check of the 24 mm test motors | a 70 mm D20 in the 95 mm bore had nothing above it and would have jumped 25 mm up into the washer at ignition (already true in the 24 mm version) | printed adapter sleeve and 24 mm retainer for the D20 / E20, plus a 25 mm spacer above 70 mm motors; the simulator adds their mass |
 
 ## 8. The launch video
 
-`sim/results/video/kestrel2_flight_seed7.mp4` (4.9 m/s wind, 20 g payload) is a randomised flight from the same
-simulator with the real flight code, rendered in Blender with the final CAD: ground camera and onboard camera side by
-side, live telemetry bottom left, graphs below. The fin tabs move by their simulated angles; the parachute opens as
-the simulator says it does. Make another (each seed is a different flight: wind, gusts, payload, motor performance, sensor errors):
+`sim/results/video/kestrel2_flight_seed7.mp4` («VID_WIND» m/s wind, «VID_PAYLOAD» g payload, F35, apogee
+«VID_APOGEE» m) is a randomised flight from the same simulator with the real flight code, rendered in Blender with
+the final CAD: ground camera and onboard camera side by side, live telemetry bottom left, graphs below. The fin tabs
+move by their simulated angles; the parachute opens as the simulator says it does. Make another (each seed is a
+different flight: wind, gusts, payload, motor performance, sensor errors):
 
 ```bash
 cd sim && python3 video/make_flight_video.py --seed 12
@@ -253,10 +203,10 @@ cd sim && python3 video/make_flight_video.py --seed 12
 ## 9. What only real flights can confirm
 
 The model is only as good as its inputs. The test plan ([TEST_PLAN.md](TEST_PLAN.md)) checks the uncertain ones in
-order: tab effectiveness (the largest uncertainty, ±40 % tested), printed-part drag and finish, TSP motor-to-motor
-variation, gimbal and tab-hinge friction, parachute opening, static-port error, and the JLCPCB part rotations
-(checked visually at ordering). Compare every flight log with the simulation (`firmware/tools/kestrel_link.py
-plot`) before moving to the next step.
+order: tab effectiveness (the largest uncertainty, ±40 % tested), printed-part drag and finish (it matters more at
+the F35's speed), TSP motor-to-motor variation, gimbal and tab-hinge friction, parachute opening, static-port error,
+and the JLCPCB part rotations (checked visually at ordering). Compare every flight log with the simulation
+(`firmware/tools/kestrel_link.py plot`) before moving to the next step.
 
 ## Reproduce everything
 

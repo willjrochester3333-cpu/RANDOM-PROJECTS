@@ -243,8 +243,8 @@ static void test_servo_settings() {
     gimbal_to_pulses(s, 0, 0, r, m);
     NEAR(r, 1500.0f, 1e-3f);
     NEAR(m, 1500.0f, 1e-3f);
-    const float k = 10.5f / 0.5f;                             // us per gimbal degree: 1 gimbal deg = 2 servo deg = 21 us
-    NEAR(s.linkage_ratio, 0.5f, 1e-6f);                       // must match design.json tvc.linkage_ratio (CAD-checked)
+    const float k = 10.5f / 0.4091f;                          // us per gimbal degree: 1 gimbal deg = 2.44 servo deg = 25.7 us
+    NEAR(s.linkage_ratio, 0.4091f, 1e-6f);                    // must match design.json tvc.linkage_ratio (CAD-checked)
     gimbal_to_pulses(s, 1.0f, 0, r, m);
     NEAR(r - 1500.0f, k, 1e-3f);
     s.dir[SERVO_TVC_MOTOR] = -1;
@@ -267,7 +267,8 @@ static void test_servo_settings() {
     CHECK(sizeof(Settings) <= 256);
     // fin tabs, default = direct drive (servo shaft on the hinge line): servo angle = tab angle
     Settings u;
-    CHECK(u.version == 5 && u.tab_horn_mm == u.tab_servo_arm_mm);
+    CHECK(u.version == 6 && u.tab_horn_mm == u.tab_servo_arm_mm);
+    CHECK(u.motor_index == 5);                                // TSP-F35, the mission motor (motor_db.hpp)
     NEAR(tab_to_pulse(u, 0, 0.0f), 1500.0f, 1e-3f);
     NEAR(tab_to_pulse(u, 0, 15.0f) - 1500.0f, 10.5f * 15.0f, 0.05f);
     NEAR(tab_to_pulse(u, 2, -15.0f) - 1500.0f, -10.5f * 15.0f, 0.05f);

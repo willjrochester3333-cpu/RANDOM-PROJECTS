@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Small-multiples summary of sim/results/montecarlo.json -> sim/results/montecarlo_summary.png
-(one panel per metric, one outline histogram per motor, shared colours: E20 blue, D20 orange) and
-sim/results/montecarlo_payload.png (apogee against payload mass, E20)."""
+(one panel per metric, one outline histogram per motor, shared colours: F35 blue, E20 orange, D20 aqua) and
+sim/results/montecarlo_payload.png (apogee against payload mass, F35)."""
 import json
 import os
 import textwrap
@@ -14,7 +14,7 @@ import numpy as np  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "results")
 SURFACE, INK, INK2, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
-COLORS = {"TSP-E20": "#2a78d6", "TSP-D20": "#eb6834"}
+COLORS = {"TSP-F35": "#2a78d6", "TSP-E20": "#eb6834", "TSP-D20": "#1baf7a"}   # categorical slots 1-3 (light)
 METRICS = [
     ("apogee", "Apogee (m)", None),
     ("max_tilt_burn", "Max tilt during boost (deg)", None),
@@ -52,11 +52,11 @@ def main():
             ax.spines[s].set_visible(False)
         ax.set_ylabel("flights")
     axes.flat[0].legend(frameon=False, fontsize=9, loc="upper left")
-    e20 = summ["TSP-E20"]
+    f35 = summ["TSP-F35"]
     fig.suptitle(
         f"Monte Carlo, real flight code in the loop: {sum(len(v) for v in runs.values())} flights, "
         f"success {min(s['success_rate'] for s in summ.values()) * 100:.0f}% on every motor  |  "
-        f"E20 apogee {e20['apogee']['mean']:.0f} m (5-95%: {e20['apogee']['p5']:.0f}-{e20['apogee']['p95']:.0f} m)",
+        f"F35 apogee {f35['apogee']['mean']:.0f} m (5-95%: {f35['apogee']['p5']:.0f}-{f35['apogee']['p95']:.0f} m)",
         x=0.01, ha="left", color=INK, fontsize=12)
     fig.text(0.01, 0.005, textwrap.fill("Dashed line = median per motor. Each flight draws: wind 0-6 m/s from any direction + gusts, impulse and burn "
              "time (1 sd 4 %), mass (4 %), CG (8 mm), drag (8 %), fin lift (7 %), payload 0-50 g, thrust misalignment, fin cant and per-fin "
@@ -66,12 +66,12 @@ def main():
     out = os.path.join(RES, "montecarlo_summary.png")
     fig.savefig(out, dpi=130, facecolor=SURFACE)
     print("saved", out)
-    # apogee against payload mass (E20): one series, so no legend box - the title names it
-    r = [x for x in runs["TSP-E20"] if x.get("payload_g") is not None]
+    # apogee against payload mass (F35): one series, so no legend box - the title names it
+    r = [x for x in runs["TSP-F35"] if x.get("payload_g") is not None]
     pl = np.array([x["payload_g"] for x in r]); ap = np.array([x["apogee"] for x in r])
     fig, ax = plt.subplots(figsize=(8.6, 4.6), facecolor=SURFACE)
     ax.set_facecolor(SURFACE)
-    ax.scatter(pl, ap, s=14, color=COLORS["TSP-E20"], alpha=0.55, linewidths=0)
+    ax.scatter(pl, ap, s=14, color=COLORS["TSP-F35"], alpha=0.55, linewidths=0)
     k, c = np.polyfit(pl, ap, 1)
     xx = np.array([0, 50])
     ax.plot(xx, k * xx + c, color=INK, lw=2)
@@ -79,7 +79,7 @@ def main():
                 ha="right", color=INK, fontsize=9.5)
     ax.set_xlabel("payload in the bay (g)", color=INK2)
     ax.set_ylabel("apogee (m)", color=INK2)
-    ax.set_title(f"TSP E20: apogee against payload ({len(r)} randomised flights, wind 0-6 m/s)", loc="left", color=INK, fontsize=11)
+    ax.set_title(f"TSP F35: apogee against payload ({len(r)} randomised flights, wind 0-6 m/s)", loc="left", color=INK, fontsize=11)
     ax.grid(color=GRID, lw=0.8); ax.set_axisbelow(True)
     for s_ in ("top", "right"):
         ax.spines[s_].set_visible(False)

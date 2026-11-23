@@ -26,7 +26,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 202;            // 2.02 (KESTREL-2: direct-drive fin tabs, servos inside the fins)
+constexpr uint16_t kFwVersion = 203;            // 2.03 (KESTREL-2: 29 mm TVC mount, TSP F35 mission motor)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 

@@ -11,10 +11,13 @@
 | spring_piston | 1 | 53.8 x 53.5 x 13.0 | 8.5 | 10.7 | 1.10 | yes | 1 | yes | 0 / 0 | none | PASS |
 | avbay_coupler | 1 | 56.3 x 56.3 x 134.4 | 28.4 | 35.5 | 1.05 | yes | 1 | yes | 404 / 112 | none | PASS |
 | avbay_sled | 1 | 51.3 x 51.3 x 104.0 | 15.9 | 19.9 | 0.60 | yes | 1 | yes | 505 / 113 | none | PASS |
-| tvc_motor_holder | 1 | 35.2 x 29.0 x 95.0 | 13.8 | 17.2 | 1.20 | yes | 1 | yes | 608 / 499 | under the pushrod tab | PASS |
-| tvc_gimbal_ring | 1 | 40.6 x 39.2 x 8.0 | 2.7 | 3.4 | 2.15 | yes | 1 | yes | 97 / 32 | none | PASS |
-| tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.2 | 27.7 | 1.00 | yes | 1 | yes | 1247 / 91 | under the four servo bars | PASS |
-| tvc_motor_retainer | 1 | 34.4 x 34.4 x 13.0 | 4.3 | 5.3 | 1.50 | yes | 1 | yes | 28 / 14 | none | PASS |
+| tvc_motor_holder | 1 | 40.3 x 34.0 x 95.4 | 17.1 | 21.3 | 1.60 | yes | 1 | yes | 786 / 499 | under the pushrod tab | PASS |
+| tvc_gimbal_ring | 1 | 45.6 x 44.7 x 8.0 | 3.0 | 3.8 | 2.14 | yes | 1 | yes | 89 / 24 | none | PASS |
+| tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 20.6 | 25.7 | 1.00 | yes | 1 | yes | 1195 / 99 | under the four servo bars | PASS |
+| tvc_motor_retainer | 1 | 39.4 x 39.4 x 13.0 | 5.0 | 6.2 | 1.50 | yes | 1 | yes | 29 / 14 | none | PASS |
+| tvc_motor_adapter_24mm | 1 | 28.9 x 28.9 x 94.8 | 17.9 | 22.3 | 2.25 | yes | 1 | yes | 0 / 0 | none | PASS |
+| tvc_motor_retainer_24mm | 1 | 39.4 x 39.4 x 13.0 | 5.2 | 6.6 | 1.50 | yes | 1 | yes | 29 / 14 | none | PASS |
+| tvc_motor_spacer_D | 1 | 23.8 x 23.8 x 24.6 | 10.9 | 6.0 | 23.77 | yes | 1 | yes | 0 / 0 | none | PASS |
 | fin_can | 1 | 122.7 x 122.7 x 155.0 | 155.5 | 165.3 | 1.00 | yes | 1 | yes | 3176 / 444 | none (printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins) | PASS |
 | fin_control_tab | 4 | 34.2 x 14.4 x 25.5 | 6.8 | 19.5 | 1.80 | yes | 1 | yes | 63 / 45 | none | PASS |
 | upper_launch_lug | 1 | 9.5 x 10.3 x 25.0 | 1.3 | 1.6 | 1.34 | yes | 1 | yes | 0 / 0 | none | PASS |
@@ -28,6 +31,6 @@
 | tool_drill_guide_bottom_tube | 1 | 60.7 x 60.7 x 148.0 | 51.7 | 64.6 | 1.95 | yes | 1 | yes | 87 / 55 | none | PASS |
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.8 | 1.95 | yes | 1 | yes | 76 / 66 | none | PASS |
 
-Estimated printed rocket parts total: **392 g** (walls 1.2 mm + 20% infill assumption)
+Estimated printed rocket parts total: **396 g** as flown with the F35 (walls 1.2 mm + 20% infill assumption; the 24 mm adapter set, launch pad and build tools not included)
 
 Overhangs are measured in the exported print orientation. A part without listed supports passes only if no flat downward region is larger than 120 mm² apart from narrow bridges; see the table for the parts that are printed with support material.

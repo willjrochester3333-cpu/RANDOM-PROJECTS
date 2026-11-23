@@ -23,8 +23,11 @@ class NullFsw:
         return FswOutput()
 
 
+NOMINAL = load_design()["launch"]["nominal_motor"]      # TSP-F35
+
+
 def passive(**over):
-    cfg = dict(motor="TSP-E20", wind_speed=0.0, gust_sigma=0.0, tvc_enabled=False, tabs_enabled=False, t_pad=0.5,
+    cfg = dict(motor=NOMINAL, wind_speed=0.0, gust_sigma=0.0, tvc_enabled=False, tabs_enabled=False, t_pad=0.5,
                gyro_bias_dps=(0, 0, 0), thrust_misalign_deg=0.0, fin_cant_deg=0.0)
     cfg.update(over)
     ev = Simulation(SimConfig(**cfg), NullFsw()).run()
@@ -34,13 +37,13 @@ def passive(**over):
 def main():
     t0 = time.time()
     d = load_design()
-    r = Rocket(d, Motor("TSP-E20"))
+    r = Rocket(d, Motor(NOMINAL))
     dry = r.dry_mass_props().mass
     # static margin at lift-off without the nose ballast (its mass removed at its own position)
     import json
     pos = json.load(open(os.path.join(os.path.dirname(RES), "..", "cad", "component_positions.json")))
     bal = next(c for c in d["components"] if c["name"].startswith("nose_ballast"))
-    r_nb = Rocket(d, Motor("TSP-E20"), extra_mass=[("no_ballast", -bal["mass_g"] / 1000.0,
+    r_nb = Rocket(d, Motor(NOMINAL), extra_mass=[("no_ballast", -bal["mass_g"] / 1000.0,
                                                     pos[bal["cad_ref"]]["z_from_tip"] / 1000.0)])
     cn = r_nb.cn_alpha_components()
     xcp = sum(c[1] * c[2] for c in cn) / sum(c[1] for c in cn)
@@ -53,12 +56,12 @@ def main():
         if v > 0:
             lines.append(f"| {k} | {v:.3f} |")
     lines += ["", f"Dry mass with 25 g payload, no motor: {dry * 1000:.0f} g", "",
-              "| Change (passive, calm, 1 m rod) | E20 apogee | rod-exit speed |", "|---|---|---|"]
+              f"| Change (passive, calm, 1 m rod) | {NOMINAL.split('-')[1]} apogee | rod-exit speed |", "|---|---|---|"]
     cases = [
-        ("**as designed** (rated 36 Ns, 25 g payload)", {}),
+        (f"**as designed** (rated {Motor(NOMINAL).total_impulse:.0f} Ns, 25 g payload)", {}),
         ("empty payload bay", dict(payload_g=0.0)),
         ("maximum 50 g payload", dict(payload_g=50.0)),
-        ("E20 delivering its published curve (40 Ns)", dict(motor_basis="curve")),
+        (f"{NOMINAL.split('-')[1]} delivering its published curve ({Motor(NOMINAL, basis='curve').total_impulse:.0f} Ns)", dict(motor_basis="curve")),
         (f"33 g lighter (= no nose ballast; margin would fall to {nb_margin:+.2f} cal)", dict(mass_scale=(dry - 0.033) / dry)),
         ("50 g lighter", dict(mass_scale=(dry - 0.050) / dry)),
         ("100 g lighter", dict(mass_scale=(dry - 0.100) / dry)),
@@ -68,11 +71,10 @@ def main():
         ap, vr = passive(**over)
         lines.append(f"| {name} | {ap:.1f} m | {vr:.1f} m/s |")
         print(name, f"{ap:.1f}", flush=True)
-    try:
-        ap, vr = passive(motor="TSP-F35")
-        lines.append(f"| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | {ap:.0f} m | {vr:.1f} m/s |")
-    except Exception as e:   # the 29 mm motor does not fit the 24 mm gimbal; reported for information only
-        lines.append(f"| TSP F35 (29 mm) | not simulated: {e} | |")
+    for m, use in (("TSP-E20", "second test flights"), ("TSP-D20", "first test hops")):   # 24 mm, in the adapter sleeve
+        ap, vr = passive(motor=m)
+        lines.append(f"| {m.replace('-', ' ')} in the 24 mm adapter ({use}) | {ap:.1f} m | {vr:.1f} m/s |")
+        print(m, f"{ap:.1f}", flush=True)
     lines += ["", f"({time.time() - t0:.0f} s)"]
     with open(os.path.join(RES, "whatif.md"), "w") as fh:
         fh.write("\n".join(lines) + "\n")

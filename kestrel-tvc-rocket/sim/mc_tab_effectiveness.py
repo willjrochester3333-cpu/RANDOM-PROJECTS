@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run: cd sim && python3 mc_tab_effectiveness.py
 
-200 E20 Monte Carlo flights with the tab effectiveness centred 20 % above the model (flap-theory estimate for the
+200 F35 Monte Carlo flights with the tab effectiveness centred 20 % above the model (flap-theory estimate for the
 longer final tab), everything else as in montecarlo.py."""
 import os, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -12,7 +12,7 @@ import montecarlo as MC
 def run(i):
     from kestrel.dynamics import Simulation, SimConfig
     from kestrel.sil import SilFsw
-    cfg = MC.sample(i, "TSP-E20")
+    cfg = MC.sample(i, "TSP-F35")
     cfg["tab_eff_scale"] = float(np.clip(cfg["tab_eff_scale"] * 1.2, 0.6, 1.7))
     ev = Simulation(SimConfig(**cfg), SilFsw()).run()
     out = {k: ev.get(k) for k in ["apogee", "max_tilt_burn", "tilt_burnout", "max_gimbal", "rod_exit_speed", "deploy_minus_apogee_s",

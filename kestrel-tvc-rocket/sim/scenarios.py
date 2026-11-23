@@ -14,15 +14,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 RES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
 
-BASE = dict(motor="TSP-E20", wind_speed=3.0, gust_sigma=0.6, t_pad=5.0, seed=11, thrust_misalign_deg=0.3,
+BASE = dict(motor="TSP-F35", wind_speed=3.0, gust_sigma=0.6, t_pad=5.0, seed=11, thrust_misalign_deg=0.3,
             thrust_misalign_az_deg=40.0, fin_cant_deg=0.3)
 
 # (name, description, config overrides, flight-core parameter overrides, pass criteria)
 CASES = [
-    ("nominal_calm", "E20, no wind", dict(wind_speed=0.0, gust_sigma=0.0), {}, "normal"),
-    ("nominal_wind3", "E20, 3 m/s wind + gusts (baseline)", {}, {}, "normal"),
-    ("wind6_gusty", "E20, 6 m/s wind, 1.5 m/s gusts", dict(wind_speed=6.0, gust_sigma=1.5), {}, "normal"),
-    ("wind9_limit", "E20, 9 m/s wind (UKRA/NAR wind limit)", dict(wind_speed=9.0, gust_sigma=2.0), {}, "normal"),
+    ("nominal_calm", "F35, no wind", dict(wind_speed=0.0, gust_sigma=0.0), {}, "normal"),
+    ("nominal_wind3", "F35, 3 m/s wind + gusts (baseline)", {}, {}, "normal"),
+    ("wind6_gusty", "F35, 6 m/s wind, 1.5 m/s gusts", dict(wind_speed=6.0, gust_sigma=1.5), {}, "normal"),
+    ("wind9_limit", "F35, 9 m/s wind (UKRA/NAR wind limit)", dict(wind_speed=9.0, gust_sigma=2.0), {}, "normal"),
     ("rod_tilt5", "rod tilted 5 deg downwind (rocket holds the rod direction)", dict(rod_tilt_deg=5.0, rod_tilt_az_deg=90.0), {}, "normal"),
     ("rod_1.5m_wind6", "1.5 m launch rod, 6 m/s wind + 1.5 m/s gusts", dict(rod_length=1.5, wind_speed=6.0, gust_sigma=1.5), {}, "normal"),
     ("wind6_payload50", "6 m/s wind + gusts with the maximum 50 g payload", dict(wind_speed=6.0, gust_sigma=1.5, payload_g=50.0), {}, "normal"),
@@ -47,8 +47,9 @@ CASES = [
     ("roll_program", "camera panorama: 90 deg/s roll programme in the coast", {}, dict(roll_program_dps=90), "normal_noroll"),
     ("coast_rate_only", "tabs only damp pitch/yaw in the coast (no attitude hold)", {}, dict(coast_hold_attitude=0), "normal"),
     ("tabs_disabled", "tabs switched off in the settings (TVC only, like KESTREL-1)", {}, dict(fins_enabled=0), "normal_noroll"),
-    ("motor_D20", "TSP D20-0 (first test hop)", dict(motor="TSP-D20"), {}, "normal"),
-    ("motor_curve", "E20 performing like its published test curve (40 Ns, not the rated 36 Ns)", dict(motor_basis="curve"), {}, "normal"),
+    ("motor_D20", "TSP D20-0 in the 24 mm adapter (first test hops)", dict(motor="TSP-D20"), {}, "normal"),
+    ("motor_E20", "TSP E20-0 in the 24 mm adapter (second test flights)", dict(motor="TSP-E20"), {}, "normal"),
+    ("motor_curve", "F35 performing like its published test curve instead of its rating", dict(motor_basis="curve"), {}, "normal"),
     ("unarmed_launch", "FAULT: launched before calibration finished (1 s on the pad)", dict(t_pad=1.0), {}, "fault_safe"),
     ("tvc_off_calm", "FAULT: TVC servos dead, calm", dict(servo_failure="dead", wind_speed=0.0, gust_sigma=0.0), {}, "fault_safe"),
     ("tvc_off_wind3", "FAULT: TVC servos dead, 3 m/s wind (tabs still steer)", dict(servo_failure="dead"), {}, "fault_safe"),

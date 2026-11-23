@@ -90,7 +90,7 @@ def rocketpy_run(motor_name):
 def main():
     rows = []
     out = {}
-    for motor in ["TSP-E12", "TSP-E20", "TSP-D20"]:
+    for motor in ["TSP-F35", "TSP-E20", "TSP-D20", "TSP-E12"]:
         sim, ev = kestrel_run(motor)
         rocket, fl = rocketpy_run(motor)
         rk = sim.rocket

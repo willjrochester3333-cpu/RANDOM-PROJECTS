@@ -55,7 +55,7 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 ## 2. Print the parts
 
 All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
-lists sizes, estimated masses and the automatic printability checks: all 27 parts are watertight, one body each,
+lists sizes, estimated masses and the automatic printability checks: all 30 parts are watertight, one body each,
 and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **three parts
 need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
 in **PETG** (PLA softens in a hot car and near the motor).
@@ -67,7 +67,8 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | `fin_control_tab` | 4 | standing on its outer end (horn pocket on the bed), 3 walls, 20 %, no supports | |
 | `tvc_frame` | 1 | upright, 3 walls, 25 %; **supports under the four servo bars** | |
 | `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat); **support under the pushrod tab** | the 25 mm roof of the motor bore is a bridge; the penny washer covers it |
-| `tvc_gimbal_ring`, `tvc_motor_retainer` | 1 each | 3 walls, 40 % | |
+| `tvc_gimbal_ring`, `tvc_motor_retainer` | 1 each | 3 walls, 40 % | the retainer with the **22 mm opening** holds the 29 mm F35 |
+| `tvc_motor_adapter_24mm`, `tvc_motor_retainer_24mm`, `tvc_motor_spacer_D` | 1 each | upright, 3 walls, 30–40 %, PETG | only for the 24 mm test motors (D20, E20): a sleeve that turns the 29 mm motor bore into a 24 mm one, its own retainer (16 mm opening) and a 25 mm spacer that sits above the shorter D20. Print them in a different colour from the F35 retainer so the two retainers cannot be mixed up |
 | `avbay_coupler` | 1 | **upside down** (bulkhead on the bed), 4 walls, 25 % gyroid | its bulkhead is the payload-bay floor and carries the parachute load path |
 | `avbay_sled` | 1 | bulkhead disc on the bed, 3 walls, 20 % | |
 | `camera_pod` | 1 | floor and flange on the bed, 3 walls, 20 %, no supports | |
@@ -115,7 +116,9 @@ these exact STLs with these settings (`cad/mass_properties.py`), so print them a
 ## 4. TVC module (bottom of the rocket)
 
 It is a separate unit (`cad/kestrel_tvc_module.blend`): frame, gimbal ring, motor holder, retainer, two servos
-and two pushrods. **Its two servo leads come out of the top**, straight up to the flight computer.
+and two pushrods. **Its two servo leads come out of the top**, straight up to the flight computer. The motor
+holder takes the **29 mm TSP F35**; the 24 mm D20 and E20 for the test flights go into it in the printed adapter
+sleeve (section 12).
 
 1. **Burn-through shield:** push an M10 × 25 mm steel penny washer up the motor bore into the recess at its closed
    (top) end and fix it with a dab of epoxy: it shields the plastic from the motor's hot forward end.
@@ -132,9 +135,11 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
    10, steps 1–2; a USB cable powers the logic, but the servos need the LiPo on the balance socket). Now fit a
    single-arm horn on each, pointing towards its pushrod, with its hole **9 mm** from the shaft (trim the arm 2.5 mm
    beyond the hole). If no hole sits at exactly 9 mm, drill one with a 1.3 mm bit: the firmware's linkage maths
-   (gimbal moves 0.5° per servo degree) depends on it. The same goes for the 7 mm release horn below.
-6. **Pushrods:** 1.2 mm music wire with a Z-bend at each end (pliers only). Bend one end, hook it into the horn,
-   mark the length so the motor holder hangs perfectly straight with the servos centred, bend the other end.
+   (the gimbal moves 9/22 = 0.41° per servo degree) depends on it. The same goes for the 7 mm release horn below.
+6. **Pushrods:** 1.2 mm music wire with a Z-bend at each end (pliers only). Each one runs straight down from its
+   horn to the hole in the round boss on the ring (ring servo) or on the holder's arm (holder servo), 2 mm
+   further out from the middle than the horn itself, so the Z-bends point inwards. Bend one end, hook it into the
+   horn, mark the length so the motor holder hangs perfectly straight with the servos centred, bend the other end.
 7. Route both leads up through the frame and out of its top. That completes the module.
 
 ## 5. Fin can, tab servos and control tabs
@@ -291,8 +296,9 @@ is allowed (the simulator flew the whole 0–50 g range).
    **opposite** to the way the nose leans, like balancing a broom on your hand.
 10. **`fintest`:** hold it upright and still for 2 s, then twist it about its long axis: all four tabs swing the
     same way to twist it back. Tilt it: the tabs push the nose back up.
-11. Choose the motor: `motor` lists them, `motor 2` selects TSP-E20 (the TVC gains and the backup deploy timer
-    depend on it), `motor 0` the TSP-D20 for the first hops. `save`.
+11. Choose the motor: `motor` lists them, `motor 5` selects the TSP-F35 (the mission; the TVC gains and the backup
+    deploy timer depend on it), `motor 0` the TSP-D20 for the first hops and `motor 2` the TSP-E20 for the second
+    test flights. `save`.
 
 ## 11. Launch pad
 
@@ -306,11 +312,23 @@ is allowed (the simulator flew the whole 0–50 g range).
    On a tilted rod, slide the rod stop up under the lower lug so the feet just clear the tile.
 5. Tent pegs through the three feet. **Rod-tip cap on whenever there is no rocket on the rod.**
 
-## 12. Balance check (every flight)
+## 12. Loading a motor and the balance check (every flight)
+
+Always **"-0" (plugged) motors**. Check that the penny washer is still in the top of the motor bore.
+
+- **TSP F35 (29 mm, the mission):** push the motor up into the holder until it stops, then push the **F35
+  retainer** (22 mm opening) up over the holder's two lugs and turn it 45° until it clicks. `motor 5`.
+- **TSP E20 / D20 (24 mm, test flights):** slide the **adapter sleeve** into the holder first. For a D20 (70 mm
+  long) drop the **D spacer** into the sleeve first so that the motor sits against the washer. Push the motor up
+  into the sleeve, then fit the **24 mm retainer** (16 mm opening) the same way. `motor 2` for the E20, `motor 0`
+  for the D20. Never fly a 24 mm motor without its sleeve and retainer: the F35 retainer's opening is too big to
+  hold it.
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
-**the balance point must be no further than 640 mm from the nose tip** (design with an E20 and the 33 g of nose
-ballast: 627 mm with 25 g of payload, 630 mm with an empty bay, 623 mm with 50 g; stability margin +0.84 to +0.97
-calibres at lift-off, more at burn-out, so it flies straight even if the TVC and tabs do nothing). If it is further
-back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of epoxy (section 9,
-step 0). A fin can that prints heavier than the estimated 165 g needs more ballast; a lighter one needs less.
+**the balance point must be no further than 640 mm from the nose tip** (design with the F35 and the 33 g of nose
+ballast: 635 mm with 25 g of payload, 639 mm with an empty bay, 631 mm with 50 g; stability margin +0.69 to +0.82
+calibres at lift-off, +0.90 to +1.03 at burn-out, so it still flies if the TVC and tabs do nothing; with the E20 or
+D20 in the adapter it balances 1–4 mm further forward). The empty bay with the F35 is the closest to the limit: if
+it balances further back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of
+epoxy (section 9, step 0). A fin can that prints heavier than the estimated 165 g needs more ballast; a lighter
+one needs less.

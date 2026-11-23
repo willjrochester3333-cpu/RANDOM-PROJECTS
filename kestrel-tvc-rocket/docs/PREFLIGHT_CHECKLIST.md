@@ -13,20 +13,24 @@
 - [ ] Payload secured to the bay floor, door locks with a quarter turn
 - [ ] Field: club launch or landowner permission confirmed; not near an airfield or in controlled airspace (see
       [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md))
-- [ ] Pack: rocket, pad + rod (1 m, and the 1.5 m rod if it may be windy) + tile + pegs + rod cap, motors, launch controller + key, LiPo + spare,
+- [ ] Pack: rocket, pad + rod (1 m, and the 1.5 m rod if it may be windy) + tile + pegs + rod cap, motors **and the
+      matching retainer** (F35 retainer; or the 24 mm sleeve, 24 mm retainer and D spacer), launch controller + key, LiPo + spare,
       laptop/phone + USB cable, coin (payload door), toothpick (switch), tools, tape, spare M3 / M2.5 screws and
       M2 × 6 servo screws (never longer).
       No wadding: there is no ejection charge
 
 **At the field**
 - [ ] Wind measured: **≤ 3 m/s for flights 1–3**, ≤ 6 m/s afterwards (use the 1.5 m rod above 3 m/s), never
-      above 9 m/s. Note the direction
+      above 9 m/s, and no more than the recovery area allows (F35: about 60 m of drift per 1 m/s). Note the direction
 - [ ] Pad set up and pegged, rod tilted 0–5° **downwind** only, tile on, dry grass around the pad cleared
-- [ ] Recovery area clear: ≈ 200 m downwind for an E20, 60 m for a D20
+- [ ] Recovery area clear: ≈ «F35_AREA» m downwind for an F35, «E20_AREA» m for an E20, «D20_AREA» m for a D20
 
 **Preparing the rocket**
-- [ ] Motor: **"-0" plugged motor**, the type selected with the `motor` command (D20 = `motor 0`, E20 = `motor 2`)
-- [ ] Motor pushed up into the holder against the penny washer, retainer pushed up and twisted 45° until it clicks
+- [ ] Motor: **"-0" plugged motor**, the type selected with the `motor` command (F35 = `motor 5`, E20 = `motor 2`,
+      D20 = `motor 0`)
+- [ ] F35: motor pushed up into the holder against the penny washer, **F35 retainer** (22 mm opening) pushed up and
+      twisted 45° until it clicks. E20 / D20: **adapter sleeve** in first (D20: **D spacer** in the sleeve above the
+      motor), then the motor, then the **24 mm retainer** (16 mm opening)
 - [ ] Payload in, **door locked** (cam arm up)
 - [ ] Parachute packed, spring and piston in, cord coiled on top
 - [ ] Board ON (latch locks), nose cone pushed on until the bolt **clicks**; gentle pull test; board OFF to carry
@@ -41,7 +45,7 @@
       can look like a launch
 - [ ] Leave it **still**: green LED blinking (calibrating) → solid + **double chirp every 3 s = READY**
 - [ ] No red LED. Red slow blink = check `status` before going on
-- [ ] Igniter in (launch controller **key out**), clips on, everyone back to **30 m**
+- [ ] Igniter in (launch controller **key out**), clips on, everyone back to **40 m for an F35** (30 m for a D20 / E20)
 
 **Launch**
 - [ ] Range clear, sky clear (no aircraft), RSO / LCO go
