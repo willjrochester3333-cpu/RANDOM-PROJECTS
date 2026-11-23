@@ -244,11 +244,18 @@ car = bpy.context.active_object; car.scale = (4300, 1800, 1500); car.data.materi
 
 # sky + sun
 w = bpy.data.worlds.new("sky"); sc.world = w; w.use_nodes = True
-sky = w.node_tree.nodes.new("ShaderNodeTexSky")
-sky.sky_type = "NISHITA"; sky.sun_elevation = math.radians(38); sky.sun_rotation = math.radians(210)
-sky.altitude = 100.0; sky.air_density = 1.2; sky.dust_density = 1.5
-w.node_tree.links.new(sky.outputs["Color"], w.node_tree.nodes["Background"].inputs["Color"])
-w.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.8
+# a simple blue gradient (a physical sky renders almost white near the horizon, where the descending rocket is seen)
+wn = w.node_tree.nodes
+tco = wn.new("ShaderNodeTexCoord"); sep = wn.new("ShaderNodeSeparateXYZ")
+mr = wn.new("ShaderNodeMapRange"); mr.inputs["From Min"].default_value = -0.05; mr.inputs["From Max"].default_value = 0.6
+ramp = wn.new("ShaderNodeValToRGB")
+ramp.color_ramp.elements[0].color = (0.48, 0.64, 0.90, 1)          # horizon
+ramp.color_ramp.elements[1].color = (0.16, 0.34, 0.78, 1)          # zenith
+w.node_tree.links.new(tco.outputs["Generated"], sep.inputs["Vector"])
+w.node_tree.links.new(sep.outputs["Z"], mr.inputs["Value"])
+w.node_tree.links.new(mr.outputs["Result"], ramp.inputs["Fac"])
+w.node_tree.links.new(ramp.outputs["Color"], wn["Background"].inputs["Color"])
+wn["Background"].inputs["Strength"].default_value = 1.0
 sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 3.5; sun.angle = math.radians(1.0)
 sun.shadow_buffer_bias = 0.6                                   # no shadow acne on the tube at grazing angles
 so = bpy.data.objects.new("sun", sun); link_to_scene(so)
@@ -303,11 +310,13 @@ for k, fr in enumerate(FR, start=1):
             CH.location = ch_pos.lerp(settle, fl)
             CH.scale = (s * (1.0 + 0.25 * fl), s * (1.0 + 0.25 * fl), max(0.05, max(s, 0.3) * (1.0 - fl)))
             CH.rotation_quaternion = sway.slerp(Quaternion(), fl)
-        hang = (top + ch_pos) * 0.5 + Vector((0, 0, -250))
+        hang = (top + CH.location) * 0.5 + Vector((0, 0, -250))     # the nose hangs on the cord between rocket and canopy
         if nose_sep_pos is None:
             nose_sep_pos = NOSE.location.copy()
         f = min(1.0, ts / 0.7)
-        NOSE.location = nose_sep_pos.lerp(hang + Vector((0, 0, 170)), f)
+        nose_to = hang + Vector((0, 0, 170))
+        nose_to.z = max(nose_to.z, 45.0)                            # lies on the grass once everything is down
+        NOSE.location = nose_sep_pos.lerp(nose_to, f)
         NOSE.rotation_quaternion = q.slerp(Quaternion((1, 0, 0), math.pi) @ Quaternion((0, 0, 1), ts), f)
     NOSE.keyframe_insert("location", frame=k); NOSE.keyframe_insert("rotation_quaternion", frame=k)
     CH.keyframe_insert("location", frame=k); CH.keyframe_insert("scale", frame=k); CH.keyframe_insert("rotation_quaternion", frame=k)
@@ -386,7 +395,8 @@ sc.render.image_settings.file_format = "PNG"
 sc.render.filepath = os.path.join(OUT, "")
 try:
     sc.view_settings.view_transform = "AgX"
-    sc.view_settings.look = "AgX - Base Contrast"
+    sc.view_settings.look = "AgX - Medium High Contrast"
+    sc.view_settings.exposure = float(arg("--exposure", -0.35 if CAM == "ground" else -0.25))
 except TypeError:
     pass
 os.makedirs(OUT, exist_ok=True)
