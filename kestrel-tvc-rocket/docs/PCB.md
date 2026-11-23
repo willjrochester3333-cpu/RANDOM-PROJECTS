@@ -90,4 +90,4 @@ JLCPCB's standard 4-layer capability, so no extra-cost options are needed.
 2. USB only first: green+red LEDs, then `status` over USB should show IMU, baro and log flash `ok` (servo rail and
    battery read 0 V on USB power: they run from the LiPo).
 3. Plug the LiPo (switch off), switch on: `status` shows both cell voltages and ≈ 5 V on the servo rail.
-4. Continue with the set-up in [BUILD_GUIDE.md §9](BUILD_GUIDE.md#9-firmware-and-set-up-usb-no-tools-needed).
+4. Continue with the set-up in [BUILD_GUIDE.md §10](BUILD_GUIDE.md#10-firmware-and-set-up-usb-no-tools-needed).

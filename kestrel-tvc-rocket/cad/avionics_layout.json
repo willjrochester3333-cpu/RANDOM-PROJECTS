@@ -41,5 +41,7 @@
   724
  ],
  "nozzle_z": -4,
- "mid_top_z": 724
+ "mid_top_z": 724,
+ "tab_hinge_z": 16.2,
+ "nose_cord_bar_z": 765.0
 }

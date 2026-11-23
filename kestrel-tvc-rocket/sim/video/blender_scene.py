@@ -94,7 +94,26 @@ for o in rocket_objs:
 TOP = bpy.data.objects.new("CORD_TOP", None); link_to_scene(TOP)
 TOP.parent = RK; TOP.matrix_parent_inverse = off; TOP.location = LAY["cord_exit_xyz"]
 NOSE_EYE = bpy.data.objects.new("NOSE_EYE", None); link_to_scene(NOSE_EYE)          # cord bridge in the nose
-NOSE_EYE.parent = NOSE; NOSE_EYE.matrix_parent_inverse = off; NOSE_EYE.location = (0, 0, LAY["mid_top_z"] + 18)
+NOSE_EYE.parent = NOSE; NOSE_EYE.matrix_parent_inverse = off
+NOSE_EYE.location = (0, 0, LAY.get("nose_cord_bar_z", LAY["mid_top_z"] + 18))        # cord bar inside the nose cone
+
+# fin tabs: each one turns about its own hinge line by the simulated tab angle
+# (+ = trailing edge away from its servo pod, the firmware's convention; the CAD models + towards the pod)
+TAB_PIV = []
+HZ = LAY.get("tab_hinge_z", 16.2)
+for kk, fin_deg in enumerate(LAY["fin_deg"]):
+    obs = [o for o in rocket_objs if o.name.startswith(f"fin_control_tab_{kk + 1}")]
+    if not obs:
+        continue
+    phi = math.radians(fin_deg)
+    piv = bpy.data.objects.new(f"TAB_PIVOT_{kk + 1}", None); link_to_scene(piv)
+    piv.parent = RK; piv.matrix_parent_inverse = off
+    piv.location = (0.0, 0.0, HZ)
+    piv.rotation_mode = "XYZ"; piv.rotation_euler = (0.0, 0.0, phi)       # local X runs out along the fin
+    for o in obs:
+        o.parent = piv
+        o.matrix_parent_inverse = Matrix.Rotation(-phi, 4, "Z") @ Matrix.Translation((0.0, 0.0, -HZ))
+    TAB_PIV.append((piv, kk, phi))
 
 # flame (two emissive cones, length follows the thrust)
 FLAME = bpy.data.objects.new("FLAME", None); link_to_scene(FLAME)
@@ -259,6 +278,9 @@ for k, fr in enumerate(FR, start=1):
     last_q = q.copy()
     RK.location = p; RK.rotation_quaternion = q
     RK.keyframe_insert("location", frame=k); RK.keyframe_insert("rotation_quaternion", frame=k)
+    for piv, kk, phi in TAB_PIV:
+        piv.rotation_euler = (math.radians(-fr["tabs"][kk]), 0.0, phi)
+        piv.keyframe_insert("rotation_euler", frame=k)
     axis = q.to_matrix() @ Vector((0, 0, 1))
     top = p + axis * (LAY["mid_top_z"] - ZCG)
     if not fr["sep"]:

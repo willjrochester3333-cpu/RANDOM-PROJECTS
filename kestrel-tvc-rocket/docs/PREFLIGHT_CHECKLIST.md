@@ -13,7 +13,7 @@
 - [ ] Payload secured to the bay floor, door locks with a quarter turn
 - [ ] Field: club launch or landowner permission confirmed; not near an airfield or in controlled airspace (see
       [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md))
-- [ ] Pack: rocket, pad + rod (1 m and 1.5 m) + tile + pegs + rod cap, motors, launch controller + key, LiPo + spare,
+- [ ] Pack: rocket, pad + rod (1 m, and the 1.5 m rod if it may be windy) + tile + pegs + rod cap, motors, launch controller + key, LiPo + spare,
       laptop/phone + USB cable, coin (payload door), toothpick (switch), tools, tape, spare M3 / M2.5 screws.
       No wadding: there is no ejection charge
 
@@ -25,7 +25,7 @@
 
 **Preparing the rocket**
 - [ ] Motor: **"-0" plugged motor**, the type selected with the `motor` command (D20 = `motor 0`, E20 = `motor 2`)
-- [ ] Motor into the holder (penny washer on top), retainer pushed up and twisted 45° until it clicks
+- [ ] Motor pushed up into the holder against the penny washer, retainer pushed up and twisted 45° until it clicks
 - [ ] Payload in, **door locked** (cam arm up)
 - [ ] Parachute packed, spring and piston in, cord coiled on top
 - [ ] Board ON (latch locks), nose cone pushed on until the bolt **clicks**; gentle pull test; board OFF to carry

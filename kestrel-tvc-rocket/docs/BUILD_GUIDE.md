@@ -120,7 +120,8 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
 4. **Servos:** screw the two MG90S into the frame bars with the screws from the servo bag. **Lower servo = TVC
    ring = port 1. Upper servo = motor holder = port 2.** Put a piece of tape with the port number on each lead.
    Do not fit the horns yet.
-5. Centre the servos: plug them into ports 1 and 2 of the board and type `center` (section 10). Now fit a
+5. Centre the servos: plug them into ports 1 and 2 of the board and type `center` (flash the board first: section
+   10, steps 1–2; a USB cable powers the logic, but the servos need the LiPo on the balance socket). Now fit a
    single-arm horn on each, pointing towards its pushrod, with its hole **9 mm** from the shaft (trim the arm 2.5 mm
    beyond the hole). If no hole sits at exactly 9 mm, drill one with a 1.3 mm bit: the firmware's linkage maths
    (gimbal moves 0.5° per servo degree) depends on it. The same goes for the 6 mm tab horns and the 7 mm release
