@@ -174,8 +174,9 @@ def telemetry(fr, meta, maxalt, events, size):
         ("Vertical speed", f"{fr['vz']:+6.1f} m/s", f"speed {fr['speed']:5.1f} m/s"),
         ("Acceleration", f"{fr['accel_g']:5.1f} g", f"thrust {fr['thrust']:5.1f} N"),
         ("Tilt / roll", f"{fr['tilt']:5.1f}°" if not fr["sep"] else "  --", f"roll {fr['roll']:+5.0f}°  {fr['p']:+5.0f}°/s" if not fr["sep"] else ""),
-        ("TVC gimbal", f"{fr['gy']:+4.1f}° {fr['gz']:+4.1f}°", "y / z  (limit 6°)"),
-        ("Fin tabs", " ".join(f"{v:+4.1f}" for v in fr["tabs"]), "1-4 (limit 15°)"),
+        ("TVC gimbal", f"{fr['gy']:+4.1f}° {fr['gz']:+4.1f}°" if not fr["sep"] else "centred", "y / z  (limit 6°)"),
+        ("Fin tabs", " ".join(f"{v:+4.1f}" for v in fr["tabs"]) if not fr["sep"] else "centred",
+         "1-4 (limit 15°)" if not fr["sep"] else "steering off under the parachute"),
         ("Mass", f"{fr['mass'] * 1000:5.0f} g", f"q {fr['qdyn']:5.0f} Pa"),
         ("Max altitude", f"{maxalt:6.1f} m", ""),
     ]

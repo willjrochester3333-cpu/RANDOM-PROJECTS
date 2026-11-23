@@ -294,7 +294,15 @@ for k, fr in enumerate(FR, start=1):
         ch_pos = top + Vector((0, 0, 1700.0 * min(1.0, 0.25 + ts / 0.9))) + drift * min(1.0, ts)
         s = 0.12 + 0.88 * fr["chute"]
         CH.location = ch_pos; CH.scale = (s, s, max(s, 0.3))
-        CH.rotation_quaternion = Quaternion((1, 0, 0), math.radians(4.0 * math.sin(fr["t"] * 2.1)))
+        sway = Quaternion((1, 0, 0), math.radians(4.0 * math.sin(fr["t"] * 2.1)))
+        CH.rotation_quaternion = sway
+        t_land = META["events"].get("landing_t")
+        if t_land is not None and fr["t"] > t_land:             # after touchdown the canopy settles downwind and collapses
+            fl = min(1.0, (fr["t"] - t_land) / 1.6)
+            settle = Vector((ch_pos.x, ch_pos.y, 150.0)) + drift * 4.0
+            CH.location = ch_pos.lerp(settle, fl)
+            CH.scale = (s * (1.0 + 0.25 * fl), s * (1.0 + 0.25 * fl), max(0.05, max(s, 0.3) * (1.0 - fl)))
+            CH.rotation_quaternion = sway.slerp(Quaternion(), fl)
         hang = (top + ch_pos) * 0.5 + Vector((0, 0, -250))
         if nose_sep_pos is None:
             nose_sep_pos = NOSE.location.copy()
