@@ -52,8 +52,8 @@ def part(ref, lib, value, fp, pins, pos, lcsc=None, mpn=None, block="misc", dnp=
                       block=block, dnp=dnp, note=note))
 
 
-def R(ref, val, a, b, pos, block, note=""):
-    part(ref, "Device:R", val, R0402, {"1": a, "2": b}, pos, LCSC_R[val], f"0402 {val} 1%", block, note=note)
+def R(ref, val, a, b, pos, block, note="", dnp=False):
+    part(ref, "Device:R", val, R0402, {"1": a, "2": b}, pos, LCSC_R[val], f"0402 {val} 1%", block, dnp=dnp, note=note)
 
 
 def C(ref, val, a, b, pos, block, fp=C0402):
@@ -175,7 +175,8 @@ part("J8", "Connector:Conn_Coaxial", "GPS ANT (U.FL)", "Connector_Coaxial:U.FL_H
 C("C23", "47pF", "RF_ANT", "RF_IN", (16.5, 14.3, 90), "gps")
 part("L3", "Device:L", "15nH", "Inductor_SMD:L_0402_1005Metric", {"1": "BIAS_N", "2": "RF_ANT"}, (12.3, 13.9, 0), "C27143",
      "0402 15nH (antenna DC feed)", "gps")
-R("R24", "22", "+3V3_GPS", "BIAS_N", (9.9, 13.9, 0), "gps", note="DNP for a passive antenna")
+R("R24", "22", "+3V3_GPS", "BIAS_N", (9.9, 13.9, 0), "gps", dnp=True,
+  note="NOT FITTED: passive antenna, no DC bias on the U.FL (fit 22R only for an active antenna)")
 C("C24", "100nF", "BIAS_N", "GND", (11.2, 15.6, 0), "gps")
 
 # ------------------------------------------------------------------------------------------------

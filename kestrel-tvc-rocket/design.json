@@ -3,7 +3,7 @@
   "name": "KESTREL-2",
   "version": "2.0",
   "airframe": {
-    "tube": "Estes BT-70 (56.3 mm OD), two 24 in tubes",
+    "tube": "Estes BT-70 (56.3 mm OD), two 19.5 in (495 mm) tubes cut to 340 mm and 380 mm",
     "od": 56.3,
     "id": 55.2,
     "tube_density_kg_m3": 680,
