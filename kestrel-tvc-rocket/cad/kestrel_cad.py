@@ -849,7 +849,7 @@ def fin_tabs(M):
     t = tab_local(0.0)
     inst = [polar(t, a) for a in FIN_ANG]
     return register("fin_control_tab", inst[0], M["blue"], qty=NF, inst=inst, part="bottom", export=t, export_rot=(0, 90, 0),
-                    note="PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut to a 5.5 mm stub, "
+                    note="PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut ~7 mm from the hub centre, "
                          "into the pocket; the printed pin at the other end sits in the slot at the fin root")
 
 

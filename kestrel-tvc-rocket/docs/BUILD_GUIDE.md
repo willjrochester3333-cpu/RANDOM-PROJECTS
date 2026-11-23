@@ -137,11 +137,12 @@ Each fin carries its own tab servo inside it (`fin_servo_cutaway.png`): the serv
 open at the fin tip, its output shaft pointing in towards the rocket along the tab's hinge line, and its spline
 goes straight into a servo horn glued inside the tab. The tab turns exactly as far as the servo does.
 
-1. **Horns into the tabs:** take a single-arm horn from each tab servo's bag and cut its arm off **5.5 mm from
-   the centre of the hub**, leaving a short stub. Smear a little Vaseline inside the horn's splined bore (it keeps
-   the glue out). Epoxy the horn into the pocket at the tab's **outer end** (the end without the printed pin):
-   hub in the round pocket, hub face flush with the end of the tab, stub in the slot that points towards the tab's
-   thin trailing edge. When the epoxy has cured, wipe the bore clean.
+1. **Horns into the tabs:** take a single-arm horn from each tab servo's bag and cut its arm off **about 7 mm
+   from the centre of the hub**, leaving a short stub. Trial-fit it in the pocket at the tab's **outer end** (the
+   end without the printed pin): hub in the round pocket (it takes a hub up to 7.6 mm across and 5 mm long), stub
+   in the slot that points towards the tab's thin trailing edge, hub face flush with the end of the tab. If your
+   horn is bigger, file the stub or the hub until it sits flush. Smear a little Vaseline inside the horn's splined
+   bore (it keeps the glue out), epoxy the horn in, and wipe the bore clean when the epoxy has cured.
 2. **Fin can on the tube:** slide the fin can over the bottom end of the bottom tube with its launch lug on the
    pencilled lug line, until the tube end is flush with the bottom of the can ring. Through the fin can, mark and
    drill the two 3.3 mm **tail holes** (16 mm from the end, lug side and 210°) and cut the **four lead slots**
@@ -162,7 +163,7 @@ goes straight into a servo horn glued inside the tab. The tab turns exactly as f
    tape over the tip. (The groove is placed for a lead that leaves the servo case at the end away from the output
    shaft. If yours leaves at the shaft end, bring it out of the bottom of the pocket and up the fin tip under the
    tape instead.) Label the leads: **fin 1 = port 4, fin 2 = port 5, fin 3 = port 6, fin 4 = port 7**. Fit a
-   150 mm extension lead to each and pull all four up and out of the top of the bottom tube. With the board on,
+   300 mm extension lead to each and pull all four up and out of the top of the bottom tube. With the board on,
    `servo 4 1343` and `servo 4 1657` (±15° of tab) must swing tab 1 freely each way without touching the fin;
    the same for servos 5–7.
 7. **TVC module in:** slide the TVC module into the bottom of the tube, **its two leads first**, turning it until
