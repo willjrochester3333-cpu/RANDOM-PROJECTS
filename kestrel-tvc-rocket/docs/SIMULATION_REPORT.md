@@ -186,9 +186,11 @@ and `rollprog` turns the coast into a slow camera panorama.
 
 ## 8. The launch video
 
-`sim/results/video/kestrel2_flight_seed7.mp4` is one randomised flight from the same simulator, rendered in
-Blender: ground camera and onboard camera side by side, live telemetry bottom left, graphs below. Make another
-(each seed is a different flight: wind, gusts, payload, motor):
+`sim/results/video/kestrel2_flight_seed7.mp4` (4.9 m/s wind, 20 g payload) and `kestrel2_flight_seed16.mp4` (almost
+calm, 26 g payload) are two randomised flights from the same simulator with the real flight code, rendered in
+Blender: ground camera and onboard camera side by side, live telemetry bottom left, graphs below. The fin tabs
+move by their simulated angles; the parachute opens as the simulator says it does. Make another (each seed is a
+different flight: wind, gusts, payload, motor performance, sensor errors):
 
 ```bash
 cd sim && python3 video/make_flight_video.py --seed 12

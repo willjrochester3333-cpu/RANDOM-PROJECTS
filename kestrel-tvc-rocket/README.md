@@ -21,8 +21,9 @@ build cost **≈ £301** (motors extra).
 <img src="cad/renders/avbay_cutaway.png" width="24%" alt="avionics bay section">
 </p>
 
-**Simulated launch video** (ground camera, onboard camera, live telemetry and graphs; every seed is a different
-flight): [`sim/results/video/kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4)
+**Simulated launch videos** (ground camera, onboard camera, live telemetry and graphs; every seed is a different
+flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (4.9 m/s wind, 20 g payload) and
+[`kestrel2_flight_seed16.mp4`](sim/results/video/kestrel2_flight_seed16.mp4) (almost calm, 26 g payload)
 
 | | |
 |---|---|
