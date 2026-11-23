@@ -1,0 +1,1193 @@
+<title>KESTREL Mission Control</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a range-control console. The 3D range map is the stage; instrument rails sit left and right of it,
+   the mission clock and flight-state run across the top, the transport and strip charts along the bottom. */
+:root {
+  color-scheme: dark;
+  --void: #070b12;          /* page */
+  --panel: #0d141f;         /* instrument panels */
+  --panel-2: #121c2b;       /* raised controls */
+  --line: #1e2b3e;          /* hairlines */
+  --line-2: #2a3b54;
+  --ink: #e6edf7;           /* primary text */
+  --ink-2: #9db0c8;         /* secondary text */
+  --muted: #62748d;         /* labels */
+  --kestrel: #ff6a1f;       /* the rocket's PETG orange: the one accent */
+  --boost: #d95926;         /* flight phases = validated categorical slots (dark steps) */
+  --coast: #3987e5;
+  --descent: #199e70;
+  --good: #0ca30c;          /* status: fixed, always with a label */
+  --warn: #fab219;
+  --crit: #d03b3b;
+  --display: "Chakra Petch", "Bahnschrift", "DIN Alternate", "Arial Narrow", system-ui, sans-serif;
+  --text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 10px;
+}
+html, body { height: 100%; }
+body { background: var(--void); color: var(--ink); font-family: var(--text); font-size: 14px; }
+* { box-sizing: border-box; }
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--kestrel); outline-offset: 2px; }
+
+.app {
+  height: 100%; display: grid; gap: 10px;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr) minmax(250px, 300px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: "top top top" "left stage right" "dock dock dock";
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); }
+.eyebrow { font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- top bar */
+.top { grid-area: top; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 14px; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand b { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .08em; }
+.brand span { color: var(--ink-2); font-size: 12px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line-2);
+  font-family: var(--display); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.chip.live i { background: var(--crit); box-shadow: 0 0 0 0 rgba(208,59,59,.7); animation: pulse 1.6s infinite; }
+.chip.sim i { background: var(--warn); }
+.chip.replay i { background: var(--coast); }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(208,59,59,.6); } 70% { box-shadow: 0 0 0 8px rgba(208,59,59,0); } 100% { box-shadow: 0 0 0 0 rgba(208,59,59,0); } }
+.clock { margin-left: auto; display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
+.clock .lbl { font-family: var(--display); color: var(--muted); font-size: 13px; letter-spacing: .12em; }
+.clock .t { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: .04em; font-variant-numeric: tabular-nums; min-width: 6.2ch; text-align: right; }
+.state { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: .16em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel-2); min-width: 120px; text-align: center; }
+.state[data-s="3"] { color: #fff; background: var(--boost); border-color: var(--boost); }
+.state[data-s="4"] { color: #fff; background: var(--coast); border-color: var(--coast); }
+.state[data-s="5"] { color: #fff; background: var(--descent); border-color: var(--descent); }
+.state[data-s="6"] { color: var(--ink); }
+.state[data-s="7"] { color: #fff; background: var(--crit); border-color: var(--crit); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.btn:hover { border-color: var(--ink-2); }
+.btn.primary { background: var(--kestrel); border-color: var(--kestrel); color: #170800; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn svg { width: 15px; height: 15px; }
+
+/* ---------- rails */
+.rail { min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+.left { grid-area: left; } .right { grid-area: right; }
+.card { padding: 10px 13px; display: flex; flex-direction: column; gap: 8px; }
+.card h2 { margin: 0; }
+
+.events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.ev { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 4px 8px; border-radius: 7px; color: var(--muted); }
+.ev .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line-2); justify-self: center; }
+.ev .name { font-family: var(--display); font-weight: 600; letter-spacing: .08em; font-size: 13px; text-transform: uppercase; }
+.ev .sub { display: block; font-family: var(--text); font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--muted); font-weight: 400; }
+.ev .when { font-family: var(--mono); font-size: 12px; }
+.ev.done { color: var(--ink); }
+.ev.done .sub { color: var(--ink-2); }
+.ev.done .dot { border-color: var(--c, var(--ink)); background: var(--c, var(--ink)); }
+.ev.now { background: var(--panel-2); }
+.ev.bad .dot { border-color: var(--crit); background: var(--crit); }
+
+.big { display: flex; align-items: baseline; gap: 8px; }
+.big .v { font-family: var(--display); font-weight: 700; font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.big .u { color: var(--ink-2); font-size: 14px; }
+.big .alt2 { margin-left: auto; color: var(--muted); font-size: 12px; text-align: right; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+.kv { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kv .k { font-size: 11px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-family: var(--display); font-weight: 600; }
+.kv .v { font-family: var(--mono); font-size: 16px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kv .v small { color: var(--ink-2); font-size: 12px; margin-left: 3px; }
+
+.instr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.instr figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.instr canvas { width: 100%; max-width: 112px; aspect-ratio: 1; }
+.instr figcaption { font-size: 11px; color: var(--muted); text-align: center; font-family: var(--display); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.tabs-fig { grid-column: 1 / -1; }
+.tabs-fig canvas { max-width: 132px; }
+.status { display: flex; flex-direction: column; gap: 4px; }
+.srow { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.srow .tag { font-family: var(--display); font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--line-2); color: var(--ink-2); }
+.srow .tag.good { color: #9ff09f; border-color: var(--good); }
+.srow .tag.warn { color: var(--warn); border-color: var(--warn); }
+.srow .tag.crit { color: #ff9c9c; border-color: var(--crit); }
+.srow .val { margin-left: auto; font-family: var(--mono); color: var(--ink); white-space: nowrap; }
+.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; max-height: 210px; overflow: auto; }
+.feed li { display: grid; grid-template-columns: 62px 1fr; gap: 8px; color: var(--ink-2); }
+.feed li b { font-family: var(--mono); font-weight: 500; color: var(--muted); }
+
+/* ---------- stage */
+.stage { grid-area: stage; position: relative; overflow: hidden; min-height: 320px; background: #05080d; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#scene:active { cursor: grabbing; }
+.hud { position: absolute; pointer-events: none; }
+.views { top: 12px; left: 12px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: auto; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; background: rgba(13,20,31,.82); backdrop-filter: blur(6px); }
+.seg button { background: transparent; border: 0; padding: 6px 10px; cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--void); }
+.coords { right: 12px; top: 12px; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--ink-2); background: rgba(13,20,31,.72); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; }
+.legend { left: 12px; bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); background: rgba(13,20,31,.72); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.note { right: 12px; bottom: 12px; font-size: 12px; color: var(--muted); background: rgba(13,20,31,.72); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; max-width: 60%; text-align: right; }
+.banner { left: 50%; top: 60%; width: min(92%, 900px); transform: translate(-50%, 0); text-align: center; opacity: 0; transition: opacity .35s, transform .35s; }
+.banner.show { opacity: 1; transform: translate(-50%, 8px); }
+.banner .b1 { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3.6vw, 44px); letter-spacing: .16em; line-height: 1.1; text-shadow: 0 2px 24px rgba(0,0,0,.85); color: var(--bc, var(--ink)); }
+.banner .b2 { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 17px); color: var(--ink); text-shadow: 0 1px 10px rgba(0,0,0,.9); margin-top: 4px; }
+.empty { inset: 0; display: grid; place-items: center; text-align: center; color: var(--ink-2); padding: 20px; }
+
+/* ---------- dock */
+.dock { grid-area: dock; padding: 10px 14px; display: flex; flex-direction: column; gap: 10px; }
+.transport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ibtn { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line-2); cursor: pointer; }
+.ibtn svg { width: 16px; height: 16px; }
+.ibtn:hover { border-color: var(--ink-2); }
+.livebtn { width: auto; padding: 0 12px; font-family: var(--display); font-weight: 700; letter-spacing: .12em; font-size: 12px; }
+.livebtn[aria-pressed="true"] { color: #fff; background: var(--crit); border-color: var(--crit); }
+#speed { background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 8px; }
+.scrub { position: relative; flex: 1 1 320px; min-width: 200px; height: 36px; display: flex; align-items: center; }
+.scrub input { width: 100%; margin: 0; accent-color: var(--kestrel); position: relative; z-index: 2; background: transparent; }
+.ticks { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.ticks span { position: absolute; top: 4px; width: 2px; height: 8px; border-radius: 1px; transform: translateX(-1px); }
+.ttime { font-family: var(--mono); font-size: 13px; color: var(--ink-2); min-width: 15ch; text-align: right; }
+.charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.chart { position: relative; background: var(--void); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px 6px; min-width: 0; }
+.chart .head { display: flex; align-items: baseline; gap: 10px; }
+.chart .head .eyebrow { color: var(--ink-2); }
+.chart .lg { margin-left: auto; display: flex; gap: 10px; font-size: 11.5px; color: var(--ink-2); }
+.chart .lg i { width: 12px; height: 3px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+.chart canvas { width: 100%; height: 104px; display: block; }
+.tip { position: absolute; pointer-events: none; background: rgba(7,11,18,.94); border: 1px solid var(--line-2); border-radius: 6px; padding: 4px 7px; font-family: var(--mono); font-size: 11.5px; white-space: nowrap; color: var(--ink); }
+
+/* ---------- flights sheet */
+.sheet { position: fixed; inset: 0; background: rgba(3,5,9,.66); display: grid; place-items: center; z-index: 30; padding: 16px; }
+.sheet .box { width: min(560px, 100%); max-height: 80vh; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.sheet h3 { margin: 0; font-family: var(--display); letter-spacing: .08em; }
+.flist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.flist li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.flist .meta { color: var(--ink-2); font-size: 12px; }
+.flist .row { display: flex; gap: 6px; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 9px; padding: 9px 14px; z-index: 40; max-width: min(560px, calc(100% - 32px)); font-size: 13px; }
+.drop { position: fixed; inset: 0; border: 3px dashed var(--kestrel); background: rgba(255,106,31,.07); z-index: 35; display: grid; place-items: center; font-family: var(--display); font-size: 22px; letter-spacing: .1em; pointer-events: none; }
+
+/* ---------- narrow screens: one column, stage first after the bar */
+@media (max-width: 1100px) {
+  .app { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "top top" "stage stage" "left right" "dock dock"; grid-template-rows: auto 62vh auto auto; height: auto; }
+  .rail { overflow: visible; }
+}
+@media (max-width: 720px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "stage" "left" "right" "dock"; grid-template-rows: auto 58vh auto auto auto; }
+  .charts { grid-template-columns: minmax(0, 1fr); }
+  .clock { margin-left: 0; }
+  .clock .t { font-size: 26px; }
+  .note { display: none; }
+  .coords { top: auto; bottom: 52px; right: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip.live i { animation: none; }
+  .banner { transition: none; }
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top panel">
+    <div class="brand"><b>KESTREL-2</b><span>Mission Control</span></div>
+    <span class="chip" id="srcChip"><i></i><span id="srcText">No flight</span></span>
+    <div class="actions">
+      <button class="btn primary" id="btnSim" type="button" title="Fly the simulated F35 flight in real time, as if it were live">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c3 2.5 4.5 6 4.5 10.5l2.5 3V19l-3.2-1.6c-.4.9-.9 1.7-1.5 2.6h-4.6c-.6-.9-1.1-1.7-1.5-2.6L5 19v-3.5l2.5-3C7.5 8 9 4.5 12 2zm0 7a1.6 1.6 0 1 0 0 3.2A1.6 1.6 0 0 0 12 9z"/></svg>
+        Simulated live</button>
+      <button class="btn" id="btnUsb" type="button" title="Connect the flight computer or a ground-station receiver over USB">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M7 13v3a5 5 0 0 0 10 0v-3"/></svg>
+        Connect USB</button>
+      <button class="btn" id="btnLoad" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 15v4h16v-4M12 4v11M8 8l4-4 4 4"/></svg>
+        Load flight</button>
+      <button class="btn" id="btnSave" type="button" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 15v4h16v-4M12 4v11M8 11l4 4 4-4"/></svg>
+        Save flight</button>
+      <button class="btn" id="btnFlights" type="button">Flights</button>
+      <input id="file" type="file" accept=".csv,.txt,text/csv,text/plain" hidden>
+    </div>
+    <div class="clock"><span class="lbl" id="clockLbl">T+</span><span class="t num" id="clock">--:--.-</span>
+      <div class="state" id="state" data-s="-1">NO DATA</div></div>
+  </header>
+
+  <aside class="rail left">
+    <section class="panel card" aria-labelledby="hEv">
+      <h2 class="eyebrow" id="hEv">Flight events</h2>
+      <ol class="events" id="events"></ol>
+    </section>
+    <section class="panel card" aria-labelledby="hAlt">
+      <h2 class="eyebrow" id="hAlt">Altitude above the pad</h2>
+      <div class="big"><span class="v num" id="alt">0.0</span><span class="u">m</span><span class="alt2 num" id="altFt">0 ft</span></div>
+      <div class="grid2">
+        <div class="kv"><span class="k">Max altitude</span><span class="v" id="maxAlt">–</span></div>
+        <div class="kv"><span class="k">Vertical speed</span><span class="v" id="vz">–</span></div>
+        <div class="kv"><span class="k">Acceleration</span><span class="v" id="acc">–</span></div>
+        <div class="kv"><span class="k">Ground speed</span><span class="v" id="gs">–</span></div>
+        <div class="kv"><span class="k">From the pad</span><span class="v" id="dist">–</span></div>
+        <div class="kv"><span class="k">Bearing</span><span class="v" id="brg">–</span></div>
+        <div class="kv"><span class="k">Tilt off target</span><span class="v" id="tilt">–</span></div>
+        <div class="kv"><span class="k">Roll</span><span class="v" id="roll">–</span></div>
+      </div>
+    </section>
+  </aside>
+
+  <main class="stage panel" id="stage" aria-label="3D map of the launch range">
+    <canvas id="scene"></canvas>
+    <div class="hud views">
+      <div class="seg" role="group" aria-label="Camera">
+        <button type="button" data-view="chase" aria-pressed="true">Chase</button>
+        <button type="button" data-view="pad" aria-pressed="false">Pad cam</button>
+        <button type="button" data-view="orbit" aria-pressed="false">Orbit</button>
+        <button type="button" data-view="top" aria-pressed="false">Map</button>
+      </div>
+      <div class="seg" role="group" aria-label="Rocket size">
+        <button type="button" data-scale="8" aria-pressed="true">Rocket ×8</button>
+        <button type="button" data-scale="1" aria-pressed="false">True size</button>
+      </div>
+    </div>
+    <div class="hud coords num" id="coords">E 0.0 m · N 0.0 m · ↑ 0.0 m</div>
+    <div class="hud legend" aria-label="Trajectory colours">
+      <span><i style="background: var(--boost)"></i>Boost</span>
+      <span><i style="background: var(--coast)"></i>Coast</span>
+      <span><i style="background: var(--descent)"></i>Parachute</span>
+    </div>
+    <div class="hud note" id="note">Grid 10 m, rings every 100 m. Drag to look around, scroll or pinch to zoom.</div>
+    <div class="hud banner" id="banner"><div class="b1" id="b1"></div><div class="b2" id="b2"></div></div>
+    <div class="hud empty" id="empty" hidden><div><div class="eyebrow">3D map</div><p>Loading the range…</p></div></div>
+  </main>
+
+  <aside class="rail right">
+    <section class="panel card" aria-labelledby="hSt">
+      <h2 class="eyebrow" id="hSt">Steering</h2>
+      <div class="instr">
+        <figure><canvas id="cNose" width="260" height="260"></canvas><figcaption>Nose direction</figcaption></figure>
+        <figure><canvas id="cGimbal" width="260" height="260"></canvas><figcaption>Motor gimbal (±6°)</figcaption></figure>
+        <figure class="tabs-fig"><canvas id="cTabs" width="300" height="300"></canvas><figcaption>Fin tabs, seen from behind (±15°)</figcaption></figure>
+      </div>
+    </section>
+    <section class="panel card" aria-labelledby="hSys">
+      <h2 class="eyebrow" id="hSys">Systems</h2>
+      <div class="status">
+        <div class="srow"><span class="tag" id="tBat">Battery</span><span class="val" id="vBat">–</span></div>
+        <div class="srow"><span class="tag" id="tGps">GPS</span><span class="val" id="vGps">–</span></div>
+        <div class="srow"><span class="tag" id="tTvc">TVC</span><span class="val" id="vTvc">–</span></div>
+        <div class="srow"><span class="tag" id="tChute">Parachute</span><span class="val" id="vChute">–</span></div>
+        <div class="srow"><span class="tag" id="tLink">Data</span><span class="val" id="vLink">–</span></div>
+      </div>
+    </section>
+    <section class="panel card" aria-labelledby="hLog">
+      <h2 class="eyebrow" id="hLog">Log</h2>
+      <ul class="feed" id="feed"></ul>
+    </section>
+  </aside>
+
+  <section class="dock panel" aria-label="Replay and charts">
+    <div class="transport">
+      <button class="ibtn" id="btnRestart" type="button" aria-label="Back to the start"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+      <button class="ibtn" id="btnPlay" type="button" aria-label="Play"><svg id="icoPlay" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button>
+      <button class="ibtn livebtn" id="btnLive" type="button" aria-pressed="false" title="Jump to the newest data">LIVE</button>
+      <label class="eyebrow" for="speed">Speed</label>
+      <select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select>
+      <div class="scrub"><div class="ticks" id="ticks"></div><input id="scrub" type="range" min="0" max="1000" step="1" value="0" aria-label="Flight time"></div>
+      <span class="ttime" id="ttime">–</span>
+    </div>
+    <div class="charts">
+      <div class="chart"><div class="head"><span class="eyebrow">Altitude</span><span class="lg">m</span></div><canvas id="chAlt"></canvas></div>
+      <div class="chart"><div class="head"><span class="eyebrow">Vertical speed</span><span class="lg">m/s</span></div><canvas id="chVz"></canvas></div>
+      <div class="chart"><div class="head"><span class="eyebrow">Attitude</span><span class="lg"><span><i style="background: var(--coast)"></i>tilt off target °</span><span><i style="background: var(--boost)"></i>roll °</span></span></div><canvas id="chAtt"></canvas></div>
+    </div>
+  </section>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="box panel" role="dialog" aria-modal="true" aria-labelledby="hSheet">
+    <h3 id="hSheet">Flights</h3>
+    <p class="meta" id="sheetNote" style="margin:0;color:var(--ink-2)">Flights recorded or loaded here are kept in this browser for quick replays. Use Save flight to keep a file.</p>
+    <ul class="flist" id="flist"></ul>
+    <div class="row" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="btnSheetClose" type="button">Close</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<div class="drop" id="drop" hidden>Drop a flight log to replay it</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+/* =====================================================================================================
+   KESTREL-2 Mission Control
+   Data: the flight computer's log format (the CSV that `dump` prints; the same lines from a live link).
+   Sources: built-in simulated flight streamed in real time · USB serial (Web Serial) · log files · saved flights.
+   ===================================================================================================== */
+const STATE = ["BOOT", "CALIBRATING", "READY", "BOOST", "COAST", "DESCENT", "LANDED", "ERROR"];
+const COLS = ["t_ms", "state", "flags", "gx_dps", "gy_dps", "gz_dps", "ax", "ay", "az", "alt_m", "vz_ms", "baro_alt_m", "tilt_deg",
+  "gimbal_y", "gimbal_z", "vbat", "lat", "lon", "gps_alt", "sats", "qx", "qy", "qz", "tab1", "tab2", "tab3", "tab4", "roll_deg"];
+const F_TVC = 1, F_DEPLOY = 2, F_GPS = 8, F_ABORT = 16, F_TABS = 32;
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { boost: css("--boost"), coast: css("--coast"), descent: css("--descent"), kestrel: css("--kestrel"), ink: css("--ink"),
+  ink2: css("--ink-2"), muted: css("--muted"), line: css("--line"), line2: css("--line-2"), void: css("--void"), panel: css("--panel"),
+  good: css("--good"), warn: css("--warn"), crit: css("--crit") };
+const PHASE_COLOR = { 3: C.boost, 4: C.coast, 5: C.descent, 6: C.descent };
+const $ = (id) => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const fmtT = (s) => { if (!isFinite(s)) return "--:--.-"; const neg = s < 0; s = Math.abs(s); const m = Math.floor(s / 60);
+  return (neg ? "−" : "") + String(m).padStart(2, "0") + ":" + (s - m * 60).toFixed(1).padStart(4, "0"); };
+
+/* ------------------------------------------------------------------ parsing the flight-computer log format */
+function parseLine(line) {
+  const p = line.split(",");
+  if (p.length < 28) return null;
+  const r = {};
+  for (let i = 0; i < COLS.length; i++) { const v = Number(p[i]); if (!isFinite(v)) return null; r[COLS[i]] = v; }
+  return r;
+}
+function parseLog(text) {
+  const sessions = [];
+  let cur = null;
+  const start = (label) => { cur = { label, rows: [] }; sessions.push(cur); };
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith("# session")) { start(line.replace(/^#\s*session:\s*/, "")); continue; }
+    if (line.startsWith("#") || line.startsWith("t_ms")) continue;
+    const r = parseLine(line);
+    if (!r) continue;
+    if (!cur || (cur.rows.length && r.t_ms < cur.rows[cur.rows.length - 1].t_ms)) start(cur ? cur.label + " (cont.)" : "flight");
+    cur.rows.push(r);
+  }
+  return sessions.filter((s) => s.rows.length > 1);
+}
+function toCsv(flight) {
+  const head = COLS.join(",");
+  const fx = (k, v) => (k === "lat" || k === "lon") ? v.toFixed(7) : (k === "vbat" ? v.toFixed(3) : (Number.isInteger(v) && ["t_ms", "state", "flags", "gps_alt", "sats"].includes(k) ? String(v) : v.toFixed(k[0] === "q" ? 4 : 2)));
+  const body = flight.rows.map((r) => COLS.map((k) => fx(k, r[k])).join(","));
+  return head + "\n# session: " + flight.label.replace(/[\r\n]/g, " ") + "\n" + body.join("\n") + "\n# end: " + body.length + " records, 0 failed CRC\n";
+}
+
+/* ------------------------------------------------------------------ a flight: rows + derived track + events */
+class Flight {
+  constructor(label, source) {
+    this.label = label; this.source = source; this.rows = []; this.T = [];
+    this.gps = []; this.lat0 = null; this.lon0 = null;
+    this.tLaunch = null; this.events = {}; this.maxAlt = 0; this.maxAltT = null; this.maxVz = 0; this.maxG = 0;
+    this.version = 0; this.zeroed = false;
+  }
+  get t0() { return this.rows.length ? this.rows[0].t_ms / 1000 : 0; }
+  mt(t) { return this.tLaunch == null ? t - this.t0 : t - this.tLaunch; }     // mission time of a log time (s)
+  add(r) {
+    const t = r.t_ms / 1000;
+    if (this.rows.length && r.t_ms <= this.rows[this.rows.length - 1].t_ms) return false;
+    this.rows.push(r); this.T.push(t); this.version++;
+    // the flight computer zeroes its altitude on the pad pressure when it reaches READY (or at an unarmed launch):
+    // before that (BOOT, CALIBRATING) alt_m / vz_ms are pressure altitude, not height above the pad, so the screen
+    // shows h / v (NaN = not zeroed yet) and keeps the raw columns for saving
+    if (r.state >= 2 && r.state <= 6) this.zeroed = true;
+    r.h = this.zeroed ? r.alt_m : NaN; r.v = this.zeroed ? r.vz_ms : NaN;
+    if ((r.flags & F_GPS || r.sats > 0) && Math.abs(r.lat) > 1e-6) {
+      if (this.lat0 == null) { this.lat0 = r.lat; this.lon0 = r.lon; }
+      const n = (r.lat - this.lat0) * 111320, e = (r.lon - this.lon0) * 111320 * Math.cos(this.lat0 * Math.PI / 180);
+      const g = this.gps[this.gps.length - 1];
+      if (!g || g.e !== e || g.n !== n) this.gps.push({ t, e, n });
+    }
+    const ev = this.events, s = r.state;
+    const mark = (k, extra) => { if (!ev[k]) { ev[k] = Object.assign({ t }, extra || {}); this.onEvent && this.onEvent(k, ev[k]); } };
+    if (s >= 1 && s <= 7) mark("power");
+    if (s === 2) mark("ready");
+    if (s === 3 && this.tLaunch == null) { this.tLaunch = t; mark("liftoff"); }
+    if (s >= 3 && s <= 6 && this.tLaunch == null) { this.tLaunch = t; mark("liftoff"); }
+    if (this.tLaunch != null && s <= 6) {
+      if (r.alt_m > this.maxAlt) { this.maxAlt = r.alt_m; this.maxAltT = t; }
+      if (r.vz_ms > this.maxVz) this.maxVz = r.vz_ms;
+      const g = Math.hypot(r.ax, r.ay, r.az) / 9.81; if (s === 3 || s === 4) this.maxG = Math.max(this.maxG, g);
+    }
+    if (s === 4) mark("burnout");
+    if (s >= 5 && s <= 6 && this.tLaunch != null) mark("apogee", { t: this.maxAltT ?? t, alt: this.maxAlt });
+    if (r.flags & F_DEPLOY && this.tLaunch != null) mark("chute", { alt: r.alt_m, vz: r.vz_ms });
+    if (s === 6) { const p = this.posAt(t); mark("landed", { dist: Math.hypot(p.e, p.n), e: p.e, n: p.n }); }
+    if (r.flags & F_ABORT) mark("abort");
+    if (s === 7) mark("error");
+    return true;
+  }
+  index(t) {                       // last row with time <= t
+    const T = this.T; let lo = 0, hi = T.length - 1;
+    if (!T.length) return -1; if (t <= T[0]) return 0; if (t >= T[hi]) return hi;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (T[m] <= t) lo = m; else hi = m; }
+    return lo;
+  }
+  posAt(t) {                       // horizontal position from the GPS track (5 Hz on the real rocket), interpolated
+    const g = this.gps; if (!g.length) return { e: 0, n: 0, ok: false };
+    if (t <= g[0].t) return { e: g[0].e, n: g[0].n, ok: true };
+    const L = g[g.length - 1]; if (t >= L.t) return { e: L.e, n: L.n, ok: true };
+    let lo = 0, hi = g.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (g[m].t <= t) lo = m; else hi = m; }
+    const a = g[lo], b = g[hi], f = (t - a.t) / Math.max(1e-6, b.t - a.t);
+    return { e: a.e + (b.e - a.e) * f, n: a.n + (b.n - a.n) * f, ok: true };
+  }
+  sample(t) {                      // everything the screen shows at log time t, interpolated between rows
+    const i = this.index(t); if (i < 0) return null;
+    const a = this.rows[i], b = this.rows[Math.min(i + 1, this.rows.length - 1)];
+    const ta = this.T[i], tb = this.T[Math.min(i + 1, this.T.length - 1)];
+    const f = tb > ta ? clamp((t - ta) / (tb - ta), 0, 1) : 0;
+    const L = (k) => a[k] + (b[k] - a[k]) * f;
+    const Lz = (k) => !isFinite(a[k]) ? NaN : isFinite(b[k]) ? L(k) : a[k];     // h / v: NaN until zeroed
+    const h = Lz("h"), v = Lz("v");
+    const q = nlerp(qOf(a), qOf(b), f);
+    const p = this.posAt(t);
+    let gs = 0; const pp = this.posAt(t - 0.5); gs = Math.hypot(p.e - pp.e, p.n - pp.n) / 0.5;
+    return { t, row: a, state: a.state, flags: a.flags, alt: isFinite(h) ? Math.max(0, h) : 0, altOk: isFinite(h),
+      vz: isFinite(v) ? v : 0, tilt: L("tilt_deg"),
+      roll: L("roll_deg"), gy: L("gimbal_y"), gz: L("gimbal_z"), tabs: [L("tab1"), L("tab2"), L("tab3"), L("tab4")],
+      acc: Math.hypot(L("ax"), L("ay"), L("az")) / 9.81, vbat: a.vbat, sats: a.sats, gpsOk: p.ok, e: p.e, n: p.n, gs, q };
+  }
+}
+function qOf(r) { const x = r.qx, y = r.qy, z = r.qz; return [Math.sqrt(Math.max(0, 1 - x * x - y * y - z * z)), x, y, z]; }
+function nlerp(a, b, f) {
+  let d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]; const s = d < 0 ? -1 : 1;
+  const q = a.map((v, i) => v + (s * b[i] - v) * f); const n = Math.hypot(...q) || 1; return q.map((v) => v / n);
+}
+function rotate(q, v) {           // rotate body vector v by quaternion q = [w, x, y, z]
+  const [w, x, y, z] = q, [vx, vy, vz] = v;
+  const tx = 2 * (y * vz - z * vy), ty = 2 * (z * vx - x * vz), tz = 2 * (x * vy - y * vx);
+  return [vx + w * tx + (y * tz - z * ty), vy + w * ty + (z * tx - x * tz), vz + w * tz + (x * ty - y * tx)];
+}
+
+/* ------------------------------------------------------------------ app state */
+const app = {
+  flight: null, mode: "idle", playing: false, speed: 1, playT: 0, followLive: false, lastFrame: performance.now(),
+  view: "chase", scale: 8, src: null, lastPacket: 0, rateCount: 0, rate: 0, rateAt: performance.now(),
+  firedEvents: new Set(), downloads: null,
+};
+
+/* ------------------------------------------------------------------ 3D range */
+let R = null;
+function initScene() {
+  if (typeof THREE === "undefined") { $("empty").hidden = false; $("empty").querySelector("p").textContent = "The 3D map needs the three.js library, which could not load. Everything else works."; return; }
+  const canvas = $("scene");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x060a10);
+  scene.fog = new THREE.Fog(0x070c14, 900, 3200);
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 20000);
+  camera.position.set(-30, 12, 30);
+
+  // sky: a dome that fades from horizon haze to deep night blue
+  const skyMat = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false,
+    uniforms: { top: { value: new THREE.Color(0x03060c) }, hor: { value: new THREE.Color(0x14243a) } },
+    vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+    fragmentShader: "uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main(){ float h = clamp(vP.y, 0.0, 1.0); gl_FragColor = vec4(mix(hor, top, pow(h, 0.45)), 1.0); }" });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(9000, 32, 16), skyMat); scene.add(sky);
+
+  // ground: grid every 10 m, 50 m major lines, range rings every 100 m, north-south / east-west axes
+  const gMat = new THREE.ShaderMaterial({ transparent: true, depthWrite: true, extensions: { derivatives: true },
+    uniforms: { cam: { value: new THREE.Vector3() } },
+    vertexShader: "varying vec2 vXZ; varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; vXZ = w.xz; gl_Position = projectionMatrix * viewMatrix * w; }",
+    fragmentShader: [
+      "uniform vec3 cam; varying vec2 vXZ; varying vec3 vW;",
+      "float lines(vec2 p, float s, float w){ vec2 g = abs(fract(p/s - 0.5) - 0.5) * s; vec2 fw = max(fwidth(p), vec2(1e-4)); vec2 l = 1.0 - smoothstep(vec2(0.0), fw*w, g); return max(l.x, l.y); }",
+      "void main(){",
+      "  float d = length(vW - cam);",
+      "  vec3 base = vec3(0.035, 0.058, 0.085);",
+      "  float minor = lines(vXZ, 10.0, 1.0) * (1.0 - smoothstep(250.0, 700.0, d));",
+      "  float major = lines(vXZ, 50.0, 1.3);",
+      "  float r = length(vXZ); float fr = max(fwidth(r), 1e-4);",
+      "  float ring = (1.0 - smoothstep(0.0, fr*1.8, abs(fract(r/100.0 - 0.5) - 0.5) * 100.0)) * step(r, 1005.0) * step(50.0, r);",
+      "  float ax = (1.0 - smoothstep(0.0, max(fwidth(vXZ.x),1e-4)*1.6, abs(vXZ.x))) + (1.0 - smoothstep(0.0, max(fwidth(vXZ.y),1e-4)*1.6, abs(vXZ.y)));",
+      "  vec3 col = base + vec3(0.06,0.09,0.13)*minor + vec3(0.07,0.12,0.18)*major + vec3(0.10,0.26,0.36)*ring + vec3(0.12,0.16,0.22)*clamp(ax,0.0,1.0);",
+      "  float fade = 1.0 - smoothstep(1400.0, 3600.0, d);",
+      "  gl_FragColor = vec4(mix(vec3(0.027,0.047,0.078), col, fade), 1.0);",
+      "}"].join("\n") });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(9000, 9000, 1, 1), gMat);
+  ground.rotation.x = -Math.PI / 2; scene.add(ground);
+
+  scene.add(new THREE.HemisphereLight(0xbfd6ff, 0x0b1220, 0.75));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(-300, 500, 200); scene.add(sun);
+
+  // labels for the range rings and the compass
+  const labels = new THREE.Group(); scene.add(labels);
+
+  // launch pad: blast tile, three legs and the rod; a soft beacon ring around it
+  const pad = new THREE.Group(); scene.add(pad);
+  const padMat = new THREE.MeshLambertMaterial({ color: 0x6b7686 });
+  const tile = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.02, 0.2), new THREE.MeshLambertMaterial({ color: 0xb9b2a5 })); tile.position.y = 0.4; pad.add(tile);
+  for (let k = 0; k < 3; k++) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.75, 6), new THREE.MeshLambertMaterial({ color: 0x9a6b3c }));
+    const a = k * 2 * Math.PI / 3; leg.position.set(Math.cos(a) * 0.26, 0.2, Math.sin(a) * 0.26); leg.rotation.set(Math.sin(a) * 0.6, 0, -Math.cos(a) * 0.6); pad.add(leg);
+  }
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 1.0, 6), padMat); rod.position.set(0.035, 0.9, 0); pad.add(rod);
+  const beacon = new THREE.Mesh(new THREE.RingGeometry(2.2, 2.6, 48), new THREE.MeshBasicMaterial({ color: C.kestrel, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
+  beacon.rotation.x = -Math.PI / 2; beacon.position.y = 0.03; scene.add(beacon);
+
+  // the rocket (body axis built along +Y; posed from the flight computer's quaternion)
+  const rocket = new THREE.Group(); scene.add(rocket);
+  const model = new THREE.Group(); rocket.add(model);
+  const white = new THREE.MeshStandardMaterial({ color: 0xe8e6e1, roughness: 0.55, metalness: 0.05 });
+  const orange = new THREE.MeshStandardMaterial({ color: 0xff6a1f, roughness: 0.5, metalness: 0.05 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x1b1f26, roughness: 0.6 });
+  const Rr = 0.02815, Lb = 0.72;     // BT-70 radius, body length (m); nose 0.18 m
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(Rr, Rr, Lb, 24), white); body.position.y = Lb / 2; model.add(body);
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(Rr * 1.01, Rr * 1.01, 0.12, 24), dark); band.position.y = 0.42; model.add(band);
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(Rr, 0.18, 24), orange); nose.position.y = Lb + 0.09; model.add(nose);
+  for (let k = 0; k < 4; k++) {
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.11, 0.05), orange);
+    const a = Math.PI / 4 + k * Math.PI / 2; fin.position.set(Math.cos(a) * (Rr + 0.025), 0.03, Math.sin(a) * (Rr + 0.025)); fin.rotation.y = -a; model.add(fin);
+  }
+  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.016, 0.03, 12), dark); nozzle.position.y = -0.01; model.add(nozzle);
+  const flame = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.35, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xffb347, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
+  flame.rotation.x = Math.PI; flame.position.y = -0.2; model.add(flame);
+  // parachute: 36 in canopy above the nose on its shock cord
+  const chute = new THREE.Group(); rocket.add(chute);
+  const canopyTex = stripeTexture();
+  const canopy = new THREE.Mesh(new THREE.SphereGeometry(0.46, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2.6), new THREE.MeshLambertMaterial({ map: canopyTex, side: THREE.DoubleSide }));
+  canopy.position.y = 1.9; chute.add(canopy);
+  const lineGeo = new THREE.BufferGeometry(); const lp = [];
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; lp.push(0, 1.12, 0, Math.cos(a) * 0.36, 1.9 + 0.17, Math.sin(a) * 0.36); }
+  lp.push(0, 0.9, 0, 0, 1.12, 0);
+  lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(lp, 3));
+  chute.add(new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: 0xcfd6df, transparent: true, opacity: 0.8 })));
+  chute.visible = false;
+  // a glow that keeps the rocket findable from far away
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture(), color: C.kestrel, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false, blending: THREE.AdditiveBlending }));
+  glow.scale.set(0.05, 0.05, 1); glow.renderOrder = 5; scene.add(glow);
+
+  // trail (colour by flight phase), its shadow on the ground, and the line down to the ground
+  const MAXP = 60000;
+  const trailGeo = new THREE.BufferGeometry();
+  trailGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
+  trailGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
+  trailGeo.setDrawRange(0, 0);
+  const trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ vertexColors: true })); trail.frustumCulled = false; scene.add(trail);
+  const dots = new THREE.Points(trailGeo, new THREE.PointsMaterial({ vertexColors: true, size: 3.2, sizeAttenuation: false, transparent: true, opacity: 0.75, depthWrite: false })); dots.frustumCulled = false; scene.add(dots);
+  const shadowGeo = new THREE.BufferGeometry(); shadowGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3)); shadowGeo.setDrawRange(0, 0);
+  const shadow = new THREE.Line(shadowGeo, new THREE.LineBasicMaterial({ color: 0x2f4763, transparent: true, opacity: 0.9 })); shadow.frustumCulled = false; scene.add(shadow);
+  const dropGeo = new THREE.BufferGeometry(); dropGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, 1, 0], 3));
+  const drop = new THREE.LineSegments(dropGeo, new THREE.LineDashedMaterial({ color: 0x8aa2bf, dashSize: 2, gapSize: 2, transparent: true, opacity: 0.6 })); drop.frustumCulled = false; scene.add(drop);
+  const spot = new THREE.Mesh(new THREE.RingGeometry(1.2, 1.6, 32), new THREE.MeshBasicMaterial({ color: 0x8aa2bf, transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
+  spot.rotation.x = -Math.PI / 2; spot.position.y = 0.04; scene.add(spot);
+  // markers set when the events happen
+  const markers = new THREE.Group(); scene.add(markers);
+
+  R = { renderer, scene, camera, rocket, model, chute, canopy, flame, glow, beacon, trail, trailGeo, shadowGeo, dropGeo, drop, spot, markers,
+    built: { flight: null, n: 0, version: -1 }, MAXP, cam: { target: new THREE.Vector3(0, 4, 0), dist: 45, theta: -0.75, phi: 1.12, fov: 50 },
+    marks: {}, labels };
+  buildLabels();
+  const ro = new ResizeObserver(resize); ro.observe($("stage")); resize();
+  initControls(canvas);
+}
+function buildLabels() {          // range rings, compass and the pad (redrawn when the web fonts arrive)
+  if (!R) return; const g = R.labels; while (g.children.length) { const o = g.children.pop(); o.material.map.dispose(); o.material.dispose(); }
+  for (let d = 100; d <= 1000; d += 100) g.add(makeLabel(d + " m", { color: "#5f86a8", size: 13 }, new THREE.Vector3(d, 0.5, 6)));
+  [["N", 0, -1], ["E", 1, 0], ["S", 0, 1], ["W", -1, 0]].forEach(([t, x, z]) =>
+    g.add(makeLabel(t, { color: "#9db0c8", size: 22, bold: true }, new THREE.Vector3(x * 1060, 0.5, z * 1060))));
+  g.add(makeLabel("PAD", { color: C.kestrel, size: 13, bold: true }, new THREE.Vector3(0, 0.5, 4.5)));
+  sizeSprites();
+}
+function resize() {
+  if (!R) return; const st = $("stage"); const w = Math.max(10, st.clientWidth), h = Math.max(10, st.clientHeight);
+  R.renderer.setSize(w, h, false); R.camera.aspect = w / h; R.camera.updateProjectionMatrix(); sizeSprites();
+}
+function makeLabel(text, o, pos) {
+  const cv = document.createElement("canvas"); const ctx = cv.getContext("2d");
+  const fs = (o.size || 14) * 2; ctx.font = (o.bold ? "700 " : "600 ") + fs + "px " + css("--display");
+  const w = Math.ceil(ctx.measureText(text).width) + 24, h = fs + 16; cv.width = w; cv.height = h;
+  ctx.font = (o.bold ? "700 " : "600 ") + fs + "px " + css("--display"); ctx.textBaseline = "middle"; ctx.textAlign = "center";
+  if (o.bg) { ctx.fillStyle = o.bg; roundRect(ctx, 2, 2, w - 4, h - 4, 10); ctx.fill(); }
+  ctx.fillStyle = o.color || "#fff"; ctx.fillText(text, w / 2, h / 2 + 1);
+  const tex = new THREE.CanvasTexture(cv); tex.minFilter = THREE.LinearFilter;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, sizeAttenuation: false }));
+  sp.userData.px = [w / 2, h / 2]; sp.renderOrder = 10; if (pos) sp.position.copy(pos); sp.center.set(0.5, o.anchorBottom ? 0 : 0.5);
+  return sp;
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function stripeTexture() {
+  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 32; const c = cv.getContext("2d");
+  for (let k = 0; k < 8; k++) { c.fillStyle = k % 2 ? "#f2efe9" : "#ff6a1f"; c.fillRect(k * 32, 0, 32, 32); }
+  const t = new THREE.CanvasTexture(cv); t.wrapS = THREE.RepeatWrapping; return t;
+}
+function glowTexture() {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 64; const c = cv.getContext("2d");
+  const g = c.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.25, "rgba(255,255,255,0.55)"); g.addColorStop(1, "rgba(255,255,255,0)");
+  c.fillStyle = g; c.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(cv);
+}
+function sizeSprites() {          // constant on-screen size for labels and the glow, whatever the zoom
+  if (!R) return; const h = $("stage").clientHeight || 600; const k = 2 * Math.tan(R.camera.fov * Math.PI / 360);
+  R.scene.traverse((o) => { if (o.isSprite && o.userData.px) o.scale.set(o.userData.px[0] / h * k, o.userData.px[1] / h * k, 1); });
+  R.glow.scale.set(34 / h * k, 34 / h * k, 1);
+}
+
+/* ------------------------------------------------------------------ camera: chase / pad / orbit / map */
+function initControls(el) {
+  const st = { down: false, x: 0, y: 0, pts: new Map(), pinch: 0, pan: false };
+  el.addEventListener("pointerdown", (e) => { el.setPointerCapture(e.pointerId); st.pts.set(e.pointerId, [e.clientX, e.clientY]); st.down = true; st.x = e.clientX; st.y = e.clientY; st.pan = e.button === 2 || e.shiftKey; if (app.view !== "orbit") setView("orbit", true); });
+  el.addEventListener("pointermove", (e) => {
+    if (!st.pts.has(e.pointerId)) return; st.pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (st.pts.size === 2) { const [a, b] = [...st.pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (st.pinch) R.cam.dist = clamp(R.cam.dist * st.pinch / d, 2, 4000); st.pinch = d; return; }
+    const dx = e.clientX - st.x, dy = e.clientY - st.y; st.x = e.clientX; st.y = e.clientY;
+    if (st.pan) { const s = R.cam.dist * 0.0016; const fwd = new THREE.Vector3(Math.sin(R.cam.theta), 0, Math.cos(R.cam.theta)); const right = new THREE.Vector3(fwd.z, 0, -fwd.x);
+      R.cam.target.addScaledVector(right, -dx * s).addScaledVector(fwd, -dy * s); return; }
+    R.cam.theta -= dx * 0.006; R.cam.phi = clamp(R.cam.phi - dy * 0.006, 0.08, 1.52);
+  });
+  const up = (e) => { st.pts.delete(e.pointerId); if (st.pts.size < 2) st.pinch = 0; if (!st.pts.size) st.down = false; };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  el.addEventListener("contextmenu", (e) => e.preventDefault());
+  el.addEventListener("wheel", (e) => { e.preventDefault(); if (app.view !== "orbit") setView("orbit", true); R.cam.dist = clamp(R.cam.dist * Math.exp(e.deltaY * 0.0012), 2, 4000); }, { passive: false });
+}
+function setView(v, keepTarget) {
+  app.view = v;
+  document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+  if (v === "orbit" && R) {
+    if (!keepTarget && R.lastPos) R.cam.target.copy(R.lastPos);
+    const d = R.camera.position.clone().sub(R.cam.target); const L = Math.max(1, d.length());
+    R.cam.dist = L; R.cam.phi = clamp(Math.acos(clamp(d.y / L, -1, 1)), 0.08, 1.52); R.cam.theta = Math.atan2(d.x, d.z);
+  }
+}
+function updateCamera(pos, dt, sm) {
+  const cam = R.camera, c = R.cam, k = 1 - Math.exp(-dt * 3.5);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lerp = (a, b) => reduce ? b : a + (b - a) * k;
+  let wantFov = 50;
+  if (app.view === "top") cam.up.set(0, 0, -1); else cam.up.set(0, 1, 0);
+  if (app.view === "chase") {
+    const L = 0.9 * app.scale, alt = pos.y;
+    const aim = pos.clone().add(new THREE.Vector3(0, L * 0.45, 0));
+    const d = 8 + L * 2.2 + alt * 0.18 + (sm && sm.state >= 5 ? L * 1.2 : 0);
+    const want = new THREE.Vector3(aim.x - d * 0.75, aim.y + Math.max(1.5, d * 0.22), aim.z + d * 0.75);
+    cam.position.set(lerp(cam.position.x, want.x), lerp(cam.position.y, want.y), lerp(cam.position.z, want.z));
+    c.target.lerp(aim, reduce ? 1 : k); cam.lookAt(c.target);
+  } else if (app.view === "pad") {
+    cam.position.set(lerp(cam.position.x, -24), lerp(cam.position.y, 1.7), lerp(cam.position.z, 18));
+    const aim = pos.clone().add(new THREE.Vector3(0, 0.45 * 0.9 * app.scale, 0));
+    c.target.lerp(aim, reduce ? 1 : Math.min(1, k * 2)); cam.lookAt(c.target);
+    const d = cam.position.distanceTo(aim); wantFov = clamp(2 * Math.atan((4 + 2.2 * 0.9 * app.scale) / d) * 180 / Math.PI, 2.5, 50);
+  } else if (app.view === "top") {
+    const ext = R.extent || { cx: 0, cz: 0, r: 120 };
+    const want = new THREE.Vector3(ext.cx, Math.max(120, ext.r * 2.4), ext.cz + 0.01);
+    cam.position.set(lerp(cam.position.x, want.x), lerp(cam.position.y, want.y), lerp(cam.position.z, want.z));
+    c.target.set(lerp(c.target.x, ext.cx), 0, lerp(c.target.z, ext.cz)); cam.lookAt(c.target);
+  } else {
+    const p = new THREE.Vector3(Math.sin(c.phi) * Math.sin(c.theta), Math.cos(c.phi), Math.sin(c.phi) * Math.cos(c.theta)).multiplyScalar(c.dist).add(c.target);
+    cam.position.copy(p); cam.lookAt(c.target);
+  }
+  if (Math.abs(cam.fov - wantFov) > 0.01) { cam.fov = lerp(cam.fov, wantFov); cam.updateProjectionMatrix(); sizeSprites(); }
+}
+
+/* ------------------------------------------------------------------ scene update from the flight */
+const _q = new THREE.Quaternion(), _C = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2),
+  _B = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI / 2);
+function enuToThree(e, n, u) { return new THREE.Vector3(e, u, -n); }
+function rebuildTrail(f, tEnd) {
+  const pos = R.trailGeo.attributes.position.array, col = R.trailGeo.attributes.color.array, sh = R.shadowGeo.attributes.position.array;
+  let n = 0, lastT = -1e9; const cc = new THREE.Color();
+  let ext = { minx: 0, maxx: 0, minz: 0, maxz: 0 };
+  if (f && f.tLaunch != null) {
+    const i1 = f.index(tEnd);
+    for (let i = f.index(f.tLaunch - 0.05); i <= i1 && n < R.MAXP; i++) {
+      const t = f.T[i]; if (t - lastT < 0.04 && i !== i1) continue; lastT = t;
+      const r = f.rows[i]; const p = f.posAt(t); const u = Math.max(0, r.alt_m);
+      pos[n * 3] = p.e; pos[n * 3 + 1] = u; pos[n * 3 + 2] = -p.n;
+      cc.set(PHASE_COLOR[r.state] || C.ink2); col[n * 3] = cc.r; col[n * 3 + 1] = cc.g; col[n * 3 + 2] = cc.b;
+      sh[n * 3] = p.e; sh[n * 3 + 1] = 0.05; sh[n * 3 + 2] = -p.n; n++;
+      ext.minx = Math.min(ext.minx, p.e); ext.maxx = Math.max(ext.maxx, p.e); ext.minz = Math.min(ext.minz, -p.n); ext.maxz = Math.max(ext.maxz, -p.n);
+    }
+  }
+  R.trailGeo.setDrawRange(0, n); R.shadowGeo.setDrawRange(0, n);
+  R.trailGeo.attributes.position.needsUpdate = true; R.trailGeo.attributes.color.needsUpdate = true; R.shadowGeo.attributes.position.needsUpdate = true;
+  const cx = (ext.minx + ext.maxx) / 2, cz = (ext.minz + ext.maxz) / 2;
+  R.extent = { cx, cz, r: Math.max(80, Math.hypot(ext.maxx - ext.minx, ext.maxz - ext.minz) / 2 + 40, (f ? f.maxAlt : 0) * 0.6) };
+}
+function setMarker(key, text, color, pos) {
+  if (R.marks[key]) return;
+  const g = new THREE.Group(); g.position.copy(pos);
+  const H = 14;
+  const dot = new THREE.Mesh(new THREE.OctahedronGeometry(0.45), new THREE.MeshBasicMaterial({ color })); g.add(dot);
+  const pinGeo = new THREE.BufferGeometry(); pinGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, H, 0], 3));
+  g.add(new THREE.LineSegments(pinGeo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.8 })));
+  const lab = makeLabel(text, { color: "#e6edf7", size: 12, bold: true, bg: "rgba(13,20,31,0.86)", anchorBottom: true }); lab.position.set(0, H, 0); g.add(lab);
+  R.markers.add(g); R.marks[key] = g; sizeSprites();
+}
+function clearMarkers() { if (!R) return; R.markers.clear(); R.marks = {}; }
+function updateScene(sm, dt) {
+  const f = app.flight;
+  if (!R) return;
+  if (!f || !sm) { R.rocket.visible = false; R.glow.visible = false; updateCamera(new THREE.Vector3(0, 3, 0), dt, null); R.renderer.render(R.scene, R.camera); return; }
+  // trail up to the playhead (rebuilt at most ~12 times a second while it grows)
+  const now = performance.now();
+  if (R.built.flight !== f || (R.built.t !== sm.t && now - (R.built.at || 0) > 80)) {
+    if (R.built.flight !== f) clearMarkers();
+    rebuildTrail(f, sm.t); R.built = { flight: f, t: sm.t, at: now };
+    // markers for events already reached at the playhead
+    const ev = f.events;
+    if (ev.apogee && sm.t >= ev.apogee.t) { const p = f.posAt(ev.apogee.t); setMarker("apogee", "APOGEE " + ev.apogee.alt.toFixed(1) + " m", C.coast, enuToThree(p.e, p.n, ev.apogee.alt)); }
+    else if (R.marks.apogee) { R.markers.remove(R.marks.apogee); delete R.marks.apogee; }
+    if (ev.landed && sm.t >= ev.landed.t) setMarker("landed", "LANDED " + ev.landed.dist.toFixed(0) + " m from the pad", C.descent, enuToThree(ev.landed.e, ev.landed.n, 0.6));
+    else if (R.marks.landed) { R.markers.remove(R.marks.landed); delete R.marks.landed; }
+  }
+  const pos = enuToThree(sm.e, sm.n, sm.alt);
+  R.lastPos = pos;
+  R.rocket.visible = true; R.rocket.position.copy(pos);
+  _q.set(sm.q[1], sm.q[2], sm.q[3], sm.q[0]);
+  R.model.quaternion.copy(_C).multiply(_q).multiply(_B);
+  R.model.scale.setScalar(app.scale);
+  const deployed = (sm.flags & F_DEPLOY) !== 0 && sm.state >= 4;
+  R.chute.visible = deployed && sm.state !== 6;
+  if (R.chute.visible) {
+    const ev = f.events.chute; const age = ev ? sm.t - ev.t : 1; const s = clamp(age / 0.9, 0.05, 1);
+    R.chute.scale.set(app.scale * s, app.scale * (0.6 + 0.4 * s), app.scale * s);
+    R.chute.quaternion.identity();
+  }
+  R.flame.visible = sm.state === 3; if (R.flame.visible) R.flame.scale.set(1, 0.8 + Math.random() * 0.5, 1);
+  R.glow.visible = true; R.glow.position.copy(pos); R.glow.material.color.set(PHASE_COLOR[sm.state] || C.kestrel);
+  const top = pos.clone(); R.dropGeo.attributes.position.setXYZ(0, pos.x, 0.05, pos.z); R.dropGeo.attributes.position.setXYZ(1, top.x, top.y, top.z);
+  R.dropGeo.attributes.position.needsUpdate = true; R.drop.computeLineDistances(); R.drop.visible = sm.alt > 2;
+  R.spot.position.set(pos.x, 0.04, pos.z); R.spot.visible = sm.alt > 2;
+  R.beacon.material.opacity = 0.25 + 0.25 * Math.sin(now / 400);
+  updateCamera(pos, dt, sm);
+  R.renderer.render(R.scene, R.camera);
+}
+
+/* ------------------------------------------------------------------ instruments (2D canvases) */
+function ctx2d(id) { const cv = $(id); const c = cv.getContext("2d"); return [cv, c]; }
+function drawNose(sm) {
+  const [cv, c] = ctx2d("cNose"); const W = cv.width, cx = W / 2, cy = W / 2, R0 = W * 0.42;
+  c.clearRect(0, 0, W, W);
+  c.strokeStyle = C.line2; c.lineWidth = 2; c.fillStyle = C.ink2; c.font = "600 20px " + css("--display"); c.textAlign = "center"; c.textBaseline = "middle";
+  for (const deg of [10, 20, 30]) { c.beginPath(); c.arc(cx, cy, R0 * deg / 30, 0, Math.PI * 2); c.stroke(); }
+  c.beginPath(); c.moveTo(cx - R0, cy); c.lineTo(cx + R0, cy); c.moveTo(cx, cy - R0); c.lineTo(cx, cy + R0); c.stroke();
+  c.fillText("N", cx, cy - R0 - 2 + 0); c.font = "500 15px " + css("--mono"); c.fillStyle = C.muted; c.fillText("10°", cx + R0 / 3 + 14, cy - 10); c.fillText("30°", cx + R0 - 2, cy - 12);
+  if (!sm) return;
+  const v = rotate(sm.q, [1, 0, 0]); const tilt = Math.acos(clamp(v[2], -1, 1)) * 180 / Math.PI;
+  const h = Math.hypot(v[0], v[1]) || 1; const rr = Math.min(tilt, 34) / 30 * R0;
+  const x = cx + v[0] / h * rr, y = cy - v[1] / h * rr;
+  c.strokeStyle = C.kestrel; c.lineWidth = 3; c.beginPath(); c.moveTo(cx, cy); c.lineTo(x, y); c.stroke();
+  c.fillStyle = C.kestrel; c.beginPath(); c.arc(x, y, 9, 0, Math.PI * 2); c.fill();
+  c.fillStyle = C.ink; c.font = "600 22px " + css("--mono"); c.fillText(tilt.toFixed(1) + "° off vertical", cx, W - 14);
+}
+function drawGimbal(sm) {
+  const [cv, c] = ctx2d("cGimbal"); const W = cv.width, cx = W / 2, cy = W / 2 - 8, R0 = W * 0.38;
+  c.clearRect(0, 0, W, W); c.strokeStyle = C.line2; c.lineWidth = 2;
+  c.beginPath(); c.arc(cx, cy, R0, 0, Math.PI * 2); c.stroke(); c.beginPath(); c.arc(cx, cy, R0 / 2, 0, Math.PI * 2); c.stroke();
+  c.beginPath(); c.moveTo(cx - R0, cy); c.lineTo(cx + R0, cy); c.moveTo(cx, cy - R0); c.lineTo(cx, cy + R0); c.stroke();
+  c.fillStyle = C.muted; c.font = "500 15px " + css("--mono"); c.textAlign = "center"; c.fillText("6°", cx + R0 - 14, cy - 10); c.fillText("3°", cx + R0 / 2 - 12, cy - 10);
+  if (!sm) return;
+  const on = (sm.flags & F_TVC) !== 0; const x = cx + clamp(sm.gz / 6, -1.1, 1.1) * R0, y = cy - clamp(sm.gy / 6, -1.1, 1.1) * R0;
+  c.fillStyle = on ? C.kestrel : C.muted; c.beginPath(); c.arc(x, y, 10, 0, Math.PI * 2); c.fill();
+  c.fillStyle = C.ink; c.font = "600 20px " + css("--mono"); c.textBaseline = "middle"; c.fillText((on ? "" : "idle · ") + sm.gy.toFixed(1) + "° / " + sm.gz.toFixed(1) + "°", cx, W - 14);
+}
+function drawTabs(sm) {
+  const [cv, c] = ctx2d("cTabs"); const W = cv.width, cx = W / 2, cy = W / 2 - 8, rb = 30, L = W * 0.25;
+  c.clearRect(0, 0, W, W);
+  c.fillStyle = "#e8e6e1"; c.beginPath(); c.arc(cx, cy, rb, 0, Math.PI * 2); c.fill();
+  c.fillStyle = "#1b1f26"; c.beginPath(); c.arc(cx, cy, 12, 0, Math.PI * 2); c.fill();
+  const active = sm && (sm.flags & F_TABS) !== 0;
+  for (let k = 0; k < 4; k++) {
+    const a = Math.PI / 4 + k * Math.PI / 2;                    // seen from behind (mirror of the view from the nose), canvas angles
+    const x0 = cx + Math.cos(a) * rb, y0 = cy + Math.sin(a) * rb, x1 = cx + Math.cos(a) * (rb + L), y1 = cy + Math.sin(a) * (rb + L);
+    c.strokeStyle = "#ff6a1f"; c.lineWidth = 9; c.lineCap = "round"; c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke();
+    const d = sm ? clamp(sm.tabs[k], -15, 15) : 0;               // + = trailing edge anticlockwise seen from behind
+    const mx = cx + Math.cos(a) * (rb + L * 0.62), my = cy + Math.sin(a) * (rb + L * 0.62);
+    const ta = a - Math.PI / 2, sw = d / 15 * 26;
+    c.strokeStyle = active ? C.ink : C.muted; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + Math.cos(ta) * sw, my + Math.sin(ta) * sw); c.stroke();
+    c.fillStyle = C.ink2; c.font = "600 17px " + css("--mono"); c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText((k + 1) + ": " + (d >= 0 ? "+" : "") + d.toFixed(1) + "°", cx + Math.cos(a) * (rb + L + 22), cy + Math.sin(a) * (rb + L + 22));
+  }
+  c.fillStyle = active ? C.ink2 : C.muted; c.font = "600 18px " + css("--display"); c.textAlign = "center"; c.fillText(active ? "TABS ACTIVE" : "TABS CENTRED", cx, W - 10);
+}
+
+/* ------------------------------------------------------------------ strip charts */
+const charts = [
+  { id: "chAlt", series: [{ k: "h", c: () => C.ink }], name: "Altitude", unit: "m", fmt: (v) => v.toFixed(1) },
+  { id: "chVz", series: [{ k: "v", c: () => C.ink }], name: "Vertical speed", unit: "m/s", fmt: (v) => v.toFixed(1), zero: true },
+  { id: "chAtt", series: [{ k: "tilt_deg", c: () => C.coast, n: "tilt" }, { k: "roll_deg", c: () => C.boost, n: "roll" }], name: "Attitude", unit: "°", fmt: (v) => v.toFixed(1), zero: true },
+];
+function chartWindow(f) {
+  if (!f || !f.rows.length) return null;
+  const a = f.tLaunch != null ? Math.max(f.T[0], f.tLaunch - 4) : f.T[0];
+  const b = Math.max(f.T[f.T.length - 1], a + 1);
+  return [a, b];
+}
+function drawChart(ch, f, tPlay) {
+  const cv = $(ch.id); const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+  const win = chartWindow(f); const padL = 34, padR = 6, padT = 6, padB = 16;
+  c.font = "500 10.5px " + css("--mono"); c.fillStyle = C.muted; c.strokeStyle = C.line; c.lineWidth = 1;
+  if (!win) { c.fillText("No flight loaded", padL, h / 2); return; }
+  const [ta, tb] = win; const i0 = f.index(ta), i1 = f.rows.length - 1;
+  let lo = Infinity, hi = -Infinity;
+  for (const s of ch.series) for (let i = i0; i <= i1; i++) { const v = f.rows[i][s.k]; if (v < lo) lo = v; if (v > hi) hi = v; }
+  if (ch.zero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  if (!isFinite(lo)) { lo = 0; hi = 1; } if (hi - lo < 1) { hi += 0.5; lo -= 0.5; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const X = (t) => padL + (t - ta) / (tb - ta) * (w - padL - padR), Y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
+  // phase bands
+  const ev = f.events; const bands = [["liftoff", "burnout", C.boost], ["burnout", "apogee", C.coast], ["apogee", "landed", C.descent]];
+  for (const [a, b, col] of bands) { if (!ev[a]) continue; const x0 = X(ev[a].t), x1 = ev[b] ? X(ev[b].t) : X(tb); c.globalAlpha = 0.09; c.fillStyle = col; c.fillRect(x0, padT, Math.max(0, x1 - x0), h - padT - padB); c.globalAlpha = 1; }
+  // grid + ticks
+  const step = niceStep((hi - lo) / 3);
+  c.fillStyle = C.muted; c.textAlign = "right"; c.textBaseline = "middle";
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) { const y = Y(v); c.strokeStyle = C.line; c.beginPath(); c.moveTo(padL, y); c.lineTo(w - padR, y); c.stroke(); c.fillText(fmtNum(v), padL - 5, y); }
+  const ts = niceStep((tb - ta) / 5); c.textAlign = "center"; c.textBaseline = "alphabetic";
+  const base = f.tLaunch ?? f.T[0];
+  for (let t = Math.ceil((ta - base) / ts) * ts; t <= tb - base; t += ts) c.fillText((t > 0 ? "+" : "") + fmtNum(t) + " s", X(base + t), h - 3);
+  // series up to the playhead (full line faint after it)
+  for (const s of ch.series) {
+    c.lineJoin = "round"; c.lineCap = "round";
+    for (const pass of [0, 1]) {
+      c.beginPath(); let first = true; const stride = Math.max(1, Math.floor((i1 - i0) / (w * 1.5)));
+      for (let i = i0; i <= i1; i += stride) { const t = f.T[i]; if (pass === 1 && t > tPlay) break; const v = f.rows[i][s.k]; if (!isFinite(v)) { first = true; continue; } const x = X(t), y = Y(v); if (first) { c.moveTo(x, y); first = false; } else c.lineTo(x, y); }
+      c.strokeStyle = s.c(); c.globalAlpha = pass ? 1 : 0.18; c.lineWidth = pass ? 2 : 1.5; c.stroke(); c.globalAlpha = 1;
+    }
+  }
+  // playhead
+  const xp = X(clamp(tPlay, ta, tb)); c.strokeStyle = C.kestrel; c.lineWidth = 1.5; c.beginPath(); c.moveTo(xp, padT); c.lineTo(xp, h - padB); c.stroke();
+  ch.map = { X, Y, ta, tb, padL, padR, w };
+}
+function niceStep(x) { const p = Math.pow(10, Math.floor(Math.log10(Math.max(x, 1e-9)))); const m = x / p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p; }
+function fmtNum(v) { return Math.abs(v) >= 100 || Number.isInteger(Math.round(v * 10) / 10) && Math.abs(v - Math.round(v)) < 1e-6 ? String(Math.round(v)) : v.toFixed(1); }
+function chartHover() {
+  for (const ch of charts) {
+    const cv = $(ch.id); const box = cv.parentElement; let tip = null;
+    const hide = () => { if (tip) { tip.remove(); tip = null; } };
+    cv.addEventListener("pointerleave", hide);
+    cv.addEventListener("pointermove", (e) => {
+      const f = app.flight; if (!f || !ch.map) return;
+      const rect = cv.getBoundingClientRect(); const x = e.clientX - rect.left;
+      const t = ch.map.ta + (x - ch.map.padL) / (ch.map.w - ch.map.padL - ch.map.padR) * (ch.map.tb - ch.map.ta);
+      const i = f.index(t); const r = f.rows[i]; if (!r) return;
+      if (!tip) { tip = document.createElement("div"); tip.className = "tip"; box.appendChild(tip); }
+      tip.textContent = "T" + fmtT(f.mt(f.T[i])).replace(/^(?!−)/, "+") + "  " + ch.series.map((s) => (s.n ? s.n + " " : "") + (isFinite(r[s.k]) ? ch.fmt(r[s.k]) + " " + ch.unit : "– (not zeroed yet)")).join("  ");
+      const bx = clamp(x + 12, 0, box.clientWidth - tip.offsetWidth - 4); tip.style.left = bx + "px"; tip.style.top = "26px";
+    });
+    cv.addEventListener("click", (e) => { const f = app.flight; if (!f || !ch.map) return; const rect = cv.getBoundingClientRect();
+      const t = ch.map.ta + (e.clientX - rect.left - ch.map.padL) / (ch.map.w - ch.map.padL - ch.map.padR) * (ch.map.tb - ch.map.ta); seek(t); });
+  }
+}
+
+/* ------------------------------------------------------------------ text panels */
+const EVENT_DEFS = [
+  ["ready", "Ready on the pad", "armed, waiting for launch", null],
+  ["liftoff", "Liftoff", "motor ignition detected", C.boost],
+  ["burnout", "Burnout", "motor out, coasting", C.boost],
+  ["apogee", "Apogee reached", "highest point", C.coast],
+  ["chute", "Parachute deployed", "latch released", C.descent],
+  ["landed", "Landed", "on the ground", C.descent],
+];
+function renderEvents(f, t) {
+  const sig = (f ? f.label + f.rows.length : "") + "|" + EVENT_DEFS.map(([k]) => f && f.events[k] && t >= f.events[k].t ? 1 : 0).join("") + (f && (f.events.abort || f.events.error) ? "!" : "");
+  if (sig === renderEvents.sig) return; renderEvents.sig = sig;
+  const ol = $("events"); ol.textContent = "";
+  for (const [k, name, sub, col] of EVENT_DEFS) {
+    const e = f && f.events[k]; const done = e && t >= e.t - 1e-6;
+    const li = document.createElement("li"); li.className = "ev" + (done ? " done" : ""); if (col) li.style.setProperty("--c", col);
+    const dot = document.createElement("span"); dot.className = "dot";
+    const nm = document.createElement("span"); nm.className = "name"; nm.textContent = name;
+    const sb = document.createElement("span"); sb.className = "sub";
+    let detail = sub;
+    if (done && k === "apogee") detail = e.alt.toFixed(1) + " m (" + Math.round(e.alt * 3.281) + " ft)";
+    if (done && k === "chute") detail = "at " + e.alt.toFixed(0) + " m, " + Math.abs(e.vz).toFixed(1) + " m/s";
+    if (done && k === "landed") detail = e.dist.toFixed(0) + " m from the pad";
+    if (done && k === "burnout") detail = "max " + f.maxG.toFixed(1) + " g, " + f.maxVz.toFixed(1) + " m/s up";
+    sb.textContent = detail; nm.appendChild(sb);
+    const wh = document.createElement("span"); wh.className = "when"; wh.textContent = done ? (k === "ready" ? "" : "T+" + f.mt(e.t).toFixed(2) + " s") : "";
+    li.append(dot, nm, wh); ol.appendChild(li);
+  }
+  if (f && (f.events.abort || f.events.error)) {
+    const li = document.createElement("li"); li.className = "ev done bad";
+    const dot = document.createElement("span"); dot.className = "dot"; const nm = document.createElement("span"); nm.className = "name";
+    nm.textContent = f.events.error ? "Error state" : "Abort"; const sb = document.createElement("span"); sb.className = "sub";
+    sb.textContent = f.events.error ? "the flight computer reported an error" : "steering stopped, parachute released early"; nm.appendChild(sb);
+    li.append(dot, nm, document.createElement("span")); ol.appendChild(li);
+  }
+}
+function setText(id, v) { const el = $(id); if (el.textContent !== v) el.textContent = v; }
+function setTag(id, cls) { const el = $(id); el.className = "tag" + (cls ? " " + cls : ""); }
+function compass(deg) { return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(((deg % 360) + 360) % 360 / 45) % 8]; }
+function updatePanels(sm) {
+  const f = app.flight;
+  const stEl = $("state");
+  if (!f || !sm) { stEl.dataset.s = "-1"; stEl.textContent = "NO DATA"; setText("clock", "--:--.-"); return; }
+  stEl.dataset.s = String(sm.state); stEl.textContent = STATE[sm.state] || "?";
+  if (f.tLaunch == null || sm.t < f.tLaunch) { setText("clockLbl", f.tLaunch == null ? "PAD" : "T−"); setText("clock", fmtT(Math.abs(f.mt(sm.t)))); }
+  else { setText("clockLbl", "T+"); setText("clock", fmtT(f.mt(sm.t))); }
+  setText("alt", sm.altOk ? sm.alt.toFixed(1) : "–"); setText("altFt", sm.altOk ? Math.round(sm.alt * 3.281) + " ft" : "not zeroed yet");
+  const peak = f.tLaunch != null ? maxAltUpTo(f, sm.t) : 0;
+  $("maxAlt").innerHTML = ""; $("maxAlt").append(peak.toFixed(1), small(" m"));
+  $("vz").innerHTML = ""; $("vz").append(sm.altOk ? (sm.vz >= 0 ? "+" : "") + sm.vz.toFixed(1) : "–", small(" m/s"));
+  $("acc").innerHTML = ""; $("acc").append(sm.acc.toFixed(2), small(" g"));
+  $("gs").innerHTML = ""; $("gs").append(sm.gpsOk ? sm.gs.toFixed(1) : "–", small(" m/s"));
+  const d = Math.hypot(sm.e, sm.n); const b = (Math.atan2(sm.e, sm.n) * 180 / Math.PI + 360) % 360;
+  $("dist").innerHTML = ""; $("dist").append(sm.gpsOk ? d.toFixed(0) : "–", small(" m"));
+  setText("brg", sm.gpsOk && d > 1 ? b.toFixed(0) + "° " + compass(b) : "–");
+  $("tilt").innerHTML = ""; $("tilt").append(sm.tilt.toFixed(1), small(" °"));
+  $("roll").innerHTML = ""; $("roll").append(sm.roll.toFixed(1), small(" °"));
+  setText("coords", "E " + sm.e.toFixed(1) + " m · N " + sm.n.toFixed(1) + " m · ↑ " + (sm.altOk ? sm.alt.toFixed(1) + " m" : "–"));
+  // systems
+  const v = sm.vbat; setText("vBat", v.toFixed(2) + " V"); setTag("tBat", v < 6.6 ? "crit" : v < 7.0 ? "warn" : "good");
+  setText("vGps", sm.gpsOk ? sm.sats + " satellites" : "no fix"); setTag("tGps", sm.gpsOk && sm.sats >= 4 ? "good" : "warn");
+  setText("vTvc", (sm.flags & F_TVC) ? "steering" : "centred"); setTag("tTvc", (sm.flags & F_TVC) ? "good" : "");
+  const dep = (sm.flags & F_DEPLOY) !== 0; setText("vChute", dep ? "released" : "locked"); setTag("tChute", dep ? "good" : "");
+  const age = (performance.now() - app.lastPacket) / 1000;
+  if (app.mode === "live") { setText("vLink", app.rate.toFixed(0) + " rows/s · " + (age < 10 ? age.toFixed(1) + " s ago" : "no data")); setTag("tLink", age < 1.5 ? "good" : age < 5 ? "warn" : "crit"); }
+  else if (app.mode === "replay") { setText("vLink", "replay of " + f.rows.length + " rows"); setTag("tLink", ""); }
+  else { setText("vLink", "–"); setTag("tLink", ""); }
+}
+function small(t) { const s = document.createElement("small"); s.textContent = t; return s; }
+function maxAltUpTo(f, t) { if (f.events.apogee && t >= f.events.apogee.t) return f.events.apogee.alt; let m = 0; const i1 = f.index(t); for (let i = f.index(f.tLaunch); i <= i1; i++) m = Math.max(m, f.rows[i].alt_m); return m; }
+function feed(t, text) {
+  const ul = $("feed"); const li = document.createElement("li"); const b = document.createElement("b"); b.textContent = t; const s = document.createElement("span"); s.textContent = text;
+  li.append(b, s); ul.prepend(li); while (ul.children.length > 60) ul.lastChild.remove();
+}
+let bannerTimer = 0;
+function banner(title, sub, color) {
+  $("b1").textContent = title; $("b2").textContent = sub || ""; $("banner").style.setProperty("--bc", color || C.ink);
+  $("banner").classList.add("show"); clearTimeout(bannerTimer); bannerTimer = setTimeout(() => $("banner").classList.remove("show"), 3200);
+}
+function announce(k, e, f, quiet) {          // banners + log lines as the playhead crosses each event
+  const T = "T+" + f.mt(e.t).toFixed(1);
+  const text = {
+    ready: ["READY", "armed on the pad", null, "READY: armed, waiting for launch"],
+    liftoff: ["LIFTOFF", "motor ignition", C.boost, "Liftoff"],
+    burnout: ["BURNOUT", "coasting up", C.boost, "Motor burnout, coasting"],
+    apogee: ["APOGEE REACHED", e.alt != null ? e.alt.toFixed(1) + " m · " + Math.round(e.alt * 3.281) + " ft" : "", C.coast, "Apogee " + (e.alt != null ? e.alt.toFixed(1) + " m" : "")],
+    chute: ["PARACHUTE DEPLOYED", e.alt != null ? "at " + e.alt.toFixed(0) + " m" : "", C.descent, "Parachute released"],
+    landed: ["TOUCHDOWN", e.dist != null ? e.dist.toFixed(0) + " m from the pad" : "", C.descent, "Landed " + (e.dist != null ? e.dist.toFixed(0) + " m from the pad" : "")],
+    abort: ["ABORT", "steering stopped, parachute out", C.crit, "ABORT"],
+    error: ["ERROR", "flight computer error", C.crit, "Flight computer ERROR"],
+  }[k];
+  if (!text) return;
+  feed(k === "ready" ? "PAD" : T, text[3]);
+  if (k !== "ready" && !quiet) banner(text[0], text[1], text[2]);
+}
+
+/* ------------------------------------------------------------------ playback */
+function loadFlight(f, mode) {
+  app.flight = f; app.mode = mode; app.firedEvents = new Set();
+  $("feed").textContent = "";
+  if (R) { R.built = { flight: null }; clearMarkers(); }
+  const chip = $("srcChip"); chip.className = "chip " + (mode === "live" ? (f.source === "sim" ? "live sim" : "live") : mode === "replay" ? "replay" : "");
+  setText("srcText", mode === "live" ? (f.source === "sim" ? "Simulated flight · live" : "Live · USB") : "Replay");
+  $("btnSave").disabled = false;
+  $("btnLive").hidden = mode !== "live";
+  renderTicks();
+}
+function seek(t) {
+  const f = app.flight; if (!f) return;
+  app.playT = clamp(t, f.T[0], f.T[f.T.length - 1]); app.followLive = false; $("btnLive").setAttribute("aria-pressed", "false");
+  // events behind the new playhead count as already announced; ahead of it they will fire again
+  app.firedEvents = new Set(Object.entries(f.events).filter(([, e]) => e.t <= app.playT).map(([k]) => k));
+  $("feed").textContent = "";
+  Object.entries(f.events).filter(([, e]) => e.t <= app.playT).sort((a, b) => a[1].t - b[1].t).forEach(([k, e]) => announce(k, e, f, true));
+}
+function setPlaying(p) {
+  app.playing = p; $("btnPlay").setAttribute("aria-label", p ? "Pause" : "Play");
+  $("icoPlay").innerHTML = p ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M7 4l13 8-13 8z"/>';
+}
+function renderTicks() {
+  const box = $("ticks"); box.textContent = ""; const f = app.flight; if (!f || f.rows.length < 2) return;
+  const a = f.T[0], b = f.T[f.T.length - 1];
+  for (const [k, , , col] of EVENT_DEFS) { const e = f.events[k]; if (!e || !col) continue;
+    const s = document.createElement("span"); s.style.left = ((e.t - a) / (b - a) * 100) + "%"; s.style.background = col; s.title = k; box.appendChild(s); }
+}
+function tick(now) {
+  const dt = Math.min(0.1, (now - app.lastFrame) / 1000); app.lastFrame = now;
+  if (app.src && app.src.pump) app.src.pump(now);
+  const f = app.flight; let sm = null;
+  if (f && f.rows.length) {
+    const end = f.T[f.T.length - 1];
+    if (app.mode === "live" && app.followLive) app.playT = end;
+    else if (app.playing) { app.playT += dt * app.speed; if (app.playT >= end) { app.playT = end; if (app.mode !== "live") setPlaying(false); else { app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); } } }
+    sm = f.sample(app.playT);
+    for (const k of Object.keys(f.events)) if (!app.firedEvents.has(k) && f.events[k].t <= app.playT + 1e-6) { app.firedEvents.add(k); announce(k, f.events[k], f); }
+  }
+  updateScene(sm, dt);
+  if (now - (app.uiAt || 0) > 66) {
+    app.uiAt = now; updatePanels(sm); drawNose(sm); drawGimbal(sm); drawTabs(sm);
+    if (f) { renderEvents(f, app.playT); const a = f.T[0], b = f.T[f.T.length - 1];
+      if (!app.scrubbing) $("scrub").value = String(Math.round((app.playT - a) / Math.max(1e-6, b - a) * 1000));
+      setText("ttime", (f.tLaunch == null || app.playT < f.tLaunch ? "T−" + fmtT(Math.abs(f.mt(app.playT))) : "T+" + fmtT(f.mt(app.playT))) + " / " + fmtT(f.mt(b))); }
+    if (now - app.rateAt > 1000) { app.rate = app.rateCount / ((now - app.rateAt) / 1000); app.rateCount = 0; app.rateAt = now; }
+  }
+  if (now - (app.chartAt || 0) > 110) { app.chartAt = now; for (const ch of charts) drawChart(ch, f, app.playT); if (f && f.version !== app.tickVer) { app.tickVer = f.version; renderTicks(); } }
+  requestAnimationFrame(tick);
+}
+
+/* ------------------------------------------------------------------ sources */
+let demoText = null;
+async function getDemo() {
+  if (demoText) return demoText;
+  const inline = document.getElementById("demo-csv");
+  if (inline) return (demoText = inline.textContent);
+  const res = await fetch("demo_flight.csv"); if (!res.ok) throw new Error("demo flight not found");
+  return (demoText = await res.text());
+}
+function startSimLive(text) {
+  stopSource();
+  const s = parseLog(text)[0]; if (!s) return;
+  const f = new Flight(s.label, "sim");
+  f.onEvent = () => renderTicks();
+  loadFlight(f, "live");
+  const rows = s.rows; let i = 0; const t0 = rows[0].t_ms; const wall0 = performance.now();
+  app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true);
+  setView("chase");
+  app.src = { kind: "sim", pump(now) {
+    const tNow = t0 + (now - wall0);
+    while (i < rows.length && rows[i].t_ms <= tNow) { f.add(rows[i]); i++; app.rateCount++; app.lastPacket = now; }
+    if (i >= rows.length && !this.done) { this.done = true; feed("END", "Simulated flight finished: replay it with the timeline"); autoKeep(f); }
+  } };
+  feed("PAD", "Simulated flight: TSP F35, real flight code in the 6-DOF simulator");
+}
+function stopSource() { if (app.src && app.src.close) app.src.close(); app.src = null; }
+function replayFlight(label, rows, source) {
+  stopSource();
+  const f = new Flight(label, source || "file"); for (const r of rows) f.add(r);
+  loadFlight(f, "replay");
+  const ev = f.events; app.playT = ev.apogee ? ev.apogee.t : f.T[f.T.length - 1];
+  seek(app.playT); setPlaying(false); setView("orbit");
+  if (R) { const p = f.posAt(app.playT); R.cam.target.set(p.e, (ev.apogee ? ev.apogee.alt : 0) * 0.5, -p.n); R.cam.dist = Math.max(120, f.maxAlt * 1.6); R.cam.theta = -0.8; R.cam.phi = 1.18; }
+  return f;
+}
+async function connectUsb() {
+  if (!("serial" in navigator)) { toast("USB needs Chrome or Edge on a computer. Open ground/kestrel_mission_control.html from the project there to connect the rocket or a receiver."); return; }
+  let port;
+  try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 115200 }); }
+  catch (e) { toast(e && e.name === "NotFoundError" ? "No port chosen." : "This page is not allowed to open a USB port here. Open ground/kestrel_mission_control.html from the project in Chrome or Edge instead."); return; }
+  stopSource();
+  const f = new Flight("USB " + new Date().toLocaleString(), "usb"); loadFlight(f, "live"); app.followLive = true; setPlaying(true); setView("chase");
+  const dec = new TextDecoderStream(); const closed = port.readable.pipeTo(dec.writable).catch(() => {}); const reader = dec.readable.getReader();
+  let buf = "", dump = null; const src = { kind: "usb", port, async close() { try { await reader.cancel(); await closed; await port.close(); } catch (e) {} } };
+  app.src = src; feed("USB", "Connected. Waiting for telemetry lines (the log format). Type-ahead: use Get log to download the stored flights.");
+  src.sendDump = async () => { const w = port.writable.getWriter(); await w.write(new TextEncoder().encode("dump\r\n")); w.releaseLock(); dump = []; feed("USB", "Downloading the flight log…"); };
+  (async () => {
+    try {
+      for (;;) { const { value, done } = await reader.read(); if (done) break; buf += value; let k;
+        while ((k = buf.indexOf("\n")) >= 0) { const line = buf.slice(0, k).trim(); buf = buf.slice(k + 1);
+          if (dump) { dump.push(line); if (line.startsWith("# end")) { const sessions = parseLog(dump.join("\n")); dump = null; chooseSession(sessions, "usb"); } continue; }
+          const r = parseLine(line); if (r && f.add(r)) { app.rateCount++; app.lastPacket = performance.now(); }
+        } }
+    } catch (e) { feed("USB", "Disconnected"); }
+  })();
+  $("btnUsb").textContent = "Get log over USB"; $("btnUsb").onclick = () => src.sendDump();
+}
+
+/* ------------------------------------------------------------------ files and saved flights */
+function readFile(file) {
+  const rd = new FileReader();
+  rd.onload = () => { const sessions = parseLog(String(rd.result)); if (!sessions.length) { toast("No flight data found in " + file.name + ". It should be a log from `dump` or a flight saved here."); return; } chooseSession(sessions, "file", file.name); };
+  rd.readAsText(file);
+}
+function chooseSession(sessions, source, name) {
+  const useful = sessions.filter((s) => s.rows.some((r) => r.state >= 3 && r.state <= 6));
+  const list = useful.length ? useful : sessions;
+  if (list.length === 1) { const f = replayFlight(list[0].label, list[0].rows, source); keepFlight(f); toast("Loaded " + (name || list[0].label)); return; }
+  openSheet(list.map((s, i) => ({ name: s.label || "flight " + (i + 1), rows: s.rows })), "This log holds " + list.length + " flights. Choose one to replay.");
+}
+async function saveFlight() {
+  const f = app.flight; if (!f) return;
+  const csv = toCsv(f); const name = "kestrel_flight_" + new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-") + ".csv";
+  keepFlight(f);
+  if (window.claude && window.claude.use) {           // inside claude.ai: the page may only save through the viewer
+    let dl = null; try { dl = app.downloads || (app.downloads = await window.claude.use("downloads")); } catch (e) { dl = null; }
+    if (!dl) { toast("Saving a file is not available here. The flight is kept under Flights in this browser."); return; }
+    try { await dl.save({ filename: name, data: new Blob([csv], { type: "text/csv" }) }); toast("Saved " + name); }
+    catch (e) { toast(e && e.code === "declined" ? "Not saved." : "The file could not be saved here. The flight is kept under Flights in this browser."); }
+    return;
+  }
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast("Saved " + name); }
+  catch (e) { toast("Saving files is not possible here. The flight is kept under Flights in this browser."); }
+}
+// recent flights in this browser (IndexedDB): a convenience for quick replays; files are the copy to keep
+const DB = { db: null, async open() {
+  if (this.db) return this.db;
+  return new Promise((res) => { try { const r = indexedDB.open("kestrel-mission-control", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("flights", { keyPath: "id" }); r.onsuccess = () => res(this.db = r.result); r.onerror = () => res(null); } catch (e) { res(null); } });
+}, async all() { const db = await this.open(); if (!db) return []; return new Promise((res) => { try { const q = db.transaction("flights").objectStore("flights").getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => res([]); } catch (e) { res([]); } }); },
+  async put(o) { const db = await this.open(); if (!db) return false; return new Promise((res) => { try { const tx = db.transaction("flights", "readwrite"); tx.objectStore("flights").put(o); tx.oncomplete = () => res(true); tx.onerror = () => res(false); } catch (e) { res(false); } }); },
+  async del(id) { const db = await this.open(); if (!db) return; try { db.transaction("flights", "readwrite").objectStore("flights").delete(id); } catch (e) {} } };
+async function keepFlight(f) {
+  if (!f || !f.rows.length || f.kept) return; f.kept = true;
+  const all = await DB.all();
+  if (all.some((x) => x.label === f.label && x.rows === f.rows.length)) return;
+  await DB.put({ id: Date.now() + "-" + Math.random().toString(36).slice(2, 7), label: f.label, source: f.source, savedAt: new Date().toISOString(),
+    apogee: f.maxAlt, rows: f.rows.length, dur: f.T[f.T.length - 1] - f.T[0], csv: toCsv(f) });
+  all.sort((a, b) => a.savedAt < b.savedAt ? 1 : -1); for (const old of all.slice(11)) DB.del(old.id);
+}
+function autoKeep(f) { keepFlight(f); }
+async function openSheet(choices, note) {
+  const ul = $("flist"); ul.textContent = ""; $("sheet").hidden = false;
+  if (choices) { $("hSheet").textContent = "Choose a flight"; $("sheetNote").textContent = note;
+    choices.forEach((c) => ul.appendChild(flightItem(c.name, metaOf(c.rows), [["Replay", () => { const f = replayFlight(c.name, c.rows, "file"); keepFlight(f); closeSheet(); }]]))); return; }
+  $("hSheet").textContent = "Flights"; $("sheetNote").textContent = "Flights recorded or loaded here are kept in this browser for quick replays (the last 12). Use Save flight to keep a file.";
+  const all = (await DB.all()).sort((a, b) => a.savedAt < b.savedAt ? 1 : -1);
+  ul.appendChild(flightItem("Simulated F35 flight (built in)", "179 m apogee · 4.9 m/s wind · flown by the real flight code", [["Replay", async () => { const t = await getDemo(); const s = parseLog(t)[0]; replayFlight(s.label, s.rows, "sim"); closeSheet(); }], ["Watch live", async () => { startSimLive(await getDemo()); closeSheet(); }]]));
+  if (!all.length) { const li = document.createElement("li"); li.textContent = "No flights kept in this browser yet."; li.style.color = "var(--muted)"; ul.appendChild(li); }
+  for (const x of all) ul.appendChild(flightItem(x.label, new Date(x.savedAt).toLocaleString() + " · apogee " + (x.apogee || 0).toFixed(1) + " m · " + x.rows + " rows",
+    [["Replay", () => { const s = parseLog(x.csv)[0]; if (s) { const f = replayFlight(s.label, s.rows, x.source); f.kept = true; } closeSheet(); }], ["Delete", async () => { await DB.del(x.id); openSheet(); }]]));
+}
+function metaOf(rows) {           // flight rows only: before READY alt_m is not height above the pad
+  let m = 0, flew = false; for (const r of rows) if (r.state >= 3 && r.state <= 6) { flew = true; m = Math.max(m, r.alt_m); }
+  return (flew ? "apogee " + m.toFixed(1) + " m · " : "no launch · ") + rows.length + " rows"; }
+function flightItem(name, meta, buttons) {
+  const li = document.createElement("li"); const d = document.createElement("div"); const n = document.createElement("div"); n.textContent = name; n.style.fontWeight = "600";
+  const m = document.createElement("div"); m.className = "meta"; m.textContent = meta; d.append(n, m);
+  const row = document.createElement("div"); row.className = "row"; for (const [t, fn] of buttons) { const b = document.createElement("button"); b.className = "btn"; b.type = "button"; b.textContent = t; b.onclick = fn; row.appendChild(b); }
+  li.append(d, row); return li;
+}
+function closeSheet() { $("sheet").hidden = true; }
+let toastTimer = 0;
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (el.hidden = true), 5200); }
+
+/* ------------------------------------------------------------------ wiring */
+function wire() {
+  $("btnSim").onclick = async () => { try { startSimLive(await getDemo()); } catch (e) { toast("The simulated flight could not be loaded."); } };
+  $("btnUsb").onclick = connectUsb;
+  $("btnLoad").onclick = () => $("file").click();
+  $("file").onchange = (e) => { const fl = e.target.files[0]; if (fl) readFile(fl); e.target.value = ""; };
+  $("btnSave").onclick = saveFlight;
+  $("btnFlights").onclick = () => openSheet();
+  $("btnSheetClose").onclick = closeSheet;
+  $("sheet").addEventListener("click", (e) => { if (e.target === $("sheet")) closeSheet(); });
+  $("btnPlay").onclick = () => { const f = app.flight; if (!f) return; if (!app.playing && app.playT >= f.T[f.T.length - 1] - 1e-3) seek(f.T[0]); app.followLive = false; $("btnLive").setAttribute("aria-pressed", "false"); setPlaying(!app.playing); };
+  $("btnRestart").onclick = () => { const f = app.flight; if (!f) return; seek(f.tLaunch != null ? Math.max(f.T[0], f.tLaunch - 3) : f.T[0]); setPlaying(true); };
+  $("btnLive").onclick = () => { app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); };
+  $("speed").onchange = (e) => { app.speed = Number(e.target.value); };
+  const sc = $("scrub");
+  sc.addEventListener("input", () => { const f = app.flight; if (!f) return; app.scrubbing = true; const a = f.T[0], b = f.T[f.T.length - 1]; seek(a + Number(sc.value) / 1000 * (b - a)); });
+  sc.addEventListener("change", () => { app.scrubbing = false; });
+  document.querySelectorAll("[data-view]").forEach((b) => b.onclick = () => setView(b.dataset.view));
+  document.querySelectorAll("[data-scale]").forEach((b) => b.onclick = () => { app.scale = Number(b.dataset.scale); document.querySelectorAll("[data-scale]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); });
+  window.addEventListener("keydown", (e) => {
+    if (e.target.closest && e.target.closest("input, select, textarea")) return;
+    if (e.key === " ") { e.preventDefault(); $("btnPlay").click(); }
+    else if (e.key === "ArrowRight") seek(app.playT + (e.shiftKey ? 5 : 0.5));
+    else if (e.key === "ArrowLeft") seek(app.playT - (e.shiftKey ? 5 : 0.5));
+    else if (["1", "2", "3", "4"].includes(e.key)) setView(["chase", "pad", "orbit", "top"][Number(e.key) - 1]);
+    else if (e.key === "l" || e.key === "L") { if (app.mode === "live") $("btnLive").click(); }
+    else if (e.key === "Escape") closeSheet();
+  });
+  // drag a log file anywhere onto the page
+  let dragDepth = 0;
+  window.addEventListener("dragenter", (e) => { if ([...(e.dataTransfer?.types || [])].includes("Files")) { dragDepth++; $("drop").hidden = false; } });
+  window.addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $("drop").hidden = true; });
+  window.addEventListener("dragover", (e) => e.preventDefault());
+  window.addEventListener("drop", (e) => { e.preventDefault(); dragDepth = 0; $("drop").hidden = true; const fl = e.dataTransfer?.files?.[0]; if (fl) readFile(fl); });
+  chartHover();
+}
+
+async function boot() {
+  wire(); initScene(); sizeSprites();
+  requestAnimationFrame((t) => { app.lastFrame = t; tick(t); });
+  // open on the built-in simulated flight, paused at apogee, so the first view shows what the tool does
+  try { const text = await getDemo(); const s = parseLog(text)[0]; if (s) { replayFlight(s.label, s.rows, "sim"); setText("srcText", "Replay · simulated flight"); } }
+  catch (e) { feed("–", "Load a flight log, connect USB, or watch the simulated flight."); }
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => buildLabels());
+boot();
+</script>

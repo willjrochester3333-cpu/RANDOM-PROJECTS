@@ -19,8 +19,9 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 | R11 | Model of the rocket with the **parachute open** | follow-up 1 |
 | R12 | Video of a simulated launch: ground camera + onboard camera, data bottom-left, graphs below; every launch different (seeded) | follow-up 1/2 |
 | R13 | **4 fins that the rocket can stand on**, each with a **control tab** so the rocket can be controlled in every axis (roll, pitch, yaw) | follow-up 2 |
-| R14 | Motor: **TSP E20** (~123 m with all features). TSP allowed as the one brand exception | Q&A |
+| R14 | Motor: **TSP F35** (29 mm), about 190 m, airframe as it is (was TSP E20 / ~123 m until Mon 17:50). TSP allowed as the one brand exception | Q&A, Mon 17:50 |
 | R15 | Shopping list: mostly Amazon UK; UK or large international brands, except unbranded servos, camera, parachute (~£270) | Q&A |
+| R16 | Ground screen that runs live during the flight: everything about the rocket (parachute out, apogee reached…), a 3D map of where it is, and the 3D movement saved for replay | Mon 19:20 |
 
 ## Plan / status
 
@@ -39,10 +40,11 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 
 ## Known gaps against the agreed requirements (report them)
 
-- R14 apogee: ~123 m was my estimate at ~650 g on the 40 Ns curve. Finished rocket 721 g, E20 rated 36 Ns: 78 m
-  nominal (MC mean 83 m); 94.6 m on the curve basis. Mass is the lever (10 g ≈ 2.5 m); pods only cost ~2 m.
-  TSP F35 (29 mm) would give ~226 m but needs a 29 mm TVC module -> user's decision.
-- R15 budget: ≈ £297 vs ~£270 (4 more servos, 30 in chute, spring pack of 10).
+- R14 apogee: F35 188 m nominal with 25 g payload (198 m empty; Monte Carlo mean 198 m, 164-236 m): met.
+- R15 budget: ≈ £312 vs ~£270 (4 more servos, 36 in chute, spring pack of 10, servos inside the fins).
+- R16 live view: the rocket has **no radio**, so a real flight can only be shown after landing (log over USB);
+  live works for the simulated flight and on the USB cable. Needs a telemetry transmitter + receiver and a
+  firmware streaming command -> question to the user (which radio).
 
 ## Log
 - 19:45 GMT Sun: requirements fixed (motor E20). Starting step 1.
@@ -119,3 +121,14 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   tab backlash ruled out). Stress Monte Carlo 99.3 % / 100 % safe recovery; tab effectiveness x1.2: 200/200;
   RocketPy within 0.33 % (F35 188.31 vs 188.24 m). Hard-over containment 23-26 m (F35), so spectators 40 m for
   the F35. Docs filled from the results; recovery area 550 m (6 m/s) or 300 m (3 m/s) for the F35.
+- 19:20-20:30 Mon: user: a "SUPER cool" live screen with everything about the rocket, a 3D map of where it is, and
+  the movement saved for replay -> ground/ Mission Control (three.js r128, one HTML file, offline build 836 kB):
+  3D range (10 m grid, 100 m rings, pad, trail coloured by phase, event pins, landing marker), chase / pad /
+  orbit / map cameras, event list + banners (liftoff, burnout, apogee, chute, landed, abort), state strip,
+  telemetry, nose / gimbal / tab dials, 4 strip charts (hover, click to seek), timeline with event ticks,
+  0.25-8x replay, sources: simulated live (real-time), USB (Web Serial; `dump` straight into the replay, live
+  lines shown as they come), log files (drag-drop, several sessions); save as log-format CSV, last 12 flights
+  kept in the browser. Demo = seed 7 flown by the real flight code incl. 10 s after touchdown (FSW goes LANDED).
+  Found: the example-log and demo writers skipped the pad rows (`last = -1.0` vs t = 0) -> fixed, example log
+  regenerated (1463 rows, 188.2 m). Tested in headless Chromium (live run to LANDED, replay, seek, load, save,
+  flights list, offline file with the network blocked); published as a private claude.ai page.

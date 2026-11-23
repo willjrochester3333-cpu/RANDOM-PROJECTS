@@ -28,6 +28,11 @@ build cost **≈ £312** (motors extra).
 different flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (TSP F35, 4.9 m/s
 wind, 20 g payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
 
+**Mission Control** (the ground-station screen): a 3D map of the range with the rocket flying on it, the flight
+events as they happen (liftoff, burnout, apogee, parachute out, landed), telemetry, steering dials and charts, and
+every flight saved for replay on the map. Open [`ground/kestrel_mission_control.html`](ground/kestrel_mission_control.html)
+in Chrome or Edge (one file, works offline); it reads the flight computer over USB. See [ground/README.md](ground/README.md).
+
 | | |
 |---|---|
 | Parts | **3**: bottom (fin can + TVC module + camera + flight computer + battery), middle (payload bay with door · wall · parachute bay · release latch at the top), nose cone |
@@ -118,6 +123,7 @@ firmware/
 sim/                     6-DOF simulator, scenarios, Monte Carlo, RocketPy validation, results/
   video/                   launch-video pipeline (simulation → Blender → telemetry + graphs → MP4)
 docs/                    shopping list, build guide, PCB, firmware, test plan, checklist, safety, simulation report
+ground/                  Mission Control: kestrel_mission_control.html = live 3D map, events, telemetry, replay (offline)
 ```
 
 ## Change it

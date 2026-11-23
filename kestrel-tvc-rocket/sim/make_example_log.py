@@ -34,7 +34,7 @@ def main():
     st = L["fsw_state"].astype(int)
     i_launch = int(np.argmax(st == 3))
     t_launch = t[i_launch]
-    last_t = -1.0
+    last_t = -1e9
     rows = 0
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
