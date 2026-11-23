@@ -1,6 +1,6 @@
 {
  "BT70_bottom_tube_340": {
-  "z_from_tip": 729.6,
+  "z_from_tip": 729.5,
   "length": 340.0,
   "radius": 28.2
  },
@@ -130,12 +130,12 @@
   "radius": 22.1
  },
  "parachute_packed": {
-  "z_from_tip": 247.7,
-  "length": 112.0,
-  "radius": 23.6
+  "z_from_tip": 258.7,
+  "length": 90.0,
+  "radius": 22.0
  },
  "shock_cord_kevlar_elastic": {
-  "z_from_tip": 180.7,
+  "z_from_tip": 202.7,
   "length": 20.0,
   "radius": 14.1
  },

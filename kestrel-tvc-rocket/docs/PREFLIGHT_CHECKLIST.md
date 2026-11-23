@@ -6,15 +6,16 @@
 - [ ] `status`: IMU / baro / flash ok, axes calibrated, correct motor selected, `tabs` setting as planned for this
       flight (test plan C), log has > 1 MB blank
 - [ ] Last flight's log downloaded and plotted
-- [ ] `dirtest`, `tabtest`, `fintest` all correct (after any change to a servo, horn or pushrod)
-- [ ] Gimbal pivots free, no play; TVC pushrods straight; tab hinges free, tab pushrods straight, every tab lines
-      up with its fin after `center`
+- [ ] `dirtest`, `tabtest`, `fintest` all correct (after any change to a servo, horn, pushrod or tab)
+- [ ] Gimbal pivots free, no play; TVC pushrods straight; every tab swings freely with its root pin in its slot and
+      lines up with its fin after `center`; tape over the four fin-tip lead grooves intact
 - [ ] Latch bolt slides freely (graphite); spring, piston, shock cord, parachute: no burns, knots or frays
 - [ ] Payload secured to the bay floor, door locks with a quarter turn
 - [ ] Field: club launch or landowner permission confirmed; not near an airfield or in controlled airspace (see
       [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md))
 - [ ] Pack: rocket, pad + rod (1 m, and the 1.5 m rod if it may be windy) + tile + pegs + rod cap, motors, launch controller + key, LiPo + spare,
-      laptop/phone + USB cable, coin (payload door), toothpick (switch), tools, tape, spare M3 / M2.5 screws.
+      laptop/phone + USB cable, coin (payload door), toothpick (switch), tools, tape, spare M3 / M2.5 screws and
+      M2 × 6 servo screws (never longer).
       No wadding: there is no ejection charge
 
 **At the field**
@@ -51,5 +52,5 @@
 - [ ] Watch it all the way down; note where it lands
 - [ ] Follow the beeps; the digits are the apogee in metres
 - [ ] Once found, switch OFF (stops the beeping; the log is already safe in flash)
-- [ ] Spent motor out once cool; download the log; inspect fins, tabs, pods, gimbal and latch; note the flight in
-      the notebook
+- [ ] Spent motor out once cool; download the log; inspect fins (legs, servo pockets), tabs, gimbal, latch and
+      the nose ballast (no loose nuts rattling); note the flight in the notebook

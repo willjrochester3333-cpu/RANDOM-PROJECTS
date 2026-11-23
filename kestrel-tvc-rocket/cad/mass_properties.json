@@ -106,7 +106,7 @@
  {
   "name": "tvc_frame",
   "mass_g": 27.7,
-  "z": 824.8,
+  "z": 824.9,
   "length": 0.0,
   "radius": 26.3,
   "source": "CAD"
@@ -121,8 +121,8 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 181.2,
-  "z": 850.9,
+  "mass_g": 181.1,
+  "z": 850.8,
   "length": 0.0,
   "radius": 44.8,
   "source": "CAD"

@@ -1,11 +1,11 @@
-# Flight firmware (v2.01, KESTREL-2)
+# Flight firmware (v2.02, KESTREL-2)
 
 Two layers, one code base:
 
 | Layer | Where | What it does | Tested by |
 |---|---|---|---|
-| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 377,489 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
-| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 125 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **tab-linkage** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
+| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,058 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
+| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 127 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
 
 Ready-to-flash binary: **`firmware/pico/kestrel_fc.uf2`** (hold BOOTSEL, plug in USB, drag the file onto the
 `RP2350` drive).
@@ -58,8 +58,10 @@ ERROR ◀─ sensor failure / IMU axes not calibrated            COAST ◀──
 | 6 | GP13 | fin tab 3 (225°) |
 | 7 | GP15 | fin tab 4 (315°) |
 
-A tab angle is turned into a servo pulse through the real linkage geometry
-(`horn × sin(tab) = arm × sin(servo)`, 14.3 mm tab horn, 6 mm servo arm): ±15° of tab is about ±38° of servo.
+Each tab servo sits inside its fin with its output shaft on the tab's hinge line, so the servo turns the tab
+directly: ±15° of tab is ±15° of servo (±158 µs). The mapping is still the general linkage formula
+(`horn × sin(tab) = arm × sin(servo)`) with horn = arm (`tab_horn_mm` = `tab_servo_arm_mm` = 1 in the settings and
+in `design.json`), so a pushrod-driven tab could be set up again without new code; the tests cover both.
 
 ## Lights and beeps
 
@@ -91,7 +93,7 @@ Commands that move servos or write flash are refused unless the rocket is on the
 | `status` | everything: state, sensors (body frame), pad tilt, baro, GPS, battery cells, servo rail, log, settings, last flight |
 | `calaxes` | **required once**: measures the IMU orientation (pose 1 nose up, pose 2 flat with the camera pod down) |
 | `dirtest` | moves each TVC axis +3° in turn so you can check the direction |
-| `tabtest` | moves each fin tab +10° in turn: its trailing edge must move **away from its servo pod** |
+| `tabtest` | moves each fin tab +10° in turn: seen from behind (nozzle towards you) its trailing edge must swing **anticlockwise**, towards the fin with the next-lower number |
 | `dir <1,2,4-7> <1\|-1>` | flip a servo direction (1–2 TVC, 4–7 tabs 1–4) |
 | `tvctest` | live closed-loop TVC with the flight control law (60 s, Enter stops) |
 | `fintest` | live closed-loop fin tabs (gains for ≈ 30 m/s): twist the rocket and all four tabs fight back; tilt it and the tabs push the nose back |
@@ -158,11 +160,12 @@ After changing `design.json`, the CAD or the motor list, regenerate the motor an
 (`python3 firmware/tools/gen_motor_db.py`: thrust, inertia and lever arm against time for every motor, plus the
 tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo.py`.
 
-## Updating from 2.00
+## Updating from 2.00 / 2.01
 
-2.01 corrects the TVC linkage ratio (0.42 → 0.5) and the tab horn length (14.5 → 14.3 mm) to match the CAD. The
-settings layout version changed, so a board that ran 2.00 starts with factory settings: run `calaxes`, `dirtest`,
-`tabtest`, the trims and `deployus` again, then `save`.
+2.02 is for the thick fins with the tab servos inside them: the tabs are driven directly (servo angle = tab
+angle), and the motor and airframe tables include the heavier fin can and the nose ballast. 2.01 corrected the
+TVC linkage ratio (0.42 → 0.5). Both changed the settings layout version, so a board that ran an older version
+starts with factory settings: run `calaxes`, `dirtest`, `tabtest`, the trims and `deployus` again, then `save`.
 
 ## Modifying it
 

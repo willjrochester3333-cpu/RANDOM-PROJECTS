@@ -7,17 +7,18 @@ The rocket comes apart into **three parts**:
 
 | Part | What is in it |
 |---|---|
-| **1. Bottom** | fin can (4 fins that are also its legs, 4 control tabs with their servos in streamlined pods), the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery, GPS antenna) and its coupler |
+| **1. Bottom** | fin can (4 thick fins that are also its legs, each with its tab servo inside it and a control tab at its trailing edge), the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery, GPS antenna) and its coupler |
 | **2. Middle** | payload bay with a hinged, lockable door · a wall · the parachute bay (spring, piston, parachute, shock cord) · the release latch with its servo at the very top |
-| **3. Nose cone** | printed; the spring pushes it off when the release servo pulls the latch bolt |
+| **3. Nose cone** | printed, with about 33 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
 
-Time: roughly 30 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
+Time: roughly 36 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
 (estimates from the part volumes, depending on your printer), plus two weekends of building. **Order the PCB
 first**: it takes 1–3 weeks to arrive.
 
 Pictures that help: `cad/renders/rocket_exploded.png` (all parts), `tvc_module.png` and
 `tvc_module_assembly_steps.png` (TVC), `avbay_cutaway.png`, `release_latch_cutaway.png`, `payload_bay_open.png`,
-`fin_tab_closeup.png`, `launch_pad.png`. Open `cad/kestrel.blend` in Blender 4 to turn any part around.
+`fin_tab_closeup.png`, `fin_servo_cutaway.png` (a fin cut open: servo, horn, tab, lead), `launch_pad.png`. Open
+`cad/kestrel.blend` in Blender 4 to turn any part around.
 
 ## Orientation words
 
@@ -34,8 +35,9 @@ Look down on the rocket from the nose. Angles go **anticlockwise**, exactly as i
 | 270° | **camera side** | camera pod, the other joint screw |
 | 315° | fin 4 | |
 
-Each fin's tab servo sits in a pod on the side of the fin that faces the **next fin anticlockwise** (fin 1's pod
-faces the lug side). **Up** = towards the nose. All sizes in mm.
+Each fin is 15 mm thick. Its tab servo sits **inside the fin, near the tip**, with its output shaft on the tab's
+hinge line; the tab is the part of the fin's trailing edge between the root and the servo, and the servo turns it
+directly (no pods, pushrods or hinge pins). **Up** = towards the nose. All sizes in mm.
 
 ---
 
@@ -48,15 +50,15 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 
 All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
 lists sizes, estimated masses and the automatic printability checks: all 27 parts are watertight, one body each,
-and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **four parts
+and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **three parts
 need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
 in **PETG** (PLA softens in a hot car and near the motor).
 
 | Part | Qty | Settings | Notes |
 |---|---|---|---|
 | **Bottom part** | | | |
-| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | fins, legs and the 4 servo pods in one piece; the largest print (114 × 114 × 155 mm) |
-| `fin_control_tab` | 4 | lying on the plain face (horn up), 3 walls; **supports on the build plate only** (they fill the 0.8 mm under the face beside the hinge bead) | |
+| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | can, 4 fins with their servo pockets, lead channels and legs in one piece; the largest print (123 × 123 × 155 mm). The 1.2 mm fin skins beside each servo pocket are exactly 3 walls: do not print it with fewer |
+| `fin_control_tab` | 4 | standing on its outer end (horn pocket on the bed), 3 walls, 20 %, no supports | |
 | `tvc_frame` | 1 | upright, 3 walls, 25 %; **supports under the four servo bars** | |
 | `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat); **support under the pushrod tab** | the 25 mm roof of the motor bore is a bridge; the penny washer covers it |
 | `tvc_gimbal_ring`, `tvc_motor_retainer` | 1 each | 3 walls, 40 % | |
@@ -73,7 +75,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | `top_latch_insert` | 1 | shoulder up, 3 walls, 25 % | |
 | `latch_bolt` | 1 | 100 % infill | must slide freely: rub it with graphite (soft pencil) |
 | **Nose** | | | |
-| `nose_cone` | 1 | tip up, 3 walls, 10 % gyroid, no supports | its bulkhead is a 45° cone with a cord bar inside |
+| `nose_cone` | 1 | tip up, 3 walls, 10 % gyroid, no supports | its bulkhead is a 45° cone with a cord bar inside and a 14 mm ballast fill hole at its top |
 | **Launch pad** | | | |
 | `pad_hub` | 1 | upright, 5 walls, 40 %; **tree supports in the leg sockets** | |
 | `pad_rod_block`, `pad_rod_stop`, `rod_tip_safety_cap` | 1 each | 4 walls, 40 % | |
@@ -82,8 +84,8 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | **Build tools (not flown)** | | | |
 | `tool_drill_guide_bottom_tube`, `tool_drill_guide_middle_tube` | 1 each | 2 walls, 10 % | |
 
-Printed rocket parts ≈ **331 g**. The simulator uses the masses computed from these exact STLs with these settings
-(`cad/mass_properties.py`), so print them as listed.
+Printed rocket parts ≈ **403 g** (the 15 mm fin can alone is ≈ 181 g). The simulator uses the masses computed from
+these exact STLs with these settings (`cad/mass_properties.py`), so print them as listed.
 
 ## 3. Body tubes
 
@@ -124,38 +126,50 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
    10, steps 1–2; a USB cable powers the logic, but the servos need the LiPo on the balance socket). Now fit a
    single-arm horn on each, pointing towards its pushrod, with its hole **9 mm** from the shaft (trim the arm 2.5 mm
    beyond the hole). If no hole sits at exactly 9 mm, drill one with a 1.3 mm bit: the firmware's linkage maths
-   (gimbal moves 0.5° per servo degree) depends on it. The same goes for the 6 mm tab horns and the 7 mm release
-   horn below.
+   (gimbal moves 0.5° per servo degree) depends on it. The same goes for the 7 mm release horn below.
 6. **Pushrods:** 1.2 mm music wire with a Z-bend at each end (pliers only). Bend one end, hook it into the horn,
    mark the length so the motor holder hangs perfectly straight with the servos centred, bend the other end.
 7. Route both leads up through the frame and out of its top. That completes the module.
 
 ## 5. Fin can, tab servos and control tabs
 
-1. **Tabs:** cut four 27 mm pieces of 1.2 mm music wire. Push one through the knuckle of each tab so the same
-   length sticks out at both ends; a drop of thin CA fixes it **in the tab only**.
-2. **Fit the tabs:** press each tab's wire into the two C-clips on its fin from behind: it snaps in. The tab must
-   swing freely about 20° each way.
-3. **Fin can on the tube:** slide the fin can over the bottom end of the bottom tube with its launch lug on the
+Each fin carries its own tab servo inside it (`fin_servo_cutaway.png`): the servo slides into a pocket that is
+open at the fin tip, its output shaft pointing in towards the rocket along the tab's hinge line, and its spline
+goes straight into a servo horn glued inside the tab. The tab turns exactly as far as the servo does.
+
+1. **Horns into the tabs:** take a single-arm horn from each tab servo's bag and cut its arm off **5.5 mm from
+   the centre of the hub**, leaving a short stub. Smear a little Vaseline inside the horn's splined bore (it keeps
+   the glue out). Epoxy the horn into the pocket at the tab's **outer end** (the end without the printed pin):
+   hub in the round pocket, hub face flush with the end of the tab, stub in the slot that points towards the tab's
+   thin trailing edge. When the epoxy has cured, wipe the bore clean.
+2. **Fin can on the tube:** slide the fin can over the bottom end of the bottom tube with its launch lug on the
    pencilled lug line, until the tube end is flush with the bottom of the can ring. Through the fin can, mark and
    drill the two 3.3 mm **tail holes** (16 mm from the end, lug side and 210°) and cut the **four lead slots**
-   (4 × 19 mm, at the root of each pod, through the pod floor and the can) in the tube with a knife.
-4. **Tab servos:** centre a servo (plug it into the board, `center`) and drop it into its pod from the outside,
-   **output shaft pointing outwards**, its lead and plug going first through the slot into the tube. Fix it with
-   the 2 screws from the servo bag through the mounting tabs. Label the leads: **fin 1 = port 4, fin 2 = port 5,
-   fin 3 = port 6, fin 4 = port 7**. Fit a 150 mm extension lead to each and pull all four up and out of the top
-   of the bottom tube.
-5. **Tab linkage:** fit a single-arm horn on each tab servo, its arm pointing at the tab horn, hole **6 mm** from
-   the shaft. Bend a short 1.2 mm pushrod with a Z-bend at each end between the servo horn and the tab horn's
-   hole (**14.3 mm** from the hinge): with the servo centred, the tab must line up exactly with its fin. The
-   pushrod runs parallel to the rocket's axis.
-6. **TVC module in:** slide the TVC module into the bottom of the tube, **its two leads first**, turning it until
+   in the tube with a knife: mark them through the 9 × 5 mm lead hole in the can at the root of each fin, 38.5–43.5
+   mm above the tail.
+3. **Tabs in:** push each tab up into the gap at the trailing edge of its fin, **printed pin first into the slot
+   at the fin root**, until its rounded front edge sits in the round top of the gap and the horn's bore lines up
+   with the servo pocket. The pin only stops the tab moving sideways; the servo spline carries it.
+4. **Tab servos:** centre each servo first (plug it into the board, `center`). Push its plug, then the lead, into
+   the **lead channel** in the fin tip (the 9 × 5 mm hole 38.5–43.5 mm above the tail), through the fin and the
+   slot in the tube, and pull the lead into the tube. Then slide the servo into its pocket from the fin tip,
+   **output shaft first**, so the spline enters the horn in the tab. Hold the tab in line with the fin while the
+   spline engages and pick the tooth that leaves it straightest; the trim (section 10) takes out the rest.
+5. **Servo screws:** fix each servo with **2 × M2 × 6 mm self-tapping screws** through its mounting tabs,
+   reaching in through the open fin tip. **Not longer than 6 mm** (servo bags often hold longer ones): the lower
+   hole ends 0.35 mm short of the tab gap, and a longer screw would break through and jam the tab.
+6. **Leads:** lay each lead in the groove in the fin tip, from the servo up to the channel, and put a strip of
+   tape over the tip. Label the leads: **fin 1 = port 4, fin 2 = port 5, fin 3 = port 6, fin 4 = port 7**. Fit a
+   150 mm extension lead to each and pull all four up and out of the top of the bottom tube. With the board on,
+   `servo 4 1343` and `servo 4 1657` (±15° of tab) must swing tab 1 freely each way without touching the fin;
+   the same for servos 5–7.
+7. **TVC module in:** slide the TVC module into the bottom of the tube, **its two leads first**, turning it until
    its two tail-screw nut pockets line up with the tail holes. Each tab-servo lead lies in the groove on the
    outside of the frame that sits right behind its slot; pull the leads gently from the top as the module goes
    in so none gets pinched. Push an M3 nut into each nut pocket (a dab of glue holds it), then fix the fin can,
    tube and module with **2 × M3 screws**. No glue: the TVC module and the fin can come off for repairs and
    modifications.
-7. **Upper launch lug:** glue it on the lug line 300 mm above the tail (slide both lugs onto the 6 mm rod while
+8. **Upper launch lug:** glue it on the lug line 300 mm above the tail (slide both lugs onto the 6 mm rod while
    the epoxy cures, so they are perfectly in line).
 
 ## 6. Camera pod
@@ -226,11 +240,19 @@ is allowed (the simulator flew the whole 0–50 g range).
 
 ## 9. Recovery
 
+0. **Nose ballast (once):** the 15 mm fins put about 70 g at the tail, so the nose carries **about 33 g of
+   ballast**: roughly 90 M3 nuts (0.33 g each, a 100-pack) and 3 ml of epoxy. Hold the nose cone tip-down and
+   pour the nuts in through the 14 mm hole at the top of its conical bulkhead (beside the cord bar); they settle
+   into the tip. Tape over the hole for now and do the balance check (section 12) **with the payload bay empty**,
+   adding or removing nuts until it passes. Then, still tip-down, pour 3 ml of 30-minute epoxy through the hole
+   onto the nuts and leave it tip-down until it has cured. Leave the hole open afterwards: it also lets the nose
+   breathe.
 1. Shock cord: Kevlar from the wall's bridge (step 8.4), up through the notch in the **spring piston**,
    30 cm of Kevlar, the elastic section, a swivel with the **parachute's shroud lines**, then on to the bar inside
    the nose cone's conical bulkhead (reach in from the open end with long tweezers, tie a bowline, then a drop of CA).
 2. Put the **spring** on the wall's spring boss, the **piston** on the spring (its notches over the release lead
-   and the cord), fold the parachute (Z-fold, then roll) and put it on the piston, coil the cord on top.
+   and the cord), fold the 36 in parachute (Z-fold, then roll it to about 44 mm across and 90 mm long) and put it on
+   the piston, coil the cord on top.
 3. **Power the board** (the latch is commanded locked from the first instant), then push the nose cone on
    (alignment groove over the insert's rib) until the bolt **clicks**. Pull gently: it must not come off.
 4. On the bench, `deploy release` must make the spring throw the nose cone clear and pull the parachute out.
@@ -247,8 +269,9 @@ is allowed (the simulator flew the whole 0–50 g range).
    pod pointing straight down** (it rests on fins 3 and 4). Then `save`. Without this the board refuses to arm.
 5. **`dirtest`:** servo 1 moves +3°: the nozzle must swing **away from the camera pod**; then servo 2: away from
    the **door side**. Wrong way? `dir 1 -1` (or `dir 2 -1`), `save`, repeat.
-6. **`tabtest`:** tabs 1–4 move to +10° one after the other: each tab's **trailing edge must move away from its
-   servo pod**. Wrong way? `dir <4-7> -1` (tab 1 = servo 4), `save`, repeat.
+6. **`tabtest`:** tabs 1–4 move to +10° one after the other. Look at the tail from behind (nozzle towards you):
+   each tab's **trailing edge must swing anticlockwise**, towards the fin with the next-lower number (tab 1
+   towards fin 4, tab 2 towards fin 1). Wrong way? `dir <4-7> -1` (tab 1 = servo 4), `save`, repeat.
 7. **Trims:** `trim <1-7> <µs>` until, after `center`, the motor holder hangs perfectly straight and every tab
    lines up with its fin.
 8. **`deployus <lock> <release>`:** set the latch pulse widths so that at "lock" the bolt stands fully out with
@@ -276,7 +299,8 @@ is allowed (the simulator flew the whole 0–50 g range).
 ## 12. Balance check (every flight)
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
-**the balance point must be no further than 640 mm from the nose tip** (design with an E20: 635 mm with 25 g of
-payload, 639 mm with an empty bay, 630 mm with 50 g; stability margin +0.70 to +0.85 calibres at lift-off, more at
-burn-out, so it flies straight even if the TVC and tabs do nothing). If it is further back, add modelling clay
-inside the nose tip.
+**the balance point must be no further than 640 mm from the nose tip** (design with an E20 and the 33 g of nose
+ballast: 627 mm with 25 g of payload, 631 mm with an empty bay, 624 mm with 50 g; stability margin +0.83 to +0.96
+calibres at lift-off, more at burn-out, so it flies straight even if the TVC and tabs do nothing). If it is further
+back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of epoxy (section 9,
+step 0). A fin can that prints heavier than the estimated 181 g needs more ballast; a lighter one needs less.

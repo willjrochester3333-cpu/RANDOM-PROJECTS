@@ -1,9 +1,9 @@
 # Safety and the rules (UK)
 
-KESTREL-2 is a model rocket: an E motor (TSP E20, rated 36 Ns), about 0.72 kg at lift-off, and no pyrotechnic
+KESTREL-2 is a model rocket: an E motor (TSP E20, rated 36 Ns), about 0.84 kg at lift-off, and no pyrotechnic
 ejection charge. That keeps it in the simplest category. But a rocket that steers itself with six servos has
 failure modes that a passive rocket does not have: a servo that jams can push it sideways. It also leaves its
-launch rod slowly (about 8 m/s), so it relies on its steering more than a light rocket would. Everything below
+launch rod slowly (about 7 m/s), so it relies on its steering more than a light rocket would. Everything below
 assumes you take that seriously.
 
 This page is guidance, not legal advice. Rules change; check the current versions of the sources linked here.
@@ -31,10 +31,10 @@ Every number in this table comes from the simulator flying the real flight code 
 
 | Rule | Why |
 |---|---|
-| Spectators **≥ 30 m** from the pad, behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 19–22 m from the pad (6 wind seeds) |
-| **Wind ≤ 3 m/s for the first three flights** | `passive_wind3`: even with all six steering servos dead, the rocket still flies (tilting 20–35°) and recovers normally in 3 m/s. In 6 m/s (`passive_wind6`) it weathercocks hard, flies sideways and the parachute comes out at up to 29 m/s |
-| Afterwards ≤ 6 m/s with the **1.5 m rod**; never above 9 m/s | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); the longer rod raises the rod-exit speed from 7.7 to 8.8 m/s |
-| Recovery area **≥ 200 m** clear downwind (E20), 60 m (D20) | Monte Carlo: 95 % of E20 flights land within 133 m (wind up to 6 m/s), farthest 183 m |
+| Spectators **≥ 30 m** from the pad, behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 19–22 m from the pad (6 wind seeds, re-run for the thick-fin rocket) |
+| **Wind ≤ 3 m/s for the first three flights** | `passive_wind3`: even with all six steering servos dead, the rocket still flies (tilting 22–37°) and recovers normally in 3 m/s. In 6 m/s (`passive_wind6`) it weathercocks hard and turns right over before apogee |
+| Afterwards ≤ 6 m/s with the **1.5 m rod**; never above 9 m/s | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); the longer rod raises the rod-exit speed from 6.7 to 7.6 m/s |
+| Recovery area **≥ 200 m** clear downwind (E20), 60 m (D20) | Monte Carlo: 95 % of E20 flights land within 98 m (wind up to 6 m/s), farthest 146 m; D20 farthest 34 m |
 | Rod tilt 0–5° **downwind** only, never towards people | the rocket holds the rod direction during the burn (`rod_tilt5`) |
 | Electric ignition with a key-switch controller, 5 s countdown | standard model-rocket safety code |
 | Misfire: key out, wait **60 s** before approaching | |
@@ -44,7 +44,7 @@ Every number in this table comes from the simulator flying the real flight code 
 | Power the flight computer on only when the rocket is on the rod | in READY, a hard jolt can look like a launch to the sensors |
 
 The ten-out-of-ten ejection test in [TEST_PLAN.md](TEST_PLAN.md) is not optional: a rocket that comes down without
-its parachute hits the ground at about 36 m/s (`no_chute`).
+its parachute hits the ground at about 32 m/s (`no_chute`).
 
 ## Built-in protections (all exercised in the simulator)
 
@@ -54,7 +54,8 @@ its parachute hits the ground at about 36 m/s (`no_chute`).
 - **A tab jammed, frozen or dead**: roll is controlled first and each tab saturates on its own, so the others
   keep working (`tab_stuck`, `tabs_dead`); a fully jammed tab can still tumble it in the coast, so a **give-up rule**
   centres all tabs if it is more than 25° off course, and the parachute still opens at apogee (`tab_hardover`).
-- **All six steering servos dead**: it is still statically stable (+0.70 to +0.85 calibres depending on payload)
+- **All six steering servos dead**: it is still statically stable (+0.83 to +0.96 calibres depending on payload,
+  thanks to the nose ballast)
   and recovers normally in light wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
 - **Excessive tilt (> 50°) or tumbling during the burn**: abort, parachute out as soon as it is slower than 30 m/s.
 - **Barometer failure**: apogee detected from the inertial estimate, with a backup timer (`baro_dead`).

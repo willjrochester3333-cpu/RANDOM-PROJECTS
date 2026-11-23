@@ -2,7 +2,7 @@
 
     blender -b -P sim/video/blender_scene.py -- --traj traj.json --camera ground|onboard --out DIR [--draft]
 
-Builds a field with the launch pad, appends the real CAD rocket (cad/kestrel.blend) and the 30 in canopy
+Builds a field with the launch pad, appends the real CAD rocket (cad/kestrel.blend) and the open canopy
 (cad/kestrel_parachute_open.blend), animates them from the simulated trajectory and renders one camera:
   ground  - tracking camera on a tripod 30 m from the pad, zooming to keep the rocket framed
   onboard - the rocket's own camera, in the camera pod, looking down past the fins (lens position from the CAD)

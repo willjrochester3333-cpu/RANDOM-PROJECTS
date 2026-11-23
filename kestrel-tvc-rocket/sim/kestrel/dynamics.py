@@ -138,7 +138,7 @@ class SimConfig:
     servo_trim_err_deg: tuple = (0.0, 0.0)  # residual gimbal trim error after calibration
     servo_failure: str = ""           # "", "stuck_y", "stuck_z", "dead", "hardover_y" (y servo jams at +limit)
     servo_failure_t: float = 0.5      # s after ignition when a hard-over occurs
-    # fin control tabs (4 x MG90S in fin-root pods, pushrod linkage)
+    # fin control tabs (4 x MG90S inside the fins, shaft on the hinge line: direct drive)
     tabs_enabled: bool = True
     tab_rate_dps: float = 600.0       # servo horn slew limit
     tab_tau: float = 0.012
@@ -170,7 +170,7 @@ class SimConfig:
     chute_cd: float | None = None
     deploy_latch_delay: float = 0.15  # servo travel to release the pins
     deploy_sep_time: float = 0.35     # spring separation + line stretch
-    chute_fill_time: float = 0.6
+    chute_fill_time: float = 0.6      # s for a 30 in canopy (scaled with the canopy diameter)
     deploy_failure: bool = False
     body_cd_descent: float = 0.9      # broadside-ish tumbling body under chute
     # logging
@@ -285,6 +285,8 @@ class Simulation:
             cfg.chute_diameter_m = rec["parachute_diameter_in"] * 0.0254
         if cfg.chute_cd is None:
             cfg.chute_cd = rec["parachute_cd"]
+        # chute_fill_time is given for a 30 in canopy; a bigger canopy takes proportionally longer to fill
+        self.chute_fill_eff = cfg.chute_fill_time * cfg.chute_diameter_m / (30 * 0.0254)
         if cfg.linkage_ratio is None:
             cfg.linkage_ratio = self.design["tvc"]["linkage_ratio"]
         if cfg.tab_horn_mm is None:
@@ -392,7 +394,7 @@ class Simulation:
                     separated = True
                     tf = td - c.deploy_sep_time
                     if tf > 0:
-                        chute_area_frac = min(1.0, tf / c.chute_fill_time) ** 2
+                        chute_area_frac = min(1.0, tf / self.chute_fill_eff) ** 2
                         if chute_area_frac >= 1.0 and ev["chute_full_t"] is None:
                             ev["chute_full_t"] = t
             # ------------------------------------------------------------------

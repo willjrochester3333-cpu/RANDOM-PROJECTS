@@ -15,7 +15,7 @@
 | tvc_gimbal_ring | 1 | 40.6 x 39.2 x 8.0 | 2.7 | 3.4 | 2.15 | yes | 1 | yes | 97 / 32 | none | PASS |
 | tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.2 | 27.7 | 1.00 | yes | 1 | yes | 1247 / 91 | under the four servo bars | PASS |
 | tvc_motor_retainer | 1 | 34.4 x 34.4 x 13.0 | 4.3 | 5.3 | 1.50 | yes | 1 | yes | 28 / 14 | none | PASS |
-| fin_can | 1 | 122.7 x 122.7 x 155.0 | 216.3 | 181.2 | 1.00 | yes | 1 | yes | 3465 / 444 | none (printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins) | PASS |
+| fin_can | 1 | 122.7 x 122.7 x 155.0 | 214.5 | 181.1 | 1.00 | yes | 1 | yes | 3465 / 444 | none (printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins) | PASS |
 | fin_control_tab | 4 | 21.7 x 14.4 x 25.5 | 4.6 | 13.9 | 2.70 | yes | 1 | yes | 63 / 45 | none | PASS |
 | upper_launch_lug | 1 | 9.5 x 10.3 x 25.0 | 1.3 | 1.6 | 1.34 | yes | 1 | yes | 0 / 0 | none | PASS |
 | camera_pod | 1 | 36.8 x 26.0 x 51.1 | 9.3 | 11.6 | 0.82 | yes | 1 | yes | 571 / 490 | none (camera-pocket roof bridges 23.6 mm between its side walls) | PASS |

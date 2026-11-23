@@ -82,7 +82,7 @@
     "nozzle_protrusion": 4
   },
   "recovery": {
-    "parachute_diameter_in": 30,
+    "parachute_diameter_in": 36,
     "parachute_cd": 0.8,
     "shock_cord": "2 m Kevlar 1.6 mm + elastic + swivel",
     "deploy": "nose cone pushed off by a compression spring when the single snap-in latch bolt is pulled by a servo at the top",
@@ -94,7 +94,7 @@
       "packed_length": 85
     },
     "release_servo": "MG90S",
-    "note": "30 in thin ripstop chute (24 in gave 6.7 m/s landings at the KESTREL-2 mass); packs to ~33 x 115 mm"
+    "note": "36 in Estes rip-stop (302249). A 30 in gave 5.8 m/s mean and up to 7.1 m/s landings at the thick-fin mass (24 in gave 6.7 m/s at the old mass). Packs to ~44 x 90 mm (1.44 x the 30 in pack by canopy area)"
   },
   "launch": {
     "rod_length_m": 1.0,
@@ -207,11 +207,12 @@
       ]
     },
     {
-      "name": "parachute_30in_nylon",
-      "mass_g": 24.0,
+      "name": "parachute_36in_nylon",
+      "mass_g": 35.0,
       "cad_ref": [
         "parachute_packed"
-      ]
+      ],
+      "note": "Estes 302249; 24 g (30 in) x canopy-area ratio 1.44"
     },
     {
       "name": "kevlar_cord_elastic_swivel",
@@ -252,7 +253,7 @@
       "name": "nose_ballast_M3_nuts_epoxy",
       "mass_g": 33.0,
       "cad_ref": "nose_ballast_M3_nuts",
-      "note": "about 90 M3 nuts (0.33 g each) + 3 g epoxy in the nose tip; restores the +0.7 calibre margin lost to the 15 mm fins. The balance test (BUILD_GUIDE) sets the real amount"
+      "note": "about 90 M3 nuts (0.33 g each) + 3 g epoxy in the nose tip; with the 36 in chute it gives +0.83..+0.96 cal (the 15 mm fins alone had left +0.39). The balance test (BUILD_GUIDE) sets the real amount"
     },
     {
       "name": "glue_tape_paint_allowance",

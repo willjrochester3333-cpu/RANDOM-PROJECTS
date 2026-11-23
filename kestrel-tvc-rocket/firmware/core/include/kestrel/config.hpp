@@ -68,7 +68,7 @@ struct FlightLogicConfig {
     float launch_hold_s{0.030f};
     float burnout_accel_g{0.25f};        // specific force below this after min burn => coast
     float min_burn_s{0.4f};
-    float apogee_min_alt_m{15.0f};
+    float apogee_min_alt_m{8.0f};        // was 15: the heavier thick-fin rocket can peak at ~14 m on a weak D20
     int apogee_confirm_samples{3};       // consecutive baro updates with vz < 0
     float deploy_lockout_after_burnout_s{0.6f};
     float deploy_backup_margin_s{3.0f};  // deploy anyway at nominal apogee time + this

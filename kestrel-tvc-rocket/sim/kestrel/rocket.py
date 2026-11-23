@@ -304,8 +304,8 @@ class Rocket:
         S_fins = 2.0 * self.fin_n * S_fin_planform + S_legs
         return S_nose, S_body, S_fins, S_fin_planform
 
-    def cd0(self, v: float, motor_on: bool, rho: float = 1.225, mu: float = 1.81e-5, sos: float = 340.3,
-            cd_scale: float = 1.0) -> float:
+    def cd0_terms(self, v: float, motor_on: bool, rho: float = 1.225, mu: float = 1.81e-5, sos: float = 340.3) -> dict:
+        """zero-lift drag build-up, term by term (before the 8 % parasitic allowance)"""
         v = max(abs(v), 1.0)
         mach = v / sos
         L = self.length
@@ -321,15 +321,16 @@ class Rocket:
         cf *= (1.0 - 0.1 * mach ** 2)
         S_nose, S_body, S_fins, S_fp = self.wetted_areas()
         fB = self.length / self.D
-        cd_fric_body = cf * (1.0 + 1.0 / (2.0 * fB)) * (S_nose + S_body) / self.A_ref
+        t = {}
+        t["body skin friction"] = cf * (1.0 + 1.0 / (2.0 * fB)) * (S_nose + S_body) / self.A_ref
         tc = self.fin_t / ((self.fin_cr + self.fin_ct) / 2)
-        cd_fric_fins = cf * (1.0 + 2.0 * tc) * S_fins / self.A_ref
+        t["fin + leg skin friction"] = cf * (1.0 + 2.0 * tc) * S_fins / self.A_ref
         # fin pressure drag: rounded LE + square TE
         fin_frontal = self.fin_n * self.fin_t * self.fin_s
-        cd_fin_le = 0.12 * fin_frontal / self.A_ref            # rounded leading edge
-        cd_fin_te = 0.12 * fin_frontal / self.A_ref * 0.5      # thin blunt trailing edge
+        t["fin leading edges"] = 0.12 * fin_frontal / self.A_ref            # rounded leading edge
+        t["fin trailing edges"] = 0.12 * fin_frontal / self.A_ref * 0.5     # blunt trailing edge (half of it; the tabs taper)
         # nose pressure drag (tangent ogive, subsonic) ~ small
-        cd_nose = 0.02
+        t["nose"] = 0.02
         # base drag: annulus around nozzle; reduced while the motor is burning
         cd_base_coef = 0.12 + 0.13 * mach ** 2
         A_noz = math.pi * (self.motor.diameter / 2) ** 2
@@ -337,31 +338,34 @@ class Rocket:
             base_area = max(self.A_ref - A_noz, 0.0) * 0.5   # exhaust entrainment fills ~half
         else:
             base_area = self.A_ref
-        cd_base = cd_base_coef * base_area / self.A_ref
+        t["base"] = cd_base_coef * base_area / self.A_ref
         # protuberances: external camera pod (size from design.json, faired nose), 2 launch lugs, TVC gimbal gap
         pod = self.design.get("camera_pod", {"width_mm": 24.0, "protrusion_mm": 12.0, "cd": 0.45})
         pod_area = pod["width_mm"] * pod["protrusion_mm"] * 1e-6
-        cd_pod = pod["cd"] * pod_area / self.A_ref
+        t["camera pod"] = pod["cd"] * pod_area / self.A_ref
         lug_area = 2 * (0.0090 ** 2 - 0.0068 ** 2) * math.pi / 4 + 2 * 0.009 * 0.0012
-        cd_lugs = 1.2 * lug_area / self.A_ref
-        cd_gap = 0.01  # TVC gimbal gap / nozzle step
-        # KESTREL-2 control fins: tab-servo pods, linkages (horns, pushrods, hinge beads), blunt feet under the legs
+        t["launch lugs (2)"] = 1.2 * lug_area / self.A_ref
+        t["gimbal gap"] = 0.01  # TVC gimbal gap / nozzle step
+        # KESTREL-2 control fins: tab-servo pods (none since the servos moved into the fins), linkages / hinge gaps,
+        # blunt feet under the legs
         fd = self.design["fins"]
-        cd_ctrl = 0.0
-        if fd.get("pod"):
-            cd_ctrl += fd["pod"]["cd"] * fd["pod"]["frontal_area_mm2"] * 1e-6 * self.fin_n / self.A_ref
-        cd_ctrl += fd.get("tab", {}).get("linkage_cda_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
-        if fd.get("leg"):
-            cd_ctrl += cd_base_coef * fd["leg"].get("foot_base_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
-        cd = (cd_fric_body + cd_fric_fins + cd_fin_le + cd_fin_te + cd_nose + cd_base + cd_pod + cd_lugs + cd_gap + cd_ctrl)
+        t["tab-servo pods"] = (fd["pod"]["cd"] * fd["pod"]["frontal_area_mm2"] * 1e-6 * self.fin_n / self.A_ref
+                               if fd.get("pod") else 0.0)
+        t["tab hinges / linkages"] = fd.get("tab", {}).get("linkage_cda_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
+        t["feet"] = (cd_base_coef * fd["leg"].get("foot_base_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
+                     if fd.get("leg") else 0.0)
+        return t
+
+    def cd0(self, v: float, motor_on: bool, rho: float = 1.225, mu: float = 1.81e-5, sos: float = 340.3,
+            cd_scale: float = 1.0) -> float:
+        cd = sum(self.cd0_terms(v, motor_on, rho, mu, sos).values())
         cd *= 1.08   # parasitic allowance (tape, joints, fin can step)
         return cd * cd_scale
 
     def drag_breakdown(self, v: float, motor_on: bool):
-        """For reports: returns dict of drag contributions at speed v."""
-        parts = {}
-        base = self.cd0(v, motor_on)
-        parts["total"] = base
+        """For reports: every drag term (after the 8 % allowance) and the total."""
+        parts = {k: 1.08 * x for k, x in self.cd0_terms(v, motor_on).items()}
+        parts["total"] = self.cd0(v, motor_on)
         return parts
 
     def pitch_damping_coeff(self, mp: MassProps) -> float:

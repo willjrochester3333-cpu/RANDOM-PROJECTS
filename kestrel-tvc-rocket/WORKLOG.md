@@ -69,3 +69,16 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 - 07:30 Mon: TVC assembly-steps view re-framed and numbered; all docs updated to the final numbers (77 m nominal,
   723 g, margins 0.70-0.85, MC table, what-ifs, hard-over 19-22 m). Next: test frames, final video, second seed.
 
+- 07:40–08:05 Mon: user asked for thicker fins with the tab servos inside them (no separate pods, no metal rods);
+  chose "whole fin ~15 mm thick". CAD: 15 mm fins with half-round LE, servo pocket open at the tip (shaft on the
+  hinge line, direct drive), horn stub epoxied into the printed tab, printed root pin in a slot, lead channel +
+  tip groove; no pods, pushrods or hinge pins. 27 parts PASS, 1326 pairs no overlap, all sweeps clean.
+- 08:10 Mon: build checks: lower servo screw had 4.3 mm of plastic before the tab gap -> blind holes, M2 x 6 mm
+  screws; lead channel 4 -> 5 mm (plug is 8 x 4 mm). Firmware 2.02: settings v5, direct-drive tabs (1:1),
+  new tabtest wording (TE anticlockwise seen from behind). 376k core + 127 logic checks pass, UF2 rebuilt.
+- 08:15 Mon: stability: fin can 181 g (+70 g at the tail) -> margin +0.39 cal. Added 33 g nose ballast (~90 M3
+  nuts + epoxy through a 14 mm fill hole in the nose bulkhead): +0.75/+0.82/+0.88 cal (0/25/50 g payload).
+- 08:35 Mon: Monte Carlo: E20 99.9 %, D20 98 %. Causes: D20 apogees down to 14 m < 15 m arming height (late
+  deploy, 16 m/s landings) and 30 in chute at the new mass (5.8 m/s mean, 2 flights just > 7 m/s).
+  Fixes: apogee arming 15 -> 8 m; 36 in Estes rip-stop chute (fill time modelled 20 % longer); sim/whatif.py and
+  named drag terms added. Scenarios 40/40, landing 4.9 m/s, E20 nominal 55 m. Monte Carlo re-run.

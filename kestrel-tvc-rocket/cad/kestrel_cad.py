@@ -115,9 +115,9 @@ TAB_X0, TAB_X1 = BAY_X0 + 0.3, SVX0 - 0.4      # printed tab, 32.05 .. 55.35
 HORN_HUB_X1 = SVX0 - 0.5                # stock single-arm horn: hub on the spline, arm trimmed to a stub
 HORN_HUB_L, HORN_ARM_T, HORN_ARM_L = 4.0, 2.0, 5.5
 PIN_R = 1.5                             # printed pivot pin at the tab's inner end
-CH_Z0, CH_Z1, CH_W = 39.0, 43.0, 9.0
+CH_Z0, CH_Z1, CH_W = 38.5, 43.5, 9.0    # servo-lead channel through the fin to the root: the 8 x 4 mm plug is pushed through it
 SCREW_HOLE_D = 4.0                                              # blind pilot holes for the servo's M2 x 6 screws
-LEAD_GROOVE_W, LEAD_GROOVE_D = 4.0, 4.0                         # lead groove in the fin tip (flat 3-wire lead, 3.2 x 1.1 mm)    # servo-lead channel through the fin to the root (wide enough for the plug)
+LEAD_GROOVE_W, LEAD_GROOVE_D = 4.0, 4.0                         # lead groove in the fin tip (flat 3-wire lead, 3.2 x 1.1 mm)
 GROOVE_ANG = list(FIN_ANG)              # the lead enters the tube at the fin root and runs up a groove in the TVC frame
 CAB_Z0, CAB_Z1 = CH_Z0, CH_Z1
 # camera pod, avionics
@@ -1058,8 +1058,9 @@ def purchased(M, tab_delta=0.0, latch_open=False):
     out["fc_connectors_buzzer_switch"] = (parts_fc, M["servo"])
     out["lipo_overlander_350_2s"] = (box(BATT["w"], BATT["t"], BATT["l"], 0, BATT["y0"] + BATT["t"] / 2 + 0.5, BATT["z0"] + BATT["l"] / 2), M["lipo"])
     out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, GPS_X, GPS_Y, GPS_SHELF_Z + 2.05), M["antenna"])
-    out["parachute_packed"] = (cyl(16.5, 112.0, Z_PISTON + 3.5, 7.0, -1.0, segs=48), M["nylon"])
-    out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 116.5, 7.0, -1.0, segs=32), M["cord"])
+    # 36 in chute rolled to ~44 x 90 mm on the piston (1.44 x the volume of the 30 in pack), cord coiled on top
+    out["parachute_packed"] = (cyl(22.0, 90.0, Z_PISTON + 3.5, 0.0, 0.0, segs=48), M["nylon"])
+    out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 94.5, 7.0, -1.0, segs=32), M["cord"])
     cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)
     out["camera_SQ12_class"] = (cam, M["camera"])
     out["payload_example_25g"] = (bx(-8.0, 16.0, -12.0, 12.0, Z_FLOOR + 0.2, Z_FLOOR + 30.0), M["payload"])
