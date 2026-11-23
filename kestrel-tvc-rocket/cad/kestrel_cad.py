@@ -118,7 +118,9 @@ POD_Y1 = PSV_Y0 + SV["W"] + 1.2         # 15.8 pod outer wall
 POD_X1 = PSV_X0 + 21.5                  # 52.5 top of the pod walls
 POD_Z0, POD_Z1, POD_ZN = PSV_Z0 - 6.2, PSV_Z0 + SV["L"] + 8.1, PSV_Z0 + SV["L"] + 33.0
 GROOVE_ANG = [a + math.degrees(math.atan2(PSV_YC, CAN_RO)) for a in FIN_ANG]   # tab-servo lead entry / frame groove
-CAB_Z0, CAB_Z1 = PSV_Z0 + 2.0, PSV_Z0 + 9.0
+# tab-servo lead slot through the pod floor, the fin-can wall and the tube: as long as the servo, so the plug
+# (about 7.6 x 2.6 mm) passes whichever end of the servo case the lead leaves from
+CAB_Z0, CAB_Z1 = PSV_Z0 + 2.0, PSV_Z0 + SV["L"] - 2.0
 # camera pod, avionics
 CAM_Z0 = 200.0
 CAM_POCKET = 23.6

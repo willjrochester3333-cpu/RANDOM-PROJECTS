@@ -24,6 +24,8 @@ CASES = [
     ("wind6_gusty", "E20, 6 m/s wind, 1.5 m/s gusts", dict(wind_speed=6.0, gust_sigma=1.5), {}, "normal"),
     ("wind9_limit", "E20, 9 m/s wind (UKRA/NAR wind limit)", dict(wind_speed=9.0, gust_sigma=2.0), {}, "normal"),
     ("rod_tilt5", "rod tilted 5 deg downwind (rocket holds the rod direction)", dict(rod_tilt_deg=5.0, rod_tilt_az_deg=90.0), {}, "normal"),
+    ("rod_1.5m_wind6", "1.5 m launch rod, 6 m/s wind + 1.5 m/s gusts", dict(rod_length=1.5, wind_speed=6.0, gust_sigma=1.5), {}, "normal"),
+    ("wind6_payload50", "6 m/s wind + gusts with the maximum 50 g payload", dict(wind_speed=6.0, gust_sigma=1.5, payload_g=50.0), {}, "normal"),
     ("misalign_1p5", "1.5 deg thrust misalignment (badly seated motor)", dict(thrust_misalign_deg=1.5), {}, "normal"),
     ("fin_cant2", "2 deg fin cant: strong roll torque the tabs must cancel", dict(fin_cant_deg=2.0), {}, "normal"),
     ("fin_misalign", "fins glued crooked: +1.0 / -0.5 / +0.8 / -0.2 deg", dict(fin_misalign_deg=(1.0, -0.5, 0.8, -0.2)), {}, "normal"),
@@ -54,13 +56,21 @@ CASES = [
     ("tab_hardover", "FAULT: tab 1 jams at full deflection at T+1 s", dict(tab_failure="hardover1", tab_failure_t=1.0), {}, "fault_safe"),
     ("tab_stuck", "FAULT: tab 2 freezes at T+0.5 s", dict(tab_failure="stuck2", tab_failure_t=0.5), {}, "fault_safe"),
     ("tabs_dead", "FAULT: all four tab servos dead from launch", dict(tab_failure="dead", tab_failure_t=0.0), {}, "fault_safe"),
+    ("passive_calm", "FAULT: all 6 steering servos dead (TVC + tabs), calm", dict(servo_failure="dead", tab_failure="dead",
+                                                                               tab_failure_t=0.0, wind_speed=0.0, gust_sigma=0.0), {}, "fault_safe"),
+    ("passive_wind3", "FAULT: all 6 steering servos dead, 3 m/s wind", dict(servo_failure="dead", tab_failure="dead", tab_failure_t=0.0),
+     {}, "fault_safe"),
+    ("passive_empty_bay", "FAULT: all steering dead + empty payload bay (least stable), 3 m/s", dict(
+        servo_failure="dead", tab_failure="dead", tab_failure_t=0.0, payload_g=0.0), {}, "fault_safe"),
     ("baro_dead", "FAULT: barometer dies at T+1 s", dict(baro_fail_after=1.0), {}, "fault_safe"),
+    ("passive_wind6", "FAULT: all steering dead in 6 m/s wind (why first flights need <= 3 m/s)", dict(
+        servo_failure="dead", tab_failure="dead", tab_failure_t=0.0, wind_speed=6.0, gust_sigma=1.5), {}, "fault_info"),
     ("no_chute", "FAULT: parachute fails to deploy (shows why ground tests matter)", dict(deploy_failure=True), {}, "fault_info"),
     ("motor_E12", "TSP E12-0: NOT for KESTREL-2 (too little thrust for its mass)", dict(motor="TSP-E12"), {}, "fault_info"),
 ]
 
 PLOTS = ("nominal_wind3", "wind9_limit", "fin_cant2", "tabs_disabled", "roll_program", "tvc_off_wind3", "servo_hardover",
-         "tab_hardover", "baro_dead", "payload_50g", "unarmed_launch")
+         "tab_hardover", "baro_dead", "payload_50g", "unarmed_launch", "rod_1.5m_wind6", "passive_wind3", "passive_wind6")
 
 
 def run_case(case):

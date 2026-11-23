@@ -121,8 +121,8 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 119.0,
-  "z": 846.6,
+  "mass_g": 118.1,
+  "z": 846.5,
   "length": 0.0,
   "radius": 43.5,
   "source": "CAD"

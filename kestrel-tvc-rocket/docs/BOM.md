@@ -20,7 +20,7 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 |---|---|---|---|---|---|
 | 1 | **KESTREL FC v2 board**, made and assembled by JLCPCB | 2 assembled + 3 bare | upload `pcb/production/` (see [PCB.md](PCB.md#ordering-from-jlcpcb)) | [jlcpcb.com](https://jlcpcb.com) | ≈ £80 |
 | 2 | Raspberry Pi Pico 2 **W with headers** (2 WH) | 1 | Raspberry Pi (UK) | [The Pi Hut](https://thepihut.com/collections/latest-raspberry-pi-products/products/raspberry-pi-pico-2-w) (choose "with headers") | ≈ £7 |
-| 3 | 2S 7.4 V 350 mAh 25C LiPo | 1 | **Overlander OL-3492** (UK) | [overlander.co.uk](https://overlander.co.uk/350mah-7-4v-2s-25c-lipo-battery.html) | ✔ about £7 |
+| 3 | 2S 7.4 V 350 mAh 25C LiPo, **about 40 × 19 × 15 mm** (the tray takes up to 16 mm; one shop lists 25 mm: check) | 1 | **Overlander OL-3492** (UK) | [overlander.co.uk](https://overlander.co.uk/350mah-7-4v-2s-25c-lipo-battery.html) | ✔ about £7 |
 | 4 | JST-PH → JST-XH 2S balance adapter lead | 1 | **Overlander OL-2529** | [overlander.co.uk](https://www.overlander.co.uk/jst-ph-to-jst-xh-balance-conversion-lead-for-130x-beast.html) | ✔ £1.58 |
 | 5 | GPS antenna, passive 15 × 15 mm, U.FL | 1 | **Adafruit 2461** (US, international) | [The Pi Hut](https://www.thepihut.com/product/2461) | ✔ £3.90 |
 | 6 | 2S LiPo balance charger (skip if you have one) | 1 | SkyRC or ISDT USB-powered 2S/3S balance charger | Amazon UK [search](https://www.amazon.co.uk/s?k=SkyRC+lipo+balance+charger+2S) | ≈ £15–28 |
@@ -29,9 +29,9 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 
 | # | Item | Qty | Brand / exact part | Where | Price |
 |---|---|---|---|---|---|
-| 7 | MG90S metal-gear micro servo (**unbranded OK**) | 7 + 3 spare (10-pack) | 2 × TVC, 1 × parachute release, 4 × fin tabs | Amazon UK [search](https://www.amazon.co.uk/s?k=MG90S+metal+gear+servo+10+pack); UK alternatives: [Cool Components](https://coolcomponents.co.uk/products/mg90s-analog-metal-gear-servo) (TowerPro MG90S, ✔ £5.99 each), [Kunkune](https://kunkune.co.uk/shop/servo-motors-and-shields/servo-motor-mg90-metal-gear/) (✔ £2.39 each at 10+) | ≈ £20–25 |
-| 8 | Servo extension lead, 300 mm | 1 | for the parachute-release servo (its plug sits at the middle/bottom joint) | Amazon UK [search](https://www.amazon.co.uk/s?k=servo+extension+lead+300mm+JR) | ≈ £3 |
-| 9 | Servo extension lead, 150 mm (optional slack for the 4 tab servos) | 4 | the MG90S lead (≈ 250 mm) just reaches the board; extensions make it easier | [The Pi Hut](https://thepihut.com/products/servo-extension-cable-150mm) | ≈ £6 |
+| 7 | MG90S metal-gear micro servo (**unbranded OK**), lead ≥ 200 mm | 7 + 3 spare (10-pack) | 2 × TVC, 1 × parachute release, 4 × fin tabs | Amazon UK [search](https://www.amazon.co.uk/s?k=MG90S+metal+gear+servo+10+pack); UK alternatives: [Cool Components](https://coolcomponents.co.uk/products/mg90s-analog-metal-gear-servo) (TowerPro MG90S, ✔ £5.99 each), [Kunkune](https://kunkune.co.uk/shop/servo-motors-and-shields/servo-motor-mg90-metal-gear/) (✔ £2.39 each at 10+) | ≈ £20–25 |
+| 8 | Servo extension lead, 300 mm | 1 | for the parachute-release servo: port 3 → up through the payload-bay floor; the plug joint sits in the payload bay | Amazon UK [search](https://www.amazon.co.uk/s?k=servo+extension+lead+300mm+JR) | ≈ £3 |
+| 9 | Servo extension lead, 150 mm | 4 | for the 4 tab servos: their own ≈ 250 mm leads only just reach the board; the extensions give the slack to lift the av-bay out for charging and USB | [The Pi Hut](https://thepihut.com/products/servo-extension-cable-150mm) | ≈ £6 |
 | 10 | Music (piano) wire **1.2 mm** (0.047 in) and **0.6 mm** (0.025 in) | 1 length each | **K&S Precision Metals** or **Albion Alloys** | Amazon UK [search](https://www.amazon.co.uk/s?k=K%26S+music+wire) or any model shop | ≈ £6 |
 
 1.2 mm wire: 2 TVC pushrods, 4 tab pushrods, 4 tab hinge pins (27 mm each). 0.6 mm wire: the springy latch link.
@@ -99,7 +99,7 @@ mass) and the 29 mm F35 (does not fit the 24 mm gimbal).
 | 4. Airframe, recovery, consumables | ≈ 116 |
 | 5. Launch pad (without controller) | ≈ 24 |
 | **Total** | **≈ £297** |
-| without the optional 150 mm extensions, one primer can, a cheaper 30 in chute | ≈ £280 |
+| with one primer can and a cheaper 30 in chute | ≈ £285 |
 | plus charger / launch controller if you have neither | + £35–48 |
 
 This is about **£10–30 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:

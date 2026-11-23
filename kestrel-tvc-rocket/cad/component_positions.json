@@ -1,6 +1,6 @@
 {
  "BT70_bottom_tube_340": {
-  "z_from_tip": 729.7,
+  "z_from_tip": 729.2,
   "length": 340.0,
   "radius": 28.2
  },
@@ -150,7 +150,7 @@
   "radius": 17.9
  },
  "fc_connectors_buzzer_switch": {
-  "z_from_tip": 620.7,
+  "z_from_tip": 628.1,
   "length": 80.0,
   "radius": 21.2
  },
@@ -197,28 +197,28 @@
   "path_length_mm": 132.0
  },
  "lead_tab1": {
-  "z_from_tip": 755.8,
-  "length": 206.4,
+  "z_from_tip": 752.9,
+  "length": 200.5,
+  "radius": 30.8,
+  "path_length_mm": 212.0
+ },
+ "lead_tab2": {
+  "z_from_tip": 750.8,
+  "length": 200.5,
   "radius": 30.8,
   "path_length_mm": 218.0
  },
- "lead_tab2": {
-  "z_from_tip": 753.7,
-  "length": 206.4,
-  "radius": 30.8,
-  "path_length_mm": 224.0
- },
  "lead_tab3": {
-  "z_from_tip": 752.8,
-  "length": 206.4,
+  "z_from_tip": 749.9,
+  "length": 200.5,
   "radius": 30.8,
-  "path_length_mm": 225.0
+  "path_length_mm": 219.0
  },
  "lead_tab4": {
-  "z_from_tip": 752.0,
-  "length": 206.4,
+  "z_from_tip": 749.1,
+  "length": 200.5,
   "radius": 30.8,
-  "path_length_mm": 226.0
+  "path_length_mm": 220.0
  },
  "lead_release": {
   "z_from_tip": 379.3,

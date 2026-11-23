@@ -24,18 +24,34 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 
 ## Plan / status
 
-- [ ] 1. design.json: new layout (3 parts, 4 fins + legs + tabs, payload, release latch at top, Overlander 350 mAh, spring)
-- [ ] 2. Simulator: 4 fins with control tabs (aero + servo model), new mass model
-- [ ] 3. Flight core: fin-tab controller (roll in all phases, pitch/yaw in boost+coast), log format, SIL bridge, unit tests
-- [ ] 4. Tune + scenarios (incl. tab faults) + big Monte Carlo + graphs
-- [ ] 5. PCB v2: 7 servo outputs (GP2, GP13, GP15 freed), DRC, fab files, mech export
-- [ ] 6. Pico firmware: 7 servos, tab mixing, bench tests, rebuild UF2, host tests
-- [ ] 7. CAD: bottom part (fin can, 4 fins/legs, tab pods/servos/tabs, TVC, sled, camera, lugs), mid coupler, middle part (payload bay + door + lock, wall, spring/piston, parachute, top latch ring + release servo), nose cone, pad; checks
-- [ ] 8. Separate TVC module .blend (2 wires out the top); parachute-open .blend; renders
-- [ ] 9. Video pipeline (EEVEE) + render
-- [ ] 10. Shopping list with real prices/links
-- [ ] 11. Docs update; commit/push
-- [ ] 12. Test-and-adjust loop until the deadline
+- [x] 1. design.json: new layout (3 parts, 4 fins + legs + tabs, payload, release latch at top, Overlander 350 mAh, spring)
+- [x] 2. Simulator: 4 fins with control tabs (aero + servo model), new mass model
+- [x] 3. Flight core: fin-tab controller (roll in all phases, pitch/yaw in boost+coast), log format, SIL bridge, unit tests
+- [x] 4. Tune + scenarios (incl. tab faults) + big Monte Carlo + graphs
+- [x] 5. PCB v2: 7 servo outputs (GP2, GP13, GP15 freed), DRC, fab files, mech export
+- [x] 6. Pico firmware: 7 servos, tab mixing, bench tests, rebuild UF2, host tests
+- [x] 7. CAD: bottom part, coupler, middle part (payload bay + door + lock, wall, spring/piston, parachute, top latch + release servo), nose cone, pad; checks
+- [x] 8. Separate TVC module .blend (2 wires out the top); parachute-open .blend
+- [ ] 9. Video render (final, rated motor model) — running
+- [x] 10. Shopping list with real prices/links
+- [x] 11. Docs rewritten for KESTREL-2 (README, build guide, test plan, checklist, safety, simulation report, PCB, firmware, BOM)
+- [ ] 12. Test-and-adjust loop until the deadline (final renders, final regression run)
+
+## Known gaps against the agreed requirements (report them)
+
+- R14 apogee: ~123 m was my estimate at ~650 g on the 40 Ns curve. Finished rocket 721 g, E20 rated 36 Ns: 78 m
+  nominal (MC mean 83 m); 94.6 m on the curve basis. Mass is the lever (10 g ≈ 2.5 m); pods only cost ~2 m.
+  TSP F35 (29 mm) would give ~226 m but needs a 29 mm TVC module -> user's decision.
+- R15 budget: ≈ £297 vs ~£270 (4 more servos, 30 in chute, spring pack of 10).
 
 ## Log
 - 19:45 GMT Sun: requirements fixed (motor E20). Starting step 1.
+- Sun evening–night: steps 1–8 and 10 done (see git log); first Monte Carlo 1000/1000.
+- 00:51 Mon: Monte Carlo re-run on the rated-impulse motor basis: 1000/1000, E20 mean 83 m.
+- 01:05 Mon: build-guide walk-through found and fixed: tab-servo lead slots too small for a plug (now 4 x 19 mm),
+  only 4 of 7 servo headers in the CAD export, release lead routing, R24 GPS bias resistor (now not fitted),
+  stale tube note (BT-70 is 19.5 in).
+- 01:10 Mon: final video render started (seed 7).
+- 01:25 Mon: 6 new scenarios (1.5 m rod, 50 g in 6 m/s, all-steering-dead calm/3 m/s/empty bay/6 m/s):
+  40/40 graded pass; passive flight unsafe in 6 m/s -> first-flight wind limit 3 m/s, 1.5 m rod above 3 m/s.
+  RocketPy re-validation for KESTREL-2: all within 0.3 %.

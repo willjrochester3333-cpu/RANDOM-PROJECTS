@@ -16,7 +16,7 @@ import circuit as C
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OX = OY = 100.0
-KEY = ["SW1", "D4", "D5", "BZ1", "J1", "J2", "J3", "J4", "J5", "J7", "J8", "J10", "J11", "U4", "U5", "U7", "SW2", "SW3"]
+KEY = ["SW1", "D4", "D5", "BZ1", "J1", "J2", "J3", "J4", "J5", "J12", "J13", "J14", "J7", "J8", "J10", "J11", "U4", "U5", "U7", "SW2", "SW3"]
 
 
 def mm(v):

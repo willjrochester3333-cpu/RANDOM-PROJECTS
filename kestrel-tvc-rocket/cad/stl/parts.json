@@ -245,12 +245,12 @@
   "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Fins + legs + 4 servo pods in one piece",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 95191.75031301634,
-  "area_mm2": 91815.77995466466,
+  "volume_mm3": 94468.6802465879,
+  "area_mm2": 91796.08828087967,
   "centroid_assembly_mm": [
-   0.0072677335408315325,
-   0.37721215623180515,
-   52.4435939733164
+   0.007323361295840177,
+   0.38009936519391235,
+   52.48525962967457
   ],
   "r_gyr_mm": 43.47784498292514,
   "z_len_mm": 155.0
