@@ -1,7 +1,8 @@
 # KESTREL-2: a thrust-vector-controlled model rocket with four steerable fins
 
 A reusable, 3D-printed, ~0.9 m model rocket that **steers its motor** (two-axis thrust vector control) and its
-**four fin tabs** (roll, pitch and yaw; each tab's servo sits inside its 15 mm thick fin and turns it directly),
+**four fin tabs** (roll, pitch and yaw; each tab's servo sits inside the thick bottom band of its fin and turns it
+directly),
 **stands up on its own four fins**, releases its parachute **at apogee**
 with a servo latch under the nose cone (no pyrotechnics), carries a **payload of up to 50 g** behind a lockable
 door, films the flight with a downward-looking camera, and logs IMU, barometer and GPS data on a **custom
@@ -22,20 +23,20 @@ build cost **≈ £312** (motors extra).
 <img src="cad/renders/avbay_cutaway.png" width="24%" alt="avionics bay section">
 </p>
 
-**Simulated launch videos** (ground camera, onboard camera, live telemetry and graphs; every seed is a different
-flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (4.9 m/s wind, 20 g payload) and
-[`kestrel2_flight_seed16.mp4`](sim/results/video/kestrel2_flight_seed16.mp4) (almost calm, 26 g payload)
+**Simulated launch video** (ground camera, onboard camera, live telemetry bottom left, graphs below; every seed is a
+different flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.mp4) (4.9 m/s wind, 20 g
+payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
 
 | | |
 |---|---|
 | Parts | **3**: bottom (fin can + TVC module + camera + flight computer + battery), middle (payload bay with door · wall · parachute bay · release latch at the top), nose cone |
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
-| Lift-off mass | 835 g with a TSP E20 and 25 g of payload (771 g without motor) |
+| Lift-off mass | 825 g with a TSP E20 and 25 g of payload (761 g without motor) |
 | Motors | 24 mm TSP **E20-0** (mission), TSP D20-0 (first hops) |
 | Apogee (simulated, E20) | **55 m** nominal with 25 g of payload; Monte Carlo mean 60 m, 90 % of flights 45–76 m |
-| Stability | +0.83 to +0.96 calibres at lift-off (empty to full payload bay, with 33 g of nose ballast): still stable if all steering fails |
+| Stability | +0.84 to +0.97 calibres at lift-off (empty to full payload bay, with 33 g of nose ballast): still stable if all steering fails |
 | TVC | 2-axis gimbal, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
-| Fins | 4 × 15 mm thick, half-round leading edge; each holds its tab servo in a pocket open at the tip, a lead channel and a leg/foot |
+| Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick, joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band, tabs and legs taper to thin trailing edges below the tail |
 | Fin tabs | 4 trailing-edge tabs, ±15°, each turned directly by an MG90S inside its fin (servo shaft = hinge line: no pods, pushrods or hinge pins); hold roll in boost and coast, share pitch/yaw with the TVC in the burn, steer alone in the coast |
 | Recovery | 36 in parachute, spring ejection, servo-released snap-in latch, 4.9 m/s landing |
 | Payload | 130 mm bay, 32 × 50 mm hinged door with a quarter-turn lock, 4 × M3 mounting holes, up to 50 g |
@@ -58,19 +59,19 @@ flight): [`kestrel2_flight_seed7.mp4`](sim/results/video/kestrel2_flight_seed7.m
   (linkage ratios, tab geometry, IMU position, camera-pod size) is checked against the CAD.
 - **PCB**: schematic checked pin-for-pin against the circuit source, DRC 0 violations, all 65 nets routed, gerbers
   re-read by an independent viewer. → [docs/PCB.md](docs/PCB.md)
-- **Firmware** (v2.02): 376,052 flight-core checks, 127 firmware-logic checks, a 0-warning cross-compile and a
+- **Firmware** (v2.02): 376,034 flight-core checks, 127 firmware-logic checks, a 0-warning cross-compile and a
   ready-to-flash UF2. → [docs/FIRMWARE.md](docs/FIRMWARE.md)
 
 Two honest gaps against what we agreed:
 
-- **Apogee**: I estimated ~123 m on the E20 when we chose the motor. The finished rocket is heavier (835 g, not
-  ~650 g), and the E20 is rated at 36 Ns, not the 40 Ns of its test curve, so it reaches 55 m (about 68 m if the
-  motors match their curve). The 15 mm fins with the servos inside account for about 22 m of the drop (the 2 mm
-  fin version reached 77 m): they put 70 g at the tail, which needed 33 g of nose ballast to keep the rocket
-  stable, and the extra weight needed a 36 in parachute for gentle landings. The details, with what-if numbers,
-  are in the simulation report, section 3.
+- **Apogee**: I estimated ~123 m on the E20 when we chose the motor. The finished rocket is heavier (825 g, not
+  ~650 g), and the E20 is rated at 36 Ns, not the 40 Ns of its test curve, so it reaches 57 m (about 71 m if the
+  motors match their curve). Putting the tab servos inside the fins accounts for about 20 m of the drop (the 2 mm
+  fin version with servo pods reached 77 m): the 15 mm servo band puts about 50 g more at the tail, which needs
+  33 g of nose ballast to keep the rocket stable, and the extra weight needs a 36 in parachute for gentle
+  landings. The details, with what-if numbers, are in the simulation report, section 3.
 - **Budget**: ≈ £312 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
-  the ejection spring that only comes in a pack of 10, and about £11 of thick-fin extras. → [docs/BOM.md](docs/BOM.md)
+  the ejection spring that only comes in a pack of 10, and about £11 of extras for the servos-in-the-fins design. → [docs/BOM.md](docs/BOM.md)
 
 Real flights then confirm what models cannot; [docs/TEST_PLAN.md](docs/TEST_PLAN.md) takes you from the bench to
 the first E20 flight in steps.

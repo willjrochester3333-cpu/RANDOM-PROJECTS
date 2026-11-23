@@ -4,7 +4,7 @@ Two layers, one code base:
 
 | Layer | Where | What it does | Tested by |
 |---|---|---|---|
-| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,058 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
+| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,034 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
 | **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 127 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
 
 Ready-to-flash binary: **`firmware/pico/kestrel_fc.uf2`** (hold BOOTSEL, plug in USB, drag the file onto the
@@ -162,7 +162,7 @@ tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo
 
 ## Updating from 2.00 / 2.01
 
-2.02 is for the thick fins with the tab servos inside them: the tabs are driven directly (servo angle = tab
+2.02 is for the fins with the tab servos inside their thick bottom band: the tabs are driven directly (servo angle = tab
 angle), the motor and airframe tables include the heavier fin can, the nose ballast and the 36 in parachute, and
 the apogee detector arms from 8 m instead of 15 m (the heavier rocket can peak at 14 m on a weak D20). 2.01 corrected the
 TVC linkage ratio (0.42 → 0.5). Both changed the settings layout version, so a board that ran an older version

@@ -7,7 +7,7 @@ The rocket comes apart into **three parts**:
 
 | Part | What is in it |
 |---|---|
-| **1. Bottom** | fin can (4 thick fins that are also its legs, each with its tab servo inside it and a control tab at its trailing edge), the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery, GPS antenna) and its coupler |
+| **1. Bottom** | fin can (4 fins that are also its legs: normal 4 mm fins with a 15 mm band along the bottom that holds the tab servo, and a control tab at the trailing edge), the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery, GPS antenna) and its coupler |
 | **2. Middle** | payload bay with a hinged, lockable door · a wall · the parachute bay (spring, piston, parachute, shock cord) · the release latch with its servo at the very top |
 | **3. Nose cone** | printed, with about 33 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
 
@@ -35,9 +35,11 @@ Look down on the rocket from the nose. Angles go **anticlockwise**, exactly as i
 | 270° | **camera side** | camera pod, the other joint screw |
 | 315° | fin 4 | |
 
-Each fin is 15 mm thick. Its tab servo sits **inside the fin, near the tip**, with its output shaft on the tab's
-hinge line; the tab is the part of the fin's trailing edge between the root and the servo, and the servo turns it
-directly (no pods, pushrods or hinge pins). **Up** = towards the nose. All sizes in mm.
+Each fin is a normal **4 mm fin** with a half-round leading edge. Only its **bottom band** (the 45 mm next to the
+tail) is **15 mm thick**: it holds the tab's hinge, the tab servo (in a pocket open at the fin tip, its output shaft on
+the tab's hinge line, so it turns the tab directly: no pods, pushrods or hinge pins) and the servo lead's channel. A
+smooth 15° wedge joins the band to the thin fin, and the band, the tab and the legs taper to thin edges below the
+tail, so nothing blunt faces the airflow. **Up** = towards the nose. All sizes in mm.
 
 ---
 
@@ -57,7 +59,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | Part | Qty | Settings | Notes |
 |---|---|---|---|
 | **Bottom part** | | | |
-| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | can, 4 fins with their servo pockets, lead channels and legs in one piece; the largest print (123 × 123 × 155 mm). The 1.2 mm fin skins beside each servo pocket are exactly 3 walls: do not print it with fewer |
+| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | can, 4 fins (4 mm, with the 15 mm bottom band holding the servo pockets and lead channels) and legs in one piece; the largest print (123 × 123 × 155 mm). The 1.2 mm skins beside each servo pocket are exactly 3 walls: do not print it with fewer |
 | `fin_control_tab` | 4 | standing on its outer end (horn pocket on the bed), 3 walls, 20 %, no supports | |
 | `tvc_frame` | 1 | upright, 3 walls, 25 %; **supports under the four servo bars** | |
 | `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat); **support under the pushrod tab** | the 25 mm roof of the motor bore is a bridge; the penny washer covers it |
@@ -84,7 +86,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | **Build tools (not flown)** | | | |
 | `tool_drill_guide_bottom_tube`, `tool_drill_guide_middle_tube` | 1 each | 2 walls, 10 % | |
 
-Printed rocket parts ≈ **403 g** (the 15 mm fin can alone is ≈ 181 g). The simulator uses the masses computed from
+Printed rocket parts ≈ **392 g** (the fin can alone is ≈ 165 g). The simulator uses the masses computed from
 these exact STLs with these settings (`cad/mass_properties.py`), so print them as listed.
 
 ## 3. Body tubes
@@ -133,8 +135,8 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
 
 ## 5. Fin can, tab servos and control tabs
 
-Each fin carries its own tab servo inside it (`fin_servo_cutaway.png`): the servo slides into a pocket that is
-open at the fin tip, its output shaft pointing in towards the rocket along the tab's hinge line, and its spline
+Each fin carries its own tab servo inside its 15 mm bottom band (`fin_servo_cutaway.png`): the servo slides into a
+pocket that is open at the fin tip, its output shaft pointing in towards the rocket along the tab's hinge line, and its spline
 goes straight into a servo horn glued inside the tab. The tab turns exactly as far as the servo does.
 
 1. **Horns into the tabs:** take a single-arm horn from each tab servo's bag and cut its arm off **about 7 mm
@@ -150,7 +152,8 @@ goes straight into a servo horn glued inside the tab. The tab turns exactly as f
    mm above the tail.
 3. **Tabs in:** push each tab up into the gap at the trailing edge of its fin, **printed pin first into the slot
    at the fin root**, until its rounded front edge sits in the round top of the gap and the horn's bore lines up
-   with the servo pocket. The pin only stops the tab moving sideways; the servo spline carries it.
+   with the servo pocket. Its thin trailing edge then reaches 12 mm below the tail, level with the tapered edge of
+   the band beside it. The pin only stops the tab moving sideways; the servo spline carries it.
 4. **Tab servos:** centre each servo first (plug it into the board, `center`). Push its plug, then the lead, into
    the **lead channel** in the fin tip (the 9 × 5 mm hole 38.5–43.5 mm above the tail), through the fin and the
    slot in the tube, and pull the lead into the tube. Then slide the servo into its pocket from the fin tip,
@@ -243,7 +246,7 @@ is allowed (the simulator flew the whole 0–50 g range).
 
 ## 9. Recovery
 
-0. **Nose ballast (once):** the 15 mm fins put about 70 g at the tail, so the nose carries **about 33 g of
+0. **Nose ballast (once):** the thick servo bands put about 50 g more at the tail, so the nose carries **about 33 g of
    ballast**: roughly 90 M3 nuts (0.33 g each, a 100-pack) and 3 ml of epoxy. Hold the nose cone tip-down and
    pour the nuts in through the 14 mm hole at the top of its conical bulkhead (beside the cord bar); they settle
    into the tip. Tape over the hole for now and do the balance check (section 12) **with the payload bay empty**,
@@ -303,7 +306,7 @@ is allowed (the simulator flew the whole 0–50 g range).
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
 **the balance point must be no further than 640 mm from the nose tip** (design with an E20 and the 33 g of nose
-ballast: 627 mm with 25 g of payload, 631 mm with an empty bay, 624 mm with 50 g; stability margin +0.83 to +0.96
+ballast: 627 mm with 25 g of payload, 630 mm with an empty bay, 623 mm with 50 g; stability margin +0.84 to +0.97
 calibres at lift-off, more at burn-out, so it flies straight even if the TVC and tabs do nothing). If it is further
 back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of epoxy (section 9,
-step 0). A fin can that prints heavier than the estimated 181 g needs more ballast; a lighter one needs less.
+step 0). A fin can that prints heavier than the estimated 165 g needs more ballast; a lighter one needs less.

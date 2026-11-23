@@ -7,7 +7,7 @@ parachute within ±0.1 s of apogee and landed at about 4.9 m/s in **1000 of 1000
 **40 of 40 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within 0.3 %.
 
 The apogee is well below the ~123 m I estimated when we chose the motor. Section 3 explains why, with numbers;
-the 15 mm fins with the tab servos inside them are about 22 m of it.
+putting the tab servos inside the fins is about 20 m of it.
 
 ## 1. How the rocket is simulated
 
@@ -46,43 +46,45 @@ section 3 and by real flights.
 When we chose the motor I estimated about 123 m on the E20 for a rocket of about 650 g with 50 g of payload, using
 the E20's published thrust curve (40 Ns). Three things differ in the finished design:
 
-1. **Mass.** The finished rocket weighs **835 g** at lift-off with 25 g of payload (860 g with 50 g). Seven servos
-   are 99 g; the one-piece fin can with its four **15 mm thick fins**, servo pockets and legs is 181 g; the nose
-   carries 33 g of ballast; the 36 in parachute is 35 g; the latch insert and coupler are 56 g.
-   The thick fins (chosen so that each tab servo sits inside its fin, with no pods, pushrods or hinge pins) cost
-   about 22 m, together with what they brought with them: the same rocket with 2 mm fins and servo pods reached
-   77.5 m. Most of that is mass, not drag: the
-   fin can grew by about 70 g, all of it at the tail, which moved the balance point 20 mm aft (margin +0.39
-   calibres). The 33 g of nose ballast and the bigger parachute (which sits far forward) put it back to +0.83 …
-   +0.96 calibres, a little more than before.
+1. **Mass.** The finished rocket weighs **825 g** at lift-off with 25 g of payload (850 g with 50 g). Seven servos
+   are 99 g; the one-piece fin can is 165 g (normal 4 mm fins, but with the 15 mm bottom band that holds the tab
+   servos); the nose carries 33 g of ballast; the 36 in parachute is 35 g; the latch insert and coupler are 56 g.
+   Putting the tab servos inside the fins cost about 20 m of apogee compared with the old 2 mm fins with servo pods
+   (77.5 m): the band puts about 50 g more at the tail, which needs the 33 g of nose ballast to keep the balance
+   point where it was (+0.84 … +0.97 calibres), and the extra weight needs the 36 in parachute for gentle landings.
 2. **Rated impulse.** The UK approved-motor list rates the E20 at **36 Ns**; the published test curve integrates to
    40 Ns. The simulator uses the rated value. If your motors match the curve, add about 13 m.
-3. **Drag.** The thick fins add leading- and trailing-edge drag in place of the pods and linkages they replaced,
-   but at these speeds (25 m/s at most) drag hardly matters: 20 % less drag adds less than 1 m.
+3. **Drag.** The fins are thin where they meet the air first, the band is faired in with a gentle wedge and every
+   trailing edge tapers to 1.5 mm, so the fins add little drag; at these speeds (25 m/s at most) drag hardly matters
+   anyway: 20 % less drag adds less than 1 m.
 
-Drag build-up at 40 m/s, coasting (`Cd0` = 0.94, every term including the 8 % allowance; `sim/whatif.py` →
+Drag build-up at 40 m/s, coasting (`Cd0` = 0.85, every term including the 8 % allowance; `sim/whatif.py` →
 `sim/results/whatif.md`):
 
 | Term | Cd | | Term | Cd |
 |---|---|---|---|---|
-| body skin friction | 0.282 | | camera pod | 0.076 |
-| fin leading edges (15 mm, rounded) | 0.156 | | launch lugs (2) | 0.040 |
-| base drag | 0.132 | | feet | 0.038 |
-| fin + leg skin friction | 0.088 | | nose | 0.022 |
-| fin trailing edges | 0.078 | | tab hinges, gimbal gap | 0.028 |
+| body skin friction | 0.282 | | fin leading edges (4 mm, rounded) | 0.042 |
+| base drag | 0.132 | | launch lugs (2) | 0.040 |
+| fin + leg skin friction | 0.080 | | nose | 0.022 |
+| camera pod | 0.076 | | feet (tapered legs) | 0.017 |
+| fin trailing edges (1.5 mm, tapered) | 0.075 | | tab hinge gaps | 0.017 |
+| wedge fairing the 15 mm band into the fin | 0.057 | | gimbal gap | 0.011 |
+
+The fin terms are conservative engineering estimates (a rounded leading edge or a gentle wedge in attached flow has
+very little pressure drag); they are spread over ±8 % in the Monte Carlo and ±20 % in the scenarios.
 
 What-if flights (passive, calm, same simulator, `sim/whatif.py`):
 
 | Change | E20 apogee |
 |---|---|
-| **as designed** (rated 36 Ns, 25 g payload, 36 in chute) | **55.5 m** |
-| empty payload bay / maximum 50 g payload | 59.7 m / 51.6 m |
-| E20 delivering its published curve (40 Ns) | 68.2 m |
-| without the nose ballast (but then only +0.46 calibres: not recommended) | 61.1 m |
-| 50 g lighter / 100 g lighter | 64.2 m / 74.5 m |
-| 20 % less drag | 56.2 m |
-| the previous design: 2 mm fins, tab servos in pods (earlier version of this report) | 77.5 m |
-| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 182 m |
+| **as designed** (rated 36 Ns, 25 g payload, 36 in chute) | **57.5 m** |
+| empty payload bay / maximum 50 g payload | 61.9 m / 53.4 m |
+| E20 delivering its published curve (40 Ns) | 70.7 m |
+| without the nose ballast (but then only +0.47 calibres: not recommended) | 63.4 m |
+| 50 g lighter / 100 g lighter | 66.7 m / 77.5 m |
+| 20 % less drag | 58.2 m |
+| the previous whole-fin 15 mm design (earlier today) / the 2 mm fins with servo pods (earlier version) | 55.5 m / 77.5 m |
+| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 190 m |
 
 So each 10 g saved is worth about 2 m, and drag is almost irrelevant at these speeds. Reaching ~123 m on an E20
 would need the rocket to lose roughly 300 g, which it cannot do with every agreed feature on board. The motor that
@@ -99,31 +101,31 @@ Fault cases must end with a parachute and a landing below 7 m/s; the jammed-TVC 
 
 | Case | Apogee | Tilt burn / coast | Roll rate burn | Deploy − apogee | Landing | Result |
 |---|---|---|---|---|---|---|
-| E20, calm | 55 m | 0.3° / 0.1° | 1 °/s | +0.04 s | 4.9 m/s | PASS |
-| E20, 3 m/s + gusts (baseline) | 55 m | 0.3° / 2.0° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| E20, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 55 / 55 m | 0.3° / 5.2° | 2 °/s | +0.05 / +0.05 s | 4.9 m/s | PASS |
-| E20, 9 m/s + 2 m/s gusts (wind limit) | 55 m | 0.8° / 20.7° | 1 °/s | +0.04 s | 4.9 m/s | PASS |
-| payload 0 g / 50 g / 50 g in 6 m/s wind | 60 / 51 / 51 m | ≤ 0.4° | ≤ 3 °/s | ≤ +0.05 s | 4.8–5.0 m/s | PASS |
-| rod tilted 5° downwind | 54 m | 5.0° / 5.0° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| 1.5° thrust misalignment | 55 m | 1.0° / 2.2° | 3 °/s | +0.04 s | 4.9 m/s | PASS |
-| 2° fin cant (strong roll torque) / crooked fins | 55 / 55 m | 0.3° / 0.4° | 10 / 3 °/s | +0.04 s | 4.9 m/s | PASS |
-| CG 20 mm aft / 15 % heavier / 20 % more drag | 55 / 40 / 55 m | ≤ 0.3° | ≤ 2 °/s | ≤ +0.05 s | 4.9–5.2 m/s | PASS |
-| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 55 m | ≤ 0.9° | 2–6 °/s | +0.04 s | 4.9 m/s | PASS |
-| tabs 40 % less / more effective | 55 m | 0.4° / 0.3° | 4 / 5 °/s | +0.04 s | 4.9 m/s | PASS |
-| slow servos, IMU 2° crooked, gyro drift 10× | 55 m | ≤ 0.5° | ≤ 3 °/s | +0.04 s | 4.9 m/s | PASS |
-| camera panorama roll (90 °/s in the coast) | 55 m | 0.3° / 1.5° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
-| tabs switched off (TVC only, like KESTREL-1) | 55 m | 0.3° / 22.4° | **72 °/s** | +0.05 s | 4.9 m/s | PASS (rolls fast) |
-| TSP D20 / E20 performing like its curve (40 Ns) | 20 / 68 m | 0.4° | 1–3 °/s | +0.05 s | 4.9 m/s | PASS |
-| **FAULT** launched 1 s after switch-on | 54 m | 21° / 29° | 73 °/s | +0.04 s | 4.9 m/s | PASS (steering stays centred) |
-| **FAULT** TVC servos dead, calm / 3 m/s | 55 / 55 m | 3.6° / 4.2° | 2 / 4 °/s | +0.04 s | 4.9 m/s | PASS (tabs steer) |
-| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 16 m | loops | 17 °/s | −0.96 s (abort) | 4.9 m/s | PASS: abort, parachute out, lands 19 m from the pad (19–22 m over 6 wind seeds) |
-| **FAULT** tab 1 jams at full deflection at T+1 s | 55 m | 0.6° / 38° | 24 °/s | +0.04 s | 4.9 m/s | PASS (give-up rule, chute at apogee) |
-| **FAULT** tab 2 freezes / all four tab servos dead | 55 / 55 m | 0.4° / 0.4° | 2 / 72 °/s | +0.04 / +0.05 s | 4.9 m/s | PASS |
-| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 54 / 54 / 58 m | 17° / 23° / 22° | 71–80 °/s | +0.04 s | 4.8–4.9 m/s | PASS (passively stable) |
-| **FAULT** barometer dies at T+1 s | 55 m | 0.3° / 0.4° | 3 °/s | +1.26 s | 4.9 m/s | PASS (inertial apogee) |
-| **FAULT** all steering dead in 6 m/s wind | 46 m | 27° / 170° | 72 °/s | +0.03 s | 4.9 m/s | INFO: turns right over; why flights 1–3 need ≤ 3 m/s |
-| **FAULT** parachute never opens | 55 m |  |  |  | **31 m/s** | INFO: why ground ejection tests matter |
-| TSP E12-0 | 46 m | 0.2° | 2 °/s | +0.06 s | 4.9 m/s | INFO: leaves the rod at only 5.2 m/s, not recommended |
+| E20, calm | 57 m | 0.3° / 0.1° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
+| E20, 3 m/s + gusts (baseline) | 57 m | 0.3° / 1.9° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
+| E20, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 57 / 57 m | 0.4° / 5.2° | 2 °/s | +0.05 / +0.05 s | 4.8 m/s | PASS |
+| E20, 9 m/s + 2 m/s gusts (wind limit) | 57 m | 0.8° / 14.6° | 1 °/s | +0.05 s | 4.6 m/s | PASS |
+| payload 0 g / 50 g / 50 g in 6 m/s wind | 62 / 53 / 53 m | ≤ 0.4° | ≤ 3 °/s | ≤ +0.05 s | 4.8–5.0 m/s | PASS |
+| rod tilted 5° downwind | 57 m | 5.0° / 5.0° | 3 °/s | +0.04 s | 4.8 m/s | PASS |
+| 1.5° thrust misalignment | 57 m | 1.0° / 2.1° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
+| 2° fin cant (strong roll torque) / crooked fins | 57 / 57 m | 0.3° / 0.3° | 10 / 4 °/s | +0.04 s | 4.9 m/s | PASS |
+| CG 20 mm aft / 15 % heavier / 20 % more drag | 57 / 41 / 57 m | ≤ 0.3° | ≤ 2 °/s | ≤ +0.05 s | 4.8–5.2 m/s | PASS |
+| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 57 m | ≤ 0.9° | 2–6 °/s | +0.04 s | 4.9 m/s | PASS |
+| tabs 40 % less / more effective | 57 m | 0.4° / 0.3° | 3 / 3 °/s | +0.04 s | 4.9 m/s | PASS |
+| slow servos, IMU 2° crooked, gyro drift 10× | 57 m | ≤ 0.5° | ≤ 3 °/s | +0.04 s | 4.9 m/s | PASS |
+| camera panorama roll (90 °/s in the coast) | 57 m | 0.3° / 1.4° | 2 °/s | +0.04 s | 4.9 m/s | PASS |
+| tabs switched off (TVC only, like KESTREL-1) | 57 m | 0.3° / 23.4° | **75 °/s** | +0.05 s | 4.9 m/s | PASS (rolls fast) |
+| TSP D20 / E20 performing like its curve (40 Ns) | 21 / 71 m | 0.4° | 1–3 °/s | +0.04 s | 4.9 m/s | PASS |
+| **FAULT** launched 1 s after switch-on | 56 m | 21° / 27° | 75 °/s | +0.03 s | 4.9 m/s | PASS (steering stays centred) |
+| **FAULT** TVC servos dead, calm / 3 m/s | 57 / 57 m | 3.4° / 4.1° | 2 / 3 °/s | +0.04 s | 4.9 m/s | PASS (tabs steer) |
+| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 16 m | loops | 18 °/s | −0.96 s (abort) | 4.9 m/s | PASS: abort, parachute out, lands 19 m from the pad |
+| **FAULT** tab 1 jams at full deflection at T+1 s | 57 m | 0.6° / 37° | 25 °/s | +0.04 s | 4.8 m/s | PASS (give-up rule, chute at apogee) |
+| **FAULT** tab 2 freezes / all four tab servos dead | 57 / 57 m | 0.4° / 0.4° | 2 / 75 °/s | +0.04 / +0.05 s | 4.9 m/s | PASS |
+| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 56 / 56 / 60 m | 17° / 23° / 22° | 73–83 °/s | +0.05 s | 4.8–4.9 m/s | PASS (passively stable) |
+| **FAULT** barometer dies at T+1 s | 57 m | 0.4° / 0.4° | 4 °/s | +1.26 s | 4.8 m/s | PASS (inertial apogee) |
+| **FAULT** all steering dead in 6 m/s wind | 48 m | 24° / 169° | 75 °/s | +0.03 s | 4.9 m/s | INFO: turns right over; why flights 1–3 need ≤ 3 m/s |
+| **FAULT** parachute never opens | 57 m |  |  |  | **32 m/s** | INFO: why ground ejection tests matter |
+| TSP E12-0 | 48 m | 0.2° | 2 °/s | +0.06 s | 4.9 m/s | INFO: leaves the rod at only 5.3 m/s, not recommended |
 
 ![baseline flight](../sim/results/scenario_nominal_wind3.png)
 
@@ -202,14 +204,14 @@ and `rollprog` turns the coast into a slow camera panorama.
 | Your change (stability check) | the thick fins put about 70 g at the tail: static margin fell from +0.70 to +0.39 calibres | 33 g of nose ballast (M3 nuts in epoxy through a fill hole in the nose bulkhead): +0.75 … +0.88 calibres again (+0.83 … +0.96 with the 36 in chute below) |
 | Your change (Monte Carlo) | 3 of 200 D20 flights peaked below 15 m, the apogee detector's arming height: parachute out 1.3 s after apogee, 16 m/s landings | arming height 15 → 8 m (firmware 2.02): all D20 flights deploy at apogee |
 | Your change (Monte Carlo) | the heavier rocket came down at 5.8 m/s on the 30 in chute, 2 of 1000 flights just over the 7 m/s limit | 36 in parachute (fill time modelled 20 % longer): 4.9 m/s |
+| Your change: "only the part that needs it thick, the rest normal, very aerodynamic" | the whole-fin 15 mm design had a 15 mm blunt leading edge and blunt bases at the tail | fins are now 4 mm with a half-round leading edge; only the 45 mm bottom band (tab hinge, servo, lead channel) is 15 mm, joined by a 15° wedge; tab, band and legs taper to 1.5 mm trailing edges 12 mm below the tail. Fin can 181 → 165 g, drag coefficient 0.94 → 0.85, E20 apogee 55 → 57 m |
 
 ## 8. The launch video
 
-`sim/results/video/kestrel2_flight_seed7.mp4` (4.9 m/s wind, 20 g payload) and `kestrel2_flight_seed16.mp4` (almost
-calm, 26 g payload) are two randomised flights from the same simulator with the real flight code, rendered in
-Blender: ground camera and onboard camera side by side, live telemetry bottom left, graphs below. The fin tabs
-move by their simulated angles; the parachute opens as the simulator says it does. Make another (each seed is a
-different flight: wind, gusts, payload, motor performance, sensor errors):
+`sim/results/video/kestrel2_flight_seed7.mp4` (4.9 m/s wind, 20 g payload) is a randomised flight from the same
+simulator with the real flight code, rendered in Blender with the final CAD: ground camera and onboard camera side by
+side, live telemetry bottom left, graphs below. The fin tabs move by their simulated angles; the parachute opens as
+the simulator says it does. Make another (each seed is a different flight: wind, gusts, payload, motor performance, sensor errors):
 
 ```bash
 cd sim && python3 video/make_flight_video.py --seed 12

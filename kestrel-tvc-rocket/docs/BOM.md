@@ -83,8 +83,8 @@ tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt
 
 | Motor (24 mm, single use, CE certified) | Rated (UKROC list) | Use | Simulated apogee, 25 g payload |
 |---|---|---|---|
-| **TSP D20-0** | 20 Ns, 1.0 s | first test hops | 20 m |
-| **TSP E20-0** | 36 Ns, 2.0 s, 64 g | **the mission** | **55 m** (68 m if the motor performs like its published test curve, 40 Ns) |
+| **TSP D20-0** | 20 Ns, 1.0 s | first test hops | 21 m |
+| **TSP E20-0** | 36 Ns, 2.0 s, 64 g | **the mission** | **57 m** (71 m if the motor performs like its published test curve, 40 Ns) |
 
 Sold in the UK by [modelrockets.co.uk](https://modelrockets.co.uk/blog/tsp-rocket-motors-d20-e20-f35-rocket-motors-engines),
 which states TSP motors are CE certified and legal to buy and use in the UK. Ratings from the
@@ -108,6 +108,6 @@ mass) and the 29 mm F35 (does not fit the 24 mm gimbal).
 
 This is about **£30–42 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
 four more servos, the bigger 36 in parachute it needs for gentle landings at its weight, and the ejection spring,
-which RS only sells in packs of 10 (£21); the thick fins added about £11 (longer tab-servo extensions, their M2
+which RS only sells in packs of 10 (£21); putting the servos inside the fins added about £11 (longer tab-servo extensions, their M2
 screws, the ballast nuts, and the step from a 30 in to a 36 in parachute for the extra weight). Biggest single item: the PCB order (≈ £80), which gives you **two**
 assembled flight computers.

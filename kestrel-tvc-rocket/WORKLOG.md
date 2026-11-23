@@ -82,3 +82,12 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   deploy, 16 m/s landings) and 30 in chute at the new mass (5.8 m/s mean, 2 flights just > 7 m/s).
   Fixes: apogee arming 15 -> 8 m; 36 in Estes rip-stop chute (fill time modelled 20 % longer); sim/whatif.py and
   named drag terms added. Scenarios 40/40, landing 4.9 m/s, E20 nominal 55 m. Monte Carlo re-run.
+- 08:40–09:10 Mon: second Monte Carlo after the fixes 1000/1000 (E20 mean 60 m); final CAD renders; video renders
+  started, then lost when the session was rate-limited and its worker restarted (09:10–13:00).
+- 13:02 Mon: user: "make only the part that needs to be thick that thick, the rest normal, very aerodynamic; thick
+  at the bottom". Fins now 4 mm with a half-round LE; only the 45 mm bottom band (tab hinge, servo, lead channel)
+  is 15 mm, joined by a 15-degree wedge (shorter near the tip, clear of the LE); tabs and band taper to 1.5 mm
+  trailing edges 12 mm below the tail; legs taper to 11 x 7.5 mm feet. All 27 parts PASS, no overlaps, tab sweep
+  clean. Fin can 181 -> 165 g, Cd0 0.94 -> 0.85 (new drag terms), margins +0.84..+0.97 cal.
+  Scenarios 40/40, E20 57 m. Video render made resumable (frames on disk are kept).
+- 13:15 Mon: seed-7 video and the 1000-flight Monte Carlo running.

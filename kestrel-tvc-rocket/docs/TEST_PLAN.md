@@ -47,8 +47,8 @@ that the steering works, fly in up to 6 m/s with the **1.5 m rod**; never above 
 
 | Flight | Motor | Settings | Why | Simulated apogee | Go to the next flight when |
 |---|---|---|---|---|---|
-| 1 | TSP D20-0 | `tabs 0` (TVC only) | proves launch detect, TVC, apogee detection, latch, parachute, landing and logging, with as few active parts as possible | ≈ 20 m | deploy within 1 s of apogee; tilt in boost < 10°; rocket undamaged; the log matches the simulation (`kestrel_link.py plot`) |
-| 2 | TSP D20-0 | `tabs 1` | first flight with the fin tabs: roll hold and coast steering | ≈ 20 m | as flight 1, plus roll rate in boost < 60 °/s and no tab oscillation in the log |
+| 1 | TSP D20-0 | `tabs 0` (TVC only) | proves launch detect, TVC, apogee detection, latch, parachute, landing and logging, with as few active parts as possible | ≈ 21 m | deploy within 1 s of apogee; tilt in boost < 10°; rocket undamaged; the log matches the simulation (`kestrel_link.py plot`) |
+| 2 | TSP D20-0 | `tabs 1` | first flight with the fin tabs: roll hold and coast steering | ≈ 21 m | as flight 1, plus roll rate in boost < 60 °/s and no tab oscillation in the log |
 | 3+ | **TSP E20-0** | `tabs 1` | **the mission** | **55 m** nominal; Monte Carlo 45–76 m (5–95 %) | |
 
 Recovery area: at least 200 m clear downwind for an E20 (simulated 95th-percentile drift 98 m, farthest 146 m, in
