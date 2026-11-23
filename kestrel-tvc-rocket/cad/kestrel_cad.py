@@ -88,39 +88,38 @@ PR1 = (9.0, 18.0)
 PR2 = (18.0, 9.0)
 HOLDER_TAB_Z = Z_PIVOT + 12.0
 TAIL_SCREW_Z, TAIL_SCREW_ANG = 16.0, (90.0, 210.0)
-# fins, legs, control tabs, tab-servo pods
+# fins, legs, control tabs.  KESTREL-2b: 15 mm thick fins, each with its tab servo INSIDE the fin; the servo's output
+# shaft lies on the tab hinge line and turns the tab directly (no pods, no pushrods, no metal hinge pins)
 NF = FIN["count"]
 FIN_ANG = [FIN["first_fin_deg"] + 360.0 * k / NF for k in range(NF)]     # 45, 135, 225, 315 (X layout)
 CAN_RI = R + 0.10
-CAN_RO = CAN_RI + FIN["can_wall"]        # 29.45
-FT = FIN["thickness"]
-TIP_R = CAN_RO + FIN["span"]            # 79.45
+CAN_RO = CAN_RI + FIN["can_wall"]        # 29.25
+FT = FIN["thickness"]                   # 15
+TIP_R = CAN_RO + FIN["span"]            # 79.25
 TABP = FIN["tab"]
-HINGE_RB = 1.8                          # hinge bead radius (fin knuckles, tab knuckle, stiffening rib)
-HINGE_Z = TABP["chord"] - HINGE_RB      # 16.2
-TAB_R0, TAB_R1 = CAN_RO + TABP["r_from"], CAN_RO + TABP["r_to"]
-KN = 4.0
 LEGP = FIN["leg"]
 LEG_R0 = TIP_R - LEGP["width"]
 FOOT_Z = -LEGP["length"]                # -30: the rocket stands on its four fin tips
-# fin-local frame: x along the fin (radial), y normal to it (+y = pod side), z.  Fin k = local frame rotated by FIN_ANG[k].
-PSV_Y0 = FT / 2 + 1.2                   # servo side face nearest the fin
-PSV_YC = PSV_Y0 + SV["W"] / 2           # 8.5
-PSV_X0 = 31.0                           # servo base; the output shaft points radially outwards
-PSV_Z0 = 32.1                           # servo body aft end (shaft end, nearest the tab)
-PSV_SHAFT_Z = PSV_Z0 + SV["shaft_off"]  # 38.0
-PSV_ZC = PSV_Z0 + SV["L"] / 2
-HORN_X = PSV_X0 + SV["H"] + 3.0         # 56.5 horn plane (servo horn and tab horn)
-HORN_ARM = 6.0                          # servo horn hole radius
-PUSH_Y = PSV_YC + HORN_ARM              # 14.5 pushrod line, also the tab-horn lever arm
-PUSH_X = HORN_X + 1.5                   # wire runs just outboard of both horns, Z-bends into them
-POD_Y1 = PSV_Y0 + SV["W"] + 1.2         # 15.8 pod outer wall
-POD_X1 = PSV_X0 + 21.5                  # 52.5 top of the pod walls
-POD_Z0, POD_Z1, POD_ZN = PSV_Z0 - 6.2, PSV_Z0 + SV["L"] + 8.1, PSV_Z0 + SV["L"] + 33.0
-GROOVE_ANG = [a + math.degrees(math.atan2(PSV_YC, CAN_RO)) for a in FIN_ANG]   # tab-servo lead entry / frame groove
-# tab-servo lead slot through the pod floor, the fin-can wall and the tube: as long as the servo, so the plug
-# (about 7.6 x 2.6 mm) passes whichever end of the servo case the lead leaves from
-CAB_Z0, CAB_Z1 = PSV_Z0 + 2.0, PSV_Z0 + SV["L"] - 2.0
+# fin-local frame: x along the fin (radial), y normal to it (+y = towards the next fin anticlockwise), z up.
+HINGE_Z = TABP["hinge_z"]               # 15: tab hinge line = servo output shaft (radial, in the fin's mid-plane)
+TAB_LE_R = FT / 2 - 0.3                 # 7.2: round leading edge of the tab about the hinge
+BAY_R = TAB_LE_R + 0.4                  # 7.6: matching concave cut in the fin
+BAY_X0 = CAN_RO + 2.5                   # the tab bay starts 2.5 mm out from the can (root pin slot there)
+SVX1 = TIP_R - 1.0                      # servo base, 1 mm inside the fin tip (the servo slides in from the tip)
+SVX0 = SVX1 - SV["H"]                   # servo top (output shaft) face, 55.75
+SV_Z0 = HINGE_Z - SV["shaft_off"]       # servo body lower end (shaft end), 9.1
+SV_ZC = SV_Z0 + SV["L"] / 2
+SV_TAB_X0 = SVX1 - SV["tab_z"] - SV["tab_t"]   # mounting-tab plate; its inboard face rests on the pocket shoulder
+BAY_X1 = SVX0 - 0.2
+TAB_X0, TAB_X1 = BAY_X0 + 0.3, SVX0 - 0.4      # printed tab, 32.05 .. 55.35
+HORN_HUB_X1 = SVX0 - 0.5                # stock single-arm horn: hub on the spline, arm trimmed to a stub
+HORN_HUB_L, HORN_ARM_T, HORN_ARM_L = 4.0, 2.0, 5.5
+PIN_R = 1.5                             # printed pivot pin at the tab's inner end
+CH_Z0, CH_Z1, CH_W = 39.0, 43.0, 9.0
+SCREW_HOLE_D = 4.0                                              # blind pilot holes for the servo's M2 x 6 screws
+LEAD_GROOVE_W, LEAD_GROOVE_D = 4.0, 4.0                         # lead groove in the fin tip (flat 3-wire lead, 3.2 x 1.1 mm)    # servo-lead channel through the fin to the root (wide enough for the plug)
+GROOVE_ANG = list(FIN_ANG)              # the lead enters the tube at the fin root and runs up a groove in the TVC frame
+CAB_Z0, CAB_Z1 = CH_Z0, CH_Z1
 # camera pod, avionics
 CAM_Z0 = 200.0
 CAM_POCKET = 23.6
@@ -350,6 +349,10 @@ def MATS():
 # ======================================================================================
 # NOSE CONE (part 3)
 # ======================================================================================
+NOSE_FILL_R = 7.0          # ballast fill hole through the apex of the nose bulkhead
+BALLAST_BULK_CM3 = 8.6     # ~90 M3 nuts (0.33 g each) poured into the tip: ~3.8 cm3 of steel at ~45 % packing
+
+
 def ogive_r(x, L=NOSE_L, Rb=R):
     rho = (Rb ** 2 + L ** 2) / (2 * Rb)
     return math.sqrt(max(rho ** 2 - (L - x) ** 2, 0.0)) + Rb - rho
@@ -398,8 +401,28 @@ def nose_cone(M):
     # shock-cord bar across the inside of the cone, 9 mm below its apex: an 18 mm bridge when printed tip-up
     z_bar = z_apex - 9.0
     m = m + (bx(-(9.0 + 1.6), 9.0 + 1.6, -1.5, 1.5, z_bar - 1.5, z_bar + 1.5) ^ cyl(rs + 0.5, 60.0, zb))
+    # ballast fill hole through the bulkhead apex (above the cord bar): M3 nuts are poured into the tip, then epoxied
+    m = m - cyl(NOSE_FILL_R, z_top + 1.0 - (z_apex - NOSE_FILL_R - 0.2), z_apex - NOSE_FILL_R - 0.2, segs=40)
     return register("nose_cone", m, M["orange"], part="nose",
-                    note="Print tip-up, 3 walls, 10% gyroid, no supports (the bulkhead is a 45 deg cone). Slides over the top insert; the latch bolt clicks into its hole")
+                    note="Print tip-up, 3 walls, 10% gyroid, no supports (the bulkhead is a 45 deg cone). Slides over the top insert; the latch bolt clicks into its hole. "
+                         "Ballast (about 90 M3 nuts + epoxy) goes into the tip through the hole in the bulkhead")
+
+
+def nose_ballast():
+    """M3 nuts locked with epoxy in the nose tip, filling the cavity from its top down to the depth that holds
+    BALLAST_BULK_CM3 (the slug the simulator and the renders use; the real amount is set by the balance test)"""
+    wall = NOSE.get("wall", 1.0) * 1.15
+    dx = 0.25
+    xs, vol, x = [], 0.0, NOSE_L * 8 / 80 + 0.3 - dx      # the cavity starts 15 mm below the tip (solid tip above)
+    while vol < BALLAST_BULK_CM3 * 1000.0 and x < NOSE_L * 0.6:
+        x += dx
+        r = ogive_r(x) - wall - 0.15
+        if r > 1.2:
+            xs.append(x)
+            vol += math.pi * r * r * dx
+    prof = [(0.0, Z_TIP - xs[0])] + [(ogive_r(xx) - wall - 0.15, Z_TIP - xx) for xx in xs[::4]] + \
+           [(ogive_r(xs[-1]) - wall - 0.15, Z_TIP - xs[-1]), (0.0, Z_TIP - xs[-1])]
+    return revolve(prof)
 
 
 # ======================================================================================
@@ -664,7 +687,7 @@ def tvc_frame(M):
         for a in GROOVE_ANG:
             w = w - polar(box(14.0, 9.0, z1 - z0 + 2.0, ro - 2.0, 0, (z0 + z1) / 2), a)
         m = m - w
-    # longerons carrying the 4 tab-servo leads in outside grooves (lead enters through the tube next to its pod)
+    # longerons carrying the 4 tab-servo leads in outside grooves (each lead comes in through its fin's lead channel)
     for a in GROOVE_ANG:
         lon = polar(bx(ro - 3.0, ro, -3.5, 3.5, CAB_Z0 - 4.0, FRAME_TOP), a) ^ cyl(ro, 300, -1)
         m = m + lon
@@ -712,98 +735,106 @@ def retainer(M):
 
 
 # ---------------- fins, legs, control tabs and their servos (built for one fin in the local frame) ----------------
+def seg_cyl_xz(p0, p1, r, segs=48):
+    """cylinder of radius r between two points of the x-z plane (y = 0)"""
+    dx, dz = p1[0] - p0[0], p1[1] - p0[1]
+    L = math.hypot(dx, dz)
+    return M3.cylinder(L, r, r, segs).rotate((0, math.degrees(math.atan2(dx, dz)), 0)).translate((p0[0], 0, p0[1]))
+
+
 def fin_local():
+    """15 mm thick fin with a half-round leading edge, the leg/foot, the tab bay, the servo pocket (open at the tip),
+    the shoulder + screw holes for the servo's mounting tabs, the root slot for the tab's pin, the lead channel and
+    the lead groove in the tip"""
     cr, ct = FIN["root_chord"], FIN["tip_chord"]
+    h = FT / 2
+    ax0, az0, ax1, az1 = CAN_RO - 0.6, float(cr), TIP_R, float(ct)
+    L = math.hypot(ax1 - ax0, az1 - az0)
+    ux, uz = (ax1 - ax0) / L, (az1 - az0) / L
+    nx, nz = uz, -ux                                          # inward normal of the leading edge
+    a0 = (ax0 + h * nx, az0 + h * nz)
+    a1 = (ax1 + h * nx, az1 + h * nz)
+    slope = (a1[1] - a0[1]) / (a1[0] - a0[0])
+    z_root = a0[1] + (ax0 - a0[0]) * slope
+    z_tip = a0[1] + (ax1 - a0[0]) * slope
     prof = [(CAN_RO - 0.6, 0.0), (LEG_R0, 0.0), (LEG_R0 + 3.0, FOOT_Z + 3.0), (LEG_R0 + 4.0, FOOT_Z), (TIP_R - 1.0, FOOT_Z),
-            (TIP_R, FOOT_Z + 1.0), (TIP_R, ct), (CAN_RO - 0.6, cr)]
+            (TIP_R, FOOT_Z + 1.0), (TIP_R, z_tip), (CAN_RO - 0.6, z_root)]
     f = xz_plate(prof, FT)
-    f = f + bx(LEG_R0 + 4.6, TIP_R - 1.6, -3.0, 3.0, FOOT_Z, FOOT_Z + 2.6)                     # foot pad
-    f = f + xcyl(HINGE_RB, TAB_R1 - TAB_R0, 32).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))   # knuckle bead
-    f = f - bx(TAB_R0 + KN, TAB_R1 - KN, -5, 5, -1.0, TABP["chord"] + 0.4)                    # tab cut-out
-    f = f - bx(TAB_R0, TAB_R1, -5, 5, -1.0, HINGE_Z - HINGE_RB - 0.4)                          # (under the fin knuckles too)
-    # the two fin knuckles are C-clips: the tab's 1.2 mm wire pin snaps in from behind through a 0.95 mm slot
-    f = f - xcyl(0.63, TAB_R1 - TAB_R0 + 1.0, 16).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
-    f = f - bx(TAB_R0 - 0.5, TAB_R1 + 0.5, -0.475, 0.475, HINGE_Z - HINGE_RB - 1.0, HINGE_Z)
+    ext = 20.0
+    le = seg_cyl_xz((a0[0] - ext * ux, a0[1] - ext * uz), (a1[0] + ext * ux, a1[1] + ext * uz), h - 0.02, 64)   # not tangent to the faces
+    f = f + (le ^ bx(CAN_RO - 0.3, TIP_R - 0.05, -FT, FT, 0.0, cr + 20.0))
+    s = SV
+    # tab bay through the whole thickness, round-topped about the hinge line
+    f = f - bx(BAY_X0, BAY_X1, -FT, FT, -1.0, HINGE_Z)
+    f = f - xcyl(BAY_R, BAY_X1 - BAY_X0, 64).translate(((BAY_X0 + BAY_X1) / 2, 0, HINGE_Z))
+    # servo pocket and the slot for its mounting tabs, open at the fin tip
+    f = f - bx(SVX0 - 0.2, TIP_R + 1.0, -(s["W"] / 2 + 0.2), s["W"] / 2 + 0.2, SV_Z0 - 0.2, SV_Z0 + s["L"] + 0.2)
+    f = f - bx(SV_TAB_X0 - 0.1, TIP_R + 1.0, -((s["W"] - 1) / 2 + 0.3), (s["W"] - 1) / 2 + 0.3,
+               SV_ZC - s["tab_L"] / 2 - 0.3, SV_ZC + s["tab_L"] / 2 + 0.3)
+    for dz in (-1, 1):   # 2 x M2 x 6 self-tapping screws into blind holes (the lower one ends 0.35 mm short of the tab bay)
+        f = f - xcyl(0.8, SCREW_HOLE_D, 12).translate((SV_TAB_X0 + 0.05 - SCREW_HOLE_D / 2, 0, SV_ZC + dz * s["pitch"] / 2))
+    # slot at the fin root for the tab's printed pivot pin (open downwards: the tab is pushed up into the bay)
+    f = f - xcyl(PIN_R + 0.15, BAY_X0 - CAN_RO, 24).translate(((CAN_RO + 0.35 + BAY_X0 + 0.1) / 2, 0, HINGE_Z))
+    f = f - bx(CAN_RO + 0.35, BAY_X0 + 0.1, -(PIN_R + 0.15), PIN_R + 0.15, -1.0, HINGE_Z)
+    # lead channel from the fin tip to the root and on through the can and tube (the plug is pushed through it)
+    f = f - bx(CAN_RI - 3.0, TIP_R + 1.0, -CH_W / 2, CH_W / 2, CH_Z0, CH_Z1)
+    # groove in the fin tip from the servo pocket up to the lead channel: the lead lies in it below the tip surface
+    f = f - bx(TIP_R - LEAD_GROOVE_D, TIP_R + 1.0, -LEAD_GROOVE_W / 2, LEAD_GROOVE_W / 2, SV_Z0 + s["L"], CH_Z0 + 0.5)
     return f
 
 
-def pod_local():
-    """streamlined pod on the +y side of the fin root holding an MG90S, shaft radially out"""
-    shell = M3.batch_hull([bx(CAN_RO - 3.0, POD_X1, FT / 2 - 0.2, POD_Y1, POD_Z0, POD_Z1),
-                           bx(CAN_RO - 3.0, CAN_RO + 3.0, FT / 2 - 0.2, FT / 2 + 2.5, POD_ZN - 1.0, POD_ZN)])
-    shell = shell - cyl(CAN_RI, 300, -10)
-    s = SV
-    shell = shell - bx(PSV_X0 - 0.2, 90, PSV_Y0 - 0.2, PSV_Y0 + s["W"] + 0.2, PSV_Z0 - 0.2, PSV_Z0 + s["L"] + 0.2)
-    shell = shell - bx(PSV_X0 + s["tab_z"] - 0.1, 90, PSV_YC - (s["W"] - 1) / 2 - 0.3, PSV_YC + (s["W"] - 1) / 2 + 0.3,
-                       PSV_ZC - s["tab_L"] / 2 - 0.3, PSV_ZC + s["tab_L"] / 2 + 0.3)
-    for dz in (-1, 1):
-        shell = shell - xcyl(0.8, 14, 12).translate((PSV_X0 + s["tab_z"] - 6.0, PSV_YC, PSV_ZC + dz * s["pitch"] / 2))
-    return shell
-
-
 def cable_hole_local():
-    return bx(CAN_RI - 3.0, PSV_X0 + 1.0, PSV_YC - 2.0, PSV_YC + 2.0, CAB_Z0, CAB_Z1)
+    """where the lead channel crosses the fin-can wall and the bottom tube"""
+    return bx(CAN_RI - 3.0, CAN_RO + 1.0, -CH_W / 2, CH_W / 2, CH_Z0, CH_Z1)
 
 
 def tab_local(delta=0.0):
-    """control tab (printed separately), hinged on a 1.2 mm music-wire pin; horn on the pod side"""
-    c = TABP["chord"]
-    t = bx(TAB_R0 + KN + 0.4, TAB_R1 - KN - 0.4, -FT / 2, FT / 2, 0.4, HINGE_Z)
-    t = t + bx(TAB_R0 + 0.4, TAB_R1 - 0.4, -FT / 2, FT / 2, 0.4, HINGE_Z - HINGE_RB - 0.8)
-    t = t + xcyl(HINGE_RB, TAB_R1 - TAB_R0 - 2 * KN - 0.8, 32).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
-    # trailing-edge taper (2.4 -> 1.2 mm) on both faces
-    for sy in (1, -1):
-        t = t - box(60, 2.0, 30).rotate((sy * -4.5, 0, 0)).translate(((TAB_R0 + TAB_R1) / 2, sy * (FT / 2 + 1.0), 0.0))
-    horn = bx(HORN_X - 0.8, HORN_X + 0.8, 0.0, PUSH_Y + 2.0, HINGE_Z - 3.6, HINGE_Z + 1.6)
-    horn = horn - xcyl(0.7, 4, 16).translate((HORN_X, PUSH_Y, HINGE_Z))
-    t = t + horn
-    t = t - xcyl(0.62, TAB_R1 - TAB_R0 + 2, 16).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))   # pin glued in the tab
-    return t.translate((0, 0, -HINGE_Z)).rotate((delta, 0, 0)).translate((0, 0, HINGE_Z))
-
-
-def tab_pin_local():
-    return xcyl(0.6, TAB_R1 - TAB_R0 - 0.4, 12).translate(((TAB_R0 + TAB_R1) / 2, 0, HINGE_Z))
+    """printed control tab: round leading edge about the hinge, tapering to a 2 mm trailing edge; a stock single-arm
+    horn (arm cut to a stub) is epoxied into the pocket at its outer end, and the servo spline slides into that horn
+    when the servo goes in from the fin tip; a printed pin at the inner end sits in the slot at the fin root.
+    +delta moves the trailing edge towards -y (the firmware's sign: away from the next fin anticlockwise)"""
+    L = TAB_X1 - TAB_X0
+    xc = (TAB_X0 + TAB_X1) / 2
+    t = M3.batch_hull([xcyl(TAB_LE_R, L, 64).translate((xc, 0, HINGE_Z)), bx(TAB_X0, TAB_X1, -1.0, 1.0, 0.5, 1.5)])
+    hub0 = SVX0 - SV["spline"] - 0.5
+    t = t - xcyl(3.5 + 0.3, TAB_X1 - hub0 + 0.2, 40).translate(((hub0 + TAB_X1 + 0.2) / 2, 0, HINGE_Z))        # hub pocket
+    arm0 = HORN_HUB_X1 - HORN_HUB_L - 0.3
+    t = t - M3.batch_hull([xcyl(3.0 + 0.3, HORN_ARM_T + 0.6, 32).translate((arm0 + (HORN_ARM_T + 0.6) / 2, 0, HINGE_Z)),
+                           xcyl(1.9 + 0.3, HORN_ARM_T + 0.6, 24).translate((arm0 + (HORN_ARM_T + 0.6) / 2, 0, HINGE_Z - HORN_ARM_L))])
+    t = t + xcyl(PIN_R, TAB_X0 - (CAN_RO + 0.6) + 0.6, 32).translate(((CAN_RO + 0.6 + TAB_X0 + 0.6) / 2, 0, HINGE_Z))
+    return t.translate((0, 0, -HINGE_Z)).rotate((-delta, 0, 0)).translate((0, 0, HINGE_Z))
 
 
 def tab_servo_local():
+    """MG90S inside the fin: output shaft pointing in along the hinge line, body towards the fin tip"""
     s = SV
-    body = bx(PSV_X0, PSV_X0 + s["H"], PSV_Y0, PSV_Y0 + s["W"], PSV_Z0, PSV_Z0 + s["L"])
-    tabs = bx(PSV_X0 + s["tab_z"], PSV_X0 + s["tab_z"] + s["tab_t"], PSV_YC - (s["W"] - 1) / 2, PSV_YC + (s["W"] - 1) / 2,
-              PSV_ZC - s["tab_L"] / 2, PSV_ZC + s["tab_L"] / 2)
-    spline = xcyl(2.4, s["spline"], 20).translate((PSV_X0 + s["H"] + s["spline"] / 2, PSV_YC, PSV_SHAFT_Z))
+    body = bx(SVX0, SVX1, -s["W"] / 2, s["W"] / 2, SV_Z0, SV_Z0 + s["L"])
+    tabs = bx(SV_TAB_X0, SV_TAB_X0 + s["tab_t"], -(s["W"] - 1) / 2, (s["W"] - 1) / 2, SV_ZC - s["tab_L"] / 2, SV_ZC + s["tab_L"] / 2)
+    spline = xcyl(2.4, s["spline"], 20).translate((SVX0 - s["spline"] / 2, 0, HINGE_Z))
     return body + tabs + spline
 
 
-def tab_horn_local(psi=0.0):
-    hub = xcyl(3.5, 2.0, 32).translate((HORN_X, 0, 0))
-    arm = M3.batch_hull([xcyl(3.0, 2.0, 24).translate((HORN_X, 0, 0)), xcyl(1.9, 2.0, 24).translate((HORN_X, HORN_ARM + 1.2, 0))])
-    h = (hub + arm) - xcyl(0.7, 4, 12).translate((HORN_X, HORN_ARM, 0)) - xcyl(2.45, 8, 24).translate((HORN_X, 0, 0))
-    return h.rotate((psi, 0, 0)).translate((0, PSV_YC, PSV_SHAFT_Z))
-
-
-def tab_pushrod_local(dz=0.0):
-    w = cyl(0.6, PSV_SHAFT_Z - HINGE_Z, HINGE_Z, PUSH_X, PUSH_Y, segs=12)
-    for z in (HINGE_Z, PSV_SHAFT_Z):
-        w = w + xcyl(0.6, PUSH_X - HORN_X + 2.0, 12).translate(((PUSH_X + HORN_X - 2.0) / 2 + 0.3, PUSH_Y, z))
-    return w.translate((0, 0, dz))
-
-
-def servo_angle_for_tab(delta):
-    """servo horn rotation that gives tab deflection delta (pushrod keeps the two horn holes the same height apart)"""
-    return math.degrees(math.asin(max(-1.0, min(1.0, PUSH_Y * math.sin(math.radians(delta)) / HORN_ARM))))
+def tab_horn_local(delta=0.0):
+    """stock single-arm horn on the servo spline, arm cut to a stub, glued into the tab (turns with it)"""
+    x0 = HORN_HUB_X1 - HORN_HUB_L
+    hub = xcyl(3.5, HORN_HUB_L, 32).translate(((x0 + HORN_HUB_X1) / 2, 0, HINGE_Z))
+    arm = M3.batch_hull([xcyl(3.0, HORN_ARM_T, 24).translate((x0 + HORN_ARM_T / 2, 0, HINGE_Z)),
+                         xcyl(1.9, HORN_ARM_T, 24).translate((x0 + HORN_ARM_T / 2, 0, HINGE_Z - HORN_ARM_L))])
+    h = (hub + arm) - xcyl(2.45, HORN_HUB_L + 2, 24).translate(((x0 + HORN_HUB_X1) / 2, 0, HINGE_Z))
+    return h.translate((0, 0, -HINGE_Z)).rotate((-delta, 0, 0)).translate((0, 0, HINGE_Z))
 
 
 def fin_can(M):
     f = FIN
     m = tube(CAN_RO, CAN_RI, f["can_length"], 0.0)
-    fin, pod, hole = fin_local(), pod_local(), cable_hole_local()
+    fin, hole = fin_local(), cable_hole_local()
     for a in FIN_ANG:
-        m = m + polar(fin, a) + polar(pod, a)
+        m = m + polar(fin, a)
     for a in FIN_ANG:
         m = m - polar(hole, a)
     # fin #1 marker pip (fin at FIN_ANG[0]) on both faces near the root
     for sy in (1, -1):
-        m = m + polar(ycyl(1.5, 1.2, 24).translate((CAN_RO + 14.0, sy * (FT / 2 + 0.5), 95.0)), FIN_ANG[0])
+        m = m + polar(ycyl(1.5, 1.4, 24).translate((CAN_RO + 14.0, sy * (FT / 2 + 0.4), 60.0)), FIN_ANG[0])
     lug = tube(4.75, 3.4, 25.0, 50.0, segs=40).translate((CAN_RO + 4.4, 0, 0)) + box(5.0, 3.0, 25.0, CAN_RO + 1.6, 0, 62.5)
     # top end cut at 45 deg from the can: the lug then grows out of the can when the fin can prints upside down
     lug = lug - xz_plate([(CAN_RO - 1.0, 75.0 + 1.0), (CAN_RO + 20.0, 75.0 - 20.0), (CAN_RO + 20.0, 90.0), (CAN_RO - 1.0, 90.0)], 20.0)
@@ -811,15 +842,15 @@ def fin_can(M):
     for a in TAIL_SCREW_ANG:
         m = m - polar(xcyl(1.65, 8, 16).translate((CAN_RO - 0.4, 0, TAIL_SCREW_Z)), a)
     return register("fin_can", m, M["orange"], print_rot=(180, 0, 0), part="bottom",
-                    note="PETG, print upside-down (top ring on the bed), 3 walls, 20%. Fins + legs + 4 servo pods in one piece")
+                    note="PETG, print upside-down (top ring on the bed), 3 walls, 20%. Can, 4 thick fins (servo pockets, lead channels) and legs in one piece")
 
 
 def fin_tabs(M):
     t = tab_local(0.0)
     inst = [polar(t, a) for a in FIN_ANG]
-    return register("fin_control_tab", inst[0], M["blue"], qty=NF, inst=inst, part="bottom", export=t, export_rot=(90, 0, 0),
-                    note="PETG, print lying on its plain face (horn up) with supports on the build plate only (they fill the 0.8 mm under the face "
-                         "beside the hinge bead). Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips")
+    return register("fin_control_tab", inst[0], M["blue"], qty=NF, inst=inst, part="bottom", export=t, export_rot=(0, 90, 0),
+                    note="PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut to a 5.5 mm stub, "
+                         "into the pocket; the printed pin at the other end sits in the slot at the fin root")
 
 
 def upper_lug(M):
@@ -975,6 +1006,7 @@ def purchased(M, tab_delta=0.0, latch_open=False):
     out[LOWER_TUBE] = (lower_tube_cut(), M["kraft"])
     out[MID_TUBE] = (middle_tube_cut(), M["kraft"])
     out[MOTOR_NAME] = (cyl(MOTOR_D / 2, MOTOR_L, Z_MOTOR0) - cyl(4.0, 12.0, Z_MOTOR0 - 1.0, segs=24), M["motor"])
+    out["nose_ballast_M3_nuts"] = (nose_ballast(), M["steel"])
     c1 = SV1_Z + s["shaft_off"] - s["L"] / 2
     c2 = SV2_Z + s["shaft_off"] - s["L"] / 2
     sv1 = box(s["W"], s["H"], s["L"], 0, SV_SHAFT_R - s["H"] / 2, c1) + box(s["W"] - 1, 2.5, s["tab_L"], 0, SV_SHAFT_R - s["H"] + s["tab_z"] + 1.25, c1)
@@ -989,14 +1021,10 @@ def purchased(M, tab_delta=0.0, latch_open=False):
                               xcyl(2.45, 8, 24).translate((SV_SHAFT_R + 4.0, 0, SV2_Z)), M["horn"])
     out["pushrod_ring_1.2mm"] = (cyl(0.6, SV1_Z - Z_PIVOT, Z_PIVOT, PR1[0], PR1[1], segs=12), M["steel"])
     out["pushrod_holder_1.2mm"] = (cyl(0.6, SV2_Z - HOLDER_TAB_Z, HOLDER_TAB_Z, PR2[0], PR2[1], segs=12), M["steel"])
-    # four tab servos in the fin pods
-    psi = servo_angle_for_tab(tab_delta)
-    dz = PUSH_Y * math.sin(math.radians(tab_delta))
+    # four tab servos inside the fins, horns glued into the tabs (direct drive)
     for k, a in enumerate(FIN_ANG):
         out[f"servo_MG90S_tab{k + 1}"] = (polar(tab_servo_local(), a), M["servo"])
-        out[f"horn_tab{k + 1}"] = (polar(tab_horn_local(psi), a), M["horn"])
-        out[f"pushrod_tab{k + 1}_1.2mm"] = (polar(tab_pushrod_local(dz), a), M["steel"])
-        out[f"hinge_pin_tab{k + 1}_1.2mm"] = (polar(tab_pin_local(), a), M["steel"])
+        out[f"horn_tab{k + 1}"] = (polar(tab_horn_local(tab_delta), a), M["horn"])
     # release servo, horn, spring link
     phi = 30.0 if latch_open else 0.0
     out["servo_MG90S_release"] = (release_servo_solid(0.0), M["servo"])
@@ -1061,7 +1089,10 @@ def lead_paths():
     for k, a in enumerate(GROOVE_ANG):
         ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
         r_g = FRAME_R - 0.8
-        pts = [(CAN_RO + 1.5, (CAB_Z0 + CAB_Z1) / 2), (r_g, (CAB_Z0 + CAB_Z1) / 2 + 3), (r_g, FRAME_TOP + 2), (r_g - 6, FRAME_TOP + 25)]
+        zc = (CAB_Z0 + CAB_Z1) / 2
+        xg = TIP_R - LEAD_GROOVE_D / 2 - 0.3
+        pts = [(SVX1 - 2.0, SV_Z0 + SV["L"] - 2.0), (xg, SV_Z0 + SV["L"] + 1.5), (xg, zc), (TIP_R - 6.0, zc),
+               (CAN_RI - 1.0, zc), (r_g, zc + 3), (r_g, FRAME_TOP + 2), (r_g - 6, FRAME_TOP + 25)]
         path = [(rr * ca, rr * sa, z) for rr, z in pts] + [(8.0, -4.0 + k, Z_AV0 - 4), (hx + 4.5 * (k + 1), 1.0, Z_AV0 + 4)]
         p[f"lead_tab{k + 1}"] = path
     p["lead_release"] = [(RSV_XC, -11.0, RSV_Z0 + 2), (-24.0, -2.0, RSV_Z0 - 4), (-25.5, 0.0, Z_WALL1 + 4), (-25.0, 0.0, Z_WALL0 - 14),
@@ -1103,6 +1134,32 @@ def build_all(M):
 
 def write_stl(path, V, F):
     import struct
+    V = np.asarray(V, dtype=float)
+    F = np.asarray(F)
+    # drop stray zero-area islands (2-triangle slivers left where cuts coincide): faces are grouped by shared edges, as a
+    # slicer sees them; a zero-area triangle that is part of a closed surface stays, so the solid stays watertight
+    parent = list(range(len(F)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+    edge_faces = {}
+    for fi, (f0, f1, f2) in enumerate(F):
+        for e in ((f0, f1), (f1, f2), (f2, f0)):
+            edge_faces.setdefault((min(e), max(e)), []).append(fi)
+    for fl in edge_faces.values():
+        if len(fl) == 2:                                    # manifold edge; slivers hang on edges shared by more faces
+            ra, rb = find(fl[0]), find(fl[1])
+            parent[ra] = rb
+    a, b, c = V[F[:, 0]], V[F[:, 1]], V[F[:, 2]]
+    area = 0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1)
+    comp = np.array([find(i) for i in range(len(F))])
+    tot = {}
+    for cid, ar in zip(comp, area):
+        tot[cid] = tot.get(cid, 0.0) + ar
+    F = F[np.array([tot[cid] > 1e-6 for cid in comp], dtype=bool)]
     with open(path, "wb") as fh:
         fh.write(b"KESTREL-2 STL (mm)".ljust(80, b" "))
         fh.write(struct.pack("<I", len(F)))
@@ -1176,15 +1233,14 @@ def check_layout():
     """Values the simulator / firmware take from design.json must match this CAD + the PCB layout."""
     u4 = MECH["parts"]["U4"]
     imu_from_tip = Z_TIP - board_to_rocket(u4["x"], u4["y"])[1]
-    pod_area = (POD_X1 - CAN_RO) * (POD_Y1 - FT / 2)
     want = {
         "avbay.imu_z (LSM6DSO U4)": (D["avbay"]["imu_z"], imu_from_tip),
         "camera_pod.protrusion_mm": (D["camera_pod"]["protrusion_mm"], CAM_RC + CAM_POCKET / 2 + 1.2 - R),
         "camera_pod.width_mm": (D["camera_pod"]["width_mm"], CAM_POCKET + 2 * 1.6),
-        "fins.pod.frontal_area_mm2 /10": (FIN["pod"]["frontal_area_mm2"] / 10.0, pod_area / 10.0),
-        "fins.pod.length": (FIN["pod"]["length"], POD_ZN - POD_Z0),
-        "fins.tab.lever_arm_mm": (TABP["horn_mm"], PUSH_Y),
-        "fins.tab.servo_arm_mm": (TABP["servo_arm_mm"], HORN_ARM),
+        "fins.tab.r_from": (TABP["r_from"], TAB_X0 - CAN_RO),
+        "fins.tab.r_to": (TABP["r_to"], TAB_X1 - CAN_RO),
+        "fins.tab.chord": (TABP["chord"], HINGE_Z + TAB_LE_R - 0.5),
+        "fins.leg.foot_base_mm2 /10": (LEGP["foot_base_mm2"] / 10.0, FT * LEGP["width"] / 10.0),
         "tvc.linkage_ratio x100 (ring)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR1[0] / PR1[1]),
         "tvc.linkage_ratio x100 (motor holder)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR2[1] / PR2[0]),
     }
@@ -1273,7 +1329,7 @@ def sweep_reports(buy):
                 rows.append(("gimbal", f"{rx:+.1f}/{ry:+.1f} deg", nm, ring[0], v))
     md.append(f"\n## Gimbal sweep\n\nMotor, holder, retainer and ring swung round the whole deflection circle ({len(envelope) - 1} directions at "
               f"{max_deg:.0f} deg = firmware limit {TVC['max_deflection_deg']} deg + 1 deg margin): {n} contact checks.")
-    # 2) control tabs: every fin, tab + horn + pushrod + servo horn through +/- (limit + 2 deg)
+    # 2) control tabs: every fin, tab + its glued-in horn through +/- (limit + 2 deg)
     lim = TABP["max_deflection_deg"] + 2.0
     fc = PARTS["fin_can"]["m"]
     n2 = 0
@@ -1281,21 +1337,20 @@ def sweep_reports(buy):
         sv = polar(tab_servo_local(), a)
         statics = [("fin_can", fc), (f"servo_MG90S_tab{k + 1}", sv), (LOWER_TUBE, buy[LOWER_TUBE][0])]
         for d in np.linspace(-lim, lim, 9):
-            mov = [("tab", polar(tab_local(d), a)), ("servo horn", polar(tab_horn_local(servo_angle_for_tab(d)), a)),
-                   ("pushrod", polar(tab_pushrod_local(PUSH_Y * math.sin(math.radians(d))), a))]
+            mov = [("tab", polar(tab_local(d), a)), ("horn", polar(tab_horn_local(d), a))]
             for mn, mm in mov:
                 for sn, sm in statics:
-                    if mn == "servo horn" and sn.startswith("servo"):
+                    if mn == "horn" and sn.startswith("servo"):
                         continue                      # the horn sits on the servo's own spline
                     v = (mm ^ sm).volume()
                     n2 += 1
                     if v > 0.5:
                         rows.append((f"tab {k + 1}", f"{d:+.1f} deg", mn, sn, v))
-            v = (mov[0][1] ^ mov[1][1]).volume()
+            v = (mov[0][1] ^ mov[1][1]).volume()       # the horn must stay inside its pocket
             n2 += 1
             if v > 0.5:
-                rows.append((f"tab {k + 1}", f"{d:+.1f} deg", "tab", "servo horn", v))
-    md.append(f"\n## Control-tab sweep\n\nAll {NF} tabs with their horns, pushrods and servo horns swept through +/-{lim:.0f} deg "
+                rows.append((f"tab {k + 1}", f"{d:+.1f} deg", "tab", "horn", v))
+    md.append(f"\n## Control-tab sweep\n\nAll {NF} tabs with their glued-in servo horns swept through +/-{lim:.0f} deg "
               f"(limit {TABP['max_deflection_deg']:.0f} deg + 2 deg): {n2} contact checks.")
     # 3) payload door opening 0..100 deg (latch turned to open)
     statics = [(MID_TUBE, buy[MID_TUBE][0]), ("payload_door_frame", PARTS["payload_door_frame"]["m"]),
@@ -1551,7 +1606,7 @@ def main():
         add_solids(rocket_items(buy, cut=cut, skip=("upper_launch_lug",)), cc, suffix="_" + cname[-3:])
     # payload door open
     c_door = collection("Payload door open")
-    door_items = [it for it in items if not it[0].startswith(("payload_door", "fin_", "servo_MG90S_tab", "horn_tab", "pushrod_tab"))]
+    door_items = [it for it in items if not it[0].startswith(("payload_door", "fin_", "servo_MG90S_tab", "horn_tab"))]
     add_solids(door_items, c_door, suffix="_dr")
     for nm, m, mt in (("payload_door_open", door_solid(75.0), M["orange"]), ("latch_knob_open", latch_knob_solid(75.0), M["black"]),
                       ("latch_cam_open", latch_cam_solid(False, 75.0), M["black"])):
@@ -1563,6 +1618,21 @@ def main():
     add_solids(tab_items, c_tab, suffix="_tb")
     for k, a in enumerate(FIN_ANG):
         to_blender(f"fin_control_tab_def_{k + 1}", polar(tab_local(12.0), a), M["blue"], c_tab)
+    # one fin cut through its mid-plane: servo in its pocket, horn glued in the tab, pin in the root slot, lead in its
+    # groove and channel (fin 1 turned to +x, the half at y > 0 removed)
+    c_fs = collection("Section fin")
+    half = box(2000.0, 1000.0, 4000.0, 0, 500.0, 500.0)
+    fc1 = PARTS["fin_can"]["m"].rotate((0, 0, -FIN_ANG[0])) ^ bx(CAN_RI - 6.0, TIP_R + 5.0, -40.0, 40.0, FOOT_Z - 5.0,
+                                                                   FIN["root_chord"] + 15.0)
+    for nm, m, mt in (("fin_can_fs", fc1 - half, M["orange"]), ("fin_control_tab_fs", tab_local(0.0) - half, M["blue"]),
+                      ("servo_MG90S_tab_fs", tab_servo_local() - half, M["servo"]),
+                      ("horn_tab_fs", tab_horn_local(0.0) - half, M["horn"])):
+        to_blender(nm, m, mt, c_fs)
+    a0 = math.radians(GROOVE_ANG[0])
+    lead1 = [(x * math.cos(a0) + y * math.sin(a0), -x * math.sin(a0) + y * math.cos(a0), z) for x, y, z in lead_paths()["lead_tab1"]]
+    lead1 = [q for q in lead1 if q[0] > CAN_RI - 6.0 and q[2] < FIN["root_chord"]]
+    for i, c in enumerate((M["wire_br"], M["wire_r"], M["wire_or"])):
+        curve_obj(f"lead_tab1_fs_{i}", [(x, y - 1.6 + (i - 1) * 0.9, z) for x, y, z in lead1], c, c_fs, radius=0.45)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
     if "--no-render" not in ARGS:
         setup_render()
@@ -1576,6 +1646,7 @@ def main():
             ("release_latch_cutaway", (-120, 230, BOLT_Z + 40), (-14, 0, BOLT_Z - 15), 50, {"Section latch"}, (1200, 1200)),
             ("payload_bay_open", (175, -120, 450), (24, 0, 408), 50, {c_door.name}, (1200, 1200)),
             ("fin_tab_closeup", (-60, 270, 75), (30, 45, 22), 50, {c_tab.name}, (1400, 1100)),
+            ("fin_servo_cutaway", (70, 250, 35), (53, 0, 25), 50, {c_fs.name}, (1400, 1200)),
             ("launch_pad", (1000, -1250, 420), (0, 0, foot_z / 2 + 60), 40, {c_pad.name, c_gnd.name}, (1600, 1000)),
         ]
         render_views(views)

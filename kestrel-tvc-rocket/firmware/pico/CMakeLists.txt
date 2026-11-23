@@ -29,5 +29,5 @@ target_link_libraries(kestrel_fc
 pico_enable_stdio_usb(kestrel_fc 1)
 pico_enable_stdio_uart(kestrel_fc 0)
 pico_set_program_name(kestrel_fc "KESTREL FC")
-pico_set_program_version(kestrel_fc "2.01")
+pico_set_program_version(kestrel_fc "2.02")
 pico_add_extra_outputs(kestrel_fc)

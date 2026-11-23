@@ -1,6 +1,6 @@
 {
  "BT70_bottom_tube_340": {
-  "z_from_tip": 729.2,
+  "z_from_tip": 729.6,
   "length": 340.0,
   "radius": 28.2
  },
@@ -13,6 +13,11 @@
   "z_from_tip": 855.0,
   "length": 95.0,
   "radius": 12.0
+ },
+ "nose_ballast_M3_nuts": {
+  "z_from_tip": 34.6,
+  "length": 29.8,
+  "radius": 13.5
  },
  "servo_MG90S_tvc_ring": {
   "z_from_tip": 784.4,
@@ -45,84 +50,44 @@
   "radius": 20.7
  },
  "servo_MG90S_tab1": {
-  "z_from_tip": 855.6,
+  "z_from_tip": 878.6,
   "length": 32.2,
-  "radius": 59.5
+  "radius": 78.5
  },
  "horn_tab1": {
-  "z_from_tip": 861.0,
-  "length": 7.0,
-  "radius": 60.1
- },
- "pushrod_tab1_1.2mm": {
-  "z_from_tip": 871.9,
-  "length": 23.0,
-  "radius": 60.3
- },
- "hinge_pin_tab1_1.2mm": {
-  "z_from_tip": 882.8,
-  "length": 1.2,
-  "radius": 63.1
+  "z_from_tip": 885.4,
+  "length": 10.9,
+  "radius": 55.4
  },
  "servo_MG90S_tab2": {
-  "z_from_tip": 855.6,
+  "z_from_tip": 878.6,
   "length": 32.2,
-  "radius": 59.5
+  "radius": 78.5
  },
  "horn_tab2": {
-  "z_from_tip": 861.0,
-  "length": 7.0,
-  "radius": 60.1
- },
- "pushrod_tab2_1.2mm": {
-  "z_from_tip": 871.9,
-  "length": 23.0,
-  "radius": 60.3
- },
- "hinge_pin_tab2_1.2mm": {
-  "z_from_tip": 882.8,
-  "length": 1.2,
-  "radius": 63.1
+  "z_from_tip": 885.4,
+  "length": 10.9,
+  "radius": 55.4
  },
  "servo_MG90S_tab3": {
-  "z_from_tip": 855.6,
+  "z_from_tip": 878.6,
   "length": 32.2,
-  "radius": 59.5
+  "radius": 78.5
  },
  "horn_tab3": {
-  "z_from_tip": 861.0,
-  "length": 7.0,
-  "radius": 60.1
- },
- "pushrod_tab3_1.2mm": {
-  "z_from_tip": 871.9,
-  "length": 23.0,
-  "radius": 60.3
- },
- "hinge_pin_tab3_1.2mm": {
-  "z_from_tip": 882.8,
-  "length": 1.2,
-  "radius": 63.1
+  "z_from_tip": 885.4,
+  "length": 10.9,
+  "radius": 55.4
  },
  "servo_MG90S_tab4": {
-  "z_from_tip": 855.6,
+  "z_from_tip": 878.6,
   "length": 32.2,
-  "radius": 59.5
+  "radius": 78.5
  },
  "horn_tab4": {
-  "z_from_tip": 861.0,
-  "length": 7.0,
-  "radius": 60.1
- },
- "pushrod_tab4_1.2mm": {
-  "z_from_tip": 871.9,
-  "length": 23.0,
-  "radius": 60.3
- },
- "hinge_pin_tab4_1.2mm": {
-  "z_from_tip": 882.8,
-  "length": 1.2,
-  "radius": 63.1
+  "z_from_tip": 885.4,
+  "length": 10.9,
+  "radius": 55.4
  },
  "servo_MG90S_release": {
   "z_from_tip": 186.1,
@@ -197,28 +162,28 @@
   "path_length_mm": 132.0
  },
  "lead_tab1": {
-  "z_from_tip": 752.9,
-  "length": 200.5,
-  "radius": 30.8,
-  "path_length_mm": 212.0
+  "z_from_tip": 777.0,
+  "length": 214.1,
+  "radius": 77.0,
+  "path_length_mm": 272.0
  },
  "lead_tab2": {
-  "z_from_tip": 750.8,
-  "length": 200.5,
-  "radius": 30.8,
-  "path_length_mm": 218.0
+  "z_from_tip": 774.7,
+  "length": 214.1,
+  "radius": 77.0,
+  "path_length_mm": 279.0
  },
  "lead_tab3": {
-  "z_from_tip": 749.9,
-  "length": 200.5,
-  "radius": 30.8,
-  "path_length_mm": 219.0
+  "z_from_tip": 773.5,
+  "length": 214.1,
+  "radius": 77.0,
+  "path_length_mm": 281.0
  },
  "lead_tab4": {
-  "z_from_tip": 749.1,
-  "length": 200.5,
-  "radius": 30.8,
-  "path_length_mm": 220.0
+  "z_from_tip": 773.0,
+  "length": 214.1,
+  "radius": 77.0,
+  "path_length_mm": 281.0
  },
  "lead_release": {
   "z_from_tip": 382.7,

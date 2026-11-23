@@ -1,6 +1,6 @@
 | part | qty | size mm | solid cm³ | est. printed g | thinnest wall mm (2nd pct) | watertight | bodies | fits 220x220x250 | overhang mm² (>45°) / largest flat region | supports | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| nose_cone | 1 | 56.3 x 56.3 x 175.0 | 27.7 | 34.7 | 0.93 | yes | 1 | yes | 134 / 64 | none | PASS |
+| nose_cone | 1 | 56.3 x 56.3 x 175.0 | 27.4 | 34.2 | 0.93 | yes | 1 | yes | 134 / 64 | none | PASS |
 | top_latch_insert | 1 | 55.0 x 55.0 x 58.5 | 16.5 | 20.6 | 1.20 | yes | 1 | yes | 102 / 34 | none | PASS |
 | latch_bolt | 1 | 8.2 x 6.0 x 3.0 | 0.1 | 0.1 | 0.44 | yes | 1 | yes | 0 / 0 | none | PASS |
 | payload_door_frame | 1 | 18.4 x 44.0 x 60.0 | 4.1 | 5.1 | 0.13 | yes | 1 | yes | 142 / 43 | none | PASS |
@@ -13,10 +13,10 @@
 | avbay_sled | 1 | 51.3 x 51.3 x 104.0 | 15.9 | 19.9 | 0.60 | yes | 1 | yes | 505 / 113 | none | PASS |
 | tvc_motor_holder | 1 | 35.2 x 29.0 x 95.0 | 13.8 | 17.2 | 1.20 | yes | 1 | yes | 608 / 499 | under the pushrod tab | PASS |
 | tvc_gimbal_ring | 1 | 40.6 x 39.2 x 8.0 | 2.7 | 3.4 | 2.15 | yes | 1 | yes | 97 / 32 | none | PASS |
-| tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.3 | 27.9 | 1.00 | yes | 1 | yes | 1246 / 91 | under the four servo bars | PASS |
+| tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.2 | 27.7 | 1.00 | yes | 1 | yes | 1247 / 91 | under the four servo bars | PASS |
 | tvc_motor_retainer | 1 | 34.4 x 34.4 x 13.0 | 4.3 | 5.3 | 1.50 | yes | 1 | yes | 28 / 14 | none | PASS |
-| fin_can | 1 | 114.1 x 114.1 x 155.0 | 94.3 | 117.9 | 1.00 | yes | 1 | yes | 2012 / 206 | none (servo-pocket roofs bridge 12.6 mm between the pod walls) | PASS |
-| fin_control_tab | 4 | 27.2 x 17.6 x 18.1 | 1.0 | 5.2 | 1.18 | yes | 1 | yes | 455 / 380 | build plate only, under the face beside the hinge bead | PASS |
+| fin_can | 1 | 122.7 x 122.7 x 155.0 | 216.3 | 181.2 | 1.00 | yes | 1 | yes | 3465 / 444 | none (printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins) | PASS |
+| fin_control_tab | 4 | 21.7 x 14.4 x 25.5 | 4.6 | 13.9 | 2.70 | yes | 1 | yes | 63 / 45 | none | PASS |
 | upper_launch_lug | 1 | 9.5 x 10.3 x 25.0 | 1.3 | 1.6 | 1.34 | yes | 1 | yes | 0 / 0 | none | PASS |
 | camera_pod | 1 | 36.8 x 26.0 x 51.1 | 9.3 | 11.6 | 0.82 | yes | 1 | yes | 571 / 490 | none (camera-pocket roof bridges 23.6 mm between its side walls) | PASS |
 | pad_hub | 1 | 110.0 x 110.0 x 101.6 | 574.7 | 219.5 | 3.19 | yes | 1 | yes | 9472 / 7302 | tree supports in the leg sockets | PASS |
@@ -28,6 +28,6 @@
 | tool_drill_guide_bottom_tube | 1 | 60.7 x 60.7 x 148.0 | 51.7 | 64.6 | 1.95 | yes | 1 | yes | 87 / 55 | none | PASS |
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.8 | 1.95 | yes | 1 | yes | 76 / 66 | none | PASS |
 
-Estimated printed rocket parts total: **331 g** (walls 1.2 mm + 20% infill assumption)
+Estimated printed rocket parts total: **403 g** (walls 1.2 mm + 20% infill assumption)
 
 Overhangs are measured in the exported print orientation. A part without listed supports passes only if no flat downward region is larger than 120 mm² apart from narrow bridges; see the table for the parts that are printed with support material.

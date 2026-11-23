@@ -25,12 +25,11 @@ BED = (220.0, 220.0, 250.0)
 SUPPORTS = {
     "tvc_frame": "under the four servo bars",
     "tvc_motor_holder": "under the pushrod tab",
-    "fin_control_tab": "build plate only, under the face beside the hinge bead",
     "pad_hub": "tree supports in the leg sockets",
 }
 # parts whose larger flat overhangs are bridges (supported on both sides), reviewed by hand
 BRIDGES = {
-    "fin_can": "servo-pocket roofs bridge 12.6 mm between the pod walls",
+    "fin_can": "printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins",
     "camera_pod": "camera-pocket roof bridges 23.6 mm between its side walls",
 }
 MAX_UNSUPPORTED_MM2 = 120.0   # flat downward region allowed without supports (bridges such as window tops are longer but narrow)

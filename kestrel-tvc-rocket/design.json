@@ -43,7 +43,7 @@
     "tip_chord": 60,
     "span": 50,
     "sweep": 50,
-    "thickness": 2.0,
+    "thickness": 15.0,
     "trailing_edge_from_tail": 0,
     "can_length": 125,
     "can_wall": 1.0,
@@ -51,28 +51,24 @@
       "length": 30,
       "width": 12,
       "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins",
-      "foot_base_mm2": 55.0
+      "foot_base_mm2": 180.0
     },
     "tab": {
-      "chord": 18,
-      "r_from": 6,
-      "r_to": 34,
+      "chord": 21.7,
+      "r_from": 2.8,
+      "r_to": 26.1,
       "max_deflection_deg": 15.0,
       "effectiveness": 0.45,
       "servo": "MG90S",
       "servo_speed_s_per_60deg": 0.1,
-      "note": "trailing-edge control tab on every fin, direct pushrod from a pod servo",
-      "horn_mm": 14.3,
-      "servo_arm_mm": 6.0,
-      "linkage_cda_mm2": 40.0,
-      "linkage_note": "per fin: servo horn + tab horn + pushrod Z-bends (~58 mm2 edge-on) and the hinge knuckle beads (~45 mm2), x cd 0.4"
+      "note": "trailing-edge tab on every fin, turned directly by the MG90S inside the fin (its shaft is the hinge line); stock horn glued into the tab",
+      "horn_mm": 1.0,
+      "servo_arm_mm": 1.0,
+      "linkage_cda_mm2": 10.0,
+      "linkage_note": "direct drive: servo angle = tab angle (horn_mm = servo_arm_mm); linkage_cda covers the hinge gaps only",
+      "hinge_z": 15.0
     },
-    "pod": {
-      "frontal_area_mm2": 336.5,
-      "length": 62.0,
-      "cd": 0.3,
-      "note": "streamlined pod on the +theta side of each fin root holding the tab's MG90S (shaft radially out); frontal area = (pod top - can) x (pod wall - fin face)"
-    }
+    "thickness_note": "whole fin 15 mm thick (half-round leading edge) so each tab servo (MG90S, 12.2 mm wide) sits inside its fin"
   },
   "tvc": {
     "motor_diameter": 24.0,
@@ -145,12 +141,9 @@
       "mass_g": 0.7,
       "cad_ref": [
         "pushrod_ring_1.2mm",
-        "pushrod_holder_1.2mm",
-        "pushrod_tab1_1.2mm",
-        "pushrod_tab2_1.2mm",
-        "pushrod_tab3_1.2mm",
-        "pushrod_tab4_1.2mm"
-      ]
+        "pushrod_holder_1.2mm"
+      ],
+      "note": "TVC pushrods only (the fin tabs are driven directly)"
     },
     {
       "name": "servo_extension_tab",
@@ -161,7 +154,7 @@
         "lead_tab3",
         "lead_tab4"
       ],
-      "note": "15 cm servo extension each"
+      "note": "15 cm servo extension each (the lead runs through the fin channel, then up the TVC frame)"
     },
     {
       "name": "servo_extension_release",
@@ -254,6 +247,12 @@
       "z_above_tail": 300,
       "length": 600,
       "radius": 20
+    },
+    {
+      "name": "nose_ballast_M3_nuts_epoxy",
+      "mass_g": 33.0,
+      "cad_ref": "nose_ballast_M3_nuts",
+      "note": "about 90 M3 nuts (0.33 g each) + 3 g epoxy in the nose tip; restores the +0.7 calibre margin lost to the 15 mm fins. The balance test (BUILD_GUIDE) sets the real amount"
     },
     {
       "name": "glue_tape_paint_allowance",

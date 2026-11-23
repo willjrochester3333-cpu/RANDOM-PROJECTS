@@ -1,10 +1,10 @@
 [
  {
   "name": "nose_cone",
-  "mass_g": 34.7,
-  "z": 115.0,
+  "mass_g": 34.2,
+  "z": 114.8,
   "length": 0.0,
-  "radius": 20.9,
+  "radius": 20.8,
   "source": "CAD"
  },
  {
@@ -105,8 +105,8 @@
  },
  {
   "name": "tvc_frame",
-  "mass_g": 27.9,
-  "z": 825.1,
+  "mass_g": 27.7,
+  "z": 824.8,
   "length": 0.0,
   "radius": 26.3,
   "source": "CAD"
@@ -121,18 +121,18 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 117.9,
-  "z": 846.6,
+  "mass_g": 181.2,
+  "z": 850.9,
   "length": 0.0,
-  "radius": 43.5,
+  "radius": 44.8,
   "source": "CAD"
  },
  {
   "name": "fin_control_tab",
-  "mass_g": 5.2,
-  "z": 889.3,
+  "mass_g": 13.9,
+  "z": 886.2,
   "length": 0.0,
-  "radius": 52.6,
+  "radius": 46.1,
   "source": "CAD"
  },
  {

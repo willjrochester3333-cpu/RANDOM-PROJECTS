@@ -1,6 +1,6 @@
 # Interference check
 
-59 solids (1711 pairs) checked with exact mesh booleans.
+52 solids (1326 pairs) checked with exact mesh booleans.
 
 **No overlaps** (> 1 mm^3) between any printed part and any purchased part.
 
@@ -10,7 +10,7 @@ Motor, holder, retainer and ring swung round the whole deflection circle (24 dir
 
 ## Control-tab sweep
 
-All 4 tabs with their horns, pushrods and servo horns swept through +/-17 deg (limit 15 deg + 2 deg): 324 contact checks.
+All 4 tabs with their glued-in servo horns swept through +/-17 deg (limit 15 deg + 2 deg): 216 contact checks.
 
 ## Payload-door sweep
 

@@ -2,17 +2,17 @@
  {
   "name": "nose_cone",
   "qty": 1,
-  "note": "Print tip-up, 3 walls, 10% gyroid, no supports (the bulkhead is a 45 deg cone). Slides over the top insert; the latch bolt clicks into its hole",
+  "note": "Print tip-up, 3 walls, 10% gyroid, no supports (the bulkhead is a 45 deg cone). Slides over the top insert; the latch bolt clicks into its hole. Ballast (about 90 M3 nuts + epoxy) goes into the tip through the hole in the bulkhead",
   "group": "rocket",
   "part": "nose",
-  "volume_mm3": 27733.572904589957,
-  "area_mm2": 50228.37595547013,
+  "volume_mm3": 27380.969620846416,
+  "area_mm2": 49895.7516555377,
   "centroid_assembly_mm": [
-   -0.024793614153103924,
-   -0.003854435029058768,
-   783.9803429623646
+   -0.025112893250733355,
+   -0.003903991639335792,
+   784.1546809231447
   ],
-  "r_gyr_mm": 20.936482657190496,
+  "r_gyr_mm": 20.826734437691243,
   "z_len_mm": 175.0
  },
  {
@@ -213,14 +213,14 @@
   "note": "PETG, print upright; supports only under the servo bars",
   "group": "rocket",
   "part": "tvc",
-  "volume_mm3": 22295.084091919565,
-  "area_mm2": 38843.884461480426,
+  "volume_mm3": 22167.285601917007,
+  "area_mm2": 38770.383088310235,
   "centroid_assembly_mm": [
-   0.09311694558038325,
-   0.30772958126561406,
-   73.8749773632193
+   0.09163788030681404,
+   0.3141598710739007,
+   74.1513250564984
   ],
-  "r_gyr_mm": 26.328702838834722,
+  "r_gyr_mm": 26.328597902395643,
   "z_len_mm": 156.0
  },
  {
@@ -242,34 +242,34 @@
  {
   "name": "fin_can",
   "qty": 1,
-  "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Fins + legs + 4 servo pods in one piece",
+  "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Can, 4 thick fins (servo pockets, lead channels) and legs in one piece",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 94293.79380161373,
-  "area_mm2": 91564.02393571453,
+  "volume_mm3": 216293.24067771877,
+  "area_mm2": 105899.74342634273,
   "centroid_assembly_mm": [
-   0.007336943737201413,
-   0.31566995925917574,
-   52.448943839120474
+   0.004052570823677253,
+   0.1381221266783131,
+   48.1371400231771
   ],
-  "r_gyr_mm": 43.45790142551382,
+  "r_gyr_mm": 44.7726601202943,
   "z_len_mm": 155.0
  },
  {
   "name": "fin_control_tab",
   "qty": 4,
-  "note": "PETG, print lying on its plain face (horn up) with supports on the build plate only (they fill the 0.8 mm under the face beside the hinge bead). Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips",
+  "note": "PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut to a 5.5 mm stub, into the pocket; the printed pin at the other end sits in the slot at the fin root",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 1046.6100150062962,
-  "area_mm2": 1363.6324580804735,
+  "volume_mm3": 4629.2530079042235,
+  "area_mm2": 1927.1414997849,
   "centroid_assembly_mm": [
-   34.70544760290144,
-   36.14218168519912,
-   9.695197985114753
+   30.490020568675273,
+   30.49002050435324,
+   12.786500944441402
   ],
-  "r_gyr_mm": 52.63927649296087,
-  "z_len_mm": 17.599999994039536
+  "r_gyr_mm": 46.07403301225409,
+  "z_len_mm": 21.700000762939453
  },
  {
   "name": "upper_launch_lug",

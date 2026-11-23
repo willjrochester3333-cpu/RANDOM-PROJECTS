@@ -26,7 +26,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 201;            // 2.01 (KESTREL-2: fin tabs, 7 servos; TVC linkage 0.5)
+constexpr uint16_t kFwVersion = 202;            // 2.02 (KESTREL-2: direct-drive fin tabs, servos inside the fins)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 
@@ -193,9 +193,12 @@ void print_status() {
     for (int i = 0; i < kServoCount; ++i) printf(" %d:%.0f", i + 1, static_cast<double>(S.trim_us[i]));
     printf("   dirs:");
     for (int i = 0; i < kServoCount; ++i) printf(" %d:%+d", i + 1, S.dir[i]);
-    printf("\nfin tabs %s, limit %.1f deg, linkage %.1f/%.1f mm, roll programme %.0f deg/s\n", S.tabs_enabled ? "ON" : "OFF",
-           static_cast<double>(S.max_tab_deg), static_cast<double>(S.tab_servo_arm_mm), static_cast<double>(S.tab_horn_mm),
-           static_cast<double>(S.roll_program_dps));
+    printf("\nfin tabs %s, limit %.1f deg, ", S.tabs_enabled ? "ON" : "OFF", static_cast<double>(S.max_tab_deg));
+    if (std::fabs(S.tab_servo_arm_mm - S.tab_horn_mm) < 1e-3f)
+        printf("direct drive (servo angle = tab angle)");
+    else
+        printf("linkage %.1f/%.1f mm", static_cast<double>(S.tab_servo_arm_mm), static_cast<double>(S.tab_horn_mm));
+    printf(", roll programme %.0f deg/s\n", static_cast<double>(S.roll_program_dps));
     const auto& fs = fc.stats();
     if (fs.t_launch > 0)
         printf("last flight: apogee %.1f m at %.2f s, max tilt %.1f deg, max roll rate %.0f deg/s, deploy reason %u%s%s\n",
@@ -272,8 +275,9 @@ void handle_command(char* cmd) {
         bench = Bench{};
         bench.t_mode_us = time_us_64();
         printf("\nTAB DIRECTION TEST: tabs 1-4 (fin #1 has the pip, then going round towards the launch lug)\n"
-               "move to +10 deg one after another for 1.5 s. Each tab's TRAILING EDGE must move AWAY from its\n"
-               "servo pod. If one is wrong: dir <4-7> -1 (tab 1 = servo 4), save, repeat.\n");
+               "move to +10 deg one after another for 1.5 s. Look at the tail from behind (nozzle towards you):\n"
+               "each tab's TRAILING EDGE must swing ANTICLOCKWISE, towards the fin with the next-lower number\n"
+               "(tab 1 towards fin 4). If one is wrong: dir <4-7> -1 (tab 1 = servo 4), save, repeat.\n");
         return;
     }
     if (!std::strcmp(c, "fintest")) {

@@ -145,7 +145,7 @@ class SimConfig:
     tab_deadband_deg: float = 0.5     # servo deadband (horn deg)
     tab_backlash_deg: float = 0.3     # tab deg
     tab_limit_deg: float = 16.0       # mechanical stop
-    tab_servo_arm_mm: float = 6.0
+    tab_servo_arm_mm: float | None = None   # None = design.json fins.tab.servo_arm_mm (direct drive: = horn_mm)
     tab_horn_mm: float | None = None   # None = design.json fins.tab.horn_mm (CAD-checked)
     tab_trim_err_deg: tuple = (0.0, 0.0, 0.0, 0.0)
     tab_eff_scale: float = 1.0        # uncertainty on the tab effectiveness
@@ -289,6 +289,8 @@ class Simulation:
             cfg.linkage_ratio = self.design["tvc"]["linkage_ratio"]
         if cfg.tab_horn_mm is None:
             cfg.tab_horn_mm = self.design["fins"]["tab"]["horn_mm"]
+        if cfg.tab_servo_arm_mm is None:
+            cfg.tab_servo_arm_mm = self.design["fins"]["tab"]["servo_arm_mm"]
         self.fsw = fsw
         self.z_imu = self.design["avbay"].get("imu_z", 445) / 1000.0   # IMU position (m from nose tip)
 
