@@ -13,8 +13,10 @@ The rocket comes apart into three parts:
 
 Outputs
   cad/stl/*.stl + parts.json          print-oriented STLs (mm)
-  cad/kestrel.blend                   full assembly, rocket on the pad, exploded view, sections, launch pad
-  cad/kestrel_tvc_module.blend        the TVC module on its own (its two servo leads come out of the top)
+  cad/kestrel.blend                   scene 1: the complete rocket, the same rocket cut open (everything inside) and
+                                      every part laid out with its name; scenes 2-7: exploded view, cut-aways, payload
+                                      door open, fin tabs deflected, fin cut open, rocket on the launch pad
+  cad/kestrel_tvc_module.blend        the TVC module on its own (its two servo leads come out of the top) + assembly steps
   cad/kestrel_parachute_open.blend    the rocket descending under its open parachute
   cad/component_positions.json        where every purchased part sits (read by the simulator's mass model)
   cad/avionics_layout.json, cad/interference_report.md, cad/renders/*.png
@@ -1549,6 +1551,336 @@ def parachute_open_solids(M):
     return gores, Rp, H
 
 
+# ------------------------------------------------------------------------------- tidy .blend files for people
+# The script builds every view in one scene (that is how the renders are made). Before saving, each file is
+# reorganised so that nothing overlaps when someone opens it: one scene per view, the viewport framed on the model.
+LAYOUT = [
+    ("Nose cone and middle part (printed)", [
+        ("part", "nose_cone", "nose cone"), ("part", "top_latch_insert", "release-latch\ninsert"),
+        ("part", "latch_bolt", "latch bolt"), ("part", "payload_wall", "parachute wall"),
+        ("part", "spring_piston", "spring piston"), ("part", "payload_door_frame", "door frame"),
+        ("part", "payload_door", "payload door"), ("part", "payload_door_latch_knob", "door latch\nknob"),
+        ("part", "payload_door_latch_cam", "door latch\ncam")]),
+    ("Bottom part (printed)", [
+        ("part", "fin_can", "fin can\n(4 fins + legs)"), ("part", "fin_control_tab", "control tab\nx 4"),
+        ("part", "avbay_coupler", "av-bay coupler"), ("part", "avbay_sled", "av-bay sled"),
+        ("part", "camera_pod", "camera pod"), ("part", "upper_launch_lug", "upper\nlaunch lug")]),
+    ("TVC module (printed)", [
+        ("part", "tvc_frame", "TVC frame"), ("part", "tvc_gimbal_ring", "gimbal ring"),
+        ("part", "tvc_motor_holder", "motor holder"), ("part", "tvc_motor_retainer", "motor retainer")]),
+    ("Electronics (bought; the PCB comes assembled from JLCPCB)", [
+        ("buy", "pcb_kestrel_fc_40x82", "flight-computer\nPCB"), ("buy", "pico2w_on_sockets", "Pico 2 W\non its sockets"),
+        ("buy", "fc_connectors_buzzer_switch", "servo headers,\nbuzzer, switch"),
+        ("buy", "lipo_overlander_350_2s", "2S 350 mAh\nLiPo"), ("buy", "gps_patch_antenna_15mm", "GPS patch\nantenna"),
+        ("buy", "camera_SQ12_class", "SQ12 camera")]),
+    ("Servos and linkages (bought)", [
+        ("buy", "servo_MG90S_tab1", "MG90S servo\nx 7"), ("buy", "horn_tvc_ring", "servo horn,\nTVC x 2"),
+        ("buy", "horn_tab1", "horn stub,\nin each tab x 4"), ("buy", "horn_release", "servo horn,\nrelease latch"),
+        ("buy", "pushrod_ring_1.2mm", "1.2 mm pushrod\nx 2 (TVC)"), ("buy", "latch_spring_link_0.6mm", "0.6 mm\nlatch link")]),
+    ("Airframe, motor and recovery (bought)", [
+        ("buyflat", LOWER_TUBE, "BT-70 bottom tube, 340 mm"), ("buyflat", MID_TUBE, "BT-70 middle tube, 380 mm"),
+        ("buy", MOTOR_NAME, "TSP E20\nmotor"), ("buy", "parachute_packed", "36 in parachute\n(packed)"),
+        ("buy", "shock_cord_kevlar_elastic", "shock cord\n(coiled)"), ("spring", None, "ejection\nspring"),
+        ("buy", "nose_ballast_M3_nuts", "nose ballast:\nM3 nuts + epoxy"), ("buy", "payload_example_25g", "example\npayload 25 g")]),
+    ("Launch pad", [
+        ("part", "pad_hub", "pad hub"), ("part", "pad_rod_block", "rod block"), ("part", "pad_rod_stop", "rod stop"),
+        ("part", "pad_leg_foot", "leg foot\nx 3"), ("part", "pad_tile_clamp", "tile clamp\nx 4"),
+        ("part", "rod_tip_safety_cap", "rod-tip\nsafety cap"), ("pad", "blast_tile_200x200", "200 mm tile"),
+        ("rod", None, "6 mm launch rod, 1 m"), ("dowel", None, "22 mm dowel leg, 600 mm, x 3")]),
+    ("Build tools (printed, not flown)", [
+        ("part", "tool_drill_guide_bottom_tube", "drill guide,\nbottom tube"),
+        ("part", "tool_drill_guide_middle_tube", "drill guide,\nmiddle tube")]),
+]
+CUT_DX = 220.0            # the cut-open rocket stands this far beside the complete one
+CUTOPEN = ("avbay_coupler", "fin_can", "fin_control_tab", "tvc_frame", "nose_cone", "top_latch_insert", "payload_wall",
+           "spring_piston", "payload_door", "camera_pod", "camera_SQ12", "servo_MG90S_tab", "horn_tab", "upper_launch_lug",
+           LOWER_TUBE, MID_TUBE)
+
+
+def _scene_like(name, like):
+    sc = bpy.data.scenes.new(name)
+    _mm_units(sc)
+    sc.render.engine = like.render.engine
+    sc.render.resolution_x, sc.render.resolution_y = like.render.resolution_x, like.render.resolution_y
+    sc.world = like.world
+    try:
+        sc.view_settings.view_transform = like.view_settings.view_transform
+        sc.view_settings.look = like.view_settings.look
+    except TypeError:
+        pass
+    return sc
+
+
+def _lights(sc):
+    """world + the three sun lights, in a 'Lights' collection that every scene of the file links"""
+    if sc.world is None:
+        w = bpy.data.worlds.new("w")
+        w.use_nodes = True
+        w.node_tree.nodes["Background"].inputs[0].default_value = (0.80, 0.85, 0.92, 1)
+        w.node_tree.nodes["Background"].inputs[1].default_value = 0.45
+        sc.world = w
+    lc = bpy.data.collections.get("Lights")
+    if lc is None:
+        lc = bpy.data.collections.new("Lights")
+        sc.collection.children.link(lc)
+    for o in [o for o in sc.collection.objects if o.type == "LIGHT"]:
+        sc.collection.objects.unlink(o)
+        lc.objects.link(o)
+    if not lc.objects:
+        for nm, en, rot in (("key", 3.2, (50, 10, 30)), ("fill", 0.8, (70, 0, 200)), ("rim", 1.2, (110, 0, 120))):
+            l = bpy.data.lights.new(nm, "SUN")
+            l.energy = en
+            l.angle = math.radians(4.0)
+            o = bpy.data.objects.new(nm, l)
+            o.rotation_euler = tuple(math.radians(a) for a in rot)
+            lc.objects.link(o)
+    return lc
+
+
+def _move_to_scene(sc, main, coll_names, cam_names=(), dx=0.0):
+    """move collections (spaced dx apart along x) and their render cameras into scene sc"""
+    for k, cn in enumerate(coll_names):
+        c = bpy.data.collections[cn]
+        if c.name in main.collection.children:
+            main.collection.children.unlink(c)
+        sc.collection.children.link(c)
+        if dx * k:
+            for o in c.all_objects:
+                o.location.x += dx * k
+    for k, cam_name in enumerate(cam_names):
+        cam = bpy.data.objects.get(cam_name)
+        if cam is None:
+            continue
+        if cam.name in main.collection.objects:
+            main.collection.objects.unlink(cam)
+        sc.collection.objects.link(cam)
+        cam.location.x += dx * k
+        if sc.camera is None:
+            sc.camera = cam
+
+
+def _mm_units(sc):
+    # assigning unit_settings.system (even unchanged) resets the *active* scene's length unit (Blender quirk), so
+    # only touch it when it really differs
+    u = sc.unit_settings
+    if u.system != "METRIC":
+        u.system = "METRIC"
+    u.scale_length = 0.001
+    u.length_unit = "MILLIMETERS"
+
+
+def _finish_scenes(dirs=None, default_dir=(0.75, -1.6, 0.95)):
+    """millimetre units everywhere, object matrices up to date in every scene (positions changed in scenes that were
+    never evaluated), and a camera in each scene that has none (framing its content), so F12 works everywhere"""
+    active = bpy.context.scene
+    for sc in sorted(bpy.data.scenes, key=lambda x: x == active):     # the active scene last
+        _mm_units(sc)
+        for vl in sc.view_layers:
+            vl.update()
+        if sc.camera is None:
+            lo, hi = _content_bbox(sc.collection.children_recursive, update=False)
+            if hi.x > lo.x:
+                _overview_camera(sc, "cam_" + sc.name.split(" ", 1)[-1].lower().replace(" ", "_"), (lo + hi) / 2,
+                                 (dirs or {}).get(sc.name, default_dir), min((hi - lo).length, 3000.0) * 0.95)
+
+
+def _view(center, direction, dist):
+    d = Vector(direction).normalized()
+    return (-d).to_track_quat("-Z", "Y"), Vector(center) + d * dist
+
+
+def _frame_viewports(center, direction, dist):
+    """every 3D viewport of the saved file looks at `center` from `direction` (mm scene: wide clipping range)"""
+    rot, _ = _view(center, direction, dist)
+    for scr in bpy.data.screens:
+        for area in scr.areas:
+            if area.type != "VIEW_3D":
+                continue
+            for sp in area.spaces:
+                if sp.type == "VIEW_3D":
+                    sp.clip_start = 1.0
+                    sp.clip_end = 200000.0
+                    r3 = sp.region_3d
+                    r3.view_perspective = "PERSP"
+                    r3.view_location = Vector(center)
+                    r3.view_rotation = rot
+                    r3.view_distance = dist
+
+
+def _overview_camera(sc, name, center, direction, dist, lens=35.0):
+    rot, loc = _view(center, direction, dist)
+    cam = bpy.data.cameras.new(name)
+    cam.lens = lens
+    cam.clip_start = 5.0
+    cam.clip_end = dist * 30.0
+    co = bpy.data.objects.new(name, cam)
+    sc.collection.objects.link(co)
+    co.location = loc
+    co.rotation_euler = rot.to_euler()
+    sc.camera = co
+    return co
+
+
+def _extent(ob):
+    if ob.type == "MESH":
+        co = np.empty(len(ob.data.vertices) * 3)
+        ob.data.vertices.foreach_get("co", co)
+        co = co.reshape(-1, 3)
+        return co.min(0), co.max(0)
+    co = np.array([p.co[:3] for sp in ob.data.splines for p in sp.points])
+    r = ob.data.bevel_depth
+    return co.min(0) - r, co.max(0) + r
+
+
+def _content_bbox(colls, update=True):
+    if update:
+        bpy.context.view_layer.update()
+    lo, hi = Vector((1e9,) * 3), Vector((-1e9,) * 3)
+    for c in colls:
+        for o in c.all_objects:
+            if o.type in ("MESH", "CURVE", "FONT"):
+                for v in o.bound_box:
+                    w = o.matrix_world @ Vector(v)
+                    lo, hi = Vector(map(min, lo, w)), Vector(map(max, hi, w))
+    return lo, hi
+
+
+def _flat_text(coll, body, x, y, z, size, align="CENTER", upright=False):
+    cu = bpy.data.curves.new("label", "FONT")
+    cu.body = body
+    cu.size = size
+    cu.space_line = 1.05
+    cu.align_x = align
+    ob = bpy.data.objects.new("label " + body.split("\n")[0][:30], cu)
+    ob.data.materials.append(mat("Label", (0.05, 0.05, 0.06), rough=0.6))
+    ob.location = (x, y, z)
+    if upright:                                   # a sign facing the viewer (-y)
+        ob.rotation_euler = (math.radians(90), 0, 0)
+    coll.objects.link(ob)
+    return ob
+
+
+def build_cutopen_rocket(M, items, coll, dx):
+    """the complete rocket again, with its outer shells cut away on the viewer's side (y < 0) so that everything
+    inside shows; parts that would only float in the removed half are left out"""
+    half = box(2000.0, 1000.0, 4000.0, 0, -500.0, 500.0)
+    for name, m, material in items:
+        if name.startswith(CUTOPEN):
+            m = m - half
+            if m.is_empty():
+                continue
+        to_blender(name + "_cutopen", m, material, coll).location = (dx, 0, 0)
+    keep = [n for n in lead_paths() if n not in ("lead_tab3", "lead_tab4")]     # those two go to the removed fins
+    lead_objects(M, coll, (dx, 0, 0), only=keep, suffix="_cutopen")
+    curve_obj("ejection_spring_cutopen", spring_pts(), M["steel"], coll, radius=0.75).location = (dx, 0, 0)
+
+
+def build_parts_layout(M, buy, coll, x0, y_start, floor_z):
+    """every part on its own, standing on the floor in labelled rows (one of each, with its quantity)"""
+    padbuy = pad_purchased(M, HUB_H - 4.0)
+    TXT, GAP, MAX_W = 9.0, 35.0, 1500.0
+    y = y_start
+    for title, entries in LAYOUT:
+        made = []
+        for kind, key, label in entries:
+            if kind == "part":
+                ob = to_blender(key + " (part)", PARTS[key]["inst"][0], PARTS[key]["material"], coll)
+            elif kind == "buy":
+                ob = to_blender(key + " (part)", buy[key][0], buy[key][1], coll)
+            elif kind == "buyflat":                                   # long tubes lie down so they hide nothing
+                ob = to_blender(key + " (part)", buy[key][0].rotate((0, 90, 0)), buy[key][1], coll)
+            elif kind == "pad":
+                ob = to_blender(key + " (part)", padbuy[key][0], padbuy[key][1], coll)
+            elif kind == "rod":
+                ob = to_blender("launch_rod_6mm_1m (part)", cyl(3.0, 1000.0, 0.0, segs=24).rotate((0, 90, 0)), M["steel"], coll)
+            elif kind == "dowel":
+                ob = to_blender("leg_dowel_22mm (part)", cyl(LEG_D / 2, LEG_L, 0.0, segs=32).rotate((0, 90, 0)), M["wood"], coll)
+            else:
+                ob = curve_obj("ejection_spring (part)", spring_pts(), M["steel"], coll, radius=0.75)
+            lo, hi = _extent(ob)
+            wl = max(len(line) for line in label.split("\n")) * TXT * 0.56
+            made.append((ob, lo, hi, label, max(hi[0] - lo[0], wl)))
+        h_max = max(it[2][2] - it[1][2] for it in made)      # a sign above the group, clear of its tallest part
+        _flat_text(coll, title, x0, y, floor_z + h_max + 14.0, 16.0, align="LEFT", upright=True)
+        y -= 12.0
+        rows, x = [[]], x0
+        for it in made:
+            if rows[-1] and x + it[4] > x0 + MAX_W:
+                rows.append([])
+                x = x0
+            rows[-1].append((it, x))
+            x += it[4] + GAP
+        for row in rows:
+            depth = max(it[2][1] - it[1][1] for it, _ in row)
+            y -= 0.8 * max(it[2][2] - it[1][2] for it, _ in row)     # tall parts stand clear of the labels behind them
+            cy = y - depth / 2
+            nl = max(len(it[3].split("\n")) for it, _ in row)
+            for (ob, lo, hi, label, w), cx in row:
+                ob.location = (cx + (w - (hi[0] - lo[0])) / 2 - lo[0], cy - (lo[1] + hi[1]) / 2, floor_z - lo[2])
+                _flat_text(coll, label, cx + w / 2, y - depth - 12.0, floor_z + 0.2, TXT)
+            y -= depth + 12.0 + nl * TXT * 1.3 + 18.0
+        y -= 30.0
+
+
+def organize_main_file(M, buy, items):
+    main = bpy.context.scene
+    lights = _lights(main)
+    main.name = "1 Rocket + all parts"
+    plan = [("2 Exploded view", ["Exploded view"], ["cam_rocket_exploded"], 0.0),
+            ("3 Cut-aways", ["Section av-bay", "Section TVC", "Section latch"],
+             ["cam_avbay_cutaway", "cam_tvc_gimbal_cutaway", "cam_release_latch_cutaway"], 250.0),
+            ("4 Payload door open", ["Payload door open"], ["cam_payload_bay_open"], 0.0),
+            ("5 Fin tabs deflected", ["Tab deflected"], ["cam_fin_tab_closeup"], 0.0),
+            ("6 Fin cut open", ["Section fin"], ["cam_fin_servo_cutaway"], 0.0),
+            ("7 On the launch pad", ["Rocket on pad", "Launch pad", "Ground"], ["cam_rocket_on_pad", "cam_launch_pad"], 0.0)]
+    for sname, colls, cams, dx in plan:
+        sc = _scene_like(sname, main)
+        sc.collection.children.link(lights)
+        _move_to_scene(sc, main, colls, cams, dx)
+    tools = bpy.data.collections.get("Build tools")          # shown in the parts layout instead
+    if tools is not None:
+        main.collection.children.unlink(tools)
+        for o in list(tools.objects):
+            bpy.data.objects.remove(o)
+        bpy.data.collections.remove(tools)
+    c_cut = collection("Rocket cut open (everything inside)")
+    build_cutopen_rocket(M, items, c_cut, CUT_DX)
+    c_lay = collection("All parts (laid out)")
+    build_parts_layout(M, buy, c_lay, CUT_DX + 200.0, 300.0, FOOT_Z)
+    for x, txt in ((0.0, "complete rocket\n(everything on it\nand inside it)"), (CUT_DX, "the same rocket\ncut open")):
+        _flat_text(c_cut, txt, x, -120.0, FOOT_Z + 0.2, 11.0)
+    lo, hi = _content_bbox([bpy.data.collections["Rocket (assembled)"], c_cut, c_lay])
+    center = (lo + hi) / 2
+    dist = (hi - lo).length * 1.15
+    _overview_camera(main, "cam_overview", center, (0.55, -1.25, 1.3), dist)
+    _frame_viewports(center, (0.55, -1.25, 1.3), dist)
+    _finish_scenes({"3 Cut-aways": (0.5, 1.6, 0.6), "6 Fin cut open": (0.25, 1.0, 0.2)})
+
+
+def organize_tvc_file(c_tex_name):
+    main = bpy.context.scene
+    lights = _lights(main)
+    main.name = "1 TVC module"
+    sc = _scene_like("2 Assembly steps", main)
+    sc.collection.children.link(lights)
+    _move_to_scene(sc, main, [c_tex_name], ["cam_tvc_module_assembly_steps"])
+    cam = bpy.data.objects.get("cam_tvc_module")
+    if cam is not None:
+        main.camera = cam
+    else:
+        _overview_camera(main, "cam_tvc_module", (0, 0, 112), (215, -265, 103), 370.0, lens=50.0)
+    _frame_viewports((0, 0, 100), (215, -265, 103), 600.0)
+    _finish_scenes(default_dir=(0.2, -1.0, 0.25))
+
+
+def organize_parachute_file():
+    _lights(bpy.context.scene)
+    _frame_viewports((0, 0, 1950), (2100, -3300, -150), 4300.0)
+    if bpy.context.scene.camera is None:
+        _overview_camera(bpy.context.scene, "cam_parachute_open", (0, 0, 1900), (2100, -3300, -150), 3915.0, lens=60.0)
+    _finish_scenes()
+
+
 def main():
     reset_scene()
     M = MATS()
@@ -1683,7 +2015,6 @@ def main():
         ob.location = (x, 3.0, z)
         ob.rotation_euler = (math.radians(90), 0, math.radians(180))
         c_fs.objects.link(ob)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
     if "--no-render" not in ARGS:
         setup_render()
         top = tail_z + Z_TIP
@@ -1700,7 +2031,8 @@ def main():
             ("launch_pad", (1000, -1250, 420), (0, 0, foot_z / 2 + 60), 40, {c_pad.name, c_gnd.name}, (1600, 1000)),
         ]
         render_views(views)
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
+    organize_main_file(M, buy, items)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
 
     # ------------------------------------------------------------------ TVC module file
     reset_scene()
@@ -1746,12 +2078,12 @@ def main():
         ob.location = (x, 0.0, -96.0)
         ob.rotation_euler = (math.radians(90), 0, 0)
         c_tex.objects.link(ob)
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_tvc_module.blend"))
     if "--no-render" not in ARGS:
         setup_render()
         render_views([("tvc_module", (215, -265, 215), (0, 0, 112), 50, {c_tvc.name}, (1100, 1500)),
                       ("tvc_module_assembly_steps", (-22, -780, 150), (-22, 0, 18), 50, {c_tex.name}, (1700, 1000))])
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_tvc_module.blend"))
+    organize_tvc_file(c_tex.name)
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_tvc_module.blend"))
 
     # ------------------------------------------------------------------ parachute-open file
     reset_scene()
@@ -1797,11 +2129,11 @@ def main():
     ob = to_blender("nose_cone_on_cord", nose, M["orange"], c_ch)
     ob.rotation_euler = (math.radians(170), math.radians(10), 0)
     ob.location = nose_pos
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_parachute_open.blend"))
     if "--no-render" not in ARGS:
         setup_render(world=(0.45, 0.62, 0.88), strength=0.7)
         render_views([("parachute_open", (2100, -3300, 1750), (0, 0, 1900), 60, {c_ch.name}, (1100, 1600))])
-        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_parachute_open.blend"))
+    organize_parachute_file()
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_parachute_open.blend"))
     print("CAD done. component positions:", len(comp))
 
 

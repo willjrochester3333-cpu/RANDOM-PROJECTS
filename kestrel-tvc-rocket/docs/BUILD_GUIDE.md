@@ -18,7 +18,10 @@ first**: it takes 1–3 weeks to arrive.
 Pictures that help: `cad/renders/rocket_exploded.png` (all parts), `tvc_module.png` and
 `tvc_module_assembly_steps.png` (TVC), `avbay_cutaway.png`, `release_latch_cutaway.png`, `payload_bay_open.png`,
 `fin_tab_closeup.png`, `fin_servo_cutaway.png` (a fin cut open: servo, horn, tab, lead), `launch_pad.png`. Open
-`cad/kestrel.blend` in Blender 4 to turn any part around.
+`cad/kestrel.blend` in Blender 4 to turn any part around: scene 1 shows the complete rocket, the same rocket cut
+open with everything inside it, and every part laid out on its own with its name; the scene list (top right) has
+the exploded view, the cut-aways, the open payload door, the deflected tabs, a fin cut open and the rocket on its
+launch pad.
 
 ## Orientation words
 

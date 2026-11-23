@@ -94,7 +94,8 @@ the first E20 flight in steps.
 design.json              master parameters: airframe, fins + tabs, TVC, payload, recovery, every component's mass/position
 cad/                     Blender + manifold3d parametric model
   kestrel_cad.py           blender -b -P cad/kestrel_cad.py -- [--no-render] [--fast] [--view=NAME]
-  kestrel.blend            assembly, rocket on the pad, exploded view, sections, open door, tab close-up, fin cutaway, launch pad
+  kestrel.blend            scene 1: complete rocket + the same rocket cut open + every part laid out with its name;
+                           scenes 2-7: exploded view, cut-aways, door open, tabs deflected, fin cut open, on the launch pad
   kestrel_tvc_module.blend the TVC module on its own (its two servo leads come out of the top) + assembly steps
   kestrel_parachute_open.blend  the rocket descending under its open parachute
   stl/                     27 print-ready STLs + check_report.md
