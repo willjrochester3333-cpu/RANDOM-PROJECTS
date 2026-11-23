@@ -16,6 +16,7 @@ Outputs
   cad/kestrel.blend                   scene 1: the complete rocket, the same rocket cut open (everything inside) and
                                       every part laid out with its name; scenes 2-7: exploded view, cut-aways, payload
                                       door open, fin tabs deflected, fin cut open, rocket on the launch pad
+  cad/kestrel_rocket.blend            just the constructed rocket: every part in place, grouped by section, tubes hideable
   cad/kestrel_tvc_module.blend        the TVC module on its own (its two servo leads come out of the top) + assembly steps
   cad/kestrel_parachute_open.blend    the rocket descending under its open parachute
   cad/component_positions.json        where every purchased part sits (read by the simulator's mass model)
@@ -1822,6 +1823,50 @@ def build_parts_layout(M, buy, coll, x0, y_start, floor_z):
         y -= 30.0
 
 
+def part_of(name):
+    """'nose', 'middle', 'bottom' or 'tvc': where a rocket solid belongs when the rocket comes apart"""
+    pname = None
+    for n2, p in PARTS.items():
+        if name == n2 or name.startswith(n2 + "_"):
+            pname = p["part"]
+    if pname is None:
+        if name.startswith("nose_ballast"):
+            pname = "nose"
+        elif name.startswith(("servo_MG90S_tvc", "horn_tvc", "pushrod_ring", "pushrod_holder", MOTOR_NAME)):
+            pname = "tvc"
+        elif name.startswith(("servo_MG90S_release", "horn_release", "latch_spring", MID_TUBE, "parachute", "shock_cord", "payload")):
+            pname = "middle"
+        else:
+            pname = "bottom"
+    return pname
+
+
+def build_rocket_file(path):
+    """kestrel_rocket.blend: only the constructed rocket, every part in place (inside and out) and the servo leads,
+    grouped by the part of the rocket it belongs to; the body tubes in a collection of their own so they can be hidden
+    to look inside"""
+    reset_scene()
+    M = MATS()
+    buy = purchased(M)
+    groups = {"nose": "1 Nose cone (with its ballast)", "middle": "2 Middle part (payload bay, parachute bay, release latch)",
+              "bottom": "3 Bottom part (fins, tabs + servos, camera, flight computer)", "tvc": "4 TVC module (motor gimbal)"}
+    for g in groups.values():
+        collection(g)
+    tubes = collection("Body tubes (hide them to look inside)")
+    for name, m, material in rocket_items(buy):
+        to_blender(name, m, material, tubes if name in (LOWER_TUBE, MID_TUBE) else collection(groups[part_of(name)]))
+    curve_obj("ejection_spring", spring_pts(), M["steel"], collection(groups["middle"]), radius=0.75)
+    lead_objects(M, collection("5 Servo leads"))
+    sc = bpy.context.scene
+    sc.name = "KESTREL-2 (constructed)"
+    _lights(sc)
+    sc.render.resolution_x, sc.render.resolution_y = 1100, 1600
+    _overview_camera(sc, "cam_rocket", (0, 0, 435), (0.55, -1.25, 0.35), 1750.0, lens=50.0)
+    _frame_viewports((0, 0, 435), (0.55, -1.25, 0.35), 1500.0)
+    _finish_scenes()
+    bpy.ops.wm.save_as_mainfile(filepath=path)
+
+
 def organize_main_file(M, buy, items):
     main = bpy.context.scene
     lights = _lights(main)
@@ -1926,20 +1971,7 @@ def main():
     part_dz = {"nose": 300.0, "middle": 150.0, "bottom": 0.0, "tvc": -260.0}
     side = {"tvc": 0.0}
     for name, m, material in items:
-        base = name.split("_")[0]
-        pname = None
-        for n2, p in PARTS.items():
-            if name == n2 or name.startswith(n2 + "_"):
-                pname = p["part"]
-        if pname is None:
-            if name.startswith("nose_ballast"):
-                pname = "nose"
-            elif name.startswith(("servo_MG90S_tvc", "horn_tvc", "pushrod_ring", "pushrod_holder", MOTOR_NAME)):
-                pname = "tvc"
-            elif name.startswith(("servo_MG90S_release", "horn_release", "latch_spring", MID_TUBE, "parachute", "shock_cord", "payload")):
-                pname = "middle"
-            else:
-                pname = "bottom"
+        pname = part_of(name)
         dz = part_dz.get(pname, 0.0)
         ob = to_blender(name + "_ex", m, material, c_ex)
         ob.location = (side.get(pname, 0.0), 0, dz)
@@ -2033,6 +2065,9 @@ def main():
         render_views(views)
     organize_main_file(M, buy, items)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel.blend"))
+
+    # ------------------------------------------------------------------ the constructed rocket on its own
+    build_rocket_file(os.path.join(HERE, "kestrel_rocket.blend"))
 
     # ------------------------------------------------------------------ TVC module file
     reset_scene()

@@ -21,7 +21,8 @@ Pictures that help: `cad/renders/rocket_exploded.png` (all parts), `tvc_module.p
 `cad/kestrel.blend` in Blender 4 to turn any part around: scene 1 shows the complete rocket, the same rocket cut
 open with everything inside it, and every part laid out on its own with its name; the scene list (top right) has
 the exploded view, the cut-aways, the open payload door, the deflected tabs, a fin cut open and the rocket on its
-launch pad.
+launch pad. `cad/kestrel_rocket.blend` holds just the constructed rocket, grouped by section; hide its "Body tubes"
+collection to see everything inside.
 
 ## Orientation words
 
