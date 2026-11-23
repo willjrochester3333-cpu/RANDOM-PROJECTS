@@ -207,7 +207,7 @@ Things the simulator does not cover, checked by hand for the final fins and reco
 |---|---|---|
 | Tab hinge moment against the MG90S (1.8 kgf·cm stall at 4.8 V, [datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/MG90S_Micro_Servo_Datenblatt_AZ-Delivery_Vertriebs_GmbH.pdf)) | at most 0.03 kgf·cm at 25 m/s and 0.06 at 35 m/s, even taking the whole tab-induced force at mid-tab | 57× / 29× |
 | Tab servo speed | the simulator uses the datasheet's 0.10 s/60° (4.8 V) | matches |
-| Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test |
+| Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test; `sim/mc_tab_effectiveness.py` flies 200 Monte Carlo flights with it centred 20 % higher: 200 / 200 succeed, attitude and roll held slightly tighter |
 | Fin root, sideways load on a foot | section modulus ≈ 1900 mm³ (the 15 mm band carries it) | about 1 kN at the foot |
 | Leg, where it leaves the band (12 × 15 mm, stress across the print layers) | about 225 N sideways or 180 N radially at the foot | the weakest structural point: land on grass and check the legs and the thin tab edges after every flight (the fin can and tabs reprint) |
 | Spring ejection | 32.5 N packed, 0.41 J stored; 126 g to move (nose, ballast, 36 in chute, cord, piston): ideal separation 2.5 m/s (3.2 m/s before the ballast and the bigger chute) | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |

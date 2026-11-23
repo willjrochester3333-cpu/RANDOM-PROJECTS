@@ -96,3 +96,9 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 - 14:01 Mon: stress Monte Carlo (2x spreads, wind 0-9 m/s): 99.2 % meet every criterion, 100 % safe recovery; the
   8 misses are 1.1-1.6 deg motor misalignment in 7-9 m/s wind (tilt 10-42 deg in the burn).
 - 14:15 Mon: launch video seed 7 rendered with the final CAD (1920x1080, 20.8 s). Delivery 15:30-16:00.
+- 15:30 Mon: final delivery summary sent. Then (user: keep testing): doc links (80) all resolve; netlist = circuit.py
+  (293 pins, 65 nets), gerber zip CRC OK, DRC 0/0; fresh clone: host build 0 warnings + tests pass, scenarios
+  identical, CAD rebuild byte-identical (27 STLs + reports), Pico UF2 byte-identical to the committed one; hand
+  checks (tab hinge torque 29-57x vs MG90S, fin root ~1 kN, leg ~225 N sideways, spring ejection 2.5 m/s ideal ->
+  A13 note); tabs 21 mm clear of the exhaust plume; example log regenerated (fw 202); 200-flight Monte Carlo with
+  tabs 20 % more effective: 200/200.
