@@ -11,7 +11,7 @@ The rocket comes apart into **three parts**:
 | **2. Middle** | payload bay with a hinged, lockable door · a wall · the parachute bay (spring, piston, parachute, shock cord) · the release latch with its servo at the very top |
 | **3. Nose cone** | printed, with about 33 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
 
-Time: roughly 36 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
+Time: roughly 35 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
 (estimates from the part volumes, depending on your printer), plus two weekends of building. **Order the PCB
 first**: it takes 1–3 weeks to arrive.
 

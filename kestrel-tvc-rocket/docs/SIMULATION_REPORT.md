@@ -172,9 +172,9 @@ Run time: about 13 minutes on 4 CPU cores.
 
 ## 6. What the fin tabs do
 
-With the tabs switched off (`tabs_disabled`) the rocket rolls at 72 °/s during the burn and 94 °/s in the coast:
+With the tabs switched off (`tabs_disabled`) the rocket rolls at 75 °/s during the burn and 97 °/s in the coast:
 fine for the flight, useless for the camera. With the tabs it holds its roll angle to within 4° (95 %) and
-tilts less in the coast (2.0° instead of 22.4° in the baseline wind). They also steer on their own if the TVC fails,
+tilts less in the coast (1.9° instead of 23.4° in the baseline wind). They also steer on their own if the TVC fails,
 and `rollprog` turns the coast into a slow camera panorama.
 
 ![tabs switched off](../sim/results/scenario_tabs_disabled.png)
