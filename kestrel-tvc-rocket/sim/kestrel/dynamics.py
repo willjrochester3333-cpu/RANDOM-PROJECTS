@@ -96,6 +96,7 @@ def isa(h_asl):
 @dataclass
 class SimConfig:
     motor: str = "TSP-E20"
+    motor_basis: str = "rated"        # "rated" = manufacturer's impulse/burn time, "curve" = published curve file as is
     seed: int = 1
     dt: float = 0.001
     t_pad: float = 4.0               # seconds of stationary pad data before ignition
@@ -276,7 +277,7 @@ class Simulation:
         self.cfg = cfg
         self.design = design or load_design()
         self.rng = np.random.default_rng(cfg.seed)
-        self.motor = Motor(cfg.motor, cfg.impulse_scale, cfg.burn_time_scale)
+        self.motor = Motor(cfg.motor, cfg.impulse_scale, cfg.burn_time_scale, basis=cfg.motor_basis)
         self.rocket = Rocket(self.design, self.motor, mass_scale=cfg.mass_scale, cg_shift=cfg.cg_shift,
                              payload_kg=None if cfg.payload_g is None else cfg.payload_g / 1000.0)
         rec = self.design["recovery"]

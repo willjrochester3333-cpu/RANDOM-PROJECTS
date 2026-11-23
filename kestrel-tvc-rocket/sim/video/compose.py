@@ -63,13 +63,13 @@ class Graphs:
         for k in ("tilt", "roll", "gy", "gz", "tab0", "tab1", "tab2", "tab3"):     # attitude meaningless under the chute
             self.cols[k] = np.where(self.sep, np.nan, self.cols[k])
         sc = 2
-        fig = plt.figure(figsize=(size[0] * sc / 100, size[1] * sc / 100), dpi=100, facecolor=SURF)
+        fig = plt.figure(figsize=(size[0] * sc / 100, size[1] * sc / 100), dpi=100, facecolor="none")
         self.axes = []
         t0, t1 = self.t[0], self.t[-1]
         boxes = [(0.06, 0.58, 0.42, 0.33), (0.565, 0.58, 0.42, 0.33), (0.06, 0.10, 0.42, 0.33), (0.565, 0.10, 0.42, 0.33)]
         self.ylims = []
         for (title, series), box in zip(self.PANELS, boxes):
-            ax = fig.add_axes(box, facecolor=SURF)
+            ax = fig.add_axes(box, facecolor="none")
             vals = np.concatenate([self.cols[c][np.isfinite(self.cols[c])] for _, c, _ in series])
             lo, hi = float(np.min(vals)), float(np.max(vals))
             if title.startswith("Fin"):
@@ -101,8 +101,8 @@ class Graphs:
                           handlelength=1.4)
             self.axes.append(ax)
         fig.canvas.draw()
-        buf = np.asarray(fig.canvas.buffer_rgba())[:, :, :3]
-        self.chrome = Image.fromarray(buf.copy())
+        buf = np.asarray(fig.canvas.buffer_rgba())
+        self.chrome = Image.fromarray(buf.copy(), "RGBA")
         self.H2 = buf.shape[0]
         # data -> pixel transforms (matplotlib: origin bottom-left; PIL: top-left)
         self.tx = []
@@ -119,7 +119,7 @@ class Graphs:
         return px, py
 
     def draw(self, k):
-        im = self.chrome.copy()
+        im = Image.new("RGB", self.chrome.size, SURF)
         d = ImageDraw.Draw(im)
         tnow = self.t[k]
         sc = 2
@@ -133,6 +133,10 @@ class Graphs:
                     xa, _ = self._px(i, ta, b0)
                     xb, _ = self._px(i, tb, b0)
                     d.rectangle([xa, self.H2 - (y0 + h), xb, self.H2 - y0], fill=col)
+        im.paste(self.chrome, (0, 0), self.chrome)                 # grid, axes, titles, legends over the bands
+        d = ImageDraw.Draw(im)
+        for i, (title, series) in enumerate(self.PANELS):
+            x0, y0, w, h, (a0, a1), (b0, b1) = self.tx[i]
             for name, c, ci in series:
                 y = self.cols[c][: k + 1]
                 tt = self.t[: k + 1]
@@ -140,15 +144,12 @@ class Graphs:
                 if ok.sum() < 2:
                     continue
                 pts = [self._px(i, a, b) for a, b in zip(tt[ok], y[ok])]
-                width = 3 * sc if c != "alt_est" else 2 * sc
-                d.line(pts, fill=S[ci], width=width, joint="curve")
+                d.line(pts, fill=S[ci], width=3 * sc if c != "alt_est" else 2 * sc, joint="curve")
                 ex, ey = pts[-1]
                 rr = 5 * sc
                 d.ellipse([ex - rr, ey - rr, ex + rr, ey + rr], fill=S[ci], outline=SURF, width=2 * sc)
-            # "now" cursor
-            xn, _ = self._px(i, tnow, b0)
+            xn, _ = self._px(i, tnow, b0)                                # "now" cursor
             d.line([(xn, self.H2 - y0), (xn, self.H2 - (y0 + h))], fill=MUTED, width=sc)
-        # re-draw the chrome's grid/labels on top of the phase bands would hide data; bands are drawn under data only
         return im.resize(self.sz, Image.LANCZOS)
 
 
@@ -178,13 +179,13 @@ def telemetry(fr, meta, maxalt, events, size):
         ("Mass", f"{fr['mass'] * 1000:5.0f} g", f"q {fr['qdyn']:5.0f} Pa"),
         ("Max altitude", f"{maxalt:6.1f} m", ""),
     ]
-    y = 130
+    y = 122
     for name, val, extra in rows:
         d.text((x, y), name, font=f(FONT, 17), fill=INK2)
         d.text((x + 165, y - 2), val, font=f(MONOB, 21), fill=INK)
         if extra:
             d.text((x + 165, y + 23), extra, font=f(MONO, 14), fill=MUTED)
-        y += 47
+        y += 44
     # parachute line
     if not fr["sep"]:
         chute = "parachute stowed"
@@ -196,9 +197,9 @@ def telemetry(fr, meta, maxalt, events, size):
     dep = ev.get("deploy_cmd_t")
     if dep is not None and t >= dep:
         chute += f"   (released T+{dep:.2f} s, apogee T+{ev.get('apogee_t', 0):.2f} s)"
-    d.text((x, y + 2), chute, font=f(FONT, 15), fill=INK2)
-    y += 26
-    d.text((x, y + 2), f"wind {meta['wind']:.1f} m/s towards {meta['wind_to']:.0f}°   payload {meta['payload_g']:.0f} g   motor {meta['motor']}",
+    d.text((x, y), chute, font=f(FONT, 15), fill=INK2)
+    y += 24
+    d.text((x, y), f"wind {meta['wind']:.1f} m/s towards {meta['wind_to']:.0f}°   payload {meta['payload_g']:.0f} g   motor {meta['motor']}",
            font=f(FONT, 14), fill=MUTED)
     return im
 

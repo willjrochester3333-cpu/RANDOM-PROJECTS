@@ -165,15 +165,15 @@
   "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 13798.184770221393,
-  "area_mm2": 15706.577800724182,
+  "volume_mm3": 15356.184770221395,
+  "area_mm2": 17372.577800724182,
   "centroid_assembly_mm": [
-   -0.303339753549312,
-   1.5540497377386855,
-   261.5306835794543
+   -0.2725636686863532,
+   0.4226354946104894,
+   268.476170116935
   ],
-  "r_gyr_mm": 22.080323548299322,
-  "z_len_mm": 85.5
+  "r_gyr_mm": 21.9893761991058,
+  "z_len_mm": 93.5
  },
  {
   "name": "tvc_motor_holder",

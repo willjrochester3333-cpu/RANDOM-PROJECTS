@@ -26,7 +26,8 @@ def sample(i, motor):
         fin_cant_deg=float(rng.normal(0, 0.3)),
         mass_scale=float(rng.normal(1.0, 0.04)), cg_shift=float(rng.normal(0, 0.008)),
         cd_scale=float(rng.normal(1.0, 0.08)), cna_scale=float(rng.normal(1.0, 0.07)),
-        impulse_scale=float(rng.normal(1.0, 0.04)), burn_time_scale=float(rng.normal(1.0, 0.04)),
+        impulse_scale=float(np.clip(rng.normal(1.03, 0.05), 0.9, 1.15)),   # rated 36 Ns; curve file 40 Ns -> skew up a little
+        burn_time_scale=float(rng.normal(1.0, 0.04)),
         rod_tilt_deg=float(abs(rng.normal(0, 1.5))), rod_tilt_az_deg=float(rng.uniform(0, 360)),
         servo_trim_err_deg=(float(rng.normal(0, 0.4)), float(rng.normal(0, 0.4))),
         servo_rate_dps=float(rng.uniform(450, 650)), servo_tau=float(rng.uniform(0.008, 0.02)),

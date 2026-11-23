@@ -40,16 +40,28 @@ def load_motors() -> dict:
 # ----------------------------------------------------------------------------
 # Motor
 # ----------------------------------------------------------------------------
-class Motor:
-    """Solid motor with tabulated thrust; propellant mass burns in proportion to impulse."""
+MOTOR_BASIS = os.environ.get("KESTREL_MOTOR_BASIS", "rated")
 
-    def __init__(self, name: str, scale_impulse: float = 1.0, scale_time: float = 1.0):
+
+class Motor:
+    """Solid motor with tabulated thrust; propellant mass burns in proportion to impulse.
+
+    basis="rated" (default) stretches/scales the published thrust-curve file so its total impulse and burn time
+    equal the manufacturer's rating in motors.json (TSP's curve files integrate to more than the rating, e.g.
+    E20: 40.1 Ns / 2.2 s in the file against 36 Ns / 2.0 s rated). basis="curve" uses the file as it is."""
+
+    def __init__(self, name: str, scale_impulse: float = 1.0, scale_time: float = 1.0, basis: str | None = None):
         data = load_motors()[name]
         self.name = name
         self.data = data
         pts = np.array(data["thrust_curve"], dtype=float)
         if pts[0, 0] > 0.0:
             pts = np.vstack([[0.0, 0.0], pts])
+        self.basis = basis or MOTOR_BASIS
+        if self.basis == "rated" and data.get("total_impulse_Ns") and data.get("burn_time_s"):
+            i_file = float(np.sum(0.5 * (pts[1:, 1] + pts[:-1, 1]) * np.diff(pts[:, 0])))
+            k_t = data["burn_time_s"] / pts[-1, 0]
+            pts = np.column_stack([pts[:, 0] * k_t, pts[:, 1] * data["total_impulse_Ns"] / (i_file * k_t)])
         self.t = pts[:, 0] * scale_time
         # scale thrust so that total impulse scales by scale_impulse
         self.F = pts[:, 1] * scale_impulse / scale_time

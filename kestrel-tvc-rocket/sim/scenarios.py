@@ -46,6 +46,7 @@ CASES = [
     ("coast_rate_only", "tabs only damp pitch/yaw in the coast (no attitude hold)", {}, dict(coast_hold_attitude=0), "normal"),
     ("tabs_disabled", "tabs switched off in the settings (TVC only, like KESTREL-1)", {}, dict(fins_enabled=0), "normal_noroll"),
     ("motor_D20", "TSP D20-0 (first test hop)", dict(motor="TSP-D20"), {}, "normal"),
+    ("motor_curve", "E20 performing like its published test curve (40 Ns, not the rated 36 Ns)", dict(motor_basis="curve"), {}, "normal"),
     ("unarmed_launch", "FAULT: launched before calibration finished (1 s on the pad)", dict(t_pad=1.0), {}, "fault_safe"),
     ("tvc_off_calm", "FAULT: TVC servos dead, calm", dict(servo_failure="dead", wind_speed=0.0, gust_sigma=0.0), {}, "fault_safe"),
     ("tvc_off_wind3", "FAULT: TVC servos dead, 3 m/s wind (tabs still steer)", dict(servo_failure="dead"), {}, "fault_safe"),

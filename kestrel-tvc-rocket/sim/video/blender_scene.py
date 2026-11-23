@@ -139,6 +139,8 @@ sm.bevel_depth = 70.0
 sm.bevel_resolution = 3
 SMOKE = bpy.data.objects.new("SMOKE", sm); link_to_scene(SMOKE)
 smoke_mat = mat("smoke", (0.85, 0.85, 0.83), rough=1.0, alpha=0.35)
+smoke_mat.show_transparent_back = False                      # no sorting artifacts when seen from inside the trail
+smoke_mat.use_screen_refraction = False
 SMOKE.data.materials.append(smoke_mat)
 
 # --------------------------------------------------------------------------- environment
@@ -162,10 +164,28 @@ mapn = N.new("ShaderNodeMapping"); mapn.inputs["Scale"].default_value = (1 / 160
 Lk.new(tc.outputs["Object"], mapn.inputs["Vector"]); Lk.new(mapn.outputs["Vector"], grad.inputs["Vector"])
 mown = N.new("ShaderNodeMix"); mown.data_type = "RGBA"
 mown.inputs[7].default_value = (0.36, 0.52, 0.18, 1)
-Lk.new(mix.outputs[2], mown.inputs[6]); Lk.new(grad.outputs["Fac"], mown.inputs["Factor"])
-Lk.new(mown.outputs[2], bsdf.inputs["Base Color"])
+step = N.new("ShaderNodeMath"); step.operation = "GREATER_THAN"; step.inputs[1].default_value = 0.0005
+Lk.new(grad.outputs["Fac"], step.inputs[0])
+Lk.new(mix.outputs[2], mown.inputs[6]); Lk.new(step.outputs[0], mown.inputs["Factor"])
+sep = N.new("ShaderNodeSeparateXYZ"); Lk.new(tc.outputs["Object"], sep.inputs[0])
+dx = N.new("ShaderNodeMath"); dx.operation = "ADD"; dx.inputs[1].default_value = 70000.0
+Lk.new(sep.outputs["X"], dx.inputs[0])
+adx = N.new("ShaderNodeMath"); adx.operation = "ABSOLUTE"; Lk.new(dx.outputs[0], adx.inputs[0])
+trk = N.new("ShaderNodeMath"); trk.operation = "LESS_THAN"; trk.inputs[1].default_value = 2000.0
+Lk.new(adx.outputs[0], trk.inputs[0])
+track = N.new("ShaderNodeMix"); track.data_type = "RGBA"; track.inputs[7].default_value = (0.45, 0.38, 0.28, 1)
+Lk.new(mown.outputs[2], track.inputs[6]); Lk.new(trk.outputs[0], track.inputs["Factor"])
+Lk.new(track.outputs[2], bsdf.inputs["Base Color"])
 bpy.ops.mesh.primitive_plane_add(size=4.0e6, location=(0, 0, 0))
 g = bpy.context.active_object; g.name = "field"; g.data.materials.append(gnd_mat)
+# mown launch area (lighter, short grass) and a few safety-distance flags so the onboard view has landmarks
+flag_mat = mat("flag", (0.95, 0.35, 0.05), 0.6)
+for a in range(0, 360, 30):
+    fx, fy = 15000 * math.cos(math.radians(a)), 15000 * math.sin(math.radians(a))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=25, depth=1000, location=(fx, fy, 500))
+    bpy.context.active_object.data.materials.append(flag_mat)
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(fx + 150, fy, 900))
+    o = bpy.context.active_object; o.scale = (300, 20, 200); o.data.materials.append(flag_mat)
 
 # trees, hedges, a track, people and a car (deterministic layout, independent of the flight)
 import random
@@ -194,8 +214,6 @@ for i in range(10):
     o = bpy.context.active_object
     o.scale = (L, 1200, 1600) if horiz else (1200, L, 1600)
     o.data.materials.append(hedge_mat)
-bpy.ops.mesh.primitive_plane_add(size=1, location=(-70e3, 0, 15))
-tr = bpy.context.active_object; tr.scale = (4000, 2.0e6, 1); tr.data.materials.append(mat("track", (0.45, 0.38, 0.28), 1.0))
 people = mat("jacket", (0.75, 0.2, 0.1), 0.7)
 for (x, y) in ((-26e3, -16e3), (-27.5e3, -15e3), (-25e3, -13.5e3)):
     bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=230, depth=1500, location=(x, y, 750))
@@ -213,6 +231,7 @@ sky.altitude = 100.0; sky.air_density = 1.2; sky.dust_density = 1.5
 w.node_tree.links.new(sky.outputs["Color"], w.node_tree.nodes["Background"].inputs["Color"])
 w.node_tree.nodes["Background"].inputs["Strength"].default_value = 0.8
 sun = bpy.data.lights.new("sun", "SUN"); sun.energy = 3.5; sun.angle = math.radians(1.0)
+sun.shadow_buffer_bias = 0.6                                   # no shadow acne on the tube at grazing angles
 so = bpy.data.objects.new("sun", sun); link_to_scene(so)
 so.rotation_euler = (math.radians(52), 0, math.radians(210 + 90))
 
@@ -321,13 +340,13 @@ else:
     co.location = (lx, ly, lz - 1.0)
     co.rotation_euler = (0, 0, 0)                               # looks along CAD -Z (down the rocket), up = towards the tube
     cam.lens = 9.0
-    cam.clip_start = 0.3; cam.clip_end = 3.0e6                 # the body tube is only 1.5 mm from the lens
+    cam.clip_start = 1.0; cam.clip_end = 1.5e6                 # the body tube is only 1.5 mm from the lens
 
 # --------------------------------------------------------------------------- render
 sc.render.engine = "BLENDER_EEVEE"
 ee = sc.eevee
-ee.taa_render_samples = 4 if DRAFT else 24
-ee.use_gtao = True; ee.gtao_distance = 2000.0
+ee.taa_render_samples = 4 if DRAFT else 16
+ee.use_gtao = CAM == "ground"; ee.gtao_distance = 2000.0      # screen-space AO streaks on the tube 1.5 mm from the onboard lens
 ee.use_bloom = True; ee.bloom_intensity = 0.06; ee.bloom_threshold = 1.2
 ee.use_soft_shadows = True
 ee.shadow_cascade_size = "2048"
@@ -341,5 +360,12 @@ try:
 except TypeError:
     pass
 os.makedirs(OUT, exist_ok=True)
-bpy.ops.render.render(animation=True)
+ONLY = arg("--only")
+if ONLY:                                                       # quick look at a few frames
+    for k in [int(v) for v in ONLY.split(",")]:
+        sc.frame_set(k)
+        sc.render.filepath = os.path.join(OUT, f"{k:04d}.png")
+        bpy.ops.render.render(write_still=True)
+else:
+    bpy.ops.render.render(animation=True)
 print("done", CAM, len(FR), "frames")

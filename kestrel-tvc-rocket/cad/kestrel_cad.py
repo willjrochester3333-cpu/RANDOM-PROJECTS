@@ -149,6 +149,7 @@ BOLT_TIP_X, BOLT_IN_X = -28.0, -21.4
 MECH = json.load(open(os.path.join(ROOT, "pcb", "build", "mech_interface.json")))
 BW, BH, BT = MECH["board"]["w"], MECH["board"]["h"], MECH["board"]["thickness"]
 PCB_Z_TOP = Z_AV0 + 3.0 + BH
+GPS_SHELF_Z = PCB_Z_TOP + 7.0          # top face of the antenna shelf (antenna sits on it, ceramic side up)
 PCB_Y_BACK = -11.0
 PCB_Y_FRONT = PCB_Y_BACK + BT
 STANDOFF_H = 4.0
@@ -539,7 +540,7 @@ def avbay_coupler(M):
 def avbay_sled(M):
     z0 = Z_AV0
     rb = INS_R - WALL - 0.25
-    plate = box(38.0, PLATE_T, BH + 1.0, 0, PLATE_Y, z0 + 2.5 + (BH + 1.0) / 2)
+    plate = box(38.0, PLATE_T, BH + 9.0, 0, PLATE_Y, z0 + 2.5 + (BH + 9.0) / 2)     # reaches up to the antenna shelf
     groups = {}
     for p in MECH["tht_pins"]:
         groups.setdefault(p["ref"], []).append(board_to_rocket(p["x"], p["y"]))
@@ -552,6 +553,9 @@ def avbay_sled(M):
         for (za, zb) in ((22.0, 44.0), (48.0, 70.0)):
             plate = plate - box(xb - xa, 10.0, zb - za, (xa + xb) / 2, PLATE_Y, z0 + (za + zb) / 2)
     m = cyl(rb, 3.0, z0) + plate
+    # GPS antenna shelf just above the board's U.FL end (the Adafruit 2461 lead is only 50 mm long)
+    m = m + bx(-10.0, 10.0, PLATE_Y - 1.0, 4.0, GPS_SHELF_Z - 2.0, GPS_SHELF_Z)
+    m = m + bx(-1.0, 1.0, PLATE_Y - 1.0, 4.0, GPS_SHELF_Z - 7.0, GPS_SHELF_Z - 1.0)          # stiffening rib
     for h in MECH["holes"]:
         x, z = board_to_rocket(h["x"], h["y"])
         L = STANDOFF_H + 0.5
@@ -982,7 +986,7 @@ def purchased(M, tab_delta=0.0, latch_open=False):
         parts_fc = parts_fc + box(2.6, 14.0, 7.6, hx_, PCB_Y_FRONT + 2.5 + 7.0, hz_)
     out["fc_connectors_buzzer_switch"] = (parts_fc, M["servo"])
     out["lipo_overlander_350_2s"] = (box(BATT["w"], BATT["t"], BATT["l"], 0, BATT["y0"] + BATT["t"] / 2 + 0.5, BATT["z0"] + BATT["l"] / 2), M["lipo"])
-    out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, 0, 0, SH_TOP - 2.05), M["antenna"])
+    out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, 0, -6.0, GPS_SHELF_Z + 2.05), M["antenna"])
     out["parachute_packed"] = (cyl(16.5, 112.0, Z_PISTON + 3.5, 7.0, -1.0, segs=48), M["nylon"])
     out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 116.5, 7.0, -1.0, segs=32), M["cord"])
     cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)

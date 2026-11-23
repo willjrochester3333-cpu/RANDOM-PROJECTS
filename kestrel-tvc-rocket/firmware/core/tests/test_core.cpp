@@ -126,7 +126,7 @@ static void test_state_machine(bool baro_fail, bool tilt_abort) {
         if (t < t_ign) {
             f_axial = kG0;          // on the pad
         } else if (t < t_ign + 2.0f) {
-            a_kin = 40.0f;          // boost
+            a_kin = 24.0f;          // boost (about what an E20 gives this airframe: ~48 m/s at burnout)
             f_axial = a_kin + kG0;
         } else if (!deployed) {
             a_kin = -kG0 - 0.002f * v * std::fabs(v);

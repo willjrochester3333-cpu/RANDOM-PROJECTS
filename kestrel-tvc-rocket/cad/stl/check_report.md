@@ -10,7 +10,7 @@
 | payload_wall | 1 | 54.8 x 55.0 x 23.4 | 9.1 | 11.3 | 1.20 | yes | 1 | yes | PASS |
 | spring_piston | 1 | 53.8 x 53.5 x 13.0 | 8.5 | 10.7 | 1.10 | yes | 1 | yes | PASS |
 | avbay_coupler | 1 | 56.3 x 56.3 x 134.4 | 28.2 | 35.3 | 1.06 | yes | 1 | yes | PASS |
-| avbay_sled | 1 | 51.3 x 51.3 x 85.5 | 14.0 | 17.5 | 1.18 | yes | 1 | yes | PASS |
+| avbay_sled | 1 | 51.3 x 51.3 x 93.5 | 15.4 | 19.2 | 1.18 | yes | 1 | yes | PASS |
 | tvc_motor_holder | 1 | 35.2 x 29.0 x 95.0 | 13.8 | 17.2 | 1.20 | yes | 1 | yes | PASS |
 | tvc_gimbal_ring | 1 | 40.6 x 39.2 x 8.0 | 2.7 | 3.4 | 2.15 | yes | 1 | yes | PASS |
 | tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 22.3 | 27.9 | 1.00 | yes | 1 | yes | PASS |
@@ -28,4 +28,4 @@
 | tool_drill_guide_bottom_tube | 1 | 60.7 x 60.7 x 148.0 | 51.7 | 64.6 | 1.95 | yes | 1 | yes | PASS |
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.8 | 1.95 | yes | 1 | yes | PASS |
 
-Estimated printed rocket parts total: **329 g** (walls 1.2 mm + 20% infill assumption)
+Estimated printed rocket parts total: **331 g** (walls 1.2 mm + 20% infill assumption)
