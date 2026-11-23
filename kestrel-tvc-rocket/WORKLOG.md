@@ -63,4 +63,9 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   Fixed in design.json, sim (now reads design.json), firmware 2.01 (settings v4). Tests 377,489 + 125 pass;
   scenarios 40/40; RocketPy within 0.3 %.
 - Next: video (old CAD) finishing -> final Monte Carlo -> final CAD renders -> final video re-render -> docs.
+- 02:05–02:21 Mon: backup video (seed 7, pre-fix CAD) done; final Monte Carlo 1000/1000 (E20 mean 82.7 m, 64–103 m);
+  final CAD renders incl. the TVC assembly-steps view.
+- 02:20–07:27 Mon: session worker restarted / idle (nothing lost).
+- 07:30 Mon: TVC assembly-steps view re-framed and numbered; all docs updated to the final numbers (77 m nominal,
+  723 g, margins 0.70-0.85, MC table, what-ifs, hard-over 19-22 m). Next: test frames, final video, second seed.
 

@@ -82,7 +82,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | **Build tools (not flown)** | | | |
 | `tool_drill_guide_bottom_tube`, `tool_drill_guide_middle_tube` | 1 each | 2 walls, 10 % | |
 
-Printed rocket parts ≈ **330 g**. The simulator uses the masses computed from these exact STLs with these settings
+Printed rocket parts ≈ **331 g**. The simulator uses the masses computed from these exact STLs with these settings
 (`cad/mass_properties.py`), so print them as listed.
 
 ## 3. Body tubes
@@ -277,6 +277,6 @@ is allowed (the simulator flew the whole 0–50 g range).
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
 **the balance point must be no further than 640 mm from the nose tip** (design with an E20: 635 mm with 25 g of
-payload, 640 mm with an empty bay, 631 mm with 50 g; stability margin +0.68 to +0.84 calibres at lift-off, more at
+payload, 639 mm with an empty bay, 630 mm with 50 g; stability margin +0.70 to +0.85 calibres at lift-off, more at
 burn-out, so it flies straight even if the TVC and tabs do nothing). If it is further back, add modelling clay
 inside the nose tip.

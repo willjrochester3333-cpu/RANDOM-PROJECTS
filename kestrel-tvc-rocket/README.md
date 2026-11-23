@@ -28,10 +28,10 @@ flight): [`sim/results/video/kestrel2_flight_seed7.mp4`](sim/results/video/kestr
 |---|---|
 | Parts | **3**: bottom (fin can + TVC module + camera + flight computer + battery), middle (payload bay with door · wall · parachute bay · release latch at the top), nose cone |
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
-| Lift-off mass | 721 g with a TSP E20 and 25 g of payload (657 g without motor) |
+| Lift-off mass | 723 g with a TSP E20 and 25 g of payload (659 g without motor) |
 | Motors | 24 mm TSP **E20-0** (mission), TSP D20-0 (first hops) |
-| Apogee (simulated, E20) | **78 m** nominal with 25 g of payload; Monte Carlo mean 83 m, 90 % of flights 64–103 m |
-| Stability | +0.68 to +0.84 calibres at lift-off (empty to full payload bay): still stable if all steering fails |
+| Apogee (simulated, E20) | **77 m** nominal with 25 g of payload; Monte Carlo mean 83 m, 90 % of flights 64–103 m |
+| Stability | +0.70 to +0.85 calibres at lift-off (empty to full payload bay): still stable if all steering fails |
 | TVC | 2-axis gimbal, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
 | Fin tabs | 4 trailing-edge tabs, ±15°, 4 × MG90S in streamlined pods; hold roll in boost and coast, share pitch/yaw with the TVC in the burn, steer alone in the coast |
 | Recovery | 30 in parachute, spring ejection, servo-released snap-in latch, 5.4 m/s landing |
@@ -58,8 +58,8 @@ flight): [`sim/results/video/kestrel2_flight_seed7.mp4`](sim/results/video/kestr
 
 Two honest gaps against what we agreed:
 
-- **Apogee**: I estimated ~123 m on the E20 when we chose the motor. The finished rocket is heavier (721 g, not
-  ~650 g), and the E20 is rated at 36 Ns, not the 40 Ns of its test curve, so it reaches 78 m (about 95 m if the
+- **Apogee**: I estimated ~123 m on the E20 when we chose the motor. The finished rocket is heavier (723 g, not
+  ~650 g), and the E20 is rated at 36 Ns, not the 40 Ns of its test curve, so it reaches 77 m (about 94 m if the
   motors match their curve). The details, with what-if numbers, are in the simulation report, section 3.
 - **Budget**: ≈ £301 against the ~£270 we aimed for, because of the four extra servos, the larger 30 in parachute
   and the ejection spring that only comes in a pack of 10. → [docs/BOM.md](docs/BOM.md)

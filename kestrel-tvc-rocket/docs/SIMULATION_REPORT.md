@@ -1,9 +1,9 @@
 # Simulation and test report (KESTREL-2)
 
-**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP E20 reaches **78 m** in
+**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP E20 reaches **77 m** in
 calm air with a 25 g payload (Monte Carlo mean **83 m**, 90 % of flights between 64 and 103 m). It held its roll
 angle to within a few degrees and the launch direction to within 3.5° during the burn (95th percentile). It
-released the parachute within ±0.1 s of apogee and landed at 5.4 m/s in **1000 of 1000 randomised flights**
+released the parachute within ±0.1 s of apogee and landed at about 5.5 m/s in **1000 of 1000 randomised flights**
 (E20 and D20). **40 of 40 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees
 within 0.3 %.
 
@@ -34,19 +34,19 @@ The same airframe (same drag curve, mass properties, motor) flown passively in
 
 | Motor | Apogee | Apogee time | Max speed | Rod-exit speed | Static margin |
 |---|---|---|---|---|---|
-| TSP E20 | 77.80 vs 77.77 m (0.0 %) | 4.88 vs 4.88 s | 30.65 vs 30.64 m/s | 7.68 vs 7.67 m/s | 0.75 vs 0.75 cal |
-| TSP D20 | 28.64 vs 28.62 m (+0.1 %) | 2.87 vs 2.87 s | 19.17 vs 19.16 m/s | 8.09 vs 8.09 m/s | 0.84 vs 0.84 cal |
-| TSP E12 | 70.08 vs 70.01 m (+0.1 %) | 5.62 vs 5.61 s | 24.44 vs 24.42 m/s | 6.13 vs 6.12 m/s | 0.75 vs 0.75 cal |
+| TSP E20 | 77.48 vs 77.43 m (+0.1 %) | 4.88 vs 4.87 s | 30.56 vs 30.55 m/s | 7.66 vs 7.66 m/s | 0.77 vs 0.77 cal |
+| TSP D20 | 28.52 vs 28.49 m (+0.1 %) | 2.86 vs 2.86 s | 19.11 vs 19.11 m/s | 8.07 vs 8.08 m/s | 0.86 vs 0.85 cal |
+| TSP E12 | 69.72 vs 69.65 m (+0.1 %) | 5.61 vs 5.61 s | 24.35 vs 24.33 m/s | 6.11 vs 6.11 m/s | 0.77 vs 0.77 cal |
 
 Every quantity agrees within 0.3 %. This checks the flight mechanics; the drag and mass inputs are checked in
 section 3 and by real flights.
 
-## 3. Why ~78 m and not the ~123 m estimate
+## 3. Why ~77 m and not the ~123 m estimate
 
 When we chose the motor I estimated about 123 m on the E20 for a rocket of about 650 g with 50 g of payload, using
 the E20's published thrust curve (40 Ns). Three things differ in the finished design:
 
-1. **Mass.** The finished rocket weighs **721 g** at lift-off with 25 g of payload (746 g with 50 g). Seven servos
+1. **Mass.** The finished rocket weighs **723 g** at lift-off with 25 g of payload (748 g with 50 g). Seven servos
    are 99 g, the one-piece fin can with its legs and pods is 118 g, the latch insert and coupler 56 g.
 2. **Rated impulse.** The UK approved-motor list rates the E20 at **36 Ns**; the published test curve integrates to
    40 Ns. The simulator uses the rated value. If your motors match the curve, add about 17 m.
@@ -66,12 +66,12 @@ What-if flights (passive, calm, same simulator):
 
 | Change | E20 apogee |
 |---|---|
-| **as designed** (rated 36 Ns, 25 g payload) | **77.8 m** |
-| empty payload bay / maximum 50 g payload | 83.9 m / 72.2 m |
-| E20 delivering its published curve (40 Ns) | 94.6 m |
-| no external tab pods or linkages at all (−27 % drag) | 80.0 m |
-| 50 g lighter / 100 g lighter | 90.5 m / 105.2 m |
-| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 226 m |
+| **as designed** (rated 36 Ns, 25 g payload) | **77.5 m** |
+| empty payload bay / maximum 50 g payload | 83.5 m / 71.9 m |
+| E20 delivering its published curve (40 Ns) | 94.3 m |
+| no external tab pods or linkages at all (−27 % drag) | 79.6 m |
+| 50 g lighter / 100 g lighter | 90.1 m / 104.8 m |
+| TSP F35 (29 mm, 65 Ns), which would need a 29 mm TVC module | 225 m |
 
 So each 10 g saved is worth about 2.5 m, while hiding the tab servos inside the body would gain only about 2 m.
 Reaching ~123 m on an E20 would need the rocket to lose roughly 180 g, which it cannot do with every agreed
@@ -88,31 +88,31 @@ Fault cases must end with a parachute and a landing below 7 m/s; the jammed-TVC 
 
 | Case | Apogee | Tilt burn / coast | Roll rate burn | Deploy − apogee | Landing | Result |
 |---|---|---|---|---|---|---|
-| E20, calm | 78 m | 0.4° / 0.1° | 2 °/s | +0.04 s | 5.4 m/s | PASS |
-| E20, 3 m/s + gusts (baseline) | 78 m | 0.5° / 2.8° | 3 °/s | +0.04 s | 5.4 m/s | PASS |
-| E20, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 77 / 77 m | 0.6° / 7.7° | 2 °/s | +0.05 / +0.03 s | 5.4 m/s | PASS |
-| E20, 9 m/s + 2 m/s gusts (wind limit) | 77 m | 1.0° / 14.0° | 3 °/s | +0.05 s | 5.4 m/s | PASS |
-| payload 0 g / 50 g / 50 g in 6 m/s wind | 84 / 72 / 72 m | ≤ 0.6° | ≤ 5 °/s | +0.05 s | 5.3–5.5 m/s | PASS |
-| rod tilted 5° downwind | 77 m | 5.0° / 5.1° | 4 °/s | +0.05 s | 5.4 m/s | PASS |
-| 1.5° thrust misalignment | 77 m | 1.3° / 3.1° | 2 °/s | +0.04 s | 5.4 m/s | PASS |
-| 2° fin cant (strong roll torque) / crooked fins | 78 / 78 m | 0.4° / 0.5° | 16 / 7 °/s | +0.04 s | 5.4 m/s | PASS |
-| CG 20 mm aft / 15 % heavier / 20 % more drag | 78 / 58 / 76 m | ≤ 0.5° | ≤ 3 °/s | ≤ +0.05 s | 5.4–5.8 m/s | PASS |
-| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 78 m | ≤ 1.1° | 1–7 °/s | +0.04 s | 5.4 m/s | PASS |
-| tabs 40 % less / more effective | 78 m | 0.5° / 0.4° | 4 / 2 °/s | +0.04 s | 5.4 m/s | PASS |
-| slow servos, IMU 2° crooked, gyro drift 10× | 78 m | ≤ 0.7° | ≤ 3 °/s | +0.04 s | 5.4 m/s | PASS |
-| camera panorama roll (90 °/s in the coast) | 78 m | 0.5° / 2.0° | 3 °/s | +0.04 s | 5.4 m/s | PASS |
-| tabs switched off (TVC only, like KESTREL-1) | 78 m | 0.5° / 13.7° | **131 °/s** | +0.04 s | 5.4 m/s | PASS (rolls fast) |
-| TSP D20 / E20 performing like its curve (40 Ns) | 29 / 94 m | 0.5° | 2–3 °/s | +0.04 s | 5.4 m/s | PASS |
-| **FAULT** launched 1 s after switch-on | 73 m | 25° / 37° | 132 °/s | +0.05 s | 5.4 m/s | PASS (steering stays centred) |
-| **FAULT** TVC servos dead, calm / 3 m/s | 78 / 78 m | 3.2° / 3.6° | 2 °/s | +0.04 s | 5.4 m/s | PASS (tabs steer) |
-| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 17 m | loops | 30 °/s | −0.79 s (abort) | 5.4 m/s | PASS: abort, parachute out, lands 21 m from the pad |
-| **FAULT** tab 1 jams at full deflection at T+1 s | 72 m | 1.7° / tumbles | 71 °/s | +0.02 s | 5.4 m/s | PASS (give-up rule, chute at apogee) |
-| **FAULT** tab 2 freezes / all four tab servos dead | 78 / 78 m | 0.6° / 0.7° | 5 / 131 °/s | +0.04 s | 5.4 m/s | PASS |
-| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 74 / 74 / 80 m | 21° / 24° / 23° | 130–144 °/s | +0.04 s | 5.3–5.4 m/s | PASS (passively stable) |
-| **FAULT** barometer dies at T+1 s | 78 m | 0.5° / 1.2° | 3 °/s | +1.26 s | 5.4 m/s | PASS (inertial apogee) |
-| **FAULT** all steering dead in 6 m/s wind | 46 m | 112° | 112 °/s | −1.44 s (abort) | 5.4 m/s | INFO: why flights 1–3 need ≤ 3 m/s |
-| **FAULT** parachute never opens | 78 m | | | | **36 m/s** | INFO: why ground ejection tests matter |
-| TSP E12-0 | 70 m | 0.3° | 2 °/s | +0.05 s | 5.4 m/s | INFO: leaves the rod at only 6.1 m/s, not recommended |
+| E20, calm | 77 m | 0.4° / 0.1° | 2 °/s | +0.05 s | 5.4 m/s | PASS |
+| E20, 3 m/s + gusts (baseline) | 77 m | 0.5° / 2.7° | 3 °/s | +0.05 s | 5.4 m/s | PASS |
+| E20, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 77 / 77 m | 0.6° / 7.5° | 2 °/s | +0.04 / +0.04 s | 5.4 m/s | PASS |
+| E20, 9 m/s + 2 m/s gusts (wind limit) | 77 m | 1.0° / 13.7° | 2 °/s | +0.04 s | 5.4 m/s | PASS |
+| payload 0 g / 50 g / 50 g in 6 m/s wind | 83 / 72 / 72 m | ≤ 0.6° | ≤ 3 °/s | ≤ +0.05 s | 5.3–5.5 m/s | PASS |
+| rod tilted 5° downwind | 76 m | 5.0° / 5.1° | 5 °/s | +0.03 s | 5.4 m/s | PASS |
+| 1.5° thrust misalignment | 77 m | 1.3° / 3.0° | 2 °/s | +0.03 s | 5.4 m/s | PASS |
+| 2° fin cant (strong roll torque) / crooked fins | 77 / 77 m | 0.4° / 0.5° | 15 / 5 °/s | +0.05 s | 5.4 m/s | PASS |
+| CG 20 mm aft / 15 % heavier / 20 % more drag | 77 / 58 / 76 m | ≤ 0.5° | ≤ 3 °/s | ≤ +0.05 s | 5.4–5.8 m/s | PASS |
+| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 77 m | ≤ 1.1° | 1–7 °/s | +0.05 s | 5.4 m/s | PASS |
+| tabs 40 % less / more effective | 77 m | 0.6° / 0.5° | 4 / 3 °/s | +0.05 s | 5.4 m/s | PASS |
+| slow servos, IMU 2° crooked, gyro drift 10× | 77 m | ≤ 0.7° | ≤ 3 °/s | +0.05 s | 5.4 m/s | PASS |
+| camera panorama roll (90 °/s in the coast) | 77 m | 0.5° / 2.0° | 3 °/s | +0.05 s | 5.4 m/s | PASS |
+| tabs switched off (TVC only, like KESTREL-1) | 77 m | 0.5° / 13.9° | **131 °/s** | +0.04 s | 5.4 m/s | PASS (rolls fast) |
+| TSP D20 / E20 performing like its curve (40 Ns) | 28 / 94 m | 0.5° | 2–3 °/s | +0.04 s | 5.4 m/s | PASS |
+| **FAULT** launched 1 s after switch-on | 73 m | 24° / 40° | 131 °/s | +0.04 s | 5.4 m/s | PASS (steering stays centred) |
+| **FAULT** TVC servos dead, calm / 3 m/s | 77 / 77 m | 3.2° / 3.6° | 2 °/s | +0.05 s | 5.4 m/s | PASS (tabs steer) |
+| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 17 m | loops | 29 °/s | −0.80 s (abort) | 5.4 m/s | PASS: abort, parachute out, lands 21 m from the pad |
+| **FAULT** tab 1 jams at full deflection at T+1 s | 72 m | 1.7° / tumbles | 70 °/s | +0.02 s | 5.4 m/s | PASS (give-up rule, chute at apogee) |
+| **FAULT** tab 2 freezes / all four tab servos dead | 77 / 77 m | 0.6° / 0.7° | 8 / 131 °/s | +0.05 s | 5.4 m/s | PASS |
+| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 74 / 74 / 80 m | 20° / 23° / 23° | 129–143 °/s | +0.04 s | 5.3–5.4 m/s | PASS (passively stable) |
+| **FAULT** barometer dies at T+1 s | 77 m | 0.5° / 1.2° | 5 °/s | +1.27 s | 5.4 m/s | PASS (inertial apogee) |
+| **FAULT** all steering dead in 6 m/s wind | 48 m | 108° | 115 °/s | −1.47 s (abort) | 5.3 m/s | INFO: why flights 1–3 need ≤ 3 m/s |
+| **FAULT** parachute never opens | 77 m |  |  |  | **36 m/s** | INFO: why ground ejection tests matter |
+| TSP E12-0 | 70 m | 0.3° | 2 °/s | +0.06 s | 5.4 m/s | INFO: leaves the rod at only 6.1 m/s, not recommended |
 
 ![baseline flight](../sim/results/scenario_nominal_wind3.png)
 
@@ -131,14 +131,14 @@ a success only if it meets all the normal-flight pass criteria above.
 |---|---|---|
 | **Success** | **100 %** | **100 %** |
 | Apogee mean (5–95 %) | **83 m** (64–103) | 31 m (24–38) |
-| Max tilt during the burn, mean / 95 % | 1.7° / 3.5° | 1.6° / 3.3° |
-| Max roll rate during the burn, mean / 95 % | 3.0 / 7.1 °/s | 2.2 / 4.8 °/s |
-| Largest roll-angle error before apogee, 95 % | 8.3° | 6.1° |
+| Max tilt during the burn, mean / 95 % | 1.7° / 3.5° | 1.7° / 3.4° |
+| Max roll rate during the burn, mean / 95 % | 2.9 / 7.0 °/s | 2.2 / 4.8 °/s |
+| Largest roll-angle error before apogee, 95 % | 8.3° | 6.0° |
 | Max gimbal, mean / 95 % | 0.9° / 1.7° | 0.9° / 1.6° |
-| Deploy − apogee, 5–95 % | −0.06 … +0.11 s | −0.03 … +0.09 s |
-| Airspeed at deploy, mean / 95 % | 3.4 / 6.8 m/s | 2.3 / 4.5 m/s |
+| Deploy − apogee, 5–95 % | −0.06 … +0.11 s | −0.02 … +0.09 s |
+| Airspeed at deploy, mean / 95 % | 3.4 / 6.7 m/s | 2.3 / 4.5 m/s |
 | Landing speed, mean / max | 5.5 / 6.5 m/s | 5.4 / 6.6 m/s |
-| Landing distance, mean / 95 % / max | 64 / 133 / 186 m | 20 / 44 / 48 m |
+| Landing distance, mean / 95 % / max | 64 / 133 / 183 m | 20 / 43 / 48 m |
 | Rod-exit speed, mean | 7.8 m/s | 8.3 m/s |
 
 ![Apogee against payload](../sim/results/montecarlo_payload.png)
@@ -152,13 +152,13 @@ Two things in the histograms are expected, not faults:
   of wind the rocket turns to follow the relative wind, as any stable rocket does. The parachute still opens within
   0.14 s of apogee at under 7 m/s in every case.
 
-Run time: about 13 minutes on 4 CPU cores.
+Run time: about 12 minutes on 4 CPU cores.
 
 ## 6. What the fin tabs do
 
 With the tabs switched off (`tabs_disabled`) the rocket rolls at 131 °/s during the burn and 153 °/s in the coast:
 fine for the flight, useless for the camera. With the tabs it holds its roll angle to within 8° (95 %) and
-tilts less in the coast (2.8° instead of 13.7° in the baseline wind). They also steer on their own if the TVC fails,
+tilts less in the coast (2.7° instead of 13.9° in the baseline wind). They also steer on their own if the TVC fails,
 and `rollprog` turns the coast into a slow camera panorama.
 
 ![tabs switched off](../sim/results/scenario_tabs_disabled.png)

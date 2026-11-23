@@ -80,8 +80,8 @@ tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt
 
 | Motor (24 mm, single use, CE certified) | Rated (UKROC list) | Use | Simulated apogee, 25 g payload |
 |---|---|---|---|
-| **TSP D20-0** | 20 Ns, 1.0 s | first test hops | 29 m |
-| **TSP E20-0** | 36 Ns, 2.0 s, 64 g | **the mission** | **78 m** (95 m if the motor performs like its published test curve, 40 Ns) |
+| **TSP D20-0** | 20 Ns, 1.0 s | first test hops | 28 m |
+| **TSP E20-0** | 36 Ns, 2.0 s, 64 g | **the mission** | **77 m** (94 m if the motor performs like its published test curve, 40 Ns) |
 
 Sold in the UK by [modelrockets.co.uk](https://modelrockets.co.uk/blog/tsp-rocket-motors-d20-e20-f35-rocket-motors-engines),
 which states TSP motors are CE certified and legal to buy and use in the UK. Ratings from the

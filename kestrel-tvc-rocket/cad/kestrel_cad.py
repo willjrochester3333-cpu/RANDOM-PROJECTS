@@ -1603,18 +1603,33 @@ def main():
             curve_obj(f"{n}_{i}", [(x + d * 0.7, y + d * 0.7, z) for x, y, z in pts], c, c_tvc, radius=0.45)
         x, y, z = pts[-1]
         to_blender(n + "_plug", box(8.0, 4.0, 14.0, x, y, z + 7.0), M["servo"], c_tvc)
-    steps = {"tvc_motor_retainer": (-200, -60), MOTOR_NAME: (-200, -40), "tvc_motor_holder": (-120, 0), "tvc_gimbal_ring": (-60, 0),
-             "tvc_frame": (0, 0), "servo_MG90S_tvc_ring": (90, 0), "horn_tvc_ring": (90, 0), "servo_MG90S_tvc_holder": (150, 0),
-             "horn_tvc_holder": (150, 0), "pushrod_ring_1.2mm": (220, 0), "pushrod_holder_1.2mm": (250, 0)}
+    # assembly steps, left to right in build order (the motor + retainer go in at the field)
+    steps = {"tvc_motor_holder": (-150, 0), "tvc_gimbal_ring": (-85, 0), "tvc_frame": (0, 0),
+             "servo_MG90S_tvc_ring": (75, 0), "horn_tvc_ring": (75, 0), "servo_MG90S_tvc_holder": (118, 0),
+             "horn_tvc_holder": (118, 0), "pushrod_ring_1.2mm": (158, 0), "pushrod_holder_1.2mm": (162, 0),
+             MOTOR_NAME: (-228, -40), "tvc_motor_retainer": (-228, -62)}
     for n, m, mt in tvc_items:
         dx, dz = steps[n]
         ob = to_blender(n + "_step", m, mt, c_tex)
-        ob.location = (dx * 1.4, 0, dz)
+        ob.location = (dx, 0, dz)
+    lab = mat("Label", (0.05, 0.05, 0.06), rough=0.6)
+    for x, txt in ((-150, "1  holder +\npenny washer"), (-85, "2  gimbal\nring"), (0, "3  frame"), (100, "4  servos\nports 1 + 2"),
+                   (172, "5  pushrods"), (-228, "6  motor +\nretainer\n(at the field)")):
+        cu = bpy.data.curves.new("step_label", "FONT")
+        cu.body = txt
+        cu.size = 11.0
+        cu.space_line = 1.05
+        cu.align_x = "CENTER"
+        ob = bpy.data.objects.new("step_label_" + txt.split()[0], cu)
+        ob.data.materials.append(lab)
+        ob.location = (x, 0.0, -96.0)
+        ob.rotation_euler = (math.radians(90), 0, 0)
+        c_tex.objects.link(ob)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_tvc_module.blend"))
     if "--no-render" not in ARGS:
         setup_render()
         render_views([("tvc_module", (215, -265, 215), (0, 0, 112), 50, {c_tvc.name}, (1100, 1500)),
-                      ("tvc_module_assembly_steps", (100, -1250, 300), (100, 0, 70), 50, {c_tex.name}, (1700, 900))])
+                      ("tvc_module_assembly_steps", (-22, -780, 150), (-22, 0, 18), 50, {c_tex.name}, (1700, 1000))])
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, "kestrel_tvc_module.blend"))
 
     # ------------------------------------------------------------------ parachute-open file
