@@ -93,6 +93,8 @@ the first F35 flight in steps (two D20 hops and an E20 flight first).
 
 ## What's where
 
+Every file is listed and explained in [FILES.md](FILES.md).
+
 ```
 design.json              master parameters: airframe, fins + tabs, TVC, payload, recovery, every component's mass/position
 cad/                     Blender + manifold3d parametric model
