@@ -6,6 +6,8 @@
  "fins.pod.length": 62.0,
  "fins.tab.lever_arm_mm": 14.3,
  "fins.tab.servo_arm_mm": 6.0,
+ "tvc.linkage_ratio x100 (ring)": 50.0,
+ "tvc.linkage_ratio x100 (motor holder)": 50.0,
  "z_tip_above_tail": 899,
  "switch_slot_deg": 203.8,
  "groove_deg": [

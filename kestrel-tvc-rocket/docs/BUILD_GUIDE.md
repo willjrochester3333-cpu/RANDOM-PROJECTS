@@ -140,7 +140,7 @@ and two pushrods. **Its two servo leads come out of the top**, straight up to th
    of the bottom tube.
 5. **Tab linkage:** fit a single-arm horn on each tab servo, its arm pointing at the tab horn, hole **6 mm** from
    the shaft. Bend a short 1.2 mm pushrod with a Z-bend at each end between the servo horn and the tab horn's
-   hole (**14.5 mm** from the hinge): with the servo centred, the tab must line up exactly with its fin. The
+   hole (**14.3 mm** from the hinge): with the servo centred, the tab must line up exactly with its fin. The
    pushrod runs parallel to the rocket's axis.
 6. **TVC module in:** slide the TVC module into the bottom of the tube, **its two leads first**, turning it until
    its two tail-screw nut pockets line up with the tail holes. Each tab-servo lead lies in the groove on the

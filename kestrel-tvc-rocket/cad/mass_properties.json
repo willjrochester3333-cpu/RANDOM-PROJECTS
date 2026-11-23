@@ -1,15 +1,15 @@
 [
  {
   "name": "nose_cone",
-  "mass_g": 34.1,
-  "z": 116.3,
+  "mass_g": 34.7,
+  "z": 115.0,
   "length": 0.0,
-  "radius": 21.0,
+  "radius": 20.9,
   "source": "CAD"
  },
  {
   "name": "top_latch_insert",
-  "mass_g": 20.5,
+  "mass_g": 20.6,
   "z": 183.0,
   "length": 0.0,
   "radius": 26.1,
@@ -58,7 +58,7 @@
  {
   "name": "payload_wall",
   "mass_g": 11.3,
-  "z": 394.6,
+  "z": 390.8,
   "length": 0.0,
   "radius": 20.2,
   "source": "CAD"
@@ -73,18 +73,18 @@
  },
  {
   "name": "avbay_coupler",
-  "mass_g": 35.3,
-  "z": 570.5,
+  "mass_g": 35.5,
+  "z": 570.3,
   "length": 0.0,
   "radius": 25.8,
   "source": "CAD"
  },
  {
   "name": "avbay_sled",
-  "mass_g": 19.2,
-  "z": 630.5,
+  "mass_g": 19.9,
+  "z": 629.3,
   "length": 0.0,
-  "radius": 22.0,
+  "radius": 21.9,
   "source": "CAD"
  },
  {
@@ -121,8 +121,8 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 118.1,
-  "z": 846.5,
+  "mass_g": 117.9,
+  "z": 846.6,
   "length": 0.0,
   "radius": 43.5,
   "source": "CAD"
@@ -146,9 +146,9 @@
  {
   "name": "camera_pod",
   "mass_g": 11.6,
-  "z": 677.9,
+  "z": 677.8,
   "length": 0.0,
-  "radius": 30.7,
+  "radius": 30.8,
   "source": "CAD"
  }
 ]

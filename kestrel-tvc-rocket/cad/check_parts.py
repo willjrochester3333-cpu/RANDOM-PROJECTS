@@ -6,6 +6,9 @@
 * fits a 220 x 220 x 250 mm bed (Ender-3 / Prusa MK-class)
 * estimated printed mass (PLA/PETG ~1.24-1.27 g/cm^3 with walls + infill)
 * thinnest-wall probe via ray casting
+* overhangs in the exported print orientation: downward faces steeper than 45 deg that are not on the bed. Parts
+  that need support material must say so in SUPPORTS; every other part may only have small overhangs and bridges
+  (largest single overhang region below MAX_UNSUPPORTED_MM2)
 Writes cad/stl/check_report.md and returns non-zero if any check fails.
 """
 import json
@@ -18,6 +21,35 @@ import trimesh
 HERE = os.path.dirname(os.path.abspath(__file__))
 STL = os.path.join(HERE, "stl")
 BED = (220.0, 220.0, 250.0)
+# parts printed WITH support material, and where it goes (must match the build guide)
+SUPPORTS = {
+    "tvc_frame": "under the four servo bars",
+    "tvc_motor_holder": "under the pushrod tab",
+    "fin_control_tab": "build plate only, under the face beside the hinge bead",
+    "pad_hub": "tree supports in the leg sockets",
+}
+# parts whose larger flat overhangs are bridges (supported on both sides), reviewed by hand
+BRIDGES = {
+    "fin_can": "servo-pocket roofs bridge 12.6 mm between the pod walls",
+    "camera_pod": "camera-pocket roof bridges 23.6 mm between its side walls",
+}
+MAX_UNSUPPORTED_MM2 = 120.0   # flat downward region allowed without supports (bridges such as window tops are longer but narrow)
+
+
+def overhang(m, z_tol=0.25):
+    """area of downward faces steeper than 45 deg (not on the bed) and the largest connected flat (> 60 deg) region"""
+    z0 = m.bounds[0][2]
+    n, a, c = m.face_normals, m.area_faces, m.triangles_center
+    on_bed = (c[:, 2] - z0 < z_tol) & (n[:, 2] < -0.999)
+    ov45 = (n[:, 2] < -np.cos(np.radians(45.0))) & ~on_bed
+    flat = (n[:, 2] < -np.cos(np.radians(30.0))) & ~on_bed
+    largest = 0.0
+    if flat.any():
+        idx = np.nonzero(flat)[0]
+        sub = m.submesh([idx], append=True)
+        for piece in sub.split(only_watertight=False):
+            largest = max(largest, float(piece.area))
+    return float(a[ov45].sum()), largest
 
 
 def wall_probe(m, n=4000, seed=0):
@@ -56,14 +88,23 @@ def main():
         mass = effective_density(m.volume / 1000.0, m.area / 100.0) * p["qty"] if ok_v else float("nan")
         if not p["name"].startswith(("pad_", "rod_tip", "tool_")):
             total_rocket += 0 if np.isnan(mass) else mass
-        ok = ok_w and ok_v and fits and len(bodies) == 1
+        ov_area, ov_largest = overhang(m) if ok_w else (float("nan"), float("nan"))
+        sup = SUPPORTS.get(p["name"], "")
+        ok_ov = bool(sup) or p["name"] in BRIDGES or ov_largest <= MAX_UNSUPPORTED_MM2
+        if not sup and p["name"] in BRIDGES:
+            sup = "none (" + BRIDGES[p["name"]] + ")"
+        ok = ok_w and ok_v and fits and len(bodies) == 1 and ok_ov
         fails += not ok
         rows.append(f"| {p['name']} | {p['qty']} | {ext[0]:.1f} x {ext[1]:.1f} x {ext[2]:.1f} | {m.volume/1000:.1f} | "
                     f"{mass:.1f} | {wall:.2f} | {'yes' if ok_w else 'NO'} | {len(bodies)} | {'yes' if fits else 'NO'} | "
-                    f"{'PASS' if ok else 'FAIL'} |")
-    md = ("| part | qty | size mm | solid cm³ | est. printed g | thinnest wall mm (2nd pct) | watertight | bodies | fits 220x220x250 | result |\n"
-          "|---|---|---|---|---|---|---|---|---|---|\n" + "\n".join(rows) +
-          f"\n\nEstimated printed rocket parts total: **{total_rocket:.0f} g** (walls 1.2 mm + 20% infill assumption)\n")
+                    f"{ov_area:.0f} / {ov_largest:.0f} | {sup or 'none'} | {'PASS' if ok else 'FAIL'} |")
+    md = ("| part | qty | size mm | solid cm³ | est. printed g | thinnest wall mm (2nd pct) | watertight | bodies | fits 220x220x250 | "
+          "overhang mm² (>45°) / largest flat region | supports | result |\n"
+          "|---|---|---|---|---|---|---|---|---|---|---|---|\n" + "\n".join(rows) +
+          f"\n\nEstimated printed rocket parts total: **{total_rocket:.0f} g** (walls 1.2 mm + 20% infill assumption)\n\n"
+          f"Overhangs are measured in the exported print orientation. A part without listed supports passes only if no flat "
+          f"downward region is larger than {MAX_UNSUPPORTED_MM2:.0f} mm² apart from narrow bridges; see the table for the parts "
+          f"that are printed with support material.\n")
     open(os.path.join(STL, "check_report.md"), "w").write(md)
     print(md)
     sys.exit(1 if fails else 0)

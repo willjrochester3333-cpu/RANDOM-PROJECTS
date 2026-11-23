@@ -151,7 +151,11 @@ BOLT_TIP_X, BOLT_IN_X = -28.0, -21.4
 MECH = json.load(open(os.path.join(ROOT, "pcb", "build", "mech_interface.json")))
 BW, BH, BT = MECH["board"]["w"], MECH["board"]["h"], MECH["board"]["thickness"]
 PCB_Z_TOP = Z_AV0 + 3.0 + BH
-GPS_SHELF_Z = PCB_Z_TOP + 7.0          # top face of the antenna shelf (antenna sits on it, ceramic side up)
+# GPS antenna platform: top face 19 mm above the board, beside (not above) the Pico's USB socket so a USB plug fits;
+# U-shaped so the antenna's lead can leave its underside or an edge; carried by two 45 deg gussets (prints without supports)
+GPS_SHELF_Z = PCB_Z_TOP + 19.0
+GPS_X0, GPS_X1, GPS_Y1 = -18.0, -2.0, 3.0
+GPS_X, GPS_Y = (GPS_X0 + GPS_X1) / 2, -6.0             # antenna centre (15 x 15 mm patch)
 PCB_Y_BACK = -11.0
 PCB_Y_FRONT = PCB_Y_BACK + BT
 STANDOFF_H = 4.0
@@ -305,12 +309,13 @@ def curve_obj(name, pts, material, coll, radius=0.6):
     return ob
 
 
-def register(name, m, material, print_rot=(0, 0, 0), qty=1, note="", group="rocket", inst=None, part=""):
+def register(name, m, material, print_rot=(0, 0, 0), qty=1, note="", group="rocket", inst=None, part="", export=None, export_rot=None):
+    """export / export_rot: a differently placed copy of the part (e.g. in its own frame) and its print rotation for the STL"""
     st = m.status()
     if str(st) not in ("Error.NoError", "NoError") or m.is_empty():
         raise RuntimeError(f"{name}: manifold status {st}, empty={m.is_empty()}")
-    PARTS[name] = dict(m=m, material=material.name, print_rot=print_rot, qty=qty, note=note, group=group,
-                       inst=inst or [m], part=part)
+    PARTS[name] = dict(m=m, material=material.name, print_rot=export_rot if export is not None else print_rot, qty=qty, note=note,
+                       group=group, inst=inst or [m], part=part, export_m=export)
     return m
 
 
@@ -360,23 +365,41 @@ def nose_cone(M):
         r = ogive_r(x) - wall
         if r > 1.2:
             inner.append((r, Z_TIP - x))
-    zb = Z_NOSE0 - 2.0                                       # bulkhead 2 mm thick at the base of the ogive
-    prof = [(0.0, Z_TIP)] + outer + [(R, Z_MID1), (R - NS_W, Z_MID1), (R - NS_W, zb), (0.0, zb), (0.0, Z_NOSE0)]
-    prof += [(min(inner[0][0], R - NS_W), Z_NOSE0)] + inner[1:] + [(0.0, inner[-1][1])]
+    # bulkhead: a 45-degree cone (apex up) so the nose prints tip-up with no supports; 2.3 mm thick measured vertically
+    zb = Z_NOSE0 - 2.0
+    rs = R - NS_W                                            # sleeve inner radius
+    z_apex = zb + rs                                         # underside apex on the axis
+    t_v = 2.3
+    z_top = z_apex + t_v
+
+    def cone_top_meets_wall(z):                              # cone top surface z = z_top - r meets the inner ogive wall
+        return (ogive_r(Z_TIP - z) - wall) - (z_top - z)
+    lo, hi = Z_NOSE0 - 3.0, z_top
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if cone_top_meets_wall(mid) > 0:     # wall still outside the cone top here: the meeting point is lower
+            hi = mid
+        else:
+            lo = mid
+    z_star = (lo + hi) / 2
+    r_star = z_top - z_star
+    wall_pts = [(r, z) for r, z in inner if z > z_star + 0.3]
+    prof = [(0.0, Z_TIP)] + outer + [(R, Z_MID1), (R - NS_W, Z_MID1), (rs, zb), (0.0, z_apex), (0.0, z_top), (r_star, z_star)]
+    prof += wall_pts + [(0.0, wall_pts[-1][1])]
     m = revolve(prof)
     # latch-bolt hole through the sleeve wall (the bolt from the top insert snaps into it)
     m = m - bx(-(R + 1.0), -(R - NS_W - 0.6), BOLT_Y - 2.2, BOLT_Y + 2.2, BOLT_Z - 1.7, BOLT_Z + 1.7)
     # inner chamfer on the sleeve's bottom edge: pushes the bevelled bolt in when the nose is fitted
     m = m - revolve([(R - NS_W - 0.3, Z_MID1 - 0.5), (R - NS_W + 0.6, Z_MID1 - 0.5), (R - NS_W + 0.6, Z_MID1 + 0.05),
                      (R - NS_W - 0.3, Z_MID1 + 0.95)])
-    m = m - cyl(0.9, 6.0, zb - 2.0, 0.0, 14.0, segs=16)                      # vent: the nose cavity breathes
+    m = m - cyl(0.9, 9.0, zb + (rs - 14.0) - 3.0, 0.0, 14.0, segs=16)        # vent through the cone: the nose cavity breathes
     # alignment groove (rides on the insert's rib) so the bolt always lines up with its hole
     m = m - bx(R - NS_W - 0.3, R - 0.45, -1.3, 1.3, Z_MID1 - 1.0, Z_MID1 + SLEEVE - 3.0)
-    # shock-cord bridge under the bulkhead
-    br = bx(-8.0, 8.0, -2.5, 2.5, zb - 7.0, zb + 0.5) - bx(-5.0, 5.0, -3.0, 3.0, zb - 4.0, zb + 0.6)
-    m = m + br
+    # shock-cord bar across the inside of the cone, 9 mm below its apex: an 18 mm bridge when printed tip-up
+    z_bar = z_apex - 9.0
+    m = m + (bx(-(9.0 + 1.6), 9.0 + 1.6, -1.5, 1.5, z_bar - 1.5, z_bar + 1.5) ^ cyl(rs + 0.5, 60.0, zb))
     return register("nose_cone", m, M["orange"], part="nose",
-                    note="Print tip-up, 3 walls, 10% gyroid, no supports. Slides over the top insert; the latch bolt clicks into its hole")
+                    note="Print tip-up, 3 walls, 10% gyroid, no supports (the bulkhead is a 45 deg cone). Slides over the top insert; the latch bolt clicks into its hole")
 
 
 # ======================================================================================
@@ -405,6 +428,8 @@ def top_insert(M):
     m = tube(INS_R, INS_R - 1.2, Z_MID1 - Z_TOPI0, Z_TOPI0)                   # glued inside the top of the middle tube
     m = m + tube(SHO_R, SHO_RI, SLEEVE - 2.5, Z_MID1)                          # shoulder: the nose sleeve slides over it
     m = m + tube(INS_R, SHO_RI, 1.6, Z_MID1 - 1.6)                             # web joining the two
+    zw = Z_MID1 - 1.6                                                           # 45 deg fillet under the web (prints shoulder-up)
+    m = m + revolve([(SHO_RI + 0.05, zw + 0.2), (INS_R - 1.2, zw + 0.2 - (INS_R - 1.2 - SHO_RI - 0.05)), (INS_R - 1.0, zw + 0.2)])
     m = m + bx(SHO_R - 0.1, SHO_R + 0.6, -1.0, 1.0, Z_MID1, Z_MID1 + SLEEVE - 4.0)   # alignment rib (x+)
     # release-servo posts under the mounting tabs (2 self-tapping screws from the servo bag)
     z_tab0 = RSV_Z0 + SV["tab_z"]
@@ -421,8 +446,8 @@ def top_insert(M):
     # room for the servo, its horn and the spring link
     m = m - release_servo_solid(0.3)
     m = m - cyl(10.0, 6.0, RHORN_Z - 2.5, RSV_SH[0], RSV_SH[1])
-    return register("top_latch_insert", m, M["black"], part="middle", print_rot=(180, 0, 0),
-                    note="PETG. Print shoulder-down. Glue 36 mm into the top of the middle tube, rib towards the payload door")
+    return register("top_latch_insert", m, M["black"], part="middle",
+                    note="PETG. Print shoulder-up, as exported. Glue 36 mm into the top of the middle tube, rib towards the payload door")
 
 
 def latch_bolt(M, x_shift=0.0):
@@ -472,28 +497,28 @@ def door_frame(M):
         kn = ycyl(1.7, 5.6, 32).translate((DHX, sy * 9.2, DHZ)) + bx(24.6, DHX, sy * 6.4, sy * 12.0, DOOR_Z0 + 0.2, DHZ + 1.2)
         kn = kn + (bx(24.6, 26.3, sy * 6.4, sy * 12.0, DOOR_Z0 - 4.0, DOOR_Z0 + 0.5) ^ cyl(INS_R, 20, DOOR_Z0 - 10))
         m = m + (kn - ycyl(0.9, 8.0, 16).translate((DHX, sy * 9.2, DHZ)))
-    return register("payload_door_frame", m, M["grey"], part="middle", print_rot=(0, 90, 0),
-                    note="PETG. Epoxy inside the middle tube behind the door window (drill guide marks it); hinge pin = 1.75 mm filament")
+    return register("payload_door_frame", m, M["grey"], part="middle",
+                    note="PETG, print upright as exported. Epoxy inside the middle tube behind the door window (drill guide marks it); hinge pin = 1.75 mm filament")
 
 
 def payload_door_parts(M):
-    register("payload_door", door_solid(), M["orange"], part="middle", print_rot=(0, -90, 0),
-             note="PETG, outer face down. Hinge pin: 22 mm of 1.75 mm filament, ends melted/glued")
-    register("payload_door_latch_knob", latch_knob_solid(), M["black"], part="middle", print_rot=(0, -90, 0),
-             note="Quarter-turn latch: knob from outside, coin slot")
+    register("payload_door", door_solid(), M["orange"], part="middle",
+             note="PETG, print standing on its hinge end as exported, with a brim. Hinge pin: 22 mm of 1.75 mm filament, ends melted/glued")
+    register("payload_door_latch_knob", latch_knob_solid(), M["black"], part="middle", print_rot=(0, 90, 0),
+             note="Quarter-turn latch: knob from outside, coin slot. Print head-down, 100% infill")
     register("payload_door_latch_cam", latch_cam_solid(True), M["black"], part="middle", print_rot=(0, 90, 0),
              note="Push onto the knob's square end from inside + drop of CA. Arm UP = locked, sideways = open")
 
 
 def payload_wall(M):
-    m = cyl(INS_R, BULK_T, Z_WALL0) + tube(INS_R, INS_R - 1.2, 13.0, Z_WALL0 - 12.0)
+    m = cyl(INS_R, BULK_T, Z_WALL0) + tube(INS_R, INS_R - 1.2, 13.0, Z_WALL1 - 1.0)      # glue skirt on the parachute side
     m = m + tube(6.8, 5.0, 8.5, Z_WALL1 - 0.5)                                   # locates the ejection spring
     zt = Z_WALL1
     bridge = box(18.0, 5.0, 9.5, 0, 18.5, zt + 4.25) - box(12.0, 6.0, 5.0, 0, 18.5, zt + 2.0)
     m = m + bridge
-    m = m - polar(bx(INS_R - 4.5, INS_R + 1.0, -3.0, 3.0, Z_WALL0 - 13, Z_WALL1 + 1), 180)   # release-servo lead notch
+    m = m - polar(bx(INS_R - 4.5, INS_R + 1.0, -3.0, 3.0, Z_WALL0 - 1, Z_WALL1 + 14), 180)   # release-servo lead notch
     return register("payload_wall", m, M["white"], part="middle",
-                    note="PETG, disc on the bed. Epoxy into the middle tube 130 mm above the coupler: carries the parachute load")
+                    note="PETG, disc on the bed as exported, no supports. Epoxy into the middle tube, underside 160 mm from its bottom end: carries the parachute load")
 
 
 def spring_piston(M):
@@ -502,7 +527,8 @@ def spring_piston(M):
     m = m + tube(SPR["od"] / 2 + 1.6, SPR["od"] / 2 + 0.4, 5.5, z0 - 4.0)
     m = m - polar(bx(RI - 7.5, RI + 1.0, -5.0, 5.0, z0 - 11, z0 + 4), 90)          # shock-cord notch
     m = m - polar(bx(RI - 4.0, RI + 1.0, -3.0, 3.0, z0 - 11, z0 + 4), 180)         # release-servo lead notch
-    return register("spring_piston", m, M["white"], part="middle", note="Sits on the spring, under the parachute")
+    return register("spring_piston", m, M["white"], part="middle", print_rot=(180, 0, 0),
+                    note="Print flat face down as exported, no supports. Sits on the spring, under the parachute")
 
 
 # ======================================================================================
@@ -521,7 +547,8 @@ def avbay_coupler(M):
     # middle-part joint: 2 x M3 radial screws into nut pockets inside the shoulder
     ri = INS_R - WALL
     for a in JOINT_ANG:
-        nut = (box(6.0, 8.0, 9.0, ri - 2.0, 0, JOINT_Z) - box(2.8, 5.9, 6.5, ri - 3.8, 0, JOINT_Z) -
+        wedge = xz_plate([(ri - 5.5, JOINT_Z + 4.0), (ri + 1.0, JOINT_Z + 4.0), (ri + 1.0, JOINT_Z + 10.5)], 7.6)   # 45 deg, prints bulkhead-down
+        nut = (box(6.0, 8.0, 9.0, ri - 2.0, 0, JOINT_Z) + wedge - box(2.8, 5.9, 6.5, ri - 3.8, 0, JOINT_Z) -
                box(2.8, 5.9, 6.5, ri - 2.6, 0, JOINT_Z)) ^ cyl(INS_R, 40, JOINT_Z - 20)
         m = m + polar(nut, a)
         m = m - polar(xcyl(1.65, 12, 16).translate((INS_R - 2, 0, JOINT_Z)), a)
@@ -556,8 +583,16 @@ def avbay_sled(M):
             plate = plate - box(xb - xa, 10.0, zb - za, (xa + xb) / 2, PLATE_Y, z0 + (za + zb) / 2)
     m = cyl(rb, 3.0, z0) + plate
     # GPS antenna shelf just above the board's U.FL end (the Adafruit 2461 lead is only 50 mm long)
-    m = m + bx(-10.0, 10.0, PLATE_Y - 1.0, 4.0, GPS_SHELF_Z - 2.0, GPS_SHELF_Z)
-    m = m + bx(-1.0, 1.0, PLATE_Y - 1.0, 4.0, GPS_SHELF_Z - 7.0, GPS_SHELF_Z - 1.0)          # stiffening rib
+    plate_top = z0 + 2.5 + BH + 9.0
+    m = m + bx(GPS_X0 - 1.0, GPS_X1 + 1.0, PLATE_Y - 1.0, PLATE_Y + 1.0, plate_top - 0.5, GPS_SHELF_Z)   # plate extension
+    shelf = bx(GPS_X0, GPS_X1, PLATE_Y - 1.0, GPS_Y1, GPS_SHELF_Z - 2.0, GPS_SHELF_Z)
+    shelf = shelf - bx(GPS_X0 + 4.0, GPS_X1 - 4.0, PLATE_Y + 4.0, GPS_Y1 + 1.0, GPS_SHELF_Z - 3.0, GPS_SHELF_Z + 1.0)
+    span = GPS_Y1 - (PLATE_Y + 1.0)
+    tri = xz_plate([(PLATE_Y + 0.5, GPS_SHELF_Z - 2.0 - span - 0.5), (PLATE_Y + 0.5, GPS_SHELF_Z - 1.0), (GPS_Y1, GPS_SHELF_Z - 1.0)], 1.6)
+    tri = tri.rotate((0, 0, 90))                                  # triangle in the y-z plane, 1.6 mm thick along x
+    for gx in (GPS_X0 + 1.0, GPS_X1 - 1.0):
+        shelf = shelf + tri.translate((gx, 0, 0))
+    m = m + shelf
     for h in MECH["holes"]:
         x, z = board_to_rocket(h["x"], h["y"])
         L = STANDOFF_H + 0.5
@@ -569,7 +604,10 @@ def avbay_sled(M):
     tray = box(BAY["w"] + 5.0, 1.6, th, 0, ty, z0 + 2.5 + th / 2)
     for sx in (1, -1):
         tray = tray + box(1.6, 6.0, th, sx * (BAY["w"] / 2 + 0.8), ty - 3.6, z0 + 2.5 + th / 2)
-    tray = tray + box(BAY["w"] - 1.0, BAY["t"] + 1.6, 1.6, 0, BATT["y0"] + (BAY["t"] + 1.6) / 2, BATT["z0"] - 0.8)
+    # battery ledge: a 45 deg wedge growing out of the tray wall (prints without supports, leaves room for the servo leads)
+    y_w = ty - 0.5
+    ledge = xz_plate([(11.0, BATT["z0"]), (y_w, BATT["z0"]), (y_w, BATT["z0"] - (y_w - 11.0))], BAY["w"] - 1.0).rotate((0, 0, 90))
+    tray = tray + ledge
     for zz in (BATT["z0"] - z0 + 8.0, BATT["z0"] - z0 + BATT["l"] - 8.0):
         tray = tray - box(BAY["w"] - 4.0, 4.0, 3.2, 0, ty, z0 + zz)
     m = m + (tray ^ cyl(rb, 200, z0))
@@ -767,6 +805,8 @@ def fin_can(M):
     for sy in (1, -1):
         m = m + polar(ycyl(1.5, 1.2, 24).translate((CAN_RO + 14.0, sy * (FT / 2 + 0.5), 95.0)), FIN_ANG[0])
     lug = tube(4.75, 3.4, 25.0, 50.0, segs=40).translate((CAN_RO + 4.4, 0, 0)) + box(5.0, 3.0, 25.0, CAN_RO + 1.6, 0, 62.5)
+    # top end cut at 45 deg from the can: the lug then grows out of the can when the fin can prints upside down
+    lug = lug - xz_plate([(CAN_RO - 1.0, 75.0 + 1.0), (CAN_RO + 20.0, 75.0 - 20.0), (CAN_RO + 20.0, 90.0), (CAN_RO - 1.0, 90.0)], 20.0)
     m = m + polar(lug, LUG_ANG)
     for a in TAIL_SCREW_ANG:
         m = m - polar(xcyl(1.65, 8, 16).translate((CAN_RO - 0.4, 0, TAIL_SCREW_Z)), a)
@@ -777,8 +817,9 @@ def fin_can(M):
 def fin_tabs(M):
     t = tab_local(0.0)
     inst = [polar(t, a) for a in FIN_ANG]
-    return register("fin_control_tab", inst[0], M["blue"], print_rot=(90, 0, 0), qty=NF, inst=inst, part="bottom",
-                    note="PETG, print flat. Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips")
+    return register("fin_control_tab", inst[0], M["blue"], qty=NF, inst=inst, part="bottom", export=t, export_rot=(90, 0, 0),
+                    note="PETG, print lying on its plain face (horn up) with supports on the build plate only (they fill the 0.8 mm under the face "
+                         "beside the hinge bead). Glue a 27 mm piece of 1.2 mm music wire through its knuckle; it snaps into the fin's C-clips")
 
 
 def upper_lug(M):
@@ -801,7 +842,7 @@ def camera_pod(M):
     shell = shell - cyl(4.6, 6.0, z0 - 3.0, 0, rc, segs=40)
     shell = shell - box(cam - 6.0, 10.0, 8.0, 0, r_out, z0 + CAM_FLOOR + cam - 2.0)
     shell = shell - cyl(R + 0.1, 150.0, zt)
-    flange = (tube(R + 1.2, R + 0.1, CAM_WIN_H + 6.0, z0 - 3.0) ^ box(w + 10.0, 40.0, CAM_WIN_H + 6.0, 0, R, z0 + CAM_WIN_H / 2)) - \
+    flange = (tube(R + 1.2, R + 0.1, CAM_WIN_H + 3.0, z0) ^ box(w + 10.0, 40.0, CAM_WIN_H + 3.0, 0, R, z0 + (CAM_WIN_H + 3.0) / 2)) - \
         box(w - 0.1, 40, CAM_WIN_H + 30, 0, R, z0 + CAM_WIN_H / 2)
     m = shell + flange
     m = m - box(cam, cam, cam, 0, rc, z0 + CAM_FLOOR + cam / 2)
@@ -988,7 +1029,7 @@ def purchased(M, tab_delta=0.0, latch_open=False):
         parts_fc = parts_fc + box(2.6, 14.0, 7.6, hx_, PCB_Y_FRONT + 2.5 + 7.0, hz_)
     out["fc_connectors_buzzer_switch"] = (parts_fc, M["servo"])
     out["lipo_overlander_350_2s"] = (box(BATT["w"], BATT["t"], BATT["l"], 0, BATT["y0"] + BATT["t"] / 2 + 0.5, BATT["z0"] + BATT["l"] / 2), M["lipo"])
-    out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, 0, -6.0, GPS_SHELF_Z + 2.05), M["antenna"])
+    out["gps_patch_antenna_15mm"] = (box(15.0, 15.0, 4.0, GPS_X, GPS_Y, GPS_SHELF_Z + 2.05), M["antenna"])
     out["parachute_packed"] = (cyl(16.5, 112.0, Z_PISTON + 3.5, 7.0, -1.0, segs=48), M["nylon"])
     out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 116.5, 7.0, -1.0, segs=32), M["cord"])
     cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)
@@ -1024,7 +1065,8 @@ def lead_paths():
         path = [(rr * ca, rr * sa, z) for rr, z in pts] + [(8.0, -4.0 + k, Z_AV0 - 4), (hx + 4.5 * (k + 1), 1.0, Z_AV0 + 4)]
         p[f"lead_tab{k + 1}"] = path
     p["lead_release"] = [(RSV_XC, -11.0, RSV_Z0 + 2), (-24.0, -2.0, RSV_Z0 - 4), (-25.5, 0.0, Z_WALL1 + 4), (-25.0, 0.0, Z_WALL0 - 14),
-                         (-25.0, 0.0, Z_FLOOR + 2), (-23.0, 0.0, SH_TOP - 4), (-12.0, 4.0, PCB_Z_TOP + 6)]
+                         (-25.0, 0.0, Z_FLOOR + 2), (-23.0, 0.0, SH_TOP - 4), (-22.0, 7.0, GPS_SHELF_Z + 6),
+                         (-20.0, 8.0, GPS_SHELF_Z - 8), (-12.0, 6.0, PCB_Z_TOP + 2)]
     return p
 
 
@@ -1092,7 +1134,7 @@ def export_stls():
     for name, p in PARTS.items():
         m = p["m"]
         rx, ry, rz = p["print_rot"]
-        m2 = m.rotate((rx, ry, rz))
+        m2 = (p["export_m"] if p.get("export_m") is not None else m).rotate((rx, ry, rz))
         bb = m2.bounding_box()
         m2 = m2.translate((-(bb[0] + bb[3]) / 2, -(bb[1] + bb[4]) / 2, -bb[2]))
         mesh = m2.to_mesh()
@@ -1143,6 +1185,8 @@ def check_layout():
         "fins.pod.length": (FIN["pod"]["length"], POD_ZN - POD_Z0),
         "fins.tab.lever_arm_mm": (TABP["horn_mm"], PUSH_Y),
         "fins.tab.servo_arm_mm": (TABP["servo_arm_mm"], HORN_ARM),
+        "tvc.linkage_ratio x100 (ring)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR1[0] / PR1[1]),
+        "tvc.linkage_ratio x100 (motor holder)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR2[1] / PR2[0]),
     }
     bad = []
     for k, (have, real) in want.items():

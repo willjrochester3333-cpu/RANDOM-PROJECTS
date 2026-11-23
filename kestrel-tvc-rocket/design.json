@@ -62,7 +62,7 @@
       "servo": "MG90S",
       "servo_speed_s_per_60deg": 0.1,
       "note": "trailing-edge control tab on every fin, direct pushrod from a pod servo",
-      "horn_mm": 14.5,
+      "horn_mm": 14.3,
       "servo_arm_mm": 6.0,
       "linkage_cda_mm2": 40.0,
       "linkage_note": "per fin: servo horn + tab horn + pushrod Z-bends (~58 mm2 edge-on) and the hinge knuckle beads (~45 mm2), x cd 0.4"
@@ -81,7 +81,8 @@
     "servo": "MG90S",
     "servo_frame_rate_hz": 50,
     "servo_speed_s_per_60deg": 0.1,
-    "linkage_ratio": 0.42,
+    "linkage_ratio": 0.5,
+    "linkage_note": "gimbal deg per servo deg = horn hole radius 9 mm / gimbal arm 18 mm (CAD-checked)",
     "nozzle_protrusion": 4
   },
   "recovery": {

@@ -26,7 +26,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 200;            // 2.00 (KESTREL-2: fin tabs, 7 servos)
+constexpr uint16_t kFwVersion = 201;            // 2.01 (KESTREL-2: fin tabs, 7 servos; TVC linkage 0.5)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 

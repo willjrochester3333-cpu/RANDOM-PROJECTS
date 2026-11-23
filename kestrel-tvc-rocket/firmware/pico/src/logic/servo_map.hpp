@@ -13,7 +13,7 @@ enum ServoChannel : uint8_t { SERVO_TVC_RING = 0, SERVO_TVC_MOTOR = 1, SERVO_DEP
 
 struct Settings {
     uint32_t magic{0x4B535431u};          // "KST1"
-    uint16_t version{3};                  // 3 = KESTREL-2 (7 servos, fin tabs)
+    uint16_t version{4};                  // 4 = KESTREL-2, TVC linkage ratio 0.5 (3 had 0.42)
     uint16_t size{sizeof(Settings)};
     AxisMap axes{};
     uint8_t axes_valid{0};                // 0 until the two-pose calibration has been done
@@ -25,12 +25,12 @@ struct Settings {
     uint8_t tabs_enabled{1};              // fin-tab control on/off
     uint8_t reserved1{0};
     float us_per_servo_deg{10.5f};        // MG90S: ~1000-2000 us for ~95 deg
-    float linkage_ratio{0.42f};           // gimbal deg per servo deg (design.json tvc.linkage_ratio)
+    float linkage_ratio{0.5f};            // gimbal deg per servo deg: 9 mm horn / 18 mm gimbal arm (design.json tvc.linkage_ratio)
     float deploy_latched_us{1050.0f};     // latch bolts out (locked)
     float deploy_released_us{1950.0f};    // latch bolts pulled in (parachute free)
     float max_gimbal_deg{6.0f};
     float tab_servo_arm_mm{6.0f};         // servo horn hole radius (design.json fins.tab.servo_arm_mm)
-    float tab_horn_mm{14.5f};             // tab horn hole distance from the hinge (fins.tab.horn_mm)
+    float tab_horn_mm{14.3f};             // tab horn hole distance from the hinge (fins.tab.horn_mm, CAD-checked)
     float max_tab_deg{15.0f};
     float roll_program_dps{0.0f};         // >0: camera panorama roll in COAST
     uint32_t flights{0};

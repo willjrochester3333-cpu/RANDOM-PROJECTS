@@ -58,7 +58,7 @@ ERROR ◀─ sensor failure / IMU axes not calibrated            COAST ◀──
 | 7 | GP15 | fin tab 4 (315°) |
 
 A tab angle is turned into a servo pulse through the real linkage geometry
-(`horn × sin(tab) = arm × sin(servo)`, 14.5 mm tab horn, 6 mm servo arm): ±15° of tab is about ±39° of servo.
+(`horn × sin(tab) = arm × sin(servo)`, 14.3 mm tab horn, 6 mm servo arm): ±15° of tab is about ±38° of servo.
 
 ## Lights and beeps
 

@@ -160,9 +160,9 @@
   "radius": 21.7
  },
  "gps_patch_antenna_15mm": {
-  "z_from_tip": 565.0,
+  "z_from_tip": 553.0,
   "length": 4.0,
-  "radius": 15.4
+  "radius": 22.1
  },
  "parachute_packed": {
   "z_from_tip": 247.7,
@@ -221,10 +221,10 @@
   "path_length_mm": 220.0
  },
  "lead_release": {
-  "z_from_tip": 379.3,
-  "length": 372.2,
+  "z_from_tip": 382.7,
+  "length": 376.2,
   "radius": 25.5,
-  "path_length_mm": 381.0
+  "path_length_mm": 388.0
  },
  "ejection_spring": {
   "z_from_tip": 349.7,

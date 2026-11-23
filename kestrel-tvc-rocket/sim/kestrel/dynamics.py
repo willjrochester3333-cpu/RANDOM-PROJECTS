@@ -132,7 +132,7 @@ class SimConfig:
     servo_rate_dps: float = 600.0     # servo horn slew limit (0.10 s / 60 deg)
     servo_tau: float = 0.012          # s, servo inner-loop lag
     servo_deadband_deg: float = 0.25
-    linkage_ratio: float = 0.42       # gimbal deg per servo deg
+    linkage_ratio: float | None = None  # gimbal deg per servo deg; None = design.json tvc.linkage_ratio (CAD-checked)
     gimbal_backlash_deg: float = 0.15
     gimbal_limit_deg: float = 6.5
     servo_trim_err_deg: tuple = (0.0, 0.0)  # residual gimbal trim error after calibration
@@ -146,7 +146,7 @@ class SimConfig:
     tab_backlash_deg: float = 0.3     # tab deg
     tab_limit_deg: float = 16.0       # mechanical stop
     tab_servo_arm_mm: float = 6.0
-    tab_horn_mm: float = 14.5
+    tab_horn_mm: float | None = None   # None = design.json fins.tab.horn_mm (CAD-checked)
     tab_trim_err_deg: tuple = (0.0, 0.0, 0.0, 0.0)
     tab_eff_scale: float = 1.0        # uncertainty on the tab effectiveness
     tab_failure: str = ""             # "", "stuck1".."stuck4" (frozen at 0), "hardover1".."hardover4", "dead" (all frozen)
@@ -285,6 +285,10 @@ class Simulation:
             cfg.chute_diameter_m = rec["parachute_diameter_in"] * 0.0254
         if cfg.chute_cd is None:
             cfg.chute_cd = rec["parachute_cd"]
+        if cfg.linkage_ratio is None:
+            cfg.linkage_ratio = self.design["tvc"]["linkage_ratio"]
+        if cfg.tab_horn_mm is None:
+            cfg.tab_horn_mm = self.design["fins"]["tab"]["horn_mm"]
         self.fsw = fsw
         self.z_imu = self.design["avbay"].get("imu_z", 445) / 1000.0   # IMU position (m from nose tip)
 
