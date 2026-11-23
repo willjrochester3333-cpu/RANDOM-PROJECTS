@@ -34,7 +34,7 @@ Every number in this table comes from the simulator flying the real flight code 
 | Spectators **≥ 30 m** from the pad, behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 18–23 m from the pad (6 wind seeds) |
 | **Wind ≤ 3 m/s for the first three flights** | `passive_wind3`: even with all six steering servos dead, the rocket still flies (tilting 23–33°) and recovers normally in 3 m/s. In 6 m/s (`passive_wind6`) it weathercocks hard and turns right over before apogee |
 | Afterwards ≤ 6 m/s with the **1.5 m rod**; never above 9 m/s | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); the longer rod raises the rod-exit speed from 6.8 to 7.7 m/s |
-| Recovery area **≥ 200 m** clear downwind (E20), 60 m (D20) | Monte Carlo: 95 % of E20 flights land within 98 m (wind up to 6 m/s), farthest 146 m; D20 farthest 34 m |
+| Recovery area **≥ 200 m** clear downwind (E20), 60 m (D20) | Monte Carlo: 95 % of E20 flights land within 101 m (wind up to 6 m/s), farthest 151 m; D20 farthest 38 m |
 | Rod tilt 0–5° **downwind** only, never towards people | the rocket holds the rod direction during the burn (`rod_tilt5`) |
 | Electric ignition with a key-switch controller, 5 s countdown | standard model-rocket safety code |
 | Misfire: key out, wait **60 s** before approaching | |

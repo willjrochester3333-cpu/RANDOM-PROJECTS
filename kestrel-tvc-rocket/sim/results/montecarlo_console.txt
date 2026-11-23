@@ -1,0 +1,30 @@
+== TSP-E20: n=800 success=100.0%
+   apogee                   mean   61.86  sd   9.83  p5   46.84  p95   78.53  max   97.08
+   max_tilt_burn            mean    1.57  sd   0.91  p5    0.47  p95    3.33  max    5.43
+   max_tilt_coast           mean    2.73  sd   3.26  p5    0.58  p95    6.13  max   38.02
+   max_gimbal               mean    1.04  sd   0.41  p5    0.45  p95    1.77  max    2.83
+   max_roll_rate_burn       mean    2.18  sd   1.46  p5    0.42  p95    4.84  max   10.25
+   max_roll_rate_coast      mean    2.18  sd   1.96  p5    0.33  p95    5.08  max   27.56
+   max_abs_roll_deg         mean    1.56  sd   1.53  p5    0.18  p95    3.89  max   24.75
+   max_tab                  mean    9.30  sd   4.34  p5    3.74  p95   15.11  max   16.00
+   deploy_minus_apogee_s    mean    0.03  sd   0.04  p5   -0.04  p95    0.10  max    0.17
+   deploy_speed             mean    2.91  sd   1.67  p5    0.63  p95    5.86  max    8.17
+   landing_vz               mean    4.89  sd   0.27  p5    4.47  p95    5.37  max    5.89
+   landing_dist             mean   48.79  sd  30.38  p5    7.72  p95  101.26  max  150.90
+   rod_exit_speed           mean    6.96  sd   0.45  p5    6.22  p95    7.68  max    8.46
+== TSP-D20: n=200 success=100.0%
+   apogee                   mean   22.39  sd   3.36  p5   17.46  p95   27.79  max   32.78
+   max_tilt_burn            mean    1.49  sd   0.91  p5    0.48  p95    3.22  max    5.16
+   max_tilt_coast           mean    7.40  sd  12.64  p5    0.82  p95   24.34  max  119.08
+   max_gimbal               mean    0.95  sd   0.53  p5    0.41  p95    1.88  max    3.71
+   max_roll_rate_burn       mean    1.37  sd   0.87  p5    0.20  p95    2.80  max    3.90
+   max_roll_rate_coast      mean    3.02  sd   4.06  p5    0.31  p95   11.19  max   28.16
+   max_abs_roll_deg         mean    2.08  sd   3.79  p5    0.13  p95    9.42  max   28.99
+   max_tab                  mean   11.24  sd   3.98  p5    4.49  p95   15.18  max   15.86
+   deploy_minus_apogee_s    mean    0.04  sd   0.03  p5   -0.01  p95    0.08  max    0.12
+   deploy_speed             mean    1.82  sd   1.04  p5    0.56  p95    3.56  max    4.66
+   landing_vz               mean    4.84  sd   0.27  p5    4.45  p95    5.27  max    5.94
+   landing_dist             mean   14.05  sd   9.16  p5    1.95  p95   30.63  max   37.80
+   rod_exit_speed           mean    7.36  sd   0.45  p5    6.60  p95    8.10  max    8.46
+total 1241 s
+MC EXIT 0

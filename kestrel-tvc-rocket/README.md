@@ -33,7 +33,7 @@ payload). Make another with `python3 sim/video/make_flight_video.py --seed N`.
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
 | Lift-off mass | 825 g with a TSP E20 and 25 g of payload (761 g without motor) |
 | Motors | 24 mm TSP **E20-0** (mission), TSP D20-0 (first hops) |
-| Apogee (simulated, E20) | **55 m** nominal with 25 g of payload; Monte Carlo mean 60 m, 90 % of flights 45–76 m |
+| Apogee (simulated, E20) | **57 m** nominal with 25 g of payload; Monte Carlo mean 62 m, 90 % of flights 47–79 m |
 | Stability | +0.84 to +0.97 calibres at lift-off (empty to full payload bay, with 33 g of nose ballast): still stable if all steering fails |
 | TVC | 2-axis gimbal, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
 | Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick, joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band, tabs and legs taper to thin trailing edges below the tail |

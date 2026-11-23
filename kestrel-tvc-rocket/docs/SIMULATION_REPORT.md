@@ -1,7 +1,7 @@
 # Simulation and test report (KESTREL-2)
 
-**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP E20 reaches **55 m** in
-calm air with a 25 g payload (Monte Carlo mean **60 m**, 90 % of flights between 45 and 76 m). It held its roll
+**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP E20 reaches **57 m** in
+calm air with a 25 g payload (Monte Carlo mean **62 m**, 90 % of flights between 47 and 79 m). It held its roll
 angle to within 4° and the launch direction to within 3.3° during the burn (95th percentile). It released the
 parachute within ±0.1 s of apogee and landed at about 4.9 m/s in **1000 of 1000 randomised flights** (E20 and D20).
 **40 of 40 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within 0.3 %.
@@ -34,9 +34,9 @@ The same airframe (same drag curve, mass properties, motor) flown passively in
 
 | Motor | Apogee | Apogee time | Max speed | Rod-exit speed | Static margin |
 |---|---|---|---|---|---|
-| TSP E20 | 55.46 vs 55.42 m (+0.1 %) | 4.32 vs 4.32 s | 24.25 vs 24.24 m/s | 6.72 vs 6.72 m/s | 0.90 vs 0.89 cal |
-| TSP D20 | 20.16 vs 20.15 m (+0.0 %) | 2.49 vs 2.49 s | 15.30 vs 15.30 m/s | 7.09 vs 7.10 m/s | 0.98 vs 0.97 cal |
-| TSP E12 | 45.83 vs 45.78 m (+0.1 %) | 4.98 vs 4.98 s | 17.68 vs 17.66 m/s | 5.22 vs 5.22 m/s | 0.90 vs 0.89 cal |
+| TSP E20 | 57.51 vs 57.46 m (+0.1 %) | 4.39 vs 4.38 s | 24.83 vs 24.82 m/s | 6.81 vs 6.80 m/s | 0.91 vs 0.90 cal |
+| TSP D20 | 20.83 vs 20.81 m (+0.1 %) | 2.53 vs 2.53 s | 15.62 vs 15.62 m/s | 7.18 vs 7.18 m/s | 0.99 vs 0.98 cal |
+| TSP E12 | 47.83 vs 47.79 m (+0.1 %) | 5.05 vs 5.04 s | 18.28 vs 18.27 m/s | 5.30 vs 5.30 m/s | 0.91 vs 0.90 cal |
 
 Every quantity agrees within 0.3 %. This checks the flight mechanics; the drag and mass inputs are checked in
 section 3 and by real flights.
@@ -143,19 +143,19 @@ a success only if it meets all the normal-flight pass criteria above.
 | | TSP E20 (800 flights) | TSP D20 (200 flights) |
 |---|---|---|
 | **Success** | **100 %** | **100 %** |
-| Apogee mean (5–95 %) | **60 m** (45–76) | 22 m (17–27) |
+| Apogee mean (5–95 %) | **62 m** (47–79) | 22 m (17–28) |
 | Max tilt during the burn, mean / 95 % | 1.6° / 3.3° | 1.5° / 3.2° |
-| Max roll rate during the burn, mean / 95 % | 2.1 / 4.8 °/s | 1.4 / 2.8 °/s |
-| Largest roll-angle error before apogee, 95 % | 3.8° | 9.4° |
+| Max roll rate during the burn, mean / 95 % | 2.2 / 4.8 °/s | 1.4 / 2.8 °/s |
+| Largest roll-angle error before apogee, 95 % | 3.9° | 9.4° |
 | Max gimbal, mean / 95 % | 1.0° / 1.8° | 1.0° / 1.9° |
-| Deploy − apogee, 5–95 % | −0.04 … +0.10 s | −0.02 … +0.08 s |
-| Airspeed at deploy, mean / 95 % | 2.9 / 5.8 m/s | 1.8 / 3.5 m/s |
-| Landing speed, mean / max | 4.9 / 5.8 m/s | 4.9 / 6.0 m/s |
-| Landing distance, mean / 95 % / max | 46 / 98 / 146 m | 13 / 29 / 34 m |
-| Rod-exit speed, mean | 6.9 m/s | 7.3 m/s |
+| Deploy − apogee, 5–95 % | −0.04 … +0.10 s | −0.01 … +0.08 s |
+| Airspeed at deploy, mean / 95 % | 2.9 / 5.9 m/s | 1.8 / 3.6 m/s |
+| Landing speed, mean / max | 4.9 / 5.9 m/s | 4.8 / 5.9 m/s |
+| Landing distance, mean / 95 % / max | 49 / 101 / 151 m | 14 / 31 / 38 m |
+| Rod-exit speed, mean | 7.0 m/s | 7.4 m/s |
 
-The first run of this Monte Carlo on the thick-fin rocket was not clean (E20 99.9 %, D20 98 %): see section 7 for
-the two causes and their fixes. This table is the run after the fixes.
+This table is the final design (thin fins with the 15 mm servo band). The first Monte Carlo of the servos-in-the-fins
+design earlier today was not clean (E20 99.9 %, D20 98 %): see section 7 for the two causes and their fixes.
 
 ![Apogee against payload](../sim/results/montecarlo_payload.png)
 
@@ -164,7 +164,7 @@ Two things in the histograms are expected, not faults:
 - **Tabs at their 15° limit near apogee.** In wind, as the rocket slows, the coast attitude hold asks the tabs to
   keep it vertical against weathercocking. Below about 15 m/s they cannot (holding an angle of attack α needs about
   0.8 α of tab), so they saturate. Once the rocket is 25° off course the give-up rule centres them.
-- **A few large tilts at apogee on the D20** (95 % below 29°, a handful above 60°). At 6 m/s near apogee in 5 m/s
+- **A few large tilts at apogee on the D20** (95 % below 24°, a handful above 60°). At 6 m/s near apogee in 5 m/s
   of wind the rocket turns to follow the relative wind, as any stable rocket does. The parachute still opens within
   0.12 s of apogee at under 5 m/s in every case.
 
