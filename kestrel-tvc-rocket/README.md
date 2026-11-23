@@ -73,7 +73,8 @@ Two honest gaps against what we agreed:
   instead of the 24 mm E20, which gives **188 m** with 25 g of payload (198 m with an empty bay; 200 m would need
   it about 35 g lighter). The TVC module now takes 29 mm motors; the D20 and E20 still fly in a printed adapter
   for the low test flights. The price is drift: about 40 s under the parachute, so it needs a recovery area of
-  about «F35_AREA» m downwind. The details, with what-if numbers, are in the simulation report, section 3.
+  about «F35_AREA» m downwind in winds up to 6 m/s, or «F35_AREA3» m if you fly it only in 3 m/s or less. The details,
+  with what-if numbers, are in the simulation report, section 3.
 - **Budget**: ≈ £312 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
   the ejection spring that only comes in a pack of 10, and about £11 of extras for the servos-in-the-fins design. → [docs/BOM.md](docs/BOM.md)
 

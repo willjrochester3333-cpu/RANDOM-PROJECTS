@@ -117,7 +117,23 @@ criteria above.
 
 ![Apogee against payload](../sim/results/montecarlo_payload.png)
 
-«MC_NOTES»
+Three things in the histograms are expected, not faults:
+
+- **Tabs at their 15° limit near apogee.** In wind, as the rocket slows, the coast attitude hold asks the tabs to
+  keep it vertical against weathercocking. Below about 15 m/s they cannot (holding an angle of attack α needs about
+  0.8 α of tab), so they saturate. Once the rocket is 25° off course the give-up rule centres them.
+- **Roll on the F35.** 95 % of F35 flights stay within 17° of their launch roll angle (E20 3.9°). On the F35 the
+  error builds up during the boost and peaks at burn-out, at the highest dynamic pressure, with the tabs at only
+  3–5° (checked on the four worst flights), then the tabs bring it back in the coast. The roll rates stay far inside
+  the criteria (95 % below 19 °/s in the boost). Tab backlash is not the cause: 0.05° and 0.6° give the same result.
+  A firmer roll gain for the F35 would tighten it; it only matters for how steady the onboard video looks.
+- **A few large tilts at apogee on the D20** (95 % below 43°, a handful above 90°). At a few metres per second near
+  apogee in wind the rocket turns to follow the relative wind, as any stable rocket does. The parachute still opens
+  within 0.10 s of apogee at under 4.3 m/s in every case.
+
+**Drift on the F35** grows with the wind, by about 60 m per 1 m/s: farthest landing 189 m from the pad in 0–2 m/s
+of wind, 232 m in 2–3 m/s, 325 m in 3–4 m/s, 392 m in 4–5 m/s and 498 m in 5–6 m/s. The recovery-area rules in
+[SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md) come from these numbers.
 
 Run time: about «MC_MIN» minutes on 4 CPU cores.
 
