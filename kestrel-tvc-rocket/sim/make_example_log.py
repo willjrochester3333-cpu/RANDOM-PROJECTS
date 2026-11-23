@@ -18,6 +18,13 @@ from kestrel.sil import SilFsw  # noqa: E402
 LAT0, LON0 = 52.0, -1.0
 
 
+def fw_version():
+    """the firmware version the Pico app writes into its log sessions (kFwVersion in main.cpp)"""
+    import re
+    src = open(os.path.join(HERE, "..", "firmware", "pico", "src", "main.cpp")).read()
+    return int(re.search(r"kFwVersion\s*=\s*(\d+)", src).group(1))
+
+
 def main():
     sim = Simulation(SimConfig(**BASE), SilFsw({}))
     ev = sim.run()
@@ -32,7 +39,7 @@ def main():
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
                  "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n")
-        fh.write("# session: fw 201 flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
+        fh.write(f"# session: fw {fw_version()} flight 1 motor TSP-E20 (SIMULATED - sim/make_example_log.py)\n")
         vz_prev, t_prev = 0.0, t[0]
         for k in range(len(t)):
             s = st[k]
