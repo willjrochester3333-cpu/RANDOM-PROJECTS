@@ -245,31 +245,31 @@
   "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Can, 4 thick fins (servo pockets, lead channels) and legs in one piece",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 214484.72400529627,
-  "area_mm2": 106222.52288346771,
+  "volume_mm3": 155500.3840312091,
+  "area_mm2": 105343.75264896461,
   "centroid_assembly_mm": [
-   0.004086741744655328,
-   0.13928676030998716,
-   48.19698407199301
+   0.005637368892280981,
+   0.1921213973684433,
+   38.82213293510883
   ],
-  "r_gyr_mm": 44.7726601202943,
+  "r_gyr_mm": 46.629534153524624,
   "z_len_mm": 155.0
  },
  {
   "name": "fin_control_tab",
   "qty": 4,
-  "note": "PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut to a 5.5 mm stub, into the pocket; the printed pin at the other end sits in the slot at the fin root",
+  "note": "PETG, print standing on its outer end (horn pocket down), no supports. Epoxy a servo horn, arm cut ~7 mm from the hub centre, into the pocket; the printed pin at the other end sits in the slot at the fin root",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 4629.2530079042235,
-  "area_mm2": 1927.1414997849,
+  "volume_mm3": 6759.782211525021,
+  "area_mm2": 2653.6100444584863,
   "centroid_assembly_mm": [
-   30.490020568675273,
-   30.49002050435324,
-   12.786500944441402
+   30.6194150783177,
+   30.619415284862225,
+   8.430597841164081
   ],
-  "r_gyr_mm": 46.07403301225409,
-  "z_len_mm": 21.700000762939453
+  "r_gyr_mm": 46.120673594333425,
+  "z_len_mm": 34.20000076293945
  },
  {
   "name": "upper_launch_lug",

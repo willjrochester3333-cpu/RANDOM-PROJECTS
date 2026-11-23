@@ -50,11 +50,12 @@
     "leg": {
       "length": 30,
       "width": 12,
-      "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins",
-      "foot_base_mm2": 180.0
+      "note": "fin tips extend 30 mm below the tail so the rocket stands on its four fins; each leg tapers from 15 mm to an 11 x 7.5 mm foot",
+      "foot_base_mm2": 82.5,
+      "foot_thickness_mm": 11.0
     },
     "tab": {
-      "chord": 21.7,
+      "chord": 34.2,
       "r_from": 2.8,
       "r_to": 26.1,
       "max_deflection_deg": 15.0,
@@ -68,7 +69,11 @@
       "linkage_note": "direct drive: servo angle = tab angle (horn_mm = servo_arm_mm); linkage_cda covers the hinge gaps only",
       "hinge_z": 15.0
     },
-    "thickness_note": "whole fin 15 mm thick (half-round leading edge) so each tab servo (MG90S, 12.2 mm wide) sits inside its fin"
+    "thickness_note": "only the bottom band (tab hinge, tab servo, lead channel; 45 mm up from the tail) is 15 mm thick; the rest of each fin is a normal 4 mm fin with a half-round leading edge, joined to the band by a 20 mm wedge (15 deg). The tab and the band end in 1.5 mm trailing edges 12 mm below the tail",
+    "upper_thickness": 4.0,
+    "ramp_mm": 20.0,
+    "te_extension_mm": 12.0,
+    "te_thickness_mm": 1.5
   },
   "tvc": {
     "motor_diameter": 24.0,

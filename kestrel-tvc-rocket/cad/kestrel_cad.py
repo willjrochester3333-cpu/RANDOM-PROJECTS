@@ -88,13 +88,19 @@ PR1 = (9.0, 18.0)
 PR2 = (18.0, 9.0)
 HOLDER_TAB_Z = Z_PIVOT + 12.0
 TAIL_SCREW_Z, TAIL_SCREW_ANG = 16.0, (90.0, 210.0)
-# fins, legs, control tabs.  KESTREL-2b: 15 mm thick fins, each with its tab servo INSIDE the fin; the servo's output
-# shaft lies on the tab hinge line and turns the tab directly (no pods, no pushrods, no metal hinge pins)
+# fins, legs, control tabs.  KESTREL-2c: normal 4 mm fins; only the bottom band that holds the tab hinge, the tab servo
+# and its lead channel is 15 mm thick, faired into the thin fin by a smooth wedge. The servo sits INSIDE that band; its
+# output shaft lies on the tab hinge line and turns the tab directly (no pods, no pushrods, no metal hinge pins)
 NF = FIN["count"]
 FIN_ANG = [FIN["first_fin_deg"] + 360.0 * k / NF for k in range(NF)]     # 45, 135, 225, 315 (X layout)
 CAN_RI = R + 0.10
 CAN_RO = CAN_RI + FIN["can_wall"]        # 29.25
-FT = FIN["thickness"]                   # 15
+FT = FIN["thickness"]                   # 15: the bottom band
+FT_UP = FIN["upper_thickness"]          # 4: the rest of the fin
+RAMP_L = FIN["ramp_mm"]                 # 20: wedge from the band up to the thin fin
+TE_EXT = FIN["te_extension_mm"]         # 12: the tab and band trailing edges taper to a thin edge this far below the tail
+TE_T = FIN["te_thickness_mm"]           # 1.5
+FOOT_T = FIN["leg"]["foot_thickness_mm"]  # 11: the legs taper from 15 mm to this at the foot
 TIP_R = CAN_RO + FIN["span"]            # 79.25
 TABP = FIN["tab"]
 LEGP = FIN["leg"]
@@ -116,6 +122,7 @@ HORN_HUB_X1 = SVX0 - 0.5                # stock single-arm horn: hub on the spli
 HORN_HUB_L, HORN_ARM_T, HORN_ARM_L = 4.0, 2.0, 5.5
 PIN_R = 1.5                             # printed pivot pin at the tab's inner end
 CH_Z0, CH_Z1, CH_W = 38.5, 43.5, 9.0    # servo-lead channel through the fin to the root: the 8 x 4 mm plug is pushed through it
+BAND_TOP = CH_Z1 + 1.5                  # 45: top of the 15 mm band (1.5 mm of wall above the lead channel)
 SCREW_HOLE_D = 4.0                                              # blind pilot holes for the servo's M2 x 6 screws
 LEAD_GROOVE_W, LEAD_GROOVE_D = 4.0, 4.0                         # lead groove in the fin tip (flat 3-wire lead, 3.2 x 1.1 mm)
 GROOVE_ANG = list(FIN_ANG)              # the lead enters the tube at the fin root and runs up a groove in the TVC frame
@@ -743,12 +750,15 @@ def seg_cyl_xz(p0, p1, r, segs=48):
 
 
 def fin_local():
-    """15 mm thick fin with a half-round leading edge, the leg/foot, the tab bay, the servo pocket (open at the tip),
-    the shoulder + screw holes for the servo's mounting tabs, the root slot for the tab's pin, the lead channel and
-    the lead groove in the tip"""
+    """Normal FT_UP-thick fin with a half-round leading edge. Only the bottom band (tab hinge, servo, lead channel) is
+    FT thick; a smooth wedge fairs it into the thin fin (shortened near the tip so that it stays clear of the leading
+    edge). Below the tail the band ends in a tapered trailing edge and the leg tapers to its foot. Inside: the tab
+    bay, the servo pocket (open at the tip), the shoulder + screw holes for the servo's mounting tabs, the root slot
+    for the tab's pin, the lead channel and the lead groove in the tip"""
     cr, ct = FIN["root_chord"], FIN["tip_chord"]
-    h = FT / 2
-    ax0, az0, ax1, az1 = CAN_RO - 0.6, float(cr), TIP_R, float(ct)
+    x_root = CAN_RO - 0.6
+    h = FT_UP / 2
+    ax0, az0, ax1, az1 = x_root, float(cr), TIP_R, float(ct)
     L = math.hypot(ax1 - ax0, az1 - az0)
     ux, uz = (ax1 - ax0) / L, (az1 - az0) / L
     nx, nz = uz, -ux                                          # inward normal of the leading edge
@@ -757,15 +767,33 @@ def fin_local():
     slope = (a1[1] - a0[1]) / (a1[0] - a0[0])
     z_root = a0[1] + (ax0 - a0[0]) * slope
     z_tip = a0[1] + (ax1 - a0[0]) * slope
-    prof = [(CAN_RO - 0.6, 0.0), (LEG_R0, 0.0), (LEG_R0 + 3.0, FOOT_Z + 3.0), (LEG_R0 + 4.0, FOOT_Z), (TIP_R - 1.0, FOOT_Z),
-            (TIP_R, FOOT_Z + 1.0), (TIP_R, z_tip), (CAN_RO - 0.6, z_root)]
-    f = xz_plate(prof, FT)
+    # 1. the thin fin over the whole planform (its lower edge hidden inside the band): one convex hull of the plate
+    #    and a cylinder along its leading edge, so the half-round edge blends into the faces without slivers
     ext = 20.0
-    le = seg_cyl_xz((a0[0] - ext * ux, a0[1] - ext * uz), (a1[0] + ext * ux, a1[1] + ext * uz), h - 0.02, 64)   # not tangent to the faces
-    f = f + (le ^ bx(CAN_RO - 0.3, TIP_R - 0.05, -FT, FT, 0.0, cr + 20.0))
+    thin = M3.batch_hull([xz_plate([(x_root, 0.3), (TIP_R, 0.3), (TIP_R, z_tip), (x_root, z_root)], FT_UP),
+                          seg_cyl_xz((a0[0] - ext * ux, a0[1] - ext * uz), (a1[0] + ext * ux, a1[1] + ext * uz), h, 48)])
+    f = thin ^ bx(x_root, TIP_R, -FT, FT, 0.3, cr + 20.0)
+    # 2. the 15 mm band and its wedge; the wedge ends RAMP_L above the band, or 1 mm short of the leading-edge
+    #    rounding where the chord gets short near the tip
+    le_z = lambda x: cr + (ct - cr) * (x - x_root) / (TIP_R - x_root)
+    z_ramp = BAND_TOP + RAMP_L
+    x_k = x_root + (cr - (z_ramp + 2 * h + 1.0)) * (TIP_R - x_root) / (cr - ct)
+    hs = h - 0.05
+    pieces = [bx(x_root, TIP_R, -FT / 2, FT / 2, 0.0, BAND_TOP),
+              bx(x_root, x_k, -hs, hs, z_ramp - 0.01, z_ramp)]
+    z_tip_ramp = le_z(TIP_R) - 2 * h - 1.0
+    if x_k < TIP_R:
+        pieces.append(bx(TIP_R - 0.01, TIP_R, -hs, hs, z_tip_ramp - 0.01, z_tip_ramp))
+    f = f + M3.batch_hull(pieces)
+    # 3. tapered trailing edge below the band, outboard of the tab bay (the tab has its own); the bay cut trims it
+    f = f + M3.batch_hull([bx(BAY_X1 - 0.3, LEG_R0 + 0.5, -FT / 2, FT / 2, -0.01, 0.5),
+                           bx(BAY_X1 - 0.3, LEG_R0 + 0.5, -TE_T / 2, TE_T / 2, -TE_EXT, -TE_EXT + 0.5)])
+    # 4. the leg, tapering from the band to its foot
+    f = f + M3.batch_hull([bx(LEG_R0, TIP_R, -FT / 2, FT / 2, -0.01, 0.5),
+                           bx(LEG_R0 + 4.0, TIP_R - 0.5, -FOOT_T / 2, FOOT_T / 2, FOOT_Z, FOOT_Z + 0.5)])
     s = SV
-    # tab bay through the whole thickness, round-topped about the hinge line
-    f = f - bx(BAY_X0, BAY_X1, -FT, FT, -1.0, HINGE_Z)
+    # tab bay through the whole thickness (and everything below it), round-topped about the hinge line
+    f = f - bx(BAY_X0, BAY_X1, -FT, FT, -TE_EXT - 2.0, HINGE_Z)
     f = f - xcyl(BAY_R, BAY_X1 - BAY_X0, 64).translate(((BAY_X0 + BAY_X1) / 2, 0, HINGE_Z))
     # servo pocket and the slot for its mounting tabs, open at the fin tip
     f = f - bx(SVX0 - 0.2, TIP_R + 1.0, -(s["W"] / 2 + 0.2), s["W"] / 2 + 0.2, SV_Z0 - 0.2, SV_Z0 + s["L"] + 0.2)
@@ -795,7 +823,8 @@ def tab_local(delta=0.0):
     +delta moves the trailing edge towards -y (the firmware's sign: away from the next fin anticlockwise)"""
     L = TAB_X1 - TAB_X0
     xc = (TAB_X0 + TAB_X1) / 2
-    t = M3.batch_hull([xcyl(TAB_LE_R, L, 64).translate((xc, 0, HINGE_Z)), bx(TAB_X0, TAB_X1, -1.0, 1.0, 0.5, 1.5)])
+    t = M3.batch_hull([xcyl(TAB_LE_R, L, 64).translate((xc, 0, HINGE_Z)),
+                       bx(TAB_X0, TAB_X1, -TE_T / 2, TE_T / 2, -TE_EXT, -TE_EXT + 1.0)])        # thin edge below the tail
     hub0 = SVX0 - SV["spline"] - 0.5
     t = t - xcyl(3.5 + 0.3, TAB_X1 - hub0 + 0.2, 40).translate(((hub0 + TAB_X1 + 0.2) / 2, 0, HINGE_Z))        # hub pocket
     arm0 = HORN_HUB_X1 - HORN_HUB_L - 0.3
@@ -834,7 +863,7 @@ def fin_can(M):
         m = m - polar(hole, a)
     # fin #1 marker pip (fin at FIN_ANG[0]) on both faces near the root
     for sy in (1, -1):
-        m = m + polar(ycyl(1.5, 1.4, 24).translate((CAN_RO + 14.0, sy * (FT / 2 + 0.4), 60.0)), FIN_ANG[0])
+        m = m + polar(ycyl(1.5, 1.4, 24).translate((CAN_RO + 14.0, sy * (FT_UP / 2 + 0.4), 85.0)), FIN_ANG[0])
     lug = tube(4.75, 3.4, 25.0, 50.0, segs=40).translate((CAN_RO + 4.4, 0, 0)) + box(5.0, 3.0, 25.0, CAN_RO + 1.6, 0, 62.5)
     # top end cut at 45 deg from the can: the lug then grows out of the can when the fin can prints upside down
     lug = lug - xz_plate([(CAN_RO - 1.0, 75.0 + 1.0), (CAN_RO + 20.0, 75.0 - 20.0), (CAN_RO + 20.0, 90.0), (CAN_RO - 1.0, 90.0)], 20.0)
@@ -1240,8 +1269,8 @@ def check_layout():
         "camera_pod.width_mm": (D["camera_pod"]["width_mm"], CAM_POCKET + 2 * 1.6),
         "fins.tab.r_from": (TABP["r_from"], TAB_X0 - CAN_RO),
         "fins.tab.r_to": (TABP["r_to"], TAB_X1 - CAN_RO),
-        "fins.tab.chord": (TABP["chord"], HINGE_Z + TAB_LE_R - 0.5),
-        "fins.leg.foot_base_mm2 /10": (LEGP["foot_base_mm2"] / 10.0, FT * LEGP["width"] / 10.0),
+        "fins.tab.chord": (TABP["chord"], HINGE_Z + TAB_LE_R + TE_EXT),
+        "fins.leg.foot_base_mm2 /10": (LEGP["foot_base_mm2"] / 10.0, FOOT_T * (TIP_R - 0.5 - LEG_R0 - 4.0) / 10.0),
         "tvc.linkage_ratio x100 (ring)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR1[0] / PR1[1]),
         "tvc.linkage_ratio x100 (motor holder)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR2[1] / PR2[0]),
     }
@@ -1641,8 +1670,8 @@ def main():
     for txt, x, z in (("MG90S tab servo,\nslid in from the fin tip", TIP_R + 47.0, SV_ZC + 2.0),
                       ("lead groove", TIP_R + 30.0, (SV_Z0 + SV["L"] + CH_Z0) / 2 - 1.0),
                       ("lead channel to the can", TAB_X1 + 12.0, CH_Z1 + 4.0),
-                      ("control tab", TAB_X1 - 4.0, -9.0),
-                      ("horn glued in the tab,\non the servo spline", TAB_X1 + 4.0, -17.0),
+                      ("control tab", TAB_X1 - 4.0, -TE_EXT - 6.0),
+                      ("horn glued in the tab,\non the servo spline", TAB_X1 + 4.0, -TE_EXT - 14.0),
                       ("root pin", CAN_RO - 1.5, HINGE_Z - 1.0),
                       ("leg / foot", TIP_R + 30.0, FOOT_Z + 8.0)):
         cu = bpy.data.curves.new("label_fs", "FONT")

@@ -121,16 +121,16 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 181.1,
-  "z": 850.8,
+  "mass_g": 165.3,
+  "z": 860.2,
   "length": 0.0,
-  "radius": 44.8,
+  "radius": 46.6,
   "source": "CAD"
  },
  {
   "name": "fin_control_tab",
-  "mass_g": 13.9,
-  "z": 886.2,
+  "mass_g": 19.5,
+  "z": 890.6,
   "length": 0.0,
   "radius": 46.1,
   "source": "CAD"

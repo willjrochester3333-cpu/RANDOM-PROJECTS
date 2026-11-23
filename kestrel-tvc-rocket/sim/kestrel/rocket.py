@@ -323,12 +323,22 @@ class Rocket:
         fB = self.length / self.D
         t = {}
         t["body skin friction"] = cf * (1.0 + 1.0 / (2.0 * fB)) * (S_nose + S_body) / self.A_ref
-        tc = self.fin_t / ((self.fin_cr + self.fin_ct) / 2)
+        fd = self.design["fins"]
+        t_up = fd.get("upper_thickness", self.fin_t) / 1000.0         # thin part of the fin (leading edge)
+        tc = 0.5 * (t_up + self.fin_t) / ((self.fin_cr + self.fin_ct) / 2)
         t["fin + leg skin friction"] = cf * (1.0 + 2.0 * tc) * S_fins / self.A_ref
-        # fin pressure drag: rounded LE + square TE
-        fin_frontal = self.fin_n * self.fin_t * self.fin_s
-        t["fin leading edges"] = 0.12 * fin_frontal / self.A_ref            # rounded leading edge
-        t["fin trailing edges"] = 0.12 * fin_frontal / self.A_ref * 0.5     # blunt trailing edge (half of it; the tabs taper)
+        # fin pressure drag (conservative engineering estimates): rounded leading edge of the thin fin; the wedge that
+        # fairs the thin fin into the 15 mm bottom band (half the leading-edge coefficient on its frontal step); the
+        # trailing edges (thin tapered edges + the blunt strip at the root) and the tapered boat-tails
+        t["fin leading edges"] = 0.12 * self.fin_n * t_up * self.fin_s / self.A_ref
+        if "upper_thickness" in fd:
+            t["fin band fairing"] = 0.06 * self.fin_n * (self.fin_t - t_up) * self.fin_s / self.A_ref
+            te_t = fd.get("te_thickness_mm", 1.5) / 1000.0
+            leg_w = fd["leg"]["width"] / 1000.0 if fd.get("leg") else 0.0
+            te_area = self.fin_n * (te_t * (self.fin_s - leg_w) + 0.0025 * self.fin_t)
+            t["fin trailing edges"] = 0.30 * te_area / self.A_ref + 0.02 * self.fin_n * self.fin_t * self.fin_s / self.A_ref
+        else:
+            t["fin trailing edges"] = 0.12 * self.fin_n * self.fin_t * self.fin_s / self.A_ref * 0.5
         # nose pressure drag (tangent ogive, subsonic) ~ small
         t["nose"] = 0.02
         # base drag: annulus around nozzle; reduced while the motor is burning
@@ -348,7 +358,6 @@ class Rocket:
         t["gimbal gap"] = 0.01  # TVC gimbal gap / nozzle step
         # KESTREL-2 control fins: tab-servo pods (none since the servos moved into the fins), linkages / hinge gaps,
         # blunt feet under the legs
-        fd = self.design["fins"]
         t["tab-servo pods"] = (fd["pod"]["cd"] * fd["pod"]["frontal_area_mm2"] * 1e-6 * self.fin_n / self.A_ref
                                if fd.get("pod") else 0.0)
         t["tab hinges / linkages"] = fd.get("tab", {}).get("linkage_cda_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref

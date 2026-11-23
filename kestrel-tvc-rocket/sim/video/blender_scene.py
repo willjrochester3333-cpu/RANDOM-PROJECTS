@@ -407,5 +407,8 @@ if ONLY:                                                       # quick look at a
         sc.render.filepath = os.path.join(OUT, f"{k:04d}.png")
         bpy.ops.render.render(write_still=True)
 else:
+    # resumable: frames already on disk are kept (a restarted render carries on where it stopped)
+    sc.render.use_overwrite = False
+    sc.render.use_placeholder = True
     bpy.ops.render.render(animation=True)
 print("done", CAM, len(FR), "frames")
