@@ -33,7 +33,7 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 - [x] 6. Pico firmware: 7 servos, tab mixing, bench tests, rebuild UF2, host tests
 - [x] 7. CAD: bottom part, coupler, middle part (payload bay + door + lock, wall, spring/piston, parachute, top latch + release servo), nose cone, pad; checks
 - [x] 8. Separate TVC module .blend (2 wires out the top); parachute-open .blend
-- [ ] 9. Video render (final, rated motor model) — running
+- [x] 9. Video render (final, rated motor model; re-rendered for the F35, seed 7)
 - [x] 10. Shopping list with real prices/links
 - [x] 11. Docs rewritten for KESTREL-2 (README, build guide, test plan, checklist, safety, simulation report, PCB, firmware, BOM)
 - [ ] 12. Test-and-adjust loop until the deadline (final renders, final regression run)
@@ -122,7 +122,7 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   RocketPy within 0.33 % (F35 188.31 vs 188.24 m). Hard-over containment 23-26 m (F35), so spectators 40 m for
   the F35. Docs filled from the results; recovery area 550 m (6 m/s) or 300 m (3 m/s) for the F35.
 - 19:20-20:30 Mon: user: a "SUPER cool" live screen with everything about the rocket, a 3D map of where it is, and
-  the movement saved for replay -> ground/ Mission Control (three.js r128, one HTML file, offline build 836 kB):
+  the movement saved for replay -> ground/ Mission Control (three.js r128, one HTML file, offline build 839 kB):
   3D range (10 m grid, 100 m rings, pad, trail coloured by phase, event pins, landing marker), chase / pad /
   orbit / map cameras, event list + banners (liftoff, burnout, apogee, chute, landed, abort), state strip,
   telemetry, nose / gimbal / tab dials, 4 strip charts (hover, click to seek), timeline with event ticks,
@@ -132,3 +132,12 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   Found: the example-log and demo writers skipped the pad rows (`last = -1.0` vs t = 0) -> fixed, example log
   regenerated (1463 rows, 188.2 m). Tested in headless Chromium (live run to LANDED, replay, seek, load, save,
   flights list, offline file with the network blocked); published as a private claude.ai page.
+- Mon 20:30 - Tue 16:30: Mission Control checked against the firmware. Before READY the flight computer's alt_m is
+  pressure altitude (p0 is only set at READY), so a replay showed the rocket ~100 m up while calibrating -> the
+  screen uses altitude / vertical speed from READY on ("–" before); saved files keep the raw values. USB tested
+  against a simulated flight computer (echo, "> " prompts, one header, a session line per flight, one "# end"):
+  the page now listens before it sends dump (a fast reply was lost before), strips prompts, shows the in-flight
+  "refused: only on the ground" and gives up after 8 s of silence; choosing a downloaded flight no longer closes
+  the USB link (a second dump failed), live lines during a replay bring up LIVE, unplugging resets the button.
+  F35 launch video rendered (seed 7: 179.3 m, 47.9 s, 1080p; this flight drew a 7.7 % heavier rocket, 867 g
+  after burn-out).

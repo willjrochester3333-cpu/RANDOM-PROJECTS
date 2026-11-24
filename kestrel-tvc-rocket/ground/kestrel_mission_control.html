@@ -1360,7 +1360,7 @@ function rotate(q, v) {           // rotate body vector v by quaternion q = [w, 
 
 /* ------------------------------------------------------------------ app state */
 const app = {
-  flight: null, mode: "idle", playing: false, speed: 1, playT: 0, followLive: false, lastFrame: performance.now(),
+  flight: null, mode: "idle", usb: null, playing: false, speed: 1, playT: 0, followLive: false, lastFrame: performance.now(),
   view: "chase", scale: 8, src: null, lastPacket: 0, rateCount: 0, rate: 0, rateAt: performance.now(),
   firedEvents: new Set(), downloads: null,
 };
@@ -1945,7 +1945,13 @@ function startSimLive(text) {
   } };
   feed("PAD", "Simulated flight: TSP F35, real flight code in the 6-DOF simulator");
 }
-function stopSource() { if (app.src && app.src.close) app.src.close(); app.src = null; }
+// the USB link stays open when another flight is shown (more dumps, live lines); it closes only when unplugged
+function stopSource() { if (app.src && app.src.close && app.src.kind !== "usb") app.src.close(); app.src = null; }
+function setUsbButton(src) {
+  const b = $("btnUsb"); b.lastChild.nodeValue = src ? " Get log over USB" : " Connect USB";
+  b.title = src ? "Download the flights stored on the flight computer (its dump command)" : "Connect the flight computer or a ground-station receiver over USB";
+  b.onclick = src ? () => src.sendDump() : connectUsb;
+}
 function replayFlight(label, rows, source) {
   stopSource();
   const f = new Flight(label, source || "file"); for (const r of rows) f.add(r);
@@ -1960,22 +1966,41 @@ async function connectUsb() {
   let port;
   try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 115200 }); }
   catch (e) { toast(e && e.name === "NotFoundError" ? "No port chosen." : "This page is not allowed to open a USB port here. Open ground/kestrel_mission_control.html from the project in Chrome or Edge instead."); return; }
+  if (app.usb) { await app.usb.close(); app.usb = null; }
   stopSource();
   const f = new Flight("USB " + new Date().toLocaleString(), "usb"); loadFlight(f, "live"); app.followLive = true; setPlaying(true); setView("chase");
   const dec = new TextDecoderStream(); const closed = port.readable.pipeTo(dec.writable).catch(() => {}); const reader = dec.readable.getReader();
-  let buf = "", dump = null; const src = { kind: "usb", port, async close() { try { await reader.cancel(); await closed; await port.close(); } catch (e) {} } };
-  app.src = src; feed("USB", "Connected. Waiting for telemetry lines (the log format). Type-ahead: use Get log to download the stored flights.");
-  src.sendDump = async () => { const w = port.writable.getWriter(); await w.write(new TextEncoder().encode("dump\r\n")); w.releaseLock(); dump = []; feed("USB", "Downloading the flight log…"); };
+  // dump: the flight computer echoes what it is sent, prints "> " prompts, then one header, a "# session:" line per
+  // flight, the rows and a single "# end:" line; in flight it answers "refused: only on the ground (state …)"
+  let buf = "", dump = null, dumpLast = 0, dumpTimer = null;
+  const endDump = (msg) => { dump = null; clearInterval(dumpTimer); dumpTimer = null; if (msg) { feed("USB", msg); toast(msg); } };
+  const src = { kind: "usb", port, flight: f, async close() { clearInterval(dumpTimer); try { await reader.cancel(); await closed; await port.close(); } catch (e) {} } };
+  app.src = src; app.usb = src; feed("USB", "Connected. Waiting for telemetry lines (the log format). Type-ahead: use Get log to download the stored flights.");
+  src.sendDump = async () => {
+    dump = []; dumpLast = performance.now(); feed("USB", "Downloading the flight log…");     // listen before asking
+    clearInterval(dumpTimer); dumpTimer = setInterval(() => { if (dump && performance.now() - dumpLast > 8000) endDump("No reply to dump. Is this the flight computer's port?"); }, 1000);
+    const w = port.writable.getWriter();
+    try { await w.write(new TextEncoder().encode("dump\r\n")); } catch (e) { endDump("Could not send dump to the flight computer."); } finally { w.releaseLock(); }
+  };
   (async () => {
     try {
       for (;;) { const { value, done } = await reader.read(); if (done) break; buf += value; let k;
-        while ((k = buf.indexOf("\n")) >= 0) { const line = buf.slice(0, k).trim(); buf = buf.slice(k + 1);
-          if (dump) { dump.push(line); if (line.startsWith("# end")) { const sessions = parseLog(dump.join("\n")); dump = null; chooseSession(sessions, "usb"); } continue; }
-          const r = parseLine(line); if (r && f.add(r)) { app.rateCount++; app.lastPacket = performance.now(); }
+        while ((k = buf.indexOf("\n")) >= 0) { const line = buf.slice(0, k).replace(/^(?:>\s*)+/, "").trim(); buf = buf.slice(k + 1);
+          if (dump) { dumpLast = performance.now();
+            if (line.startsWith("refused")) { endDump("The flight computer says: " + line); continue; }
+            dump.push(line);
+            if (line.startsWith("# end")) { const sessions = parseLog(dump.join("\n")); endDump(); if (sessions.length) chooseSession(sessions, "usb"); else toast("The flight computer's log is empty."); }
+            continue; }
+          const r = parseLine(line);
+          if (r && f.add(r)) { app.rateCount++; app.lastPacket = performance.now();
+            // live lines while another flight is on screen: offer the way back instead of switching by surprise
+            if (app.flight !== f && app.mode !== "live" && $("btnLive").hidden) { $("btnLive").hidden = false; toast("Live data is arriving over USB. Press LIVE to watch it."); } }
         } }
-    } catch (e) { feed("USB", "Disconnected"); }
+    } catch (e) { /* unplugged or closed */ }
+    clearInterval(dumpTimer);
+    if (app.usb === src) { app.usb = null; if (app.src === src) app.src = null; setUsbButton(null); feed("USB", "Disconnected"); toast("USB disconnected"); }
   })();
-  $("btnUsb").textContent = "Get log over USB"; $("btnUsb").onclick = () => src.sendDump();
+  setUsbButton(src);
 }
 
 /* ------------------------------------------------------------------ files and saved flights */
@@ -2057,7 +2082,10 @@ function wire() {
   $("sheet").addEventListener("click", (e) => { if (e.target === $("sheet")) closeSheet(); });
   $("btnPlay").onclick = () => { const f = app.flight; if (!f) return; if (!app.playing && app.playT >= f.T[f.T.length - 1] - 1e-3) seek(f.T[0]); app.followLive = false; $("btnLive").setAttribute("aria-pressed", "false"); setPlaying(!app.playing); };
   $("btnRestart").onclick = () => { const f = app.flight; if (!f) return; seek(f.tLaunch != null ? Math.max(f.T[0], f.tLaunch - 3) : f.T[0]); setPlaying(true); };
-  $("btnLive").onclick = () => { app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); };
+  $("btnLive").onclick = () => {
+    const u = app.usb && app.usb.flight;                 // back from a replay to the live USB data
+    if (app.mode !== "live" && u && u.rows.length) { stopSource(); app.src = app.usb; loadFlight(u, "live"); seek(u.T[u.T.length - 1]); setView("chase"); }
+    app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); };
   $("speed").onchange = (e) => { app.speed = Number(e.target.value); };
   const sc = $("scrub");
   sc.addEventListener("input", () => { const f = app.flight; if (!f) return; app.scrubbing = true; const a = f.T[0], b = f.T[f.T.length - 1]; seek(a + Number(sc.value) / 1000 * (b - a)); });
@@ -2070,7 +2098,7 @@ function wire() {
     else if (e.key === "ArrowRight") seek(app.playT + (e.shiftKey ? 5 : 0.5));
     else if (e.key === "ArrowLeft") seek(app.playT - (e.shiftKey ? 5 : 0.5));
     else if (["1", "2", "3", "4"].includes(e.key)) setView(["chase", "pad", "orbit", "top"][Number(e.key) - 1]);
-    else if (e.key === "l" || e.key === "L") { if (app.mode === "live") $("btnLive").click(); }
+    else if (e.key === "l" || e.key === "L") { if (!$("btnLive").hidden) $("btnLive").click(); }
     else if (e.key === "Escape") closeSheet();
   });
   // drag a log file anywhere onto the page
