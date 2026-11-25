@@ -34,6 +34,7 @@
 | pad_tile_clamp | 4 | 16.0 x 16.0 x 4.0 | 1.0 | 4.8 | 4.00 | yes | 1 | yes | 0 / 0 | none | PASS |
 | tool_drill_guide_bottom_tube | 1 | 60.7 x 60.7 x 148.0 | 47.7 | 59.6 | 1.95 | yes | 1 | yes | 139 / 55 | none | PASS |
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.7 | 1.95 | yes | 1 | yes | 75 / 66 | none | PASS |
+| tool_leg_test_block | 1 | 30.0 x 28.0 x 22.0 | 10.4 | 6.9 | 5.35 | yes | 1 | yes | 33 / 22 | none | PASS |
 
 Estimated printed rocket parts total: **418 g** as flown with the F35 (walls 1.2 mm + 20% infill assumption; the 24 mm adapter set, launch pad and build tools not included)
 
