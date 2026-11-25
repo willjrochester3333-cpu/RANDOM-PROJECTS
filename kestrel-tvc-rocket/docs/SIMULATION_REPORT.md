@@ -270,7 +270,7 @@ Things the simulator does not cover, checked by hand for the final fins, the F35
 ## 8. The launch video
 
 `sim/results/video/kestrel2_flight_seed7.mp4` (4.9 m/s wind, 20 g payload, F35, apogee
-179 m) is a randomised flight from the same simulator with the real flight code, rendered in Blender with
+161 m) is a randomised flight from the same simulator with the real flight code, rendered in Blender with
 the final CAD: ground camera and onboard camera side by side, live telemetry bottom left, graphs below. The fin tabs
 move by their simulated angles; the parachute opens as the simulator says it does. Make another (each seed is a
 different flight: wind, gusts, payload, motor performance, sensor errors):
