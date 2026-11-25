@@ -2269,7 +2269,7 @@ def main():
                       ("control tab", TAB_X1 - 4.0, -TE_EXT - 6.0),
                       ("horn glued in the tab,\non the servo spline", TAB_X1 + 4.0, -TE_EXT - 14.0),
                       ("root pin", CAN_RO - 1.5, HINGE_Z - 1.0),
-                      ("replaceable leg (tough PLA) on the\nfin can's tongue, one M3 bolt", TIP_R + 62.0, FOOT_Z + 8.0)):
+                      ("replaceable leg (tough PLA)\non the fin can's tongue,\none M3 bolt", TIP_R + 47.0, FOOT_Z + 10.0)):
         cu = bpy.data.curves.new("label_fs", "FONT")
         cu.body = txt
         cu.size = 3.6
