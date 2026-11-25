@@ -17,6 +17,7 @@ SETTINGS = {  # (wall mm, infill fraction) - match the print notes in the build 
     "tvc_motor_holder": (1.6, 0.30), "tvc_gimbal_ring": (1.2, 0.40), "tvc_motor_retainer": (1.2, 0.40),
     "payload_wall": (1.2, 0.25), "top_latch_insert": (1.2, 0.25), "fin_control_tab": (1.2, 0.20),
     "tvc_motor_adapter_24mm": (1.2, 0.30), "tvc_motor_retainer_24mm": (1.2, 0.40), "tvc_motor_spacer_D": (1.2, 0.30),
+    "fin_leg": (1.2, 1.00),                      # tough PLA, solid: the post's strength is designed for 100 % infill
     "default": (1.2, 0.20),
 }
 # parts flown only with some motors: the simulator adds them when the loaded motor matches

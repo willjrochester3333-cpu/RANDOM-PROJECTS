@@ -134,6 +134,26 @@ SCREW_HOLE_D = 4.0                                              # blind pilot ho
 LEAD_GROOVE_W, LEAD_GROOVE_D = 4.0, 4.0                         # lead groove in the fin tip (flat 3-wire lead, 3.2 x 1.1 mm)
 GROOVE_ANG = list(FIN_ANG)              # the lead enters the tube at the fin root and runs up a groove in the TVC frame
 CAB_Z0, CAB_Z1 = CH_Z0, CH_Z1
+# KESTREL-2d (multi-flight): the tab bay leaves the outer part of each fin (servo housing + leg) joined to the rest only
+# above z ~17 mm, so the housing's two side walls carry every landing load on the foot. They are 2.2 mm thick (housing
+# 17 mm) instead of 1.2 mm. The legs are separate, replaceable parts: a sleeve slides up over a solid tongue under each
+# fin tip (part of the fin can) and one M3 bolt crosses both; a 6 x 9.2 mm post then runs to the foot and is the designed
+# weak link, so a hard landing breaks a 5 g leg instead of the fin can.
+HSGP = FIN["housing"]
+HT = HSGP["thickness"]                  # 17: band thickness round the tab servo
+HX0 = BAY_X1 - 0.3                      # 55.25: the housing starts where the tab bay ends (the band tapers 15 -> 17 inboard)
+HX_TAPER = HSGP["taper_mm"]
+TG_LX, TG_Y, TG_H = LEGP["tongue_mm"]   # 14 x 12.3 x 12 tongue
+LEG_CLR = 0.15                          # sleeve-to-tongue clearance per side
+TG_X1 = TIP_R - 3.0                     # tongue outer end (the sleeve's outer wall is 2.85 mm, flush with the fin tip)
+TG_X0 = TG_X1 - TG_LX                   # 62.25
+SL_X0 = LEG_R0                          # 59.6: sleeve inner face (inner wall 2.5 mm); the trailing-edge taper ends 0.2 mm short
+SL_Z0 = LEGP["sleeve_bottom_z"]         # -13.95: sleeve floor underside
+LEG_BOLT_X, LEG_BOLT_Z = (TG_X0 + TG_X1) / 2, -6.0     # M3 bolt across (along y), 6 mm from both tongue edges
+POST_W, POST_T = LEGP["post_mm"]        # 6.0 (along the span) x 9.2 (across the fin)
+POST_X0, POST_X1 = TIP_R - 1.25 - POST_W, TIP_R - 1.25  # 72.0 .. 78.0: the foot stays where it was
+POST_Z1 = LEGP["post_top_z"]            # -18.5: top of the post (the weak section)
+LEG_RECESS = 0.8                        # bolt head / nut sunk this far into the sleeve's side walls
 # camera pod, avionics
 CAM_Z0 = 200.0
 CAM_POCKET = 23.6
@@ -143,7 +163,6 @@ CAM_WIN_W, CAM_WIN_H = CAM_POCKET + 2 * 1.6 + 0.2, 30.0
 RADIAL_SCREW_ANG = (0.0, 180.0)
 STATIC_PORT_ANG = (30.0, 150.0, 270.0)
 LUG_ANG = 90.0
-UPPER_LUG_Z = 300.0
 BATT = dict(w=BAT["width"], t=BAT["thickness"], l=BAT["length"], y0=4.0, z0=Z_AV0 + 14.0)
 BAY = dict(w=BAT["width"] + 1.0, t=BAT["thickness"] + 1.0, l=BAT["length"] + 6.0)
 # middle part
@@ -151,6 +170,20 @@ DOOR_Z0, DOOR_H, DOOR_W = 380.0, PAY["door_height"], PAY["door_width"]
 DHX, DHZ = R + 0.45, DOOR_Z0 + 2.0      # door hinge axis (along Y), just outside the tube surface
 LATCH_Z = DOOR_Z0 + DOOR_H - 6.0
 JOINT_ANG, JOINT_Z = (90.0, 270.0), Z_MID0 + 14.0
+# battery hatch (multi-flight), +y side = the launch-rod side: the pack slides out through it and the Pico's own USB
+# socket is reached through it with an angled micro-USB cable (nothing extra in the rocket). The door is a 1.2 mm
+# curved panel that sits ON the tube and overlaps the opening by 2 mm all round, so there is no gap anywhere; two hooks
+# at the top go behind the coupler wall and a quarter-turn latch on the rod line (flush coin slot) pulls the bottom
+# tight against a flat catch. The upper launch lug moves to the middle tube, just above the joint screw at 90 deg.
+HATCH_X = 13.0
+HATCH_Z0, HATCH_Z1 = Z_AV0 + 8.0, Z_AV0 + 86.0        # 248 .. 326: opening through the bottom tube and the coupler
+HD_M, HD_T, HD_R0 = 2.0, 1.2, R + 0.02                # door overlap, thickness, inner radius
+HL_Z = HATCH_Z0 + 3.5                                 # latch axis (along y, x = 0)
+HL_Y0, HL_Y1 = 23.6, 24.75                            # cam between these; it bears on the catch face at y = 24.85
+HC_Y = 24.85
+HOOK_X = 8.0
+PAD_Y = 20.3                                          # door pad face (1.5 mm foam pad to the pack at y 19.5)
+UPPER_LUG_Z = JOINT_Z + 5.0                           # 363
 # release latch at the top of the middle part
 RSV_XC = -16.4
 RSV_Z0 = Z_MID1 - 0.3 - SV["H"]          # release servo body bottom (shaft up, long side along Y)
@@ -547,6 +580,60 @@ def payload_door_parts(M):
              note="Push onto the knob's square end from inside + drop of CA. Arm UP = locked, sideways = open")
 
 
+def hatch_cut():
+    """the battery-hatch opening (+y side), through the bottom tube and the av-bay coupler"""
+    return bx(-HATCH_X, HATCH_X, 15.0, 40.0, HATCH_Z0, HATCH_Z1)
+
+
+def hatch_door_solid():
+    """battery-hatch door: a curved panel ON the tube, 2 mm larger than the opening all round (so no gap anywhere), its
+    outer half stepped in 0.6 mm at the edges; inside: two hooks at the top, a pad on a rib that holds the pack, and the
+    boss for the quarter-turn latch on the rod line"""
+    z0, z1, w = HATCH_Z0 - HD_M, HATCH_Z1 + HD_M, HATCH_X + HD_M
+    m = tube(HD_R0 + 0.6, HD_R0, z1 - z0, z0) ^ bx(-w, w, 0.0, 40.0, z0, z1)
+    m = m + (tube(HD_R0 + HD_T, HD_R0 + 0.55, z1 - z0 - 1.2, z0 + 0.6) ^ bx(-(w - 0.6), w - 0.6, 0.0, 40.0, z0, z1))
+    zc = BATT["z0"] + BATT["l"] / 2
+    m = m + bx(-0.8, 0.8, PAD_Y + 1.0, HD_R0 + 0.4, zc - 12.0, zc + 12.0) + bx(-6.0, 6.0, PAD_Y, PAD_Y + 1.2, zc - 12.0, zc + 12.0)
+    hook = M3.batch_hull([bx(HD_R0 - 0.3, HD_R0 + 0.3, -2.5, 2.5, HATCH_Z1 - 6.0, HATCH_Z1 - 0.4),
+                          bx(25.1, 25.4, -2.5, 2.5, HATCH_Z1 - 2.6, HATCH_Z1 - 0.4)])
+    hook = hook + bx(25.1, 26.15, -2.5, 2.5, HATCH_Z1 - 2.6, HATCH_Z1 + 3.5)
+    for sx in (1, -1):
+        m = m + polar(hook, 90.0 - sx * math.degrees(math.asin(HOOK_X / R)))
+    m = m + ycyl(3.3, HD_R0 + 0.3 - (HL_Y1 + 0.3), 32).translate((0, (HD_R0 + 0.3 + HL_Y1 + 0.3) / 2, HL_Z))
+    m = m - ycyl(2.2, 12.0, 24).translate((0, HD_R0, HL_Z))
+    ro = HD_R0 + HD_T
+    m = m - ycyl(4.6, 2.0, 32).translate((0, ro - 0.97 + 1.0, HL_Z))               # counterbore: knob head flush
+    return m
+
+
+def hatch_latch_knob():
+    ro = HD_R0 + HD_T
+    m = ycyl(4.4, 0.95, 40).translate((0, ro - 0.475, HL_Z))
+    m = m + ycyl(2.0, ro - 0.95 - (HL_Y1 + 0.05), 24).translate((0, (ro - 0.95 + HL_Y1 + 0.05) / 2, HL_Z))
+    m = m + bx(-1.25, 1.25, HL_Y0, HL_Y1 + 0.15, HL_Z - 1.25, HL_Z + 1.25)       # square end into the cam
+    m = m - bx(-3.2, 3.2, ro - 0.4, ro + 0.2, HL_Z - 0.5, HL_Z + 0.5)            # coin slot
+    return m
+
+
+def hatch_latch_cam(locked=True):
+    """arm DOWN = locked (behind the catch below the opening); arm towards the middle (sideways) = open"""
+    arm = bx(-2.0, 2.0, HL_Y0, HL_Y1, HL_Z - 7.5, HL_Z + 2.6) + ycyl(2.6, HL_Y1 - HL_Y0, 32).translate((0, (HL_Y0 + HL_Y1) / 2, HL_Z))
+    arm = arm - bx(-1.35, 1.35, HL_Y0 - 1.0, HL_Y1 + 1.0, HL_Z - 1.35, HL_Z + 1.35)
+    if not locked:
+        arm = arm.translate((0, 0, -HL_Z)).rotate((0, 90, 0)).translate((0, 0, HL_Z))
+    return arm
+
+
+def hatch_parts(M):
+    register("battery_hatch_door", hatch_door_solid(), M["orange"], part="bottom",
+             note="PETG, print standing on its bottom edge as exported, with a brim (no supports). Stick a 20 x 20 mm piece of the 1-2 mm "
+                  "foam tape on the pad. Fit: hooks in at the top, slide up, swing the bottom in, turn the latch")
+    register("battery_hatch_latch_knob", hatch_latch_knob(), M["black"], part="bottom", print_rot=(90, 0, 0),
+             note="Quarter-turn latch: knob from outside, coin slot, flush. Print head-down, 100% infill")
+    register("battery_hatch_latch_cam", hatch_latch_cam(True), M["black"], part="bottom", print_rot=(90, 0, 0),
+             note="Push onto the knob's square end from inside + drop of CA. Arm DOWN = locked, towards the middle = open")
+
+
 def payload_wall(M):
     m = cyl(INS_R, BULK_T, Z_WALL0) + tube(INS_R, INS_R - 1.2, 13.0, Z_WALL1 - 1.0)      # glue skirt on the parachute side
     m = m + tube(6.8, 5.0, 8.5, Z_WALL1 - 0.5)                                   # locates the ejection spring
@@ -578,9 +665,12 @@ def avbay_coupler(M):
             (INS_R, zt), (0.0, zt), (0.0, SH_TOP), (INS_R - WALL, SH_TOP), (INS_R - WALL, Z_BAND0 + 3.0),
             (INS_R - iw, Z_BAND0 - 2.0)]
     m = revolve(prof)
-    for a in (0.0, 120.0, 240.0):
+    for a in (120.0, 240.0):     # lightening windows at 180 / 300 deg (the one at 60 deg gave way to the battery hatch)
         w = (tube(INS_R + 1, INS_R - iw - 1, 52.0, Z_AV0 + 22.0, segs=96) ^ polar(box(60, 34, 60, 30, 0, Z_AV0 + 48.0), a + 60.0))
         m = m - w
+    # battery hatch: the opening, and a flat catch below it for the latch cam (above the sled's disc)
+    m = m - hatch_cut()
+    m = m + (bx(-8.0, 8.0, HC_Y, 27.0, Z_AV0 + 3.6, HATCH_Z0) ^ cyl(INS_R - 0.05, 20.0, Z_AV0, segs=96))
     # middle-part joint: 2 x M3 radial screws into nut pockets inside the shoulder
     ri = INS_R - WALL
     for a in JOINT_ANG:
@@ -635,18 +725,24 @@ def avbay_sled(M):
         L = STANDOFF_H + 0.5
         m = m + ycyl(2.6, L, 32).translate((x, PCB_Y_BACK - L / 2, z))
         m = m - ycyl(1.05, 3 * L, 16).translate((x, PCB_Y_BACK - L, z))
-    # battery tray behind the Pico (pack on a ledge, velcro strap through two slots)
+    # battery pocket behind the Pico (multi-flight): the pack slides in and out through the battery hatch (+y); the hatch
+    # door's pad holds it against a backing wall that keeps it off the Pico, and the 45 deg ledge carries it in flight.
+    # The tray plate has a window the pack passes through; the inner side walls start above the servo plugs
     ty = BATT["y0"] + BAY["t"] + 0.8
-    th = BAY["l"] + 16.0
+    th = BAY["l"] + 10.0
+    zb0, zb1 = BATT["z0"] - 2.0, BATT["z0"] + BATT["l"] + 2.0
+    ybw = BATT["y0"] - 1.6                                            # backing wall 2.4 .. 4.0 (pack from 4.5)
     tray = box(BAY["w"] + 5.0, 1.6, th, 0, ty, z0 + 2.5 + th / 2)
+    tray = tray - bx(-(BATT["w"] / 2 + 0.5), BATT["w"] / 2 + 0.5, ty - 2.0, ty + 2.0, BATT["z0"] - 1.0, BATT["z0"] + BATT["l"] + 1.5)
     for sx in (1, -1):
-        tray = tray + box(1.6, 6.0, th, sx * (BAY["w"] / 2 + 0.8), ty - 3.6, z0 + 2.5 + th / 2)
+        xw = sx * (BAY["w"] / 2 + 0.8)
+        tray = tray + box(1.6, 6.0, th, xw, ty - 3.6, z0 + 2.5 + th / 2)
+        tray = tray + bx(xw - 0.8, xw + 0.8, ybw, ty, zb0, zb1)
+    tray = tray + bx(-(BAY["w"] / 2 + 1.6), BAY["w"] / 2 + 1.6, ybw, ybw + 1.6, zb0, zb1)
     # battery ledge: a 45 deg wedge growing out of the tray wall (prints without supports, leaves room for the servo leads)
     y_w = ty - 0.5
     ledge = xz_plate([(11.0, BATT["z0"]), (y_w, BATT["z0"]), (y_w, BATT["z0"] - (y_w - 11.0))], BAY["w"] - 1.0).rotate((0, 0, 90))
     tray = tray + ledge
-    for zz in (BATT["z0"] - z0 + 8.0, BATT["z0"] - z0 + BATT["l"] - 8.0):
-        tray = tray - box(BAY["w"] - 4.0, 4.0, 3.2, 0, ty, z0 + zz)
     m = m + (tray ^ cyl(rb, 200, z0))
     for ang in RADIAL_SCREW_ANG:
         nt = box(5.9, 6.0, 2.8, rb - 3.2, 0, z0 + 12)
@@ -823,12 +919,22 @@ def fin_local():
     if x_k < TIP_R:
         pieces.append(bx(TIP_R - 0.01, TIP_R, -hs, hs, z_tip_ramp - 0.01, z_tip_ramp))
     f = f + M3.batch_hull(pieces)
-    # 3. tapered trailing edge below the band, outboard of the tab bay (the tab has its own); the bay cut trims it
-    f = f + M3.batch_hull([bx(BAY_X1 - 0.3, LEG_R0 + 0.5, -FT / 2, FT / 2, -0.01, 0.5),
-                           bx(BAY_X1 - 0.3, LEG_R0 + 0.5, -TE_T / 2, TE_T / 2, -TE_EXT, -TE_EXT + 0.5)])
-    # 4. the leg, tapering from the band to its foot
-    f = f + M3.batch_hull([bx(LEG_R0, TIP_R, -FT / 2, FT / 2, -0.01, 0.5),
-                           bx(LEG_R0 + 4.0, TIP_R - 0.5, -FOOT_T / 2, FOOT_T / 2, FOOT_Z, FOOT_Z + 0.5)])
+    # 2b. the servo housing: the band's outer part is HT thick (tapering from FT over HX_TAPER inboard), with its own
+    #     wedge up to the thin fin so the thicker band is faired exactly like the rest
+    hp = [bx(HX0, TIP_R, -HT / 2, HT / 2, 0.0, BAND_TOP),
+          bx(HX0 - HX_TAPER, HX0 - HX_TAPER + 0.01, -FT / 2, FT / 2, 0.0, BAND_TOP)]
+    if x_k > HX0 - HX_TAPER:
+        hp.append(bx(HX0 - HX_TAPER, min(x_k, TIP_R), -hs, hs, z_ramp - 0.01, z_ramp))
+    if x_k < TIP_R:
+        hp.append(bx(TIP_R - 0.01, TIP_R, -hs, hs, z_tip_ramp - 0.01, z_tip_ramp))
+    f = f + M3.batch_hull(hp)
+    # 3. tapered trailing edge below the band, from the tab bay out to the leg's sleeve (the tab has its own); the bay
+    #    cut trims it
+    f = f + M3.batch_hull([bx(BAY_X1 - 0.3, SL_X0 - 0.2, -HT / 2, HT / 2, -0.01, 0.5),
+                           bx(BAY_X1 - 0.3, SL_X0 - 0.2, -TE_T / 2, TE_T / 2, -TE_EXT, -TE_EXT + 0.5)])
+    # 4. the tongue the replaceable leg slides onto (solid; bolt hole across it)
+    f = f + bx(TG_X0, TG_X1, -TG_Y / 2, TG_Y / 2, -TG_H, 0.5)
+    f = f - ycyl(1.7, HT + 2.0, 24).translate((LEG_BOLT_X, 0, LEG_BOLT_Z))
     s = SV
     # tab bay through the whole thickness (and everything below it), round-topped about the hinge line
     f = f - bx(BAY_X0, BAY_X1, -FT, FT, -TE_EXT - 2.0, HINGE_Z)
@@ -847,6 +953,34 @@ def fin_local():
     # groove in the fin tip from the servo pocket up to the lead channel: the lead lies in it below the tip surface
     f = f - bx(TIP_R - LEAD_GROOVE_D, TIP_R + 1.0, -LEAD_GROOVE_W / 2, LEAD_GROOVE_W / 2, SV_Z0 + s["L"], CH_Z0 + 0.5)
     return f
+
+
+def leg_local():
+    """replaceable leg (tough PLA) in the fin-local frame: a sleeve flush with the 17 mm housing that slides up over the
+    fin can's tongue, one M3 x 18 button-head bolt across (head and nut sunk 0.8 mm into the side walls, the nut in a hex
+    pocket so one key tightens it), a 4.5 mm boat-tail down to a 6 x 9.2 mm post and the foot 30 mm below the tail.
+    The top of the post is the weakest section of the whole leg / tongue / housing chain"""
+    sl = bx(SL_X0, TIP_R, -HT / 2, HT / 2, SL_Z0, 0.0)
+    sl = sl + M3.batch_hull([bx(SL_X0, TIP_R, -HT / 2, HT / 2, SL_Z0, SL_Z0 + 0.01),
+                             bx(POST_X0, POST_X1, -POST_T / 2, POST_T / 2, POST_Z1 - 0.01, POST_Z1)])
+    sl = sl + M3.batch_hull([bx(POST_X0, POST_X1, -POST_T / 2, POST_T / 2, FOOT_Z + 0.6, POST_Z1),
+                             bx(POST_X0 + 0.6, POST_X1 - 0.6, -POST_T / 2 + 0.6, POST_T / 2 - 0.6, FOOT_Z, FOOT_Z + 0.6)])
+    c = LEG_CLR
+    sl = sl - bx(TG_X0 - c, TG_X1 + c, -(TG_Y / 2 + c), TG_Y / 2 + c, -TG_H - c, 1.0)
+    sl = sl - ycyl(1.7, HT + 2.0, 24).translate((LEG_BOLT_X, 0, LEG_BOLT_Z))
+    sl = sl - ycyl(3.1, 2 * LEG_RECESS, 32).translate((LEG_BOLT_X, HT / 2, LEG_BOLT_Z))            # button head (5.7 mm)
+    sl = sl - ycyl(5.75 / math.sqrt(3), 2 * LEG_RECESS, 6).translate((LEG_BOLT_X, -HT / 2, LEG_BOLT_Z))   # M3 nut, 5.5 mm A/F
+    return sl
+
+
+def leg_bolt_local():
+    """M3 x 18 button-head bolt + nut, in place"""
+    y_head = HT / 2 - LEG_RECESS
+    b = ycyl(1.5, 18.0, 16).translate((LEG_BOLT_X, y_head - 9.0, LEG_BOLT_Z))
+    b = b + ycyl(2.85, 1.65, 24).translate((LEG_BOLT_X, y_head + 0.825, LEG_BOLT_Z))
+    y_nut = -HT / 2 + LEG_RECESS
+    n = ycyl(5.5 / math.sqrt(3), 2.4, 6).translate((LEG_BOLT_X, y_nut - 1.2, LEG_BOLT_Z)) - ycyl(1.6, 3.0, 16).translate((LEG_BOLT_X, y_nut - 1.2, LEG_BOLT_Z))
+    return b + n
 
 
 def cable_hole_local():
@@ -909,7 +1043,16 @@ def fin_can(M):
     for a in TAIL_SCREW_ANG:
         m = m - polar(xcyl(1.65, 8, 16).translate((CAN_RO - 0.4, 0, TAIL_SCREW_Z)), a)
     return register("fin_can", m, M["orange"], print_rot=(180, 0, 0), part="bottom",
-                    note="PETG, print upside-down (top ring on the bed), 3 walls, 20%. Can, 4 thick fins (servo pockets, lead channels) and legs in one piece")
+                    note="PETG, print upside-down (top ring on the bed), 3 walls, 20%, but 100% infill for the last 13 mm (the four leg tongues: "
+                         "a height-range modifier in the slicer). Can, 4 thick fins (servo pockets, lead channels) and the tongues the legs bolt to")
+
+
+def fin_legs(M):
+    lg = leg_local()
+    inst = [polar(lg, a) for a in FIN_ANG]
+    return register("fin_leg", inst[0], M["black"], qty=NF, inst=inst, part="bottom", export=lg, export_rot=(180, 0, 0),
+                    note="Tough PLA, 100% infill, print sleeve-rim down as exported (layers across the leg, like the fin can: the post is "
+                         "then the weakest section on purpose). Print 2 spares. Slide onto the fin can's tongue, M3 x 18 button head + nut")
 
 
 def fin_tabs(M):
@@ -924,8 +1067,9 @@ def upper_lug(M):
     z0 = UPPER_LUG_Z
     m = tube(4.75, 3.4, 25.0, z0, segs=40).translate((CAN_RO + 4.4, 0, 0)) + box(6.5, 4.0, 25.0, R + 2.6, 0, z0 + 12.5)
     m = m - cyl(R, 40.0, z0 - 5)
-    return register("upper_launch_lug", polar(m, LUG_ANG), M["black"], part="bottom",
-                    note="Glue to the bottom tube in line with the fin-can lug (slide both on the rod while the glue sets)")
+    return register("upper_launch_lug", polar(m, LUG_ANG), M["black"], part="middle",
+                    note="Glue to the MIDDLE tube just above the joint screw, on the lug line: assemble the rocket, slide both lugs on the rod "
+                         "while the glue sets (the joint's alignment notch keeps them in line afterwards)")
 
 
 def camera_pod(M):
@@ -1021,6 +1165,7 @@ def lower_tube_cut():
     t = tube(R, RI, L_LOW, 0.0)
     t = t - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
     t = t - polar(box(8.0, 7.0, 20.0, R, 0, SW_Z), SW_ANG)
+    t = t - hatch_cut()
     for a in STATIC_PORT_ANG:
         t = t - polar(xcyl(1.0, 6, 16).translate((R, 0, Z_AV0 + 40.0)), a)
     for a in RADIAL_SCREW_ANG:
@@ -1049,9 +1194,11 @@ def drill_guide(M):
         m = m - polar(xcyl(1.0, 10, 16).translate((R + 1, 0, Z_AV0 + 40.0)), a)
     m = m - polar(box(8.0, 7.0, 20.0, R + 1.0, 0, SW_Z), SW_ANG)
     m = m - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R + 1.0, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
+    m = m - hatch_cut()
     m = m - polar(box(1.6, 1.2, z_top - z_bot + 10.0, R + 2.2, 0, (z_top + z_bot) / 2), LUG_ANG)
     return register("tool_drill_guide_bottom_tube", m, M["orange"], print_rot=(180, 0, 0), group="tool",
-                    note="Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, lug line")
+                    note="Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, "
+                         "battery-hatch opening (cut along the guide's edges with a sharp knife), lug line")
 
 
 def drill_guide_mid(M):
@@ -1060,8 +1207,9 @@ def drill_guide_mid(M):
     m = m - bx(15.0, 45.0, -DOOR_W / 2, DOOR_W / 2, DOOR_Z0, DOOR_Z0 + DOOR_H)
     for a in JOINT_ANG:
         m = m - polar(xcyl(1.6, 10, 24).translate((R + 1, 0, JOINT_Z)), a)
+    m = m - polar(box(1.6, 1.2, z_top - z_bot + 10.0, R + 2.2, 0, (z_top + z_bot) / 2), LUG_ANG)     # lug line (upper lug)
     return register("tool_drill_guide_middle_tube", m, M["orange"], group="tool",
-                    note="Build tool (not flown). Slides over the BOTTOM of the middle tube: joint screws and the payload-door window")
+                    note="Build tool (not flown). Slides over the BOTTOM of the middle tube: joint screws, the payload-door window and the upper-lug line")
 
 
 # ======================================================================================
@@ -1092,6 +1240,7 @@ def purchased(M, tab_delta=0.0, latch_open=False):
     for k, a in enumerate(FIN_ANG):
         out[f"servo_MG90S_tab{k + 1}"] = (polar(tab_servo_local(), a), M["servo"])
         out[f"horn_tab{k + 1}"] = (polar(tab_horn_local(tab_delta), a), M["horn"])
+        out[f"leg_bolt_M3x18_nut_{k + 1}"] = (polar(leg_bolt_local(), a), M["steel"])
     # release servo, horn, spring link
     phi = 30.0 if latch_open else 0.0
     out["servo_MG90S_release"] = (release_servo_solid(0.0), M["servo"])
@@ -1190,7 +1339,7 @@ def build_all(M):
     door_frame(M); payload_door_parts(M); payload_wall(M); spring_piston(M)
     avbay_coupler(M); avbay_sled(M)
     tvc_holder(M); tvc_ring(M); tvc_frame(M); retainer(M); motor_adapter(M)
-    fin_can(M); fin_tabs(M); upper_lug(M); camera_pod(M)
+    fin_can(M); fin_legs(M); fin_tabs(M); upper_lug(M); camera_pod(M); hatch_parts(M)
     pad_hub(M); pad_rod_block(M)
     tail_z = PAD_TOP - FOOT_Z
     pad_rod_stop(M, 150.0); pad_leg_foot(M); rod_cap(M)
@@ -1308,7 +1457,9 @@ def check_layout():
         "fins.tab.r_from": (TABP["r_from"], TAB_X0 - CAN_RO),
         "fins.tab.r_to": (TABP["r_to"], TAB_X1 - CAN_RO),
         "fins.tab.chord": (TABP["chord"], HINGE_Z + TAB_LE_R + TE_EXT),
-        "fins.leg.foot_base_mm2 /10": (LEGP["foot_base_mm2"] / 10.0, FOOT_T * (TIP_R - 0.5 - LEG_R0 - 4.0) / 10.0),
+        "fins.leg.foot_base_mm2 /10": (LEGP["foot_base_mm2"] / 10.0, POST_W * POST_T / 10.0),
+        "fins.leg.side_area_mm2 /10": (LEGP["side_area_mm2"] / 10.0, leg_local().rotate((90, 0, 0)).project().area() / 10.0),
+        "fins.leg.width (sleeve)": (LEGP["width"], TIP_R - SL_X0),
         "tvc.linkage_ratio x100 (ring)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR1[0] / PR1[1]),
         "tvc.linkage_ratio x100 (motor holder)": (TVC["linkage_ratio"] * 100.0, 100.0 * PR2[1] / PR2[0]),
     }
@@ -1324,6 +1475,7 @@ def check_layout():
                     rocket_xy_on_pad=[round(v, 2) for v in ROCKET_XY], tail_z_on_pad=PAD_TOP - FOOT_Z,
                     camera_lens_xyz=[0.0, -round(CAM_RC, 2), CAM_Z0], cord_exit_xyz=[0.0, 18.5, Z_MID1],
                     nozzle_z=Z_MOTOR0, mid_top_z=Z_MID1, tab_hinge_z=HINGE_Z,
+                    battery_hatch=dict(deg=90.0, z=[HATCH_Z0, HATCH_Z1], half_width=HATCH_X), upper_lug_z=[UPPER_LUG_Z, UPPER_LUG_Z + 25.0],
                     nose_cord_bar_z=round(Z_NOSE0 - 2.0 + (R - NS_W) - 9.0, 1)))
     json.dump(lay, open(os.path.join(HERE, "avionics_layout.json"), "w"), indent=1)
     # angular clearances on the airframe surface: things that must not land on top of each other
@@ -1623,11 +1775,13 @@ LAYOUT = [
         ("part", "latch_bolt", "latch bolt"), ("part", "payload_wall", "parachute wall"),
         ("part", "spring_piston", "spring piston"), ("part", "payload_door_frame", "door frame"),
         ("part", "payload_door", "payload door"), ("part", "payload_door_latch_knob", "door latch\nknob"),
-        ("part", "payload_door_latch_cam", "door latch\ncam")]),
+        ("part", "payload_door_latch_cam", "door latch\ncam"), ("part", "upper_launch_lug", "upper\nlaunch lug")]),
     ("Bottom part (printed)", [
-        ("part", "fin_can", "fin can\n(4 fins + legs)"), ("part", "fin_control_tab", "control tab\nx 4"),
+        ("part", "fin_can", "fin can\n(4 fins, 4 leg tongues)"), ("part", "fin_leg", "replaceable\nleg x 4"),
+        ("part", "fin_control_tab", "control tab\nx 4"),
         ("part", "avbay_coupler", "av-bay coupler"), ("part", "avbay_sled", "av-bay sled"),
-        ("part", "camera_pod", "camera pod"), ("part", "upper_launch_lug", "upper\nlaunch lug")]),
+        ("part", "battery_hatch_door", "battery-hatch\ndoor"), ("part", "battery_hatch_latch_knob", "hatch latch\nknob"),
+        ("part", "battery_hatch_latch_cam", "hatch latch\ncam"), ("part", "camera_pod", "camera pod")]),
     ("TVC module (printed)", [
         ("part", "tvc_frame", "TVC frame"), ("part", "tvc_gimbal_ring", "gimbal ring"),
         ("part", "tvc_motor_holder", "motor holder"), ("part", "tvc_motor_retainer", "motor retainer"),

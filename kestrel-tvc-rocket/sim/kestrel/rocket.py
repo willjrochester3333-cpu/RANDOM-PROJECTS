@@ -304,7 +304,10 @@ class Rocket:
         cr, ct, s, sweep, lm = self.fin_geometry()
         S_fin_planform = 0.5 * (cr + ct) * s
         leg = self.design["fins"].get("leg")
-        S_legs = 2.0 * self.fin_n * (leg["length"] * leg["width"] * 1e-6) if leg else 0.0
+        if leg and leg.get("side_area_mm2"):
+            S_legs = 2.0 * self.fin_n * leg["side_area_mm2"] * 1e-6        # replaceable legs: side area from the CAD
+        else:
+            S_legs = 2.0 * self.fin_n * (leg["length"] * leg["width"] * 1e-6) if leg else 0.0
         S_fins = 2.0 * self.fin_n * S_fin_planform + S_legs
         return S_nose, S_body, S_fins, S_fin_planform
 
@@ -336,11 +339,17 @@ class Rocket:
         # trailing edges (thin tapered edges + the blunt strip at the root) and the tapered boat-tails
         t["fin leading edges"] = 0.12 * self.fin_n * t_up * self.fin_s / self.A_ref
         if "upper_thickness" in fd:
-            t["fin band fairing"] = 0.06 * self.fin_n * (self.fin_t - t_up) * self.fin_s / self.A_ref
+            # the servo housings (outer part of the band, thicker for strength) add their extra thickness to the band's
+            # frontal step and to the blunt trailing strip, over the span outboard of the tab
+            hs = fd.get("housing")
+            h_dt = (hs["thickness"] / 1000.0 - self.fin_t) if hs else 0.0
+            h_span = (self.fin_s - fd["tab"]["r_to"] / 1000.0 + hs.get("taper_mm", 0.0) / 2000.0) if hs else 0.0
+            t["fin band fairing"] = 0.06 * self.fin_n * ((self.fin_t - t_up) * self.fin_s + h_dt * h_span) / self.A_ref
             te_t = fd.get("te_thickness_mm", 1.5) / 1000.0
             leg_w = fd["leg"]["width"] / 1000.0 if fd.get("leg") else 0.0
             te_area = self.fin_n * (te_t * (self.fin_s - leg_w) + 0.0025 * self.fin_t)
-            t["fin trailing edges"] = 0.30 * te_area / self.A_ref + 0.02 * self.fin_n * self.fin_t * self.fin_s / self.A_ref
+            t["fin trailing edges"] = (0.30 * te_area / self.A_ref +
+                                       0.02 * self.fin_n * (self.fin_t * self.fin_s + h_dt * h_span) / self.A_ref)
         else:
             t["fin trailing edges"] = 0.12 * self.fin_n * self.fin_t * self.fin_s / self.A_ref * 0.5
         # nose pressure drag (tangent ogive, subsonic) ~ small
@@ -367,6 +376,17 @@ class Rocket:
         t["tab hinges / linkages"] = fd.get("tab", {}).get("linkage_cda_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
         t["feet"] = (cd_base_coef * fd["leg"].get("foot_base_mm2", 0.0) * 1e-6 * self.fin_n / self.A_ref
                      if fd.get("leg") else 0.0)
+        # replaceable legs: the sleeve (as wide as the housing) steps down to the post through a short, steep boat-tail
+        # (counted as half a base), and the bolt head and nut stand 0.85 / 1.6 mm proud of the sleeve (cd 0.8)
+        leg = fd.get("leg") or {}
+        if leg.get("replaceable"):
+            hs_t = fd.get("housing", {}).get("thickness", fd["thickness"])
+            step = leg["width"] * hs_t - leg["post_mm"][0] * leg["post_mm"][1]
+            t["leg sleeve boat-tails"] = cd_base_coef * 0.5 * step * 1e-6 * self.fin_n / self.A_ref
+            t["leg bolt heads / nuts"] = 0.8 * (5.7 * 0.85 + 6.35 * 1.6) * 1e-6 * self.fin_n / self.A_ref
+        # battery-hatch door: a 1.2 mm panel on the tube (two 0.6 mm steps at its top edge)
+        bh = self.design.get("avbay", {}).get("battery_hatch")
+        t["battery-hatch door"] = (0.3 * bh["door_width_mm"] * bh["door_thickness_mm"] * 1e-6 / self.A_ref) if bh else 0.0
         return t
 
     def cd0(self, v: float, motor_on: bool, rho: float = 1.225, mu: float = 1.81e-5, sos: float = 340.3,

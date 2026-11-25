@@ -149,14 +149,14 @@
   "note": "Print UPSIDE-DOWN (bulkhead on the bed), 4 walls, 25% gyroid. Its bulkhead is the payload-bay floor",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 28428.318500583857,
-  "area_mm2": 39703.06138735126,
+  "volume_mm3": 28254.194940799207,
+  "area_mm2": 39363.71996134603,
   "centroid_assembly_mm": [
-   0.08724482946296841,
-   -0.006719550436525149,
-   328.69231677608326
+   1.094342380881908,
+   -0.5104945918243737,
+   328.92536809686715
   ],
-  "r_gyr_mm": 25.80442891485905,
+  "r_gyr_mm": 25.821381137839424,
   "z_len_mm": 134.39999389648438
  },
  {
@@ -165,14 +165,14 @@
   "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 15893.623237565098,
-  "area_mm2": 17478.275114469325,
+  "volume_mm3": 17421.24323750847,
+  "area_mm2": 19475.915795697943,
   "centroid_assembly_mm": [
-   -1.0210956142656988,
-   0.3754743754316746,
-   269.7324757731046
+   -0.9315585767912617,
+   -0.42467236773523986,
+   269.52582608761844
   ],
-  "r_gyr_mm": 21.938157857558515,
+  "r_gyr_mm": 21.75564215184157,
   "z_len_mm": 104.0
  },
  {
@@ -290,18 +290,34 @@
  {
   "name": "fin_can",
   "qty": 1,
-  "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%. Can, 4 thick fins (servo pockets, lead channels) and legs in one piece",
+  "note": "PETG, print upside-down (top ring on the bed), 3 walls, 20%, but 100% infill for the last 13 mm (the four leg tongues: a height-range modifier in the slicer). Can, 4 thick fins (servo pockets, lead channels) and the tongues the legs bolt to",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 155500.3840312091,
-  "area_mm2": 105343.75264896461,
+  "volume_mm3": 155939.46286386263,
+  "area_mm2": 104136.89649466926,
   "centroid_assembly_mm": [
-   0.005637368892280981,
-   0.1921213973684433,
-   38.82213293510883
+   0.0056213798049577655,
+   0.19158034373299368,
+   41.78733464202323
   ],
-  "r_gyr_mm": 46.629534153524624,
-  "z_len_mm": 155.0
+  "r_gyr_mm": 48.1769565236628,
+  "z_len_mm": 137.0
+ },
+ {
+  "name": "fin_leg",
+  "qty": 4,
+  "note": "Tough PLA, 100% infill, print sleeve-rim down as exported (layers across the leg, like the fin can: the post is then the weakest section on purpose). Print 2 spares. Slide onto the fin can's tongue, M3 x 18 button head + nut",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 3834.4108931837054,
+  "area_mm2": 2817.80403570303,
+  "centroid_assembly_mm": [
+   50.117901638201275,
+   50.11464201052279,
+   -12.15536318651982
+  ],
+  "r_gyr_mm": 70.02255369081017,
+  "z_len_mm": 30.0
  },
  {
   "name": "fin_control_tab",
@@ -322,15 +338,15 @@
  {
   "name": "upper_launch_lug",
   "qty": 1,
-  "note": "Glue to the bottom tube in line with the fin-can lug (slide both on the rod while the glue sets)",
+  "note": "Glue to the MIDDLE tube just above the joint screw, on the lug line: assemble the rocket, slide both lugs on the rod while the glue sets (the joint's alignment notch keeps them in line afterwards)",
   "group": "rocket",
-  "part": "bottom",
+  "part": "middle",
   "volume_mm3": 1307.4643260056864,
   "area_mm2": 1592.533994789192,
   "centroid_assembly_mm": [
-   2.8984048294959493e-15,
-   32.90441963916952,
-   312.5000000000001
+   3.478085795395139e-16,
+   32.904419639169504,
+   375.49999999999994
   ],
   "r_gyr_mm": 33.96351175981892,
   "z_len_mm": 25.0
@@ -350,6 +366,54 @@
   ],
   "r_gyr_mm": 30.759043855594282,
   "z_len_mm": 51.100006103515625
+ },
+ {
+  "name": "battery_hatch_door",
+  "qty": 1,
+  "note": "PETG, print standing on its bottom edge as exported, with a brim (no supports). Stick a 20 x 20 mm piece of the 1-2 mm foam tape on the pad. Fit: hooks in at the top, slide up, swing the bottom in, turn the latch",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 3775.8686891784596,
+  "area_mm2": 6691.242931941727,
+  "centroid_assembly_mm": [
+   -9.802512756628739e-09,
+   26.503039147543433,
+   286.58738467354425
+  ],
+  "r_gyr_mm": 27.94550802983383,
+  "z_len_mm": 83.5
+ },
+ {
+  "name": "battery_hatch_latch_knob",
+  "qty": 1,
+  "note": "Quarter-turn latch: knob from outside, coin slot, flush. Print head-down, 100% infill",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 107.45525089741247,
+  "area_mm2": 210.66005439699038,
+  "centroid_assembly_mm": [
+   9.781600999461509e-15,
+   27.604430692248606,
+   251.49999999999943
+  ],
+  "r_gyr_mm": 28.06473767019974,
+  "z_len_mm": 8.79998779296875
+ },
+ {
+  "name": "battery_hatch_latch_cam",
+  "qty": 1,
+  "note": "Push onto the knob's square end from inside + drop of CA. Arm DOWN = locked, towards the middle = open",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 41.142680372411284,
+  "area_mm2": 117.05794425180561,
+  "centroid_assembly_mm": [
+   4.8104750814658054e-15,
+   24.175000190735,
+   248.733361202569
+  ],
+  "r_gyr_mm": 24.25972253578263,
+  "z_len_mm": 10.100006103515625
  },
  {
   "name": "pad_hub",
@@ -450,33 +514,33 @@
  {
   "name": "tool_drill_guide_bottom_tube",
   "qty": 1,
-  "note": "Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, lug line",
+  "note": "Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, battery-hatch opening (cut along the guide's edges with a sharp knife), lug line",
   "group": "tool",
   "part": "",
-  "volume_mm3": 51697.16033761881,
-  "area_mm2": 54549.57256338787,
+  "volume_mm3": 47675.19079187399,
+  "area_mm2": 50668.23186747004,
   "centroid_assembly_mm": [
-   0.14188372800986415,
-   0.8773361708371188,
-   270.38344801376485
+   0.15385330806544373,
+   -1.437758246445983,
+   268.98164411147616
   ],
-  "r_gyr_mm": 28.964644060381573,
+  "r_gyr_mm": 28.994042966444187,
   "z_len_mm": 148.0
  },
  {
   "name": "tool_drill_guide_middle_tube",
   "qty": 1,
-  "note": "Build tool (not flown). Slides over the BOTTOM of the middle tube: joint screws and the payload-door window",
+  "note": "Build tool (not flown). Slides over the BOTTOM of the middle tube: joint screws, the payload-door window and the upper-lug line",
   "group": "tool",
   "part": "",
-  "volume_mm3": 31042.374658932356,
-  "area_mm2": 32935.6607985383,
+  "volume_mm3": 30955.91883879958,
+  "area_mm2": 33074.78195334697,
   "centroid_assembly_mm": [
-   -2.951233226238531,
-   2.9434623184815517e-09,
-   386.50851140010053
+   -2.959475649459172,
+   -0.0836363276777464,
+   386.49859530731237
   ],
-  "r_gyr_mm": 28.91240705546674,
+  "r_gyr_mm": 28.918674930688294,
   "z_len_mm": 94.0
  }
 ]

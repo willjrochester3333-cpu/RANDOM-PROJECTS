@@ -1,6 +1,6 @@
 {
  "BT70_bottom_tube_340": {
-  "z_from_tip": 729.5,
+  "z_from_tip": 733.9,
   "length": 340.0,
   "radius": 28.2
  },
@@ -59,6 +59,11 @@
   "length": 10.9,
   "radius": 55.4
  },
+ "leg_bolt_M3x18_nut_1": {
+  "z_from_tip": 905.0,
+  "length": 5.7,
+  "radius": 73.1
+ },
  "servo_MG90S_tab2": {
   "z_from_tip": 878.6,
   "length": 32.2,
@@ -68,6 +73,11 @@
   "z_from_tip": 885.4,
   "length": 10.9,
   "radius": 55.4
+ },
+ "leg_bolt_M3x18_nut_2": {
+  "z_from_tip": 905.0,
+  "length": 5.7,
+  "radius": 73.1
  },
  "servo_MG90S_tab3": {
   "z_from_tip": 878.6,
@@ -79,6 +89,11 @@
   "length": 10.9,
   "radius": 55.4
  },
+ "leg_bolt_M3x18_nut_3": {
+  "z_from_tip": 905.0,
+  "length": 5.7,
+  "radius": 73.1
+ },
  "servo_MG90S_tab4": {
   "z_from_tip": 878.6,
   "length": 32.2,
@@ -88,6 +103,11 @@
   "z_from_tip": 885.4,
   "length": 10.9,
   "radius": 55.4
+ },
+ "leg_bolt_M3x18_nut_4": {
+  "z_from_tip": 905.0,
+  "length": 5.7,
+  "radius": 73.1
  },
  "servo_MG90S_release": {
   "z_from_tip": 186.1,

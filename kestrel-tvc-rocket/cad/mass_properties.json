@@ -73,18 +73,18 @@
  },
  {
   "name": "avbay_coupler",
-  "mass_g": 35.5,
-  "z": 570.3,
+  "mass_g": 35.3,
+  "z": 570.1,
   "length": 0.0,
   "radius": 25.8,
   "source": "CAD"
  },
  {
   "name": "avbay_sled",
-  "mass_g": 19.9,
-  "z": 629.3,
+  "mass_g": 21.8,
+  "z": 629.5,
   "length": 0.0,
-  "radius": 21.9,
+  "radius": 21.8,
   "source": "CAD"
  },
  {
@@ -158,10 +158,18 @@
  },
  {
   "name": "fin_can",
-  "mass_g": 165.3,
-  "z": 860.2,
+  "mass_g": 163.9,
+  "z": 857.2,
   "length": 0.0,
-  "radius": 46.6,
+  "radius": 48.2,
+  "source": "CAD"
+ },
+ {
+  "name": "fin_leg",
+  "mass_g": 19.2,
+  "z": 911.2,
+  "length": 0.0,
+  "radius": 70.0,
   "source": "CAD"
  },
  {
@@ -175,7 +183,7 @@
  {
   "name": "upper_launch_lug",
   "mass_g": 1.6,
-  "z": 586.5,
+  "z": 523.5,
   "length": 0.0,
   "radius": 34.0,
   "source": "CAD"
@@ -186,6 +194,30 @@
   "z": 677.8,
   "length": 0.0,
   "radius": 30.8,
+  "source": "CAD"
+ },
+ {
+  "name": "battery_hatch_door",
+  "mass_g": 4.7,
+  "z": 612.4,
+  "length": 0.0,
+  "radius": 27.9,
+  "source": "CAD"
+ },
+ {
+  "name": "battery_hatch_latch_knob",
+  "mass_g": 0.1,
+  "z": 647.5,
+  "length": 0.0,
+  "radius": 28.1,
+  "source": "CAD"
+ },
+ {
+  "name": "battery_hatch_latch_cam",
+  "mass_g": 0.1,
+  "z": 650.3,
+  "length": 0.0,
+  "radius": 24.3,
   "source": "CAD"
  }
 ]

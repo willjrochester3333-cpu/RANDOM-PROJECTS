@@ -5,7 +5,9 @@
  "fins.tab.r_from": 2.8,
  "fins.tab.r_to": 26.1,
  "fins.tab.chord": 34.2,
- "fins.leg.foot_base_mm2 /10": 8.2,
+ "fins.leg.foot_base_mm2 /10": 5.5,
+ "fins.leg.side_area_mm2 /10": 39.2,
+ "fins.leg.width (sleeve)": 19.6,
  "tvc.linkage_ratio x100 (ring)": 40.9,
  "tvc.linkage_ratio x100 (motor holder)": 40.9,
  "z_tip_above_tail": 899,
@@ -43,5 +45,17 @@
  "nozzle_z": -4,
  "mid_top_z": 724,
  "tab_hinge_z": 15.0,
+ "battery_hatch": {
+  "deg": 90.0,
+  "z": [
+   248.0,
+   326.0
+  ],
+  "half_width": 13.0
+ },
+ "upper_lug_z": [
+  363.0,
+  388.0
+ ],
  "nose_cord_bar_z": 765.0
 }
