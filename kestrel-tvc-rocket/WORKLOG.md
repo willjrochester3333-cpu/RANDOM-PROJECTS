@@ -144,3 +144,22 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   the USB link (a second dump failed), live lines during a replay bring up LIVE, unplugging resets the button.
   F35 launch video rendered (seed 7: 179.3 m, 47.9 s, 1080p; this flight drew a 7.7 % heavier rocket, 867 g
   after burn-out).
+- Wed: user: "this rocket needs to be a multiple flight rocket as that is its purpose" -> asked which upgrades:
+  replaceable legs (user prints them in extra-tough PLA), battery out + USB without opening (door with no gaps).
+  Slicing the real fin CAD (section moduli over the distance from the foot) showed the weakest point for landing
+  loads is NOT the leg root (old hand check: 180 / 225 N) but the servo housing's two 1.2 mm walls beside the open
+  tab bay: ~66 N outward / 105 N sideways at the foot -> user chose thicker housings: 17 mm, walls 2.2 mm (~125 /
+  204 N). Legs: separate tough-PLA part, sleeve over a solid 14 x 12.3 x 12 mm tongue under each fin tip (fin can,
+  100 % infill top 13 mm), one M3 x 18 button head + nut sunk 0.8 mm, then a 6 x 9.2 mm post = designed weak link
+  (~73 / 112 N; tongue 228 / 193 N). Battery hatch on the +y (rod) side, 26 x 78 mm through tube + coupler; door
+  sits on the tube, overlaps 2 mm all round (rod clears it by 1.3 mm), hooks at the top, quarter-turn latch on the
+  rod line against a flat catch; battery pocket with a backing wall (no velcro); the Pico's own USB socket is
+  reached through the hatch with an angled cable (a panel-mount extension would have added 16.2 g); upper lug
+  moved to the middle tube above the joint screw; coupler window at 60 deg dropped. Leg test block (build tool).
+  35 STLs pass, 1953 pairs no overlap, sweeps clean. Mass +35 g -> margin +0.63 and the all-steering-dead case
+  arced right over (93 m, 175 deg); user chose +13 g ballast (46 g): margin +0.72..+0.84 (lift-off), +0.91..+1.03
+  (burn-out), all-dead 163 m / 41 deg. Firmware 2.04 (tables for the 904 g rocket), 375,587 + 128 checks pass.
+  Scenarios 41/41; Monte Carlo 1000/1000 (F35 mean 179 m, 147-214; drift max 436 m, <= 3 m/s 198 m; landing 5.1
+  m/s); stress 99.5 % / 99.9 % (one landing at 7.1 m/s in 8.4 m/s wind); tab effectiveness x1.2 200/200; RocketPy
+  within 0.33 %. F35 nominal 170 m (was 188 m). Recovery area 500 m (6 m/s) / 250 m (3 m/s). Docs, test plan
+  (leg break test, drop test from 1.3 m, hatch test), checklist, BOM (~£317) updated; renders and video redone.
