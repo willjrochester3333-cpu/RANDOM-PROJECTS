@@ -226,7 +226,7 @@ Things the simulator does not cover, checked by hand for the final fins, the F35
 | Tab servo speed | the simulator uses the datasheet's 0.10 s/60° (4.8 V) | matches |
 | Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test; `sim/mc_tab_effectiveness.py` flies 200 F35 Monte Carlo flights with it centred 20 % higher: 200 / 200 succeed |
 | Fin root, sideways load on a foot | section modulus ≈ 1900 mm³ (the 15 mm band carries it) | about 1 kN at the foot |
-| Leg, where it leaves the band (12 × 15 mm, stress across the print layers) | about 225 N sideways or 180 N radially at the foot | the weakest structural point: land on grass and check the legs and the thin tab edges after every flight (the fin can and tabs reprint) |
+| Landing loads on a foot: every section of the real fin, sliced from the CAD (`cad/kestrel_cad.py` geometry; the strength of each slice is its section modulus over its distance from the foot; 15 MPa across the print layers, as before) | the tab bay leaves the outer part of each fin (servo housing + leg) joined to the rest only above z ≈ 17 mm, so **the servo housing's two side walls carry every leg load**. With the original 1.2 mm walls they were the weakest point, at about **66 N outward / 105 N sideways at the foot**, not the leg root (the old check said 180 / 225 N there) | walls 2.2 mm (housing 17 mm): about **125 N / 204 N**. Fin-can tongue under each tip: 228 / 193 N. **Replaceable leg** (tough PLA, solid): its post breaks first, at about **73 N / 112 N**, so a hard landing costs a 5 g leg, not the fin can. TEST_PLAN A19 break-tests spare legs (≈ 7.5 / 11.5 kg), A20 drop-tests the whole rocket at the 4.9 m/s landing speed |
 | Spring ejection | 32.5 N packed, 0.41 J stored; 126 g to move (nose, ballast, 36 in chute, cord, piston): ideal separation 2.5 m/s | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |
 
 ## 7. Design iterations: what testing changed
@@ -259,6 +259,9 @@ Things the simulator does not cover, checked by hand for the final fins, the F35
 | Gimbal sweep (now including the pushrods and horns) | at 7° the holder's pushrod arm touched the frame just below a window; the bigger retainer would have hit the frame's bottom ring | window 2 mm lower, bottom ring opened from 24.6 to 26 mm radius: no contact in 1350 checks, both motor set-ups |
 | Fit check of the motor bore | the F35's top rim would have pressed 0.1 mm into the ledge round the washer recess | 0.3 mm of play above the motor |
 | Build check of the 24 mm test motors | a 70 mm D20 in the 95 mm bore had nothing above it and would have jumped 25 mm up into the washer at ignition (already true in the 24 mm version) | printed adapter sleeve and 24 mm retainer for the D20 / E20, plus a 25 mm spacer above 70 mm motors; the simulator adds their mass |
+| Your change: "it needs to be a multiple-flight rocket" (section check of the real fin) | landing loads go through the 1.2 mm servo-housing walls beside the open tab bay: the fin can would crack before a leg broke; a broken leg meant reprinting the whole fin can and moving four servos | servo housings 17 mm (walls 2.2 mm, about 1.9× stronger); **replaceable legs** on a solid tongue under each fin tip, one M3 bolt each, the post the designed weak link; firmware 2.04 (tables for the heavier rocket) |
+| Your change: battery and USB without taking the rocket apart | charging and USB meant removing the middle part and the av-bay | **battery hatch** on the lug side: the pack slides out, the Pico's own USB socket is reached through it with an angled cable (a panel-mount extension would have added 16 g); the door sits on the tube and overlaps the opening 2 mm all round (no gap, nothing proud on the rod side), hooks at the top and a quarter-turn latch; the upper lug moves to the middle tube |
+| Stability check after the multi-flight changes | the legs, tongues, bolts and thicker housings put about 35 g at the tail: margin +0.77 → +0.63 calibres, and with **all six steering servos dead** the rocket now arced right over (93 m, 175° tilt; it still landed under its parachute) | nose ballast 33 → 46 g: margin +0.72 to +0.84 at lift-off, the all-servos-dead case back to the old behaviour. Cost of the whole multi-flight package: 48 g, 188 → 170 m |
 
 ## 8. The launch video
 
@@ -277,7 +280,9 @@ cd sim && python3 video/make_flight_video.py --seed 12
 The model is only as good as its inputs. The test plan ([TEST_PLAN.md](TEST_PLAN.md)) checks the uncertain ones in
 order: tab effectiveness (the largest uncertainty, ±40 % tested), printed-part drag and finish (it matters more at
 the F35's speed), TSP motor-to-motor variation, gimbal and tab-hinge friction, parachute opening, static-port error,
-and the JLCPCB part rotations (checked visually at ordering). Compare every flight log with the simulation
+the JLCPCB part rotations (checked visually at ordering), and the strength of the printed tail: the section checks
+use one assumed layer strength for the PETG fin can and the tough-PLA legs, so the leg break test (A19) and the
+drop test (A20) are what prove that a leg breaks before the fin can. Compare every flight log with the simulation
 (`firmware/tools/kestrel_link.py plot`) before moving to the next step.
 
 ## Reproduce everything

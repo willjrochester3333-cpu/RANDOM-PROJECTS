@@ -57,8 +57,8 @@ its parachute hits the ground at about 53 m/s after an F35 flight (`no_chute`).
 - **A tab jammed, frozen or dead**: roll is controlled first and each tab saturates on its own, so the others
   keep working (`tab_stuck`, `tabs_dead`); a fully jammed tab can still tumble it in the coast, so a **give-up rule**
   centres all tabs if it is more than 25° off course, and the parachute still opens at apogee (`tab_hardover`).
-- **All six steering servos dead**: it is still statically stable (+0.69 to +0.82 calibres at lift-off with the
-  F35 depending on payload, +0.90 to +1.03 at burn-out, thanks to the nose ballast) and recovers normally in light
+- **All six steering servos dead**: it is still statically stable (+0.72 to +0.84 calibres at lift-off with the
+  F35 depending on payload, +0.91 to +1.03 at burn-out, thanks to the nose ballast) and recovers normally in light
   wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
 - **Excessive tilt (> 50°) or tumbling during the burn**: abort, parachute out as soon as it is slower than 30 m/s.
 - **Barometer failure**: apogee detected from the inertial estimate, with a backup timer (`baro_dead`).
@@ -73,6 +73,8 @@ pre-flight `status` check matters.
 
 ## LiPo battery
 
-- Charge only with a **balance charger**, on a non-flammable surface or in a LiPo bag, never unattended.
+- Charge only with a **balance charger**, on a non-flammable surface or in a LiPo bag, never unattended, and
+  **outside the rocket**: slide the pack out through the battery hatch and charge it on the second adapter lead.
+  Never charge it inside the printed and cardboard airframe.
 - Do not fly a puffy, dented or hot pack. Store it at ~7.6 V (3.8 V per cell) if it will not be used for a week.
 - The board's 13 V TVS diode and reverse-polarity protection protect the electronics, not the battery.

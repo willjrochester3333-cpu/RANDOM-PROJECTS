@@ -20,9 +20,10 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 |---|---|---|---|---|---|
 | 1 | **KESTREL FC v2 board**, made and assembled by JLCPCB | 2 assembled + 3 bare | upload `pcb/production/` (see [PCB.md](PCB.md#ordering-from-jlcpcb)) | [jlcpcb.com](https://jlcpcb.com) | ≈ £80 |
 | 2 | Raspberry Pi Pico 2 **W with headers** (2 WH) | 1 | Raspberry Pi (UK) | [The Pi Hut](https://thepihut.com/collections/latest-raspberry-pi-products/products/raspberry-pi-pico-2-w) (choose "with headers") | ≈ £7 |
-| 3 | 2S 7.4 V 350 mAh 25C LiPo, **about 40 × 19 × 15 mm** (the tray takes up to 16 mm; one shop lists 25 mm: check) | 1 | **Overlander OL-3492** (UK) | [overlander.co.uk](https://overlander.co.uk/350mah-7-4v-2s-25c-lipo-battery.html) | ✔ about £7 |
-| 4 | JST-PH → JST-XH 2S balance adapter lead | 1 | **Overlander OL-2529** | [overlander.co.uk](https://www.overlander.co.uk/jst-ph-to-jst-xh-balance-conversion-lead-for-130x-beast.html) | ✔ £1.58 |
+| 3 | 2S 7.4 V 350 mAh 25C LiPo, **about 40 × 19 × 15 mm** (the pocket takes up to 16 mm; one shop lists 25 mm: check). A second pack lets you swap a charged one in through the battery hatch between flights | 1 (2 recommended) | **Overlander OL-3492** (UK) | [overlander.co.uk](https://overlander.co.uk/350mah-7-4v-2s-25c-lipo-battery.html) | ✔ about £7 |
+| 4 | JST-PH → JST-XH 2S balance adapter lead | 2: one stays in the rocket, one lives with the charger (packs are charged outside the rocket) | **Overlander OL-2529** | [overlander.co.uk](https://www.overlander.co.uk/jst-ph-to-jst-xh-balance-conversion-lead-for-130x-beast.html) | ✔ £1.58 each |
 | 5 | GPS antenna, passive 15 × 15 mm, U.FL | 1 | **Adafruit 2461** (US, international) | [The Pi Hut](https://www.thepihut.com/product/2461) | ✔ £3.90 |
+| 6a | Micro-USB cable with an **angled** plug, USB-A, 1–2 m: reaches the Pico's socket through the battery hatch. The cable must leave the plug on the side **facing away from the Pico's board** (towards the hatch): StarTech sell an up-angle and a down-angle version, so compare the product photo with your Pico before ordering | 1 | **StarTech.com** A to up-angle micro-B, or A to down-angle micro-B (USBAUB2MD) | [up angle, 2 m (BT Business Direct)](https://www.businessdirect.bt.com/products/startech-com-2m-micro-usb-cable---a-to-up-angle-micro-b-8ZCX.html) · [down angle, 2 m (Rapid)](https://www.rapidonline.com/startech-com-usbaub2md-startech-com-2m-micro-usb-cable-a-to-down-angle-micro-b-71-1981) | ≈ £5 |
 | 6 | 2S LiPo balance charger (skip if you have one) | 1 | SkyRC or ISDT USB-powered 2S/3S balance charger | Amazon UK [search](https://www.amazon.co.uk/s?k=SkyRC+lipo+balance+charger+2S) | ≈ £15–28 |
 
 ## 2. Servos, wiring, linkages
@@ -58,13 +59,14 @@ Some SQ12 clones stop recording in 1080p after a while; record in 720p if yours 
 | 18 | 5-minute epoxy | 1 | **Araldite Rapid** | Amazon UK [search](https://www.amazon.co.uk/s?k=Araldite+Rapid) | ≈ £8 |
 | 19 | Superglue (CA) | 1 | **Loctite** Super Glue | Amazon UK [search](https://www.amazon.co.uk/s?k=Loctite+super+glue) | ≈ £5 |
 | 20 | Filler primer spray (+ a colour if you like) | 1–2 cans | **Rust-Oleum** filler primer (or Halfords) | Amazon UK [search](https://www.amazon.co.uk/s?k=Rust-Oleum+filler+primer) | ≈ £8–14 |
-| 21 | Hook-and-loop strap 10–20 mm | 1 | **VELCRO** brand ONE-WRAP | Amazon UK [search](https://www.amazon.co.uk/s?k=VELCRO+ONE-WRAP) | ≈ £5 |
-| 22 | Double-sided foam tape, 1–2 mm | 1 roll | **Tesa** or **3M** mounting tape | Amazon UK [search](https://www.amazon.co.uk/s?k=tesa+double+sided+foam+tape) | ≈ £4 |
-| 23 | Screws, nuts and washers (list below), plus a **100-pack of M3 nuts for the nose ballast** | kit | **Accu** (UK) or a branded M2.5/M3/M4 assortment | [accu.co.uk](https://accu.co.uk/) or Amazon UK [search](https://www.amazon.co.uk/s?k=M3+stainless+screw+nut+assortment) | ≈ £13 |
+| 21 | Tough PLA filament 1.75 mm for the **legs** only (4 + 2 spares ≈ 30 g, printed solid) | — | your own extra-tough PLA | — | — |
+| 22 | Double-sided foam tape, 1–2 mm (also the pad inside the battery-hatch door) | 1 roll | **Tesa** or **3M** mounting tape | Amazon UK [search](https://www.amazon.co.uk/s?k=tesa+double+sided+foam+tape) | ≈ £4 |
+| 23 | Screws, nuts and washers (list below), plus **two 100-packs of M3 nuts for the nose ballast** | kit | **Accu** (UK) or a branded M2.5/M3/M4 assortment | [accu.co.uk](https://accu.co.uk/) or Amazon UK [search](https://www.amazon.co.uk/s?k=M3+stainless+screw+nut+assortment) | ≈ £13 |
 
 Screws used: M2.5 × 8 self-tapping (4, the PCB); M3 × 10–16 + nuts (14: av-bay 2, fin can 2, gimbal pivots 4,
-middle-part joint 2, pad legs 3, rod stop 1; plus 4 if you screw a payload to the bay floor); about 90 more M3 nuts
-(0.33 g each, [Fabory](https://www.fabory.com/en-GB/p/01100030001)) as the ≈ 33 g nose ballast; M2 × 6 self-tapping
+middle-part joint 2, pad legs 3, rod stop 1; plus 4 if you screw a payload to the bay floor); **M3 × 18 button head
+(ISO 7380) + M3 nut** (4 + 2 spares: one through each leg; assortments often lack this length, so check, ≈ £3); about 130 more M3 nuts
+(0.33 g each, [Fabory](https://www.fabory.com/en-GB/p/01100030001)) as the ≈ 46 g nose ballast; M2 × 6 self-tapping
 (8, tab servos, row 9); the small screws that come with the servos (TVC and release servos); M4 × 16 (4,
 tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt); one M10 × 25 mm penny washer
 (burn-through shield on top of the motor). The payload-door hinge pin is a 22 mm piece of your 1.75 mm filament.
@@ -100,17 +102,19 @@ rest of the prints.
 
 | | £ |
 |---|---|
-| 1. Flight computer + electronics (without charger) | ≈ 100 |
+| 1. Flight computer + electronics (without charger) | ≈ 107 |
 | 2. Servos, wiring, linkages | ≈ 41 |
 | 3. Camera + card | ≈ 20 |
-| 4. Airframe, recovery, consumables | ≈ 127 |
+| 4. Airframe, recovery, consumables | ≈ 125 |
 | 5. Launch pad (without controller) | ≈ 24 |
-| **Total** | **≈ £312** |
-| with one primer can and a cheaper 36 in chute | ≈ £300 |
+| **Total** | **≈ £317** |
+| with one primer can and a cheaper 36 in chute | ≈ £305 |
 | plus charger / launch controller if you have neither | + £35–48 |
 
-This is about **£30–42 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
+This is about **£35–47 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
 four more servos, the bigger 36 in parachute it needs for gentle landings at its weight, and the ejection spring,
 which RS only sells in packs of 10 (£21); putting the servos inside the fins added about £11 (longer tab-servo extensions, their M2
 screws, the ballast nuts, and the step from a 30 in to a 36 in parachute for the extra weight). Biggest single item: the PCB order (≈ £80), which gives you **two**
-assembled flight computers.
+assembled flight computers. The multi-flight changes (replaceable legs, battery hatch) added about £5: the
+leg screws, a second balance adapter and an angled USB cable, minus the velcro strap they replaced; a second LiPo
+(≈ £7) is worth having.

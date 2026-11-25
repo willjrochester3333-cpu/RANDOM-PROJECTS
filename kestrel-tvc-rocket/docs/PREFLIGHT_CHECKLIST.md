@@ -1,7 +1,7 @@
 # Pre-flight checklist (print this)
 
 **Night before**
-- [ ] LiPo balance-charged to 8.4 V (charger on a fire-proof surface, never unattended)
+- [ ] LiPo(s) balance-charged to 8.4 V **outside the rocket** (charger on a fire-proof surface, never unattended)
 - [ ] Camera battery charged, microSD empty
 - [ ] `status`: IMU / baro / flash ok, axes calibrated, correct motor selected, `tabs` setting as planned for this
       flight (test plan C), log has > 1 MB blank
@@ -11,12 +11,15 @@
       lines up with its fin after `center`; tape over the four fin-tip lead grooves intact
 - [ ] Latch bolt slides freely (graphite); spring, piston, shock cord, parachute: no burns, knots or frays
 - [ ] Payload secured to the bay floor, door locks with a quarter turn
+- [ ] Four legs on and their M3 screws snug; no crack at the top of any post or round any fin tip (servo housing)
+- [ ] Battery hatch: door lies flat with no gap, latch locks (coin slot horizontal)
 - [ ] Field: club launch or landowner permission confirmed; not near an airfield or in controlled airspace (see
       [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md))
 - [ ] Pack: rocket, pad + rod (1 m, and the 1.5 m rod if it may be windy) + tile + pegs + rod cap, motors **and the
       matching retainer** (F35 retainer; or the 24 mm sleeve, 24 mm retainer and D spacer), launch controller + key, LiPo + spare,
-      laptop/phone + USB cable, coin (payload door), toothpick (switch), tools, tape, spare M3 / M2.5 screws and
-      M2 × 6 servo screws (never longer).
+      laptop/phone + **angled** micro-USB cable, coin (payload door and battery hatch), toothpick (switch), tools,
+      tape, **2 spare legs + 2 M3 × 18 button-head screws and nuts + hex key**, spare M3 / M2.5 screws and M2 × 6
+      servo screws (never longer).
       No wadding: there is no ejection charge
 
 **At the field**
@@ -33,6 +36,7 @@
       twisted 45° until it clicks. E20 / D20: **adapter sleeve** in first (D20: **D spacer** in the sleeve above the
       motor), then the motor, then the **24 mm retainer** (16 mm opening)
 - [ ] Payload in, **door locked** (cam arm up)
+- [ ] Charged pack in through the battery hatch, PH plug pushed home, **hatch locked** (coin slot horizontal)
 - [ ] Parachute packed, spring and piston in, cord coiled on top
 - [ ] Board ON (latch locks), nose cone pushed on until the bolt **clicks**; gentle pull test; board OFF to carry
       it to the pad
@@ -57,5 +61,9 @@
 - [ ] Watch it all the way down; note where it lands
 - [ ] Follow the beeps; the digits are the apogee in metres
 - [ ] Once found, switch OFF (stops the beeping; the log is already safe in flash)
-- [ ] Spent motor out once cool; download the log; inspect fins (legs, servo pockets), tabs, gimbal, latch and
-      the nose ballast (no loose nuts rattling); note the flight in the notebook
+- [ ] Spent motor out once cool; download the log (USB through the battery hatch); inspect the legs (crack at the
+      top of a post: swap the leg, one screw), the fin tips round the servo housings (a crack there: no more flights
+      until the fin can is repaired), tabs, gimbal, latch and the nose ballast (no loose nuts rattling); note the
+      flight in the notebook
+- [ ] **Next flight** (no tools beyond a coin and a hex key): open the hatch, unplug and slide out the pack, slide in
+      a charged one; swap any cracked leg; new motor; repack the parachute; start again at "Preparing the rocket"

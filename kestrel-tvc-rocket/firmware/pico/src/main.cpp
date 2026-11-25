@@ -26,7 +26,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 203;            // 2.03 (KESTREL-2: 29 mm TVC mount, TSP F35 mission motor)
+constexpr uint16_t kFwVersion = 204;            // 2.04 (KESTREL-2 multi-flight: replaceable legs, battery hatch, 46 g nose ballast; tables for the 904 g rocket)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 

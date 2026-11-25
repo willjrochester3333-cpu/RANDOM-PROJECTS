@@ -397,7 +397,8 @@ def MATS():
 # NOSE CONE (part 3)
 # ======================================================================================
 NOSE_FILL_R = 7.0          # ballast fill hole through the apex of the nose bulkhead
-BALLAST_BULK_CM3 = 8.6     # ~90 M3 nuts (0.33 g each) poured into the tip: ~3.8 cm3 of steel at ~45 % packing
+BALLAST_G = next(c["mass_g"] for c in D["components"] if c["name"] == "nose_ballast_M3_nuts_epoxy")
+BALLAST_BULK_CM3 = (BALLAST_G - 3.0) / 0.33 * (8.6 / 90.0)   # M3 nuts (0.33 g) poured into the tip, ~45 % packing; 3 g epoxy
 
 
 def ogive_r(x, L=NOSE_L, Rb=R):
@@ -1201,6 +1202,17 @@ def drill_guide(M):
                          "battery-hatch opening (cut along the guide's edges with a sharp knife), lug line")
 
 
+def tool_leg_test_block(M):
+    """build tool (not flown): a copy of the fin can's leg tongue on a block that clamps in a vice, to break-test spare
+    legs with a luggage scale (TEST_PLAN A19)"""
+    base = bx(TG_X0 - 8.0, TG_X1 + 8.0, -14.0, 14.0, 0.0, 10.0)
+    tongue = bx(TG_X0, TG_X1, -TG_Y / 2, TG_Y / 2, -TG_H, 0.5) - ycyl(1.7, HT + 2.0, 24).translate((LEG_BOLT_X, 0, LEG_BOLT_Z))
+    m = (base + tongue).translate((-(TG_X0 + TG_X1) / 2, 0, 0))
+    return register("tool_leg_test_block", m, M["orange"], print_rot=(180, 0, 0), group="tool",
+                    note="Build tool (not flown). PETG like the fin can, 3 walls, 100% infill, block on the bed (tongue up). Clamp the "
+                         "block in a vice, bolt a spare leg on and pull its foot with a luggage scale")
+
+
 def drill_guide_mid(M):
     z_bot, z_top = Z_MID0, DOOR_Z0 + DOOR_H + 6.0
     m = tube(R + 2.2, R + 0.25, z_top - z_bot, z_bot) + tube(R + 2.2, RI - 0.8, 2.0, z_bot - 2.0)
@@ -1345,7 +1357,7 @@ def build_all(M):
     pad_rod_stop(M, 150.0); pad_leg_foot(M); rod_cap(M)
     clamps = pad_tile_clamp(M).decompose()
     register("pad_tile_clamp", clamps[0], M["black"], group="pad", qty=4, inst=clamps, note="4 corner clamps, M4 screws into the hub")
-    drill_guide(M); drill_guide_mid(M)
+    drill_guide(M); drill_guide_mid(M); tool_leg_test_block(M)
     return tail_z
 
 
@@ -1808,7 +1820,8 @@ LAYOUT = [
         ("rod", None, "6 mm launch rod, 1 m"), ("dowel", None, "22 mm dowel leg, 600 mm, x 3")]),
     ("Build tools (printed, not flown)", [
         ("part", "tool_drill_guide_bottom_tube", "drill guide,\nbottom tube"),
-        ("part", "tool_drill_guide_middle_tube", "drill guide,\nmiddle tube")]),
+        ("part", "tool_drill_guide_middle_tube", "drill guide,\nmiddle tube"),
+        ("part", "tool_leg_test_block", "leg test\nblock")]),
 ]
 CUT_DX = 220.0            # the cut-open rocket stands this far beside the complete one
 CUTOPEN = ("avbay_coupler", "fin_can", "fin_control_tab", "tvc_frame", "nose_cone", "top_latch_insert", "payload_wall",

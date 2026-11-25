@@ -305,9 +305,9 @@
     },
     {
       "name": "nose_ballast_M3_nuts_epoxy",
-      "mass_g": 33.0,
+      "mass_g": 46.0,
       "cad_ref": "nose_ballast_M3_nuts",
-      "note": "about 90 M3 nuts (0.33 g each) + 3 g epoxy in the nose tip; with the 36 in chute it gives +0.83..+0.96 cal (the 15 mm fins alone had left +0.39). The balance test (BUILD_GUIDE) sets the real amount"
+      "note": "about 130 M3 nuts (0.33 g each) + 3 g epoxy in the nose tip. 46 g since the multi-flight changes (replaceable legs, thicker servo housings) put ~35 g at the tail: margin +0.72..+0.84 cal with the F35 (33 g would leave +0.56..+0.69 and a rocket that arcs right over if all six steering servos fail). The balance test (BUILD_GUIDE) sets the real amount"
     },
     {
       "name": "glue_tape_paint_allowance",

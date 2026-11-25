@@ -9,7 +9,7 @@ replay on the same 3D map.
 |---|---|
 | `kestrel_mission_control.html` | **Use this one at the launch field.** One self-contained file (three.js and the demo flight built in): works without internet, from a laptop or a USB stick. Open it in **Chrome or Edge** to use USB |
 | `mission_control.html` | The page itself (loads three.js from a CDN and `demo_flight.csv` from beside it); also published as a private claude.ai page |
-| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 179 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format. Made by `make_demo_flight.py` |
+| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 161 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format. Made by `make_demo_flight.py` |
 | `build_offline.py` | Builds `kestrel_mission_control.html` from the page, the demo flight and `vendor/three-r128.min.js` (three.js r128, MIT licence in `vendor/THREE_LICENSE`) |
 
 ## What it can show

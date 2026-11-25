@@ -1,15 +1,18 @@
 # KESTREL-2: a thrust-vector-controlled model rocket with four steerable fins
 
-A reusable, 3D-printed, ~0.9 m model rocket that flies to about **190 m** on a TSP F35, **steers its motor**
+A reusable, 3D-printed, ~0.9 m model rocket that flies to about **170 m** on a TSP F35, **steers its motor**
 (two-axis thrust vector control) and its
 **four fin tabs** (roll, pitch and yaw; each tab's servo sits inside the thick bottom band of its fin and turns it
 directly),
 **stands up on its own four fins**, releases its parachute **at apogee**
 with a servo latch under the nose cone (no pyrotechnics), carries a **payload of up to 50 g** behind a lockable
 door, films the flight with a downward-looking camera, and logs IMU, barometer and GPS data on a **custom
-flight-computer PCB** built around a Raspberry Pi Pico 2 W. It comes with its own launch pad. **No soldering
+flight-computer PCB** built around a Raspberry Pi Pico 2 W. It comes with its own launch pad. It is built to
+**fly again and again**: the legs it stands and lands on are **replaceable** (one bolt each, and designed to be the
+part that breaks after a hard landing, not the fin can), and a **battery hatch** with a gap-free door lets you swap
+the LiPo and plug in USB between flights without taking anything apart. **No soldering
 anywhere**: the PCB comes assembled from JLCPCB and everything else plugs, screws or glues together. Estimated
-build cost **≈ £312** (motors extra).
+build cost **≈ £317** (motors extra).
 
 <p>
 <img src="cad/renders/rocket_on_pad.png" width="24%" alt="KESTREL-2 standing on its fins on the launch pad">
@@ -35,14 +38,15 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
 
 | | |
 |---|---|
-| Parts | **3**: bottom (fin can + TVC module + camera + flight computer + battery), middle (payload bay with door · wall · parachute bay · release latch at the top), nose cone |
+| Parts | **3**: bottom (fin can + 4 replaceable legs + TVC module + camera + flight computer + battery behind a hatch), middle (payload bay with door · wall · parachute bay · release latch at the top), nose cone |
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
-| Lift-off mass | 856 g with a TSP F35 and 25 g of payload (764 g without motor) |
+| Lift-off mass | 904 g with a TSP F35 and 25 g of payload (812 g without motor) |
 | Motors | 29 mm TSP **F35-0** (mission); 24 mm TSP D20-0 and E20-0 for the test flights, in a printed adapter sleeve |
 | Apogee (simulated, F35) | **188 m** nominal with 25 g of payload (198 m with an empty bay); Monte Carlo mean 198 m, 90 % of flights 164–236 m. Test motors: D20 19 m, E20 53 m |
-| Stability | +0.69 to +0.82 calibres at lift-off (empty to full payload bay, with 33 g of nose ballast), +0.90 to +1.03 at burn-out: still stable if all steering fails |
+| Stability | +0.72 to +0.84 calibres at lift-off (empty to full payload bay, with 46 g of nose ballast), +0.91 to +1.03 at burn-out: still flies straight enough to recover normally if all six steering servos fail |
 | TVC | 2-axis gimbal for 29 mm motors, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
-| Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick, joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band, tabs and legs taper to thin trailing edges below the tail |
+| Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick (17 mm round the servo), joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band and tabs taper to thin trailing edges below the tail |
+| Multi-flight | **replaceable legs** (tough PLA, one M3 bolt onto a solid tongue under each fin tip; the post is the designed weak point at about 7.5 kg outward / 11.5 kg sideways at the foot, while the fin can holds about twice that); **battery hatch** on the rod side: the pack slides out and the Pico's USB socket is right there; the door sits on the tube and overlaps the opening by 2 mm all round |
 | Fin tabs | 4 trailing-edge tabs, ±15°, each turned directly by an MG90S inside its fin (servo shaft = hinge line: no pods, pushrods or hinge pins); hold roll in boost and coast, share pitch/yaw with the TVC in the burn, steer alone in the coast |
 | Recovery | 36 in parachute, spring ejection, servo-released snap-in latch, 4.9 m/s landing; from 190 m it drifts about 60 m for every 1 m/s of wind |
 | Payload | 130 mm bay, 32 × 50 mm hinged door with a quarter-turn lock, 4 × M3 mounting holes, up to 50 g |
@@ -59,17 +63,18 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
   meet every normal-flight criterion. A stress Monte Carlo with about twice the error spreads and wind up to 9 m/s:
   99.3 % meet every normal-flight criterion and 100.0 % recover safely.
   → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
-- **CAD checked automatically on every run.** All 30 printed parts are watertight, single-body and fit a
+- **CAD checked automatically on every run.** All 34 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three
-  marked parts excepted). Exact-geometry interference checks cover 1326 part pairs, plus sweeps of every mechanism
+  marked parts excepted). Exact-geometry interference checks cover 1953 part pairs, plus sweeps of every mechanism
   through its full travel: the gimbal in 24 directions at 7° (with the F35 and with the 24 mm adapter, against the
   frame, servos, horns and pushrods), all four tabs at ±17°, the payload door through 0–100° and the release latch.
   All come back clean. Masses and positions feed the simulator, the av-bay is
   generated from the PCB's KiCad layout, and every number the firmware and simulator take from `design.json`
-  (linkage ratios, tab geometry, IMU position, camera-pod size) is checked against the CAD.
+  (linkage ratios, tab geometry, leg geometry, IMU position, camera-pod size) is checked against the CAD. The
+  strength of every section of the fin, leg and tongue is computed from slices of the real CAD solid.
 - **PCB**: schematic checked pin-for-pin against the circuit source, DRC 0 violations, all 65 nets routed, gerbers
   re-read by an independent viewer. → [docs/PCB.md](docs/PCB.md)
-- **Firmware** (v2.03): 376,013 flight-core checks, 128 firmware-logic checks, a 0-warning cross-compile and a
+- **Firmware** (v2.04): 375,587 flight-core checks, 128 firmware-logic checks, a 0-warning cross-compile and a
   ready-to-flash UF2. → [docs/FIRMWARE.md](docs/FIRMWARE.md)
 
 Two honest gaps against what we agreed:
@@ -80,8 +85,9 @@ Two honest gaps against what we agreed:
   for the low test flights. The price is drift: about 40 s under the parachute, so it needs a recovery area of
   about 550 m downwind in winds up to 6 m/s, or 300 m if you fly it only in 3 m/s or less. The details,
   with what-if numbers, are in the simulation report, section 3.
-- **Budget**: ≈ £312 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
-  the ejection spring that only comes in a pack of 10, and about £11 of extras for the servos-in-the-fins design. → [docs/BOM.md](docs/BOM.md)
+- **Budget**: ≈ £317 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
+  the ejection spring that only comes in a pack of 10, about £11 of extras for the servos-in-the-fins design and
+  about £5 for the multi-flight parts. → [docs/BOM.md](docs/BOM.md)
 
 Real flights then confirm what models cannot; [docs/TEST_PLAN.md](docs/TEST_PLAN.md) takes you from the bench to
 the first F35 flight in steps (two D20 hops and an E20 flight first).

@@ -29,6 +29,9 @@ Keep a notebook: date, test, result, battery voltage, firmware version (`status`
 | A16 | Camera | record 5 min in the pod, review | lens clear, body and one or two fins at the edge of the frame, file plays |
 | A17 | Balance | F35 (or a dummy of the same mass, 92 g), packed parachute, your payload; once with the **bay empty** to set the nose ballast | balance point ≤ 640 mm from the nose tip (BUILD_GUIDE §12) |
 | A18 | 24 mm adapter | sleeve in the holder, an E20 (and a D20 with the spacer) pushed in, 24 mm retainer clicked on; turn the rocket nose-down and shake | the motor cannot slide (D20: spacer + motor fill the bore), the retainer stays locked; the F35 retainer is put away |
+| A19 | **Leg break test** (two **spare** legs and `tool_leg_test_block`) | clamp the block in a vice, slide a spare leg onto its tongue and bolt it as on the rocket; pull at the foot with a luggage scale, at right angles to the leg, until it breaks: the first leg **outward** (along the span), the second **sideways** (across the fin) | it breaks **at the top of the post** at about **7.5 kg outward** and **11.5 kg sideways**. Anything from 4 to 10 kg outward and 6 to 16 kg sideways is fine. **Stronger than 10 / 16 kg: do not fly legs from that print** (they could crack the fin can's servo housing before breaking): reduce `fins.leg.post_mm` in `design.json` by 10 %, rebuild the CAD and test again. Weaker than 4 / 6 kg: poor layer bonding, print them hotter and slower |
+| A20 | **Drop test** | the complete rocket as it lands: battery in, hatch shut, parachute packed, nose on, a 49 g dummy in the motor bore (a spent F35 case weighs about 49 g); hold it upright by the nose and drop it **feet-first from 1.25 m** (= the 4.9 m/s landing) onto grass, 5 times; then 5 times tilted 20° | no crack anywhere on the fin can, its servo housings or the tabs; `center` still lines the tabs up; the hatch still shut. A tilted drop may break a leg: that is what the legs are for (swap it and note it) |
+| A21 | **Battery hatch** | fit and remove the door 10 times and swap the pack; slide the rocket along the whole launch rod with the door shut; with the door open, `status` over USB through the hatch with the angled cable | the door lies flat with no visible gap and does not rattle when locked; a pack swap takes under a minute without tools; the rod passes the door without touching it; USB works through the hatch. Do A4 again with the door shut: the hatch must not leak |
 
 ## B. Field tests (no motor)
 
@@ -59,8 +62,11 @@ Recovery area: at least 550 m clear downwind for an F35 in winds up to 6 m/s (si
 358 m, farthest 498 m), or 300 m if you fly it only in 3 m/s or less (farthest 232 m);
 200 m for an E20 and 60 m for a D20.
 
-After every flight: download and plot the log, compare apogee, deploy time, tilt and roll with the simulation,
-check the gimbal pivots, the tab hinges and the latch for wear, recharge, `status` before packing again.
+After every flight: download and plot the log (USB through the battery hatch), compare apogee, deploy time, tilt
+and roll with the simulation, check the gimbal pivots, the tab hinges and the latch for wear, look for cracks at the
+top of each leg's post and round each fin tip (the servo housing), swap a cracked leg, swap in a charged pack,
+`status` before packing again. A leg that broke on landing did its job; a crack in a servo housing did not: stop
+and repair the fin can before flying again.
 
 ## D. Things that must stop a launch
 

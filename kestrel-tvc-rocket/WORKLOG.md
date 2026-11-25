@@ -22,6 +22,7 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 | R14 | Motor: **TSP F35** (29 mm), about 190 m, airframe as it is (was TSP E20 / ~123 m until Mon 17:50). TSP allowed as the one brand exception | Q&A, Mon 17:50 |
 | R15 | Shopping list: mostly Amazon UK; UK or large international brands, except unbranded servos, camera, parachute (~£270) | Q&A |
 | R16 | Ground screen that runs live during the flight: everything about the rocket (parachute out, apogee reached…), a 3D map of where it is, and the 3D movement saved for replay | Mon 19:20 |
+| R17 | **A multiple-flight rocket** ("that is its purpose"): replaceable legs (user prints them in extra-tough PLA), stronger servo housings, battery out and USB without taking the rocket apart (door with no gaps), full package accepted at ~170 m with 46 g of nose ballast | Wed |
 
 ## Plan / status
 
@@ -40,8 +41,10 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 
 ## Known gaps against the agreed requirements (report them)
 
-- R14 apogee: F35 188 m nominal with 25 g payload (198 m empty; Monte Carlo mean 198 m, 164-236 m): met.
-- R15 budget: ≈ £312 vs ~£270 (4 more servos, 36 in chute, spring pack of 10, servos inside the fins).
+- R14 apogee: F35 **170 m** nominal with 25 g payload since the multi-flight changes (R17, user's choice: 48 g of
+  legs, tongues, bolts, housings, hatch and ballast; 188 m before). ~190 m would need ~45 g off elsewhere.
+- R15 budget: ≈ £317 vs ~£270 (4 more servos, 36 in chute, spring pack of 10, servos inside the fins, multi-flight
+  extras ~£5).
 - R16 live view: the rocket has **no radio**, so a real flight can only be shown after landing (log over USB);
   live works for the simulated flight and on the USB cable. Needs a telemetry transmitter + receiver and a
   firmware streaming command -> question to the user (which radio).

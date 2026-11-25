@@ -7,9 +7,9 @@ The rocket comes apart into **three parts**:
 
 | Part | What is in it |
 |---|---|
-| **1. Bottom** | fin can (4 fins that are also its legs: normal 4 mm fins with a 15 mm band along the bottom that holds the tab servo, and a control tab at the trailing edge), the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery, GPS antenna) and its coupler |
+| **1. Bottom** | fin can (4 normal 4 mm fins with a 15 mm band along the bottom that holds the tab servo, 17 mm round the servo, and a control tab at the trailing edge), 4 replaceable legs bolted under the fin tips, the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery behind a hatch, GPS antenna) and its coupler |
 | **2. Middle** | payload bay with a hinged, lockable door · a wall · the parachute bay (spring, piston, parachute, shock cord) · the release latch with its servo at the very top |
-| **3. Nose cone** | printed, with about 33 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
+| **3. Nose cone** | printed, with about 46 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
 
 Time: roughly 35 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
 (estimates from the part volumes, depending on your printer), plus two weekends of building. **Order the PCB
@@ -32,7 +32,7 @@ Look down on the rocket from the nose. Angles go **anticlockwise**, exactly as i
 |---|---|---|
 | 0° | **door side** | payload door (middle part), one av-bay screw |
 | 45° | **fin 1** | the fin with a small raised **pip** near its root, on both faces |
-| 90° | **lug side** | both launch lugs, one middle-part joint screw, one tail screw |
+| 90° | **lug side** | the two launch lugs (the upper one on the middle part), one middle-part joint screw, one tail screw, the **battery hatch** |
 | 135° | fin 2 | |
 | 180° | | the other av-bay screw; inside: the release-servo lead |
 | 225° | fin 3 | |
@@ -42,8 +42,11 @@ Look down on the rocket from the nose. Angles go **anticlockwise**, exactly as i
 Each fin is a normal **4 mm fin** with a half-round leading edge. Only its **bottom band** (the 45 mm next to the
 tail) is **15 mm thick**: it holds the tab's hinge, the tab servo (in a pocket open at the fin tip, its output shaft on
 the tab's hinge line, so it turns the tab directly: no pods, pushrods or hinge pins) and the servo lead's channel. A
-smooth 15° wedge joins the band to the thin fin, and the band, the tab and the legs taper to thin edges below the
-tail, so nothing blunt faces the airflow. **Up** = towards the nose. All sizes in mm.
+smooth 15° wedge joins the band to the thin fin, and the band and the tab taper to thin edges below the tail, so
+nothing blunt faces the airflow. Round the servo the band is **17 mm** (the **servo housing**): its walls carry every
+landing load on the leg, so they are 2.2 mm thick. Under each fin tip a solid **tongue** carries a **replaceable leg**
+(section 5). KESTREL-2 is built to fly again and again: a hard landing breaks a 5 g leg, not the fin can.
+**Up** = towards the nose. All sizes in mm.
 
 ---
 
@@ -55,24 +58,26 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 ## 2. Print the parts
 
 All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
-lists sizes, estimated masses and the automatic printability checks: all 30 parts are watertight, one body each,
+lists sizes, estimated masses and the automatic printability checks: all 34 parts are watertight, one body each,
 and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **three parts
 need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
-in **PETG** (PLA softens in a hot car and near the motor).
+in **PETG** (PLA softens in a hot car and near the motor), except the four legs: **tough PLA**, printed solid.
 
 | Part | Qty | Settings | Notes |
 |---|---|---|---|
 | **Bottom part** | | | |
-| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, no supports | can, 4 fins (4 mm, with the 15 mm bottom band holding the servo pockets and lead channels) and legs in one piece; the largest print (123 × 123 × 155 mm). The 1.2 mm skins beside each servo pocket are exactly 3 walls: do not print it with fewer |
+| `fin_can` | 1 | upside down (top ring on the bed), 3 walls, 20 %, **100 % infill for the last 13 mm** of the print (a height-range modifier in the slicer: that is the four leg tongues), no supports | can, 4 fins (4 mm, with the 15 mm bottom band, 17 mm round each servo, holding the servo pockets and lead channels) and the four tongues the legs bolt onto; the largest print (124 × 124 × 137 mm). The 2.2 mm walls beside each servo pocket must come out solid: 3 walls or more |
+| `fin_leg` | 4 + 2 spares | **tough PLA, 100 % infill**, sleeve rim on the bed as exported, no supports | the replaceable legs. The top of the 6 × 9.2 mm post is the **designed weak point**: print them solid and in this orientation, or a leg may not break before the fin can it protects |
 | `fin_control_tab` | 4 | standing on its outer end (horn pocket on the bed), 3 walls, 20 %, no supports | |
 | `tvc_frame` | 1 | upright, 3 walls, 25 %; **supports under the four servo bars** | |
 | `tvc_motor_holder` | 1 | upright, **4 walls, 30 %, PETG or ASA** (never PLA: motor heat); **support under the pushrod tab** | the 25 mm roof of the motor bore is a bridge; the penny washer covers it |
 | `tvc_gimbal_ring`, `tvc_motor_retainer` | 1 each | 3 walls, 40 % | the retainer with the **22 mm opening** holds the 29 mm F35 |
 | `tvc_motor_adapter_24mm`, `tvc_motor_retainer_24mm`, `tvc_motor_spacer_D` | 1 each | upright, 3 walls, 30–40 %, PETG | only for the 24 mm test motors (D20, E20): a sleeve that turns the 29 mm motor bore into a 24 mm one, its own retainer (16 mm opening) and a 25 mm spacer that sits above the shorter D20. Print them in a different colour from the F35 retainer so the two retainers cannot be mixed up |
 | `avbay_coupler` | 1 | **upside down** (bulkhead on the bed), 4 walls, 25 % gyroid | its bulkhead is the payload-bay floor and carries the parachute load path |
-| `avbay_sled` | 1 | bulkhead disc on the bed, 3 walls, 20 % | |
+| `avbay_sled` | 1 | bulkhead disc on the bed, 3 walls, 20 % | its battery pocket opens towards the battery hatch |
 | `camera_pod` | 1 | floor and flange on the bed, 3 walls, 20 %, no supports | |
-| `upper_launch_lug` | 1 | 3 walls | |
+| `battery_hatch_door` | 1 | standing on its bottom edge as exported, **with a brim**, 3 walls, 20 %, no supports | its outer face is what you see: print it in the rocket's colour |
+| `battery_hatch_latch_knob`, `battery_hatch_latch_cam` | 1 each | as exported; 100 % infill | small: print several and keep the best |
 | **Middle part** | | | |
 | `payload_wall` | 1 | disc on the bed, skirt up, 3 walls, 25 % | carries the parachute load |
 | `spring_piston` | 1 | flat face on the bed, 3 walls, 20 % | |
@@ -80,6 +85,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | `payload_door` | 1 | standing on its hinge end, **with a brim** | |
 | `payload_door_latch_knob`, `payload_door_latch_cam` | 1 each | knob head-down; 100 % infill | small: print several and keep the best |
 | `top_latch_insert` | 1 | shoulder up, 3 walls, 25 % | |
+| `upper_launch_lug` | 1 | 3 walls | glued to the middle tube (section 8) |
 | `latch_bolt` | 1 | 100 % infill | must slide freely: rub it with graphite (soft pencil) |
 | **Nose** | | | |
 | `nose_cone` | 1 | tip up, 3 walls, 10 % gyroid, no supports | its bulkhead is a 45° cone with a cord bar inside and a 14 mm ballast fill hole at its top |
@@ -91,7 +97,7 @@ in **PETG** (PLA softens in a hot car and near the motor).
 | **Build tools (not flown)** | | | |
 | `tool_drill_guide_bottom_tube`, `tool_drill_guide_middle_tube` | 1 each | 2 walls, 10 % | |
 
-Printed rocket parts ≈ **392 g** (the fin can alone is ≈ 165 g). The simulator uses the masses computed from
+Printed rocket parts ≈ **420 g** (the fin can alone is ≈ 164 g, the four legs ≈ 19 g). The simulator uses the masses computed from
 these exact STLs with these settings (`cad/mass_properties.py`), so print them as listed.
 
 ## 3. Body tubes
@@ -104,10 +110,13 @@ these exact STLs with these settings (`cad/mass_properties.py`), so print them a
    - 3 × 2 mm holes: barometer static ports (keep them clean and round: they set the altitude reading);
    - the 7 × 20 mm slot at about 204°: power switch and status LEDs;
    - the 27 × 30 mm camera window on the camera side (drill the corners, cut with a knife);
+   - the **26 × 78 mm battery-hatch opening** on the lug side: cut along the guide's edges with a fresh blade. The
+     door overlaps it by 2 mm all round, so the cut only has to be straight;
    - pencil along the groove on the lug side: the launch-lug line.
 3. **Middle tube**: slide `tool_drill_guide_middle_tube` over its **bottom** end (lip on the tube end):
    - 2 × 3.3 mm holes on the lug and camera sides: the joint screws;
-   - the 32 × 50 mm payload-door window on the door side.
+   - the 32 × 50 mm payload-door window on the door side;
+   - pencil along the groove on the lug side: the upper-lug line.
 4. The tail holes (2 × 3.3 mm, 16 mm from the bottom end) and the four tab-servo lead slots in the bottom
    tube are marked through the fin can later (section 5).
 5. Seal all cut edges with thin CA. Sand the printed outside surfaces (240, then 400 grit), filler primer, paint.
@@ -184,8 +193,12 @@ goes straight into a servo horn glued inside the tab. The tab turns exactly as f
    in so none gets pinched. Push an M3 nut into each nut pocket (a dab of glue holds it), then fix the fin can,
    tube and module with **2 × M3 screws**. No glue: the TVC module and the fin can come off for repairs and
    modifications.
-8. **Upper launch lug:** glue it on the lug line 300 mm above the tail (slide both lugs onto the 6 mm rod while
-   the epoxy cures, so they are perfectly in line).
+8. **Legs:** slide a leg up over the tongue under each fin tip, sleeve first, until it sits against the band. One
+   side of the sleeve has a round recess, the other a hex recess: put an **M3 nut** in the hex recess, push an
+   **M3 × 18 button-head screw** through from the round side and tighten it until snug (the nut cannot turn, so one
+   hex key does it). The rocket now stands on its four legs. The top of each leg's post is built to be the weakest
+   point of the whole tail: after a hard landing the leg breaks there and the fin can and servo are untouched. A new
+   leg is a one-screw swap: keep two spare legs and two spare screws and nuts in the field box.
 
 ## 6. Camera pod
 
@@ -204,12 +217,11 @@ The av-bay is the **coupler** (a tube with a bulkhead on top: the payload-bay fl
    sled (double-sided tape on the two arms and the back bar). Its lead goes down through the open middle of the U to
    the board's U.FL connector: push the plug on straight until it clicks. The platform sits beside the Pico's USB
    socket, so a USB cable still plugs in.
-4. **LiPo:** check the pack measures about 40 × 19 × 15 mm before you fit it (the tray takes up to 16 mm; one shop
-   lists this pack as 25 mm thick, which would not fit). Put it on the tray behind the Pico, foam pad behind it,
-   velcro strap through the two slots. The pack has a small JST-PH balance plug: push it into the PH → XH adapter
-   lead (Overlander OL-2529) and plug the adapter into the 3-pin JST-XH socket marked `BATT 2S` (it only fits one
-   way). The board runs from the balance plug; the pack's main lead is not used: tape its end. Charge the pack
-   through the same adapter on the balance charger.
+4. **Battery lead:** plug the PH → XH adapter lead (Overlander OL-2529) into the 3-pin JST-XH socket marked
+   `BATT 2S` (it only fits one way). It stays in the rocket; the pack itself goes in last, through the battery
+   hatch (step 9). Check the pack measures about 40 × 19 × 15 mm (the pocket takes up to 16 mm; one shop lists
+   this pack as 25 mm thick, which would not fit). The board runs from the balance plug; the pack's main lead is
+   not used: tape its end.
 5. **Release-servo extension:** plug a 300 mm extension into **port 3** and pass its free end up through the slot
    in the coupler bulkhead.
 6. Push an M3 nut into each of the two pockets at the bottom of the sled. Slide the sled into the coupler from
@@ -220,9 +232,23 @@ The av-bay is the **coupler** (a tube with a bulkhead on top: the payload-bay fl
    small notch in the band on the lug side. Fix it with **2 × M3 radial screws** (door side and 180°) through tube
    and coupler into the sled's nuts. Through the switch slot you can now see the green/red LEDs and reach the
    power switch with a toothpick.
+9. **Battery hatch:** press the latch **cam** onto the knob's square end (knob pushed through the door from
+   outside, a drop of CA) so that the cam arm points **down when the coin slot is horizontal**: horizontal =
+   locked, vertical = open. Stick a 20 × 20 mm piece of the foam tape on the pad inside the door. Slide the pack
+   through the hatch into its pocket behind the Pico (it rests on the ledge at the bottom), push its small PH
+   plug into the adapter lead and tuck the joined plugs beside the pack, where your fingers reach them. Fit the
+   door: hold it with the bottom tilted out, put its two hooks into the top of the opening, slide it up so the
+   hooks go behind the coupler wall, swing the bottom in and turn the slot horizontal with a coin. The door sits
+   on the tube and overlaps the opening by 2 mm all round, so there is no gap anywhere and nothing stands proud
+   on the rod side (the rod passes 1.3 mm above it).
 
-To open the av-bay later (to charge the LiPo or use USB): take the middle part off (section 8), remove the two
-av-bay screws and slide the av-bay up out of the tube. The tab extensions give the leads enough slack.
+**Between flights (no tools, nothing taken apart):** open the hatch, unplug the PH plug and slide the pack out;
+slide a charged pack in. Charge the flat one **outside the rocket** on a second OL-2529 adapter that lives with
+the charger. The Pico's own USB socket is just above the pack: plug in an angled micro-USB cable (the cable must
+leave the plug towards the hatch: see the shopping list) to download the log or change settings.
+
+To take the av-bay out for repairs: remove the hatch door and the middle part (section 8), remove the two av-bay
+screws and slide the av-bay up out of the tube. The tab extensions give the leads enough slack.
 
 ## 8. Middle part: release latch, wall, payload bay, joint
 
@@ -249,14 +275,18 @@ av-bay screws and slide the av-bay up out of the tube. The tab extensions give t
    The middle tube slides down over the shoulder until it meets the band; fix it with **2 × M3 screws** through
    the joint holes. Before closing it, plug the release servo's lead onto the 300 mm extension coming up through
    the floor; the joint between them sits in the payload bay against the back wall (tape it there).
+7. **Upper launch lug:** with the rocket assembled, glue the upper lug on the middle tube's lug line, just above
+   the joint screw (363 mm above the tail). Slide both lugs onto the 6 mm rod while the epoxy cures, so they are
+   perfectly in line; afterwards the joint's alignment notch keeps them in line every time you reassemble. (It sits
+   on the middle part because the battery hatch now takes its old place.)
 
 The payload sits on the floor of the bay: 4 × M3 holes on a 20 mm square to screw a payload down. Up to **50 g**
 is allowed (the simulator flew the whole 0–50 g range).
 
 ## 9. Recovery
 
-0. **Nose ballast (once):** the thick servo bands put about 50 g more at the tail, so the nose carries **about 33 g of
-   ballast**: roughly 90 M3 nuts (0.33 g each, a 100-pack) and 3 ml of epoxy. Hold the nose cone tip-down and
+0. **Nose ballast (once):** the thick servo bands, the replaceable legs and their bolts put weight at the tail, so
+   the nose carries **about 46 g of ballast**: roughly 130 M3 nuts (0.33 g each, two 100-packs) and 3 ml of epoxy. Hold the nose cone tip-down and
    pour the nuts in through the 14 mm hole at the top of its conical bulkhead (beside the cord bar); they settle
    into the tip. Tape over the hole for now and do the balance check (section 12) **with the payload bay empty**,
    adding or removing nuts until it passes. Then, still tip-down, pour 3 ml of 30-minute epoxy through the hole
@@ -325,10 +355,10 @@ Always **"-0" (plugged) motors**. Check that the penny washer is still in the to
   hold it.
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
-**the balance point must be no further than 640 mm from the nose tip** (design with the F35 and the 33 g of nose
-ballast: 635 mm with 25 g of payload, 639 mm with an empty bay, 631 mm with 50 g; stability margin +0.69 to +0.82
-calibres at lift-off, +0.90 to +1.03 at burn-out, so it still flies if the TVC and tabs do nothing; with the E20 or
+**the balance point must be no further than 640 mm from the nose tip** (design with the F35 and the 46 g of nose
+ballast: 634 mm with 25 g of payload, 638 mm with an empty bay, 631 mm with 50 g; stability margin +0.72 to +0.84
+calibres at lift-off, +0.91 to +1.03 at burn-out, so it still flies if the TVC and tabs do nothing; with the E20 or
 D20 in the adapter it balances 1–4 mm further forward). The empty bay with the F35 is the closest to the limit: if
 it balances further back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of
-epoxy (section 9, step 0). A fin can that prints heavier than the estimated 165 g needs more ballast; a lighter
-one needs less.
+epoxy (section 9, step 0). A fin can or legs that print heavier than the estimated 164 g and 4 × 5 g need more
+ballast; lighter ones need less.

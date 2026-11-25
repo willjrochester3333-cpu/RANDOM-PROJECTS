@@ -1151,7 +1151,10 @@ async function openSheet(choices, note) {
     choices.forEach((c) => ul.appendChild(flightItem(c.name, metaOf(c.rows), [["Replay", () => { const f = replayFlight(c.name, c.rows, "file"); keepFlight(f); closeSheet(); }]]))); return; }
   $("hSheet").textContent = "Flights"; $("sheetNote").textContent = "Flights recorded or loaded here are kept in this browser for quick replays (the last 12). Use Save flight to keep a file.";
   const all = (await DB.all()).sort((a, b) => a.savedAt < b.savedAt ? 1 : -1);
-  ul.appendChild(flightItem("Simulated F35 flight (built in)", "179 m apogee · 4.9 m/s wind · flown by the real flight code", [["Replay", async () => { const t = await getDemo(); const s = parseLog(t)[0]; replayFlight(s.label, s.rows, "sim"); closeSheet(); }], ["Watch live", async () => { startSimLive(await getDemo()); closeSheet(); }]]));
+  let demoMeta = "flown by the real flight code";
+  try { const ds = parseLog(await getDemo())[0]; const w = /wind ([\d.]+) m\/s/.exec(ds.label);
+    demoMeta = metaOf(ds.rows).split(" · ")[0] + (w ? " · " + w[1] + " m/s wind" : "") + " · flown by the real flight code"; } catch (e) { /* demo not reachable */ }
+  ul.appendChild(flightItem("Simulated F35 flight (built in)", demoMeta, [["Replay", async () => { const t = await getDemo(); const s = parseLog(t)[0]; replayFlight(s.label, s.rows, "sim"); closeSheet(); }], ["Watch live", async () => { startSimLive(await getDemo()); closeSheet(); }]]));
   if (!all.length) { const li = document.createElement("li"); li.textContent = "No flights kept in this browser yet."; li.style.color = "var(--muted)"; ul.appendChild(li); }
   for (const x of all) ul.appendChild(flightItem(x.label, new Date(x.savedAt).toLocaleString() + " · apogee " + (x.apogee || 0).toFixed(1) + " m · " + x.rows + " rows",
     [["Replay", () => { const s = parseLog(x.csv)[0]; if (s) { const f = replayFlight(s.label, s.rows, x.source); f.kept = true; } closeSheet(); }], ["Delete", async () => { await DB.del(x.id); openSheet(); }]]));
