@@ -1,17 +1,17 @@
 # Simulation and test report (KESTREL-2)
 
-**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP F35 reaches **188 m** in
-calm air with a 25 g payload (Monte Carlo mean **198 m**, 90 % of flights between 164 and 236 m).
+**Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP F35 reaches **170 m** in
+calm air with a 25 g payload (Monte Carlo mean **179 m**, 90 % of flights between 147 and 214 m).
 It held its roll angle to within 17° and the launch direction to within 3.6° during the burn
 (95th percentile). It released the parachute within 0.33 s of apogee (95 % within 0.13 s) and landed at about
 4.9 m/s in **1000 of 1000 randomised flights** (F35, and the E20 and D20 test motors in their 24 mm adapter).
 **41 of 41 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within
 0.4 % (worst 0.33 %).
 
-You asked for 200 m. With the airframe exactly as it is, the 29 mm F35 gives 188 m (198 m with an empty payload
-bay); section 3 shows what the last metres would cost. The price of the height is drift: under its parachute the
-rocket comes down for about 40 s, so it lands 177 m from the pad on average and up to 498 m
-in winds up to 6 m/s.
+You asked for 200 m. On the 29 mm F35 the airframe reached 188 m; the multiple-flight changes (replaceable legs,
+stronger servo housings, battery hatch, more nose ballast) cost 48 g, so it now reaches 170 m (178 m with an empty
+payload bay); section 3 shows what more height would cost. The price of height is drift: under its parachute the
+rocket comes down for about 33 s, so it lands 154 m from the pad on average and up to 436 m in winds up to 6 m/s.
 
 ## 1. How the rocket is simulated
 
@@ -46,52 +46,55 @@ The same airframe (same drag curve, mass properties, motor) flown passively in
 Every quantity agrees within 0.4 %. This checks the flight mechanics; the drag and mass inputs are checked in
 section 3 and by real flights.
 
-## 3. Apogee: from the ~123 m estimate to 188 m
+## 3. Apogee: from the ~123 m estimate to 170 m
 
 When we chose the motor I estimated about 123 m on the 24 mm TSP E20 for a rocket of about 650 g. The finished
-rocket weighs about 830 g, and the E20 is rated at 36 Ns rather than the 40 Ns of its test curve, so on the E20 it
+rocket weighed about 830 g, and the E20 is rated at 36 Ns rather than the 40 Ns of its test curve, so on the E20 it
 reached only 57 m. You then asked for 200 m. No 24 mm TSP motor gets close: even 100 g lighter the E20 would reach
-about 77 m. TSP's 29 mm **F35** (65 Ns, 92 g) does, so the TVC module now takes 29 mm motors:
+about 77 m. TSP's 29 mm **F35** (65 Ns, 92 g) does, so the TVC module takes 29 mm motors, and that rocket reached
+188 m. Making it a **multiple-flight rocket** then added 48 g: replaceable legs on solid tongues with their bolts,
+servo housings 2 mm thicker, the battery hatch and its door, and 13 g more nose ballast to keep it flying straight
+if all its steering fails (section 7). On the F35 it now reaches **170 m**:
 
-- **Mass.** **856 g** at lift-off with the F35 and 25 g of payload (831 g with an empty bay, 881 g with 50 g). The
-  F35 is 28 g heavier than the E20; the 29 mm module itself is only about 3 g heavier (bigger holder and ring,
-  frame slightly lighter).
-- **Stability.** +0.69 to +0.82 calibres at lift-off (empty to full bay), +0.90 to +1.03 at burn-out, with the
-  same 33 g of nose ballast: lower than on the E20 (+0.84 … +0.97) because the heavier motor sits at the tail, but
-  still positive with every steering servo dead (section 4, `passive_*`).
-- **Speed.** 55.5 m/s at burn-out instead of 25 m/s: about 1.9 kPa of dynamic pressure, five times the E20's
-  (section 6b checks the tab servos and the fins for it). It leaves a 1 m rod at 10 m/s instead of 6.8 m/s.
+- **Mass.** **904 g** at lift-off with the F35 and 25 g of payload (879 g with an empty bay, 929 g with 50 g).
+- **Stability.** +0.72 to +0.84 calibres at lift-off (empty to full bay), +0.91 to +1.03 at burn-out, with 46 g of
+  nose ballast: positive with every steering servo dead, and that flight stays close to vertical (section 4,
+  `passive_*`). With the old 33 g the heavier tail would have left +0.56 to +0.69, and with all steering dead the
+  rocket arced right over (93 m, 175° of tilt) before its parachute opened.
+- **Speed.** 51.6 m/s at burn-out: about 1.6 kPa of dynamic pressure, six times the E20's (section 6b checks the
+  tab servos and the fins for it). Peak acceleration 5.6 g. It leaves a 1 m rod at 9.6 m/s.
 
-Drag build-up at 40 m/s, coasting (`Cd0` = 0.85, every term including the 8 % allowance; `sim/whatif.py` →
+Drag build-up at 40 m/s, coasting (`Cd0` = 0.90, every term including the 8 % allowance; `sim/whatif.py` →
 `sim/results/whatif.md`):
 
 | Term | Cd | | Term | Cd |
 |---|---|---|---|---|
-| body skin friction | 0.282 | | fin leading edges (4 mm, rounded) | 0.042 |
-| base drag | 0.132 | | launch lugs (2) | 0.040 |
+| body skin friction | 0.282 | | launch lugs (2) | 0.040 |
+| base drag | 0.132 | | leg sleeves (short boat-tail to the post) | 0.029 |
 | fin + leg skin friction | 0.080 | | nose | 0.022 |
-| camera pod | 0.076 | | feet (tapered legs) | 0.017 |
-| fin trailing edges (1.5 mm, tapered) | 0.075 | | tab hinge gaps | 0.017 |
-| wedge fairing the 15 mm band into the fin | 0.057 | | gimbal gap | 0.011 |
+| camera pod | 0.076 | | leg bolt heads and nuts | 0.021 |
+| fin trailing edges (1.5 mm, tapered) | 0.071 | | tab hinge gaps | 0.017 |
+| wedge fairing the 15 / 17 mm band into the fin | 0.063 | | feet | 0.012 |
+| fin leading edges (4 mm, rounded) | 0.042 | | gimbal gap | 0.011 |
+| | | | battery-hatch door edge | 0.005 |
 
-The fin terms are conservative engineering estimates (a rounded leading edge or a gentle wedge in attached flow has
-very little pressure drag); they are spread over ±8 % in the Monte Carlo and ±20 % in the scenarios.
+The fin and leg terms are conservative engineering estimates (a rounded leading edge or a gentle wedge in attached
+flow has very little pressure drag); they are spread over ±8 % in the Monte Carlo and ±20 % in the scenarios.
 
 What-if flights (passive, calm, same simulator, `sim/whatif.py`):
 
 | Change | F35 apogee |
 |---|---|
-| **as designed** (rated 65 Ns, 25 g payload, 36 in chute) | **188.3 m** |
-| empty payload bay / maximum 50 g payload | 197.6 m / 179.4 m |
-| F35 delivering its published test curve (67 Ns) | 195.5 m |
-| without the nose ballast (33 g lighter, but then only +0.33 calibres: not recommended) | 200.6 m |
-| 50 g lighter / 100 g lighter | 207.2 m / 227.7 m |
-| 20 % less drag | 196.0 m |
-| TSP E20 / D20 in the 24 mm adapter (the test flights) | 53.3 m / 18.9 m |
+| **as designed** (rated 65 Ns, 25 g payload, 36 in chute, 46 g nose ballast) | **169.9 m** |
+| empty payload bay / maximum 50 g payload | 178.1 m / 161.9 m |
+| F35 delivering its published test curve (67 Ns) | 176.2 m |
+| without the nose ballast (46 g lighter, but then only +0.20 calibres: not recommended) | 185.4 m |
+| 50 g lighter / 100 g lighter | 186.8 m / 205.2 m |
+| 20 % less drag | 176.1 m |
+| TSP E20 / D20 in the 24 mm adapter (the test flights) | 46.2 m / 16.4 m |
 
-So 200 m needs the rocket about 35 g lighter, an empty bay on a motor that performs a little above its rating, or
-both. Each 10 g saved is now worth about 4 m; drag matters more than on the E20 (20 % less drag is 8 m) but still
-much less than mass.
+So 190 m would need the rocket about 60 g lighter, or an empty bay on a motor that performs above its rating and a
+little less drag. Each 10 g saved is worth about 3.5 m; 20 % less drag is 6 m.
 
 ## 4. Scenario and fault-injection suite
 

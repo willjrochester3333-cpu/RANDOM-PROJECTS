@@ -42,13 +42,13 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
 | Lift-off mass | 904 g with a TSP F35 and 25 g of payload (812 g without motor) |
 | Motors | 29 mm TSP **F35-0** (mission); 24 mm TSP D20-0 and E20-0 for the test flights, in a printed adapter sleeve |
-| Apogee (simulated, F35) | **188 m** nominal with 25 g of payload (198 m with an empty bay); Monte Carlo mean 198 m, 90 % of flights 164–236 m. Test motors: D20 19 m, E20 53 m |
+| Apogee (simulated, F35) | **170 m** nominal with 25 g of payload (178 m with an empty bay); Monte Carlo mean 179 m, 90 % of flights 147–214 m. Test motors: D20 16 m, E20 46 m |
 | Stability | +0.72 to +0.84 calibres at lift-off (empty to full payload bay, with 46 g of nose ballast), +0.91 to +1.03 at burn-out: still flies straight enough to recover normally if all six steering servos fail |
 | TVC | 2-axis gimbal for 29 mm motors, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
 | Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick (17 mm round the servo), joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band and tabs taper to thin trailing edges below the tail |
 | Multi-flight | **replaceable legs** (tough PLA, one M3 bolt onto a solid tongue under each fin tip; the post is the designed weak point at about 7.5 kg outward / 11.5 kg sideways at the foot, while the fin can holds about twice that); **battery hatch** on the rod side: the pack slides out and the Pico's USB socket is right there; the door sits on the tube and overlaps the opening by 2 mm all round |
 | Fin tabs | 4 trailing-edge tabs, ±15°, each turned directly by an MG90S inside its fin (servo shaft = hinge line: no pods, pushrods or hinge pins); hold roll in boost and coast, share pitch/yaw with the TVC in the burn, steer alone in the coast |
-| Recovery | 36 in parachute, spring ejection, servo-released snap-in latch, 4.9 m/s landing; from 190 m it drifts about 60 m for every 1 m/s of wind |
+| Recovery | 36 in parachute, spring ejection, servo-released snap-in latch, 5.1 m/s landing; from 170 m it drifts about 55 m for every 1 m/s of wind |
 | Payload | 130 mm bay, 32 × 50 mm hinged door with a quarter-turn lock, 4 × M3 mounting holes, up to 50 g |
 | Flight computer | Pico 2 W + LSM6DSO IMU + BMP580 baro + ATGM336H GPS + 16 MB log, 4-layer 40 × 82 mm PCB, 7 servo ports |
 | Camera | SQ12-class 23 mm cube in an external pod, lens looking down the body |
@@ -79,12 +79,13 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
 
 Two honest gaps against what we agreed:
 
-- **Apogee**: you asked for 200 m; as agreed, the rocket stays exactly as it is and flies the 29 mm TSP F35
-  instead of the 24 mm E20, which gives **188 m** with 25 g of payload (198 m with an empty bay; 200 m would need
-  it about 35 g lighter). The TVC module now takes 29 mm motors; the D20 and E20 still fly in a printed adapter
-  for the low test flights. The price is drift: about 40 s under the parachute, so it needs a recovery area of
-  about 550 m downwind in winds up to 6 m/s, or 300 m if you fly it only in 3 m/s or less. The details,
-  with what-if numbers, are in the simulation report, section 3.
+- **Apogee**: you asked for 200 m. On the 29 mm TSP F35 the rocket reached 188 m; making it a multiple-flight
+  rocket (replaceable legs, stronger servo housings, the battery hatch, and 13 g more nose ballast so that it still
+  flies safely if all its steering fails) added 48 g, so it now reaches **170 m** with 25 g of payload (178 m with
+  an empty bay). The TVC module takes 29 mm motors; the D20 and E20 fly in a printed adapter for the low test
+  flights. The price of height is drift: about 33 s under the parachute, so it needs a recovery area of about
+  500 m downwind in winds up to 6 m/s, or 250 m if you fly it only in 3 m/s or less. The details, with what-if
+  numbers, are in the simulation report, section 3.
 - **Budget**: ≈ £317 against the ~£270 we aimed for, because of the four extra servos, the larger 36 in parachute,
   the ejection spring that only comes in a pack of 10, about £11 of extras for the servos-in-the-fins design and
   about £5 for the multi-flight parts. → [docs/BOM.md](docs/BOM.md)

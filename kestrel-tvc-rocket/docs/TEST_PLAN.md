@@ -47,20 +47,20 @@ Keep a notebook: date, test, result, battery voltage, firmware version (`status`
 Fly at a club launch or with the landowner's permission. **Wind 3 m/s or less for flights 1–3**: on the small
 test motors KESTREL-2 leaves a 1 m rod at only about 7 m/s, and they are the flights that prove the steering.
 Once flights 1–3 have shown that the steering works, the F35 may fly in up to 6 m/s with the **1.5 m rod**;
-never above 9 m/s. **The F35 flies about 190 m high and drifts a long way under the parachute** (about 170 m in
-a 3 m/s wind and 340 m in 6 m/s in the simulator), so the size of the recovery area, not the rocket, usually
+never above 9 m/s. **The F35 flies about 170 m high and drifts a long way under the parachute** (about 160 m in
+a 3 m/s wind and 320 m in 6 m/s in the simulator), so the size of the recovery area, not the rocket, usually
 sets the wind limit for an F35 flight.
 
 | Flight | Motor | Settings | Why | Simulated apogee | Go to the next flight when |
 |---|---|---|---|---|---|
-| 1 | TSP D20-0 in the 24 mm adapter (`motor 0`) | `tabs 0` (TVC only) | proves launch detect, TVC, apogee detection, latch, parachute, landing and logging, with as few active parts as possible | ≈ 19 m | deploy within 1 s of apogee; tilt in boost < 10°; rocket undamaged; the log matches the simulation (`kestrel_link.py plot`) |
-| 2 | TSP D20-0 in the adapter | `tabs 1` | first flight with the fin tabs: roll hold and coast steering | ≈ 19 m | as flight 1, plus roll rate in boost < 60 °/s and no tab oscillation in the log |
-| 3 | TSP E20-0 in the adapter (`motor 2`) | `tabs 1` | a full 2 s burn with steering, to about 53 m, before the big motor | ≈ 53 m | as flight 2 |
-| 4+ | **TSP F35-0** (`motor 5`, F35 retainer) | `tabs 1` | **the mission** | **188 m** nominal; Monte Carlo 164–236 m (5–95 %) | |
+| 1 | TSP D20-0 in the 24 mm adapter (`motor 0`) | `tabs 0` (TVC only) | proves launch detect, TVC, apogee detection, latch, parachute, landing and logging, with as few active parts as possible | ≈ 16 m | deploy within 1 s of apogee; tilt in boost < 10°; rocket undamaged; the log matches the simulation (`kestrel_link.py plot`) |
+| 2 | TSP D20-0 in the adapter | `tabs 1` | first flight with the fin tabs: roll hold and coast steering | ≈ 16 m | as flight 1, plus roll rate in boost < 60 °/s and no tab oscillation in the log |
+| 3 | TSP E20-0 in the adapter (`motor 2`) | `tabs 1` | a full 2 s burn with steering, to about 46 m, before the big motor | ≈ 46 m | as flight 2 |
+| 4+ | **TSP F35-0** (`motor 5`, F35 retainer) | `tabs 1` | **the mission** | **170 m** nominal; Monte Carlo 147–214 m (5–95 %) | |
 
-Recovery area: at least 550 m clear downwind for an F35 in winds up to 6 m/s (simulated 95th-percentile drift
-358 m, farthest 498 m), or 300 m if you fly it only in 3 m/s or less (farthest 232 m);
-200 m for an E20 and 60 m for a D20.
+Recovery area: at least 500 m clear downwind for an F35 in winds up to 6 m/s (simulated 95th-percentile drift
+312 m, farthest 436 m), or 250 m if you fly it only in 3 m/s or less (farthest 198 m);
+150 m for an E20 and 50 m for a D20.
 
 After every flight: download and plot the log (USB through the battery hatch), compare apogee, deploy time, tilt
 and roll with the simulation, check the gimbal pivots, the tab hinges and the latch for wear, look for cracks at the
@@ -78,6 +78,6 @@ and repair the fin can before flying again.
 - The motor selected with `motor` is not the one in the rocket (F35 = `motor 5`, E20 = `motor 2`, D20 = `motor 0`),
   or a 24 mm motor is loaded without its sleeve and 24 mm retainer.
 - Wind above the limit for this flight (3 m/s for flights 1–3, 6 m/s afterwards, 9 m/s ever), or gusts you
-  would not fly a kite in; or more wind than the recovery area allows (F35: about 60 m of drift for every 1 m/s
+  would not fly a kite in; or more wind than the recovery area allows (F35: about 55 m of drift for every 1 m/s
   of wind).
 - People, livestock, power lines or buildings inside the recovery area.

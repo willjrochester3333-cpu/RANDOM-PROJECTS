@@ -144,7 +144,7 @@
       "TSP-E20"
     ],
     "target_apogee_m": 190,
-    "target_note": "asked for 200 m; agreed: the F35 with the airframe as it is (about 190 m). 123 m was the original E20 estimate"
+    "target_note": "asked for 200 m; agreed: the F35 with the airframe as it is (about 190 m). 123 m was the original E20 estimate; 170 m since the multi-flight changes (replaceable legs, stronger servo housings, battery hatch, 46 g ballast)"
   },
   "components": [
     {

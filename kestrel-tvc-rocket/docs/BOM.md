@@ -85,9 +85,9 @@ tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt
 
 | Motor (single use, CE certified) | Rated (UKROC list) | Use | Simulated apogee, 25 g payload | Where |
 |---|---|---|---|---|
-| **TSP F35-0** (29 mm, twin pack) | 65 Ns, 2.0 s, 92 g | **the mission** | **188 m** (196 m if the motor performs like its published test curve) | [modelrockets.co.uk](https://modelrockets.co.uk/rocket-motors-and-consumables/all-rocket-motors-chooser/f35-0-twin-pack-29mm-tsp-model-rocket-motors-engine-mid-power/): about £25–30 per twin pack (the prices I saw differ; most F35 delays were out of stock when checked, so order early) |
-| **TSP E20-0** (24 mm, in the printed adapter) | 36 Ns, 2.0 s, 64 g | second test flights | 53 m | same shop |
-| **TSP D20-0** (24 mm, in the printed adapter) | 20 Ns, 1.0 s | first test hops | 19 m | same shop |
+| **TSP F35-0** (29 mm, twin pack) | 65 Ns, 2.0 s, 92 g | **the mission** | **170 m** (176 m if the motor performs like its published test curve) | [modelrockets.co.uk](https://modelrockets.co.uk/rocket-motors-and-consumables/all-rocket-motors-chooser/f35-0-twin-pack-29mm-tsp-model-rocket-motors-engine-mid-power/): about £25–30 per twin pack (the prices I saw differ; most F35 delays were out of stock when checked, so order early) |
+| **TSP E20-0** (24 mm, in the printed adapter) | 36 Ns, 2.0 s, 64 g | second test flights | 46 m | same shop |
+| **TSP D20-0** (24 mm, in the printed adapter) | 20 Ns, 1.0 s | first test hops | 16 m | same shop |
 
 Sold in the UK by [modelrockets.co.uk](https://modelrockets.co.uk/blog/tsp-rocket-motors-d20-e20-f35-rocket-motors-engines),
 which states TSP motors are CE certified and legal to buy and use in the UK. Ratings from the

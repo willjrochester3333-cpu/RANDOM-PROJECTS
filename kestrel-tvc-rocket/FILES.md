@@ -7,7 +7,7 @@ Files marked *(generated)* are made by a script in this project: change the scri
 
 | File | What it is |
 |---|---|
-| `README.md` | Overview: what KESTREL-2 is, key numbers (188 m on a TSP F35), how it was checked, where everything is |
+| `README.md` | Overview: what KESTREL-2 is, key numbers (170 m on a TSP F35), how it was checked, where everything is |
 | `FILES.md` | This list |
 | `WORKLOG.md` | Diary of the design work: every change, what was found and fixed, with times |
 | `design.json` | **The master parameter file**: every dimension, mass and setting of the rocket (airframe, fins, tabs, TVC, recovery, payload, motors, component masses). The CAD, simulator and firmware all read it |

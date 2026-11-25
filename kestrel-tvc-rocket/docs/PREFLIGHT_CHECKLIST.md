@@ -24,10 +24,10 @@
 
 **At the field**
 - [ ] Wind measured: **≤ 3 m/s for flights 1–3**, ≤ 6 m/s afterwards (use the 1.5 m rod above 3 m/s), never
-      above 9 m/s, and no more than the recovery area allows (F35: about 60 m of drift per 1 m/s). Note the direction
+      above 9 m/s, and no more than the recovery area allows (F35: about 55 m of drift per 1 m/s). Note the direction
 - [ ] Pad set up and pegged, rod tilted 0–5° **downwind** only, tile on, dry grass around the pad cleared
-- [ ] Recovery area clear downwind: F35 ≈ 550 m (wind up to 6 m/s) or 300 m (wind 3 m/s or less);
-      E20 200 m; D20 60 m
+- [ ] Recovery area clear downwind: F35 ≈ 500 m (wind up to 6 m/s) or 250 m (wind 3 m/s or less);
+      E20 150 m; D20 50 m
 
 **Preparing the rocket**
 - [ ] Motor: **"-0" plugged motor**, the type selected with the `motor` command (F35 = `motor 5`, E20 = `motor 2`,
