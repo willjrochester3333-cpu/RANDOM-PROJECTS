@@ -1,10 +1,10 @@
-# Flight firmware (v2.03, KESTREL-2)
+# Flight firmware (v2.04, KESTREL-2)
 
 Two layers, one code base:
 
 | Layer | Where | What it does | Tested by |
 |---|---|---|---|
-| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 376,013 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
+| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 375,587 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
 | **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 128 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
 
 Ready-to-flash binary: **`firmware/pico/kestrel_fc.uf2`** (hold BOOTSEL, plug in USB, drag the file onto the
@@ -161,7 +161,13 @@ After changing `design.json`, the CAD or the motor list, regenerate the motor an
 (`python3 firmware/tools/gen_motor_db.py`: thrust, inertia and lever arm against time for every motor, plus the
 tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo.py`.
 
-## Updating from 2.00 – 2.02
+## Updating from 2.00 – 2.03
+
+2.04 is for the multi-flight airframe (replaceable legs, thicker servo housings, battery hatch, 46 g of nose
+ballast): the rocket is 48 g heavier (its CG stays at 634 mm from the nose tip), so the motor and airframe tables (pitch
+inertia, CG-to-gimbal lever arm, launch-detect delay, nominal apogee time; F35 now 170 m at 6.6 s) and the tab
+mixer's roll inertia are regenerated. Nothing in the settings layout changed (still version 6): a board that ran
+2.03 keeps its calibration, trims and motor selection.
 
 2.03 is for the 29 mm TVC mount and the TSP F35: the F35 is added to the motor tables (`motor 5`, now the default),
 the tables and the fin-tab mixer are recomputed for the F35 at lift-off, and the TVC linkage ratio changes from 0.5

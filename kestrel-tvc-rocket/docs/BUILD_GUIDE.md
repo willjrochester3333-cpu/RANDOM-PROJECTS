@@ -58,7 +58,7 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 ## 2. Print the parts
 
 All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
-lists sizes, estimated masses and the automatic printability checks: all 34 parts are watertight, one body each,
+lists sizes, estimated masses and the automatic printability checks: all 35 parts are watertight, one body each,
 and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **three parts
 need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
 in **PETG** (PLA softens in a hot car and near the motor), except the four legs: **tough PLA**, printed solid.

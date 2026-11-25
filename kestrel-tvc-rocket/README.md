@@ -63,7 +63,7 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
   meet every normal-flight criterion. A stress Monte Carlo with about twice the error spreads and wind up to 9 m/s:
   99.3 % meet every normal-flight criterion and 100.0 % recover safely.
   → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
-- **CAD checked automatically on every run.** All 34 printed parts are watertight, single-body and fit a
+- **CAD checked automatically on every run.** All 35 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three
   marked parts excepted). Exact-geometry interference checks cover 1953 part pairs, plus sweeps of every mechanism
   through its full travel: the gimbal in 24 directions at 7° (with the F35 and with the 24 mm adapter, against the
@@ -115,7 +115,7 @@ cad/                     Blender + manifold3d parametric model
   kestrel_rocket.blend     just the constructed rocket, every part in place; hide "Body tubes" to look inside
   kestrel_tvc_module.blend the TVC module on its own (its two servo leads come out of the top) + assembly steps
   kestrel_parachute_open.blend  the rocket descending under its open parachute
-  stl/                     30 print-ready STLs + check_report.md (3 of them: the 24 mm motor adapter set)
+  stl/                     35 print-ready STLs + check_report.md (3 of them: the 24 mm motor adapter set)
   renders/                 the images above
   interference_report.md   part pairs and mechanism sweeps
 pcb/                     KiCad 7 project, circuit-as-code, autorouter, production files for JLCPCB
