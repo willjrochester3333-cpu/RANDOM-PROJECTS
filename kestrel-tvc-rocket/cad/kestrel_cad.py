@@ -2208,8 +2208,8 @@ def main():
         ob.location = (side.get(pname, 0.0), 0, dz)
     curve_obj("ejection_spring_ex", spring_pts(), M["steel"], c_ex, radius=0.75).location = (0, 0, part_dz["middle"])
     lab = mat("Label", (0.05, 0.05, 0.06), rough=0.6)
-    for txt, z in (("3  NOSE CONE", Z_NOSE0 + part_dz["nose"] + 20), ("2  MIDDLE PART\n   payload bay + door\n   wall\n   parachute bay\n   release latch", 520 + part_dz["middle"]),
-                   ("1  BOTTOM PART\n   avionics bay\n   camera\n   4 fins / legs\n   4 control tabs", 230),
+    for txt, z in (("3  NOSE CONE", Z_NOSE0 + part_dz["nose"] + 20), ("2  MIDDLE PART\n   payload bay + door\n   wall\n   parachute bay\n   release latch\n   upper launch lug", 520 + part_dz["middle"]),
+                   ("1  BOTTOM PART\n   avionics bay + battery hatch\n   camera\n   4 fins\n   4 replaceable legs\n   4 control tabs", 230),
                    ("TVC module\n(slides out of\nthe bottom)", 40 + part_dz["tvc"])):
         cu = bpy.data.curves.new("label", "FONT")
         cu.body = txt
@@ -2253,7 +2253,8 @@ def main():
                                                                    FIN["root_chord"] + 15.0)
     for nm, m, mt in (("fin_can_fs", fc1 - half, M["orange"]), ("fin_control_tab_fs", tab_local(0.0) - half, M["blue"]),
                       ("servo_MG90S_tab_fs", tab_servo_local() - half, M["servo"]),
-                      ("horn_tab_fs", tab_horn_local(0.0) - half, M["horn"])):
+                      ("horn_tab_fs", tab_horn_local(0.0) - half, M["horn"]),
+                      ("fin_leg_fs", leg_local() - half, M["black"]), ("leg_bolt_fs", leg_bolt_local() - half, M["steel"])):
         to_blender(nm, m, mt, c_fs)
     a0 = math.radians(GROOVE_ANG[0])
     lead1 = [(x * math.cos(a0) + y * math.sin(a0), -x * math.sin(a0) + y * math.cos(a0), z) for x, y, z in lead_paths()["lead_tab1"]]
@@ -2268,7 +2269,7 @@ def main():
                       ("control tab", TAB_X1 - 4.0, -TE_EXT - 6.0),
                       ("horn glued in the tab,\non the servo spline", TAB_X1 + 4.0, -TE_EXT - 14.0),
                       ("root pin", CAN_RO - 1.5, HINGE_Z - 1.0),
-                      ("leg / foot", TIP_R + 30.0, FOOT_Z + 8.0)):
+                      ("replaceable leg (tough PLA) on the\nfin can's tongue, one M3 bolt", TIP_R + 62.0, FOOT_Z + 8.0)):
         cu = bpy.data.curves.new("label_fs", "FONT")
         cu.body = txt
         cu.size = 3.6
