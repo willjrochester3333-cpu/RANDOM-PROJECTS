@@ -2,9 +2,9 @@
 
 **Bottom line.** Flown by the real flight code in a 6-DOF simulator, KESTREL-2 on a TSP F35 reaches **170 m** in
 calm air with a 25 g payload (Monte Carlo mean **179 m**, 90 % of flights between 147 and 214 m).
-It held its roll angle to within 17° and the launch direction to within 3.6° during the burn
-(95th percentile). It released the parachute within 0.33 s of apogee (95 % within 0.13 s) and landed at about
-4.9 m/s in **1000 of 1000 randomised flights** (F35, and the E20 and D20 test motors in their 24 mm adapter).
+It held its roll angle to within 13° and the launch direction to within 3.6° during the burn
+(95th percentile). It released the parachute within 0.32 s of apogee (95 % within 0.13 s) and landed at about
+5.1 m/s in **1000 of 1000 randomised flights** (F35, and the E20 and D20 test motors in their 24 mm adapter).
 **41 of 41 graded scenario and fault cases pass.** An independent simulator (RocketPy) agrees within
 0.4 % (worst 0.33 %).
 
@@ -38,10 +38,10 @@ The same airframe (same drag curve, mass properties, motor) flown passively in
 
 | Motor | Apogee | Apogee time | Max speed | Rod-exit speed | Static margin |
 |---|---|---|---|---|---|
-| TSP F35 | 188.31 vs 188.24 m (+0.0 %) | 6.89 vs 6.89 s | 55.46 vs 55.45 m/s | 9.99 vs 10.00 m/s | 0.76 vs 0.76 cal |
-| TSP E20 (adapter) | 53.27 vs 53.22 m (+0.1 %) | 4.27 vs 4.27 s | 23.55 vs 23.54 m/s | 6.60 vs 6.60 m/s | 0.78 vs 0.78 cal |
-| TSP D20 (adapter) | 18.89 vs 18.89 m (+0.0 %) | 2.43 vs 2.43 s | 14.67 vs 14.66 m/s | 6.92 vs 6.92 m/s | 0.83 vs 0.83 cal |
-| TSP E12 (adapter) | 43.34 vs 43.30 m (+0.1 %) | 4.91 vs 4.91 s | 16.92 vs 16.91 m/s | 5.11 vs 5.11 m/s | 0.78 vs 0.78 cal |
+| TSP F35 | 169.86 vs 169.79 m (+0.0 %) | 6.62 vs 6.62 s | 51.66 vs 51.65 m/s | 9.65 vs 9.65 m/s | 0.77 vs 0.77 cal |
+| TSP E20 (adapter) | 46.24 vs 46.19 m (+0.1 %) | 4.06 vs 4.06 s | 21.35 vs 21.34 m/s | 6.24 vs 6.25 m/s | 0.79 vs 0.79 cal |
+| TSP D20 (adapter) | 16.45 vs 16.44 m (+0.1 %) | 2.31 vs 2.31 s | 13.40 vs 13.40 m/s | 6.55 vs 6.55 m/s | 0.84 vs 0.83 cal |
+| TSP E12 (adapter) | 36.04 vs 36.00 m (+0.1 %) | 4.68 vs 4.68 s | 14.60 vs 14.58 m/s | 4.77 vs 4.77 m/s | 0.79 vs 0.79 cal |
 
 Every quantity agrees within 0.4 %. This checks the flight mechanics; the drag and mass inputs are checked in
 section 3 and by real flights.
@@ -107,33 +107,33 @@ Fault cases must end with a parachute and a landing below 7 m/s; the jammed-TVC 
 
 | Case | Apogee | Tilt burn / coast | Roll rate burn | Deploy − apogee | Landing | Result |
 |---|---|---|---|---|---|---|
-| F35, calm | 188 m | 0.5° / 0.2° | 7 °/s | +0.03 s | 4.9 m/s | PASS |
-| F35, 3 m/s + gusts (baseline) | 188 m | 0.8° / 1.1° | 8 °/s | +0.03 s | 4.9 m/s | PASS |
-| F35, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 188 m | ≤ 1.1° / ≤ 1.7° | 8–12 °/s | +0.03 s | 4.9 m/s | PASS |
-| F35, 9 m/s + 2 m/s gusts (wind limit) | 188 m | 1.2° / 1.9° | 7 °/s | +0.04 s | 4.8 m/s | PASS |
-| payload 0 g / 50 g / 50 g in 6 m/s wind | 197 / 179 / 179 m | ≤ 1.1° / ≤ 1.8° | 8–12 °/s | +0.03 s | 4.9–5.0 m/s | PASS |
-| rod tilted 5° downwind | 186 m | 5.0° / 5.3° | 10 °/s | +0.02 s | 4.9 m/s | PASS |
-| 1.5° thrust misalignment | 188 m | 1.8° / 1.2° | 15 °/s | +0.04 s | 4.9 m/s | PASS |
-| 2° fin cant (strong roll torque) / crooked fins | 188 m | ≤ 0.8° / ≤ 1.0° | 12–34 °/s | +0.03 s | 4.9 m/s | PASS |
-| CG 20 mm aft / 15 % heavier / 20 % more drag | 188 / 151 / 181 m | ≤ 0.8° / ≤ 1.0° | 7–8 °/s | +0.02 … +0.03 s | 4.9–5.3 m/s | PASS |
-| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 188 m | ≤ 1.7° / ≤ 1.5° | 6–12 °/s | +0.03 s | 4.9 m/s | PASS |
-| tabs 40 % less / more effective | 188 m | ≤ 0.9° / ≤ 1.6° | 9 °/s | +0.03 s | 4.9 m/s | PASS |
-| slow servos, IMU 2° crooked, gyro drift 10× | 188 m | ≤ 1.0° / ≤ 1.2° | 7–10 °/s | +0.03 s | 4.9 m/s | PASS |
-| camera panorama roll (90 °/s in the coast) | 188 m | 0.8° / 1.1° | 8 °/s | +0.03 s | 4.9 m/s | PASS |
-| tabs only damp pitch and yaw in the coast | 188 m | 0.8° / 5.5° | 8 °/s | +0.03 s | 4.9 m/s | PASS |
-| tabs switched off (TVC only, like KESTREL-1) | 188 m | 1.1° / 18.8° | 258 °/s | +0.03 s | 4.9 m/s | PASS (rolls fast) |
-| TSP D20 / E20 in the 24 mm adapter (test flights) | 19 / 53 m | ≤ 0.3° / ≤ 4.4° | 1 °/s | +0.04 … +0.05 s | 5.0 m/s | PASS |
-| F35 performing like its published curve | 195 m | 0.8° / 1.0° | 12 °/s | +0.03 s | 4.9 m/s | PASS |
-| **FAULT** launched 1 s after switch-on | 179 m | 18.7° / 55.7° | 259 °/s | +0.02 s | 4.9 m/s | PASS (steering stays centred) |
-| **FAULT** TVC servos dead, calm / 3 m/s | 188 m | ≤ 4.5° / ≤ 1.5° | 5–8 °/s | +0.03 … +0.04 s | 4.9 m/s | PASS (tabs steer) |
-| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 25 m | loops | 50 °/s | −0.74 s (abort) | 4.9 m/s | PASS: abort, parachute out, lands 25 m from the pad |
-| **FAULT** tab 1 jams at full deflection at T+1 s | 133 m | 3.6° / 174.8° | 148 °/s | −0.06 s | 4.9 m/s | PASS (give-up rule, chute at apogee) |
-| **FAULT** tab 2 freezes / all four tab servos dead | 188 m | ≤ 1.4° / ≤ 19.9° | 18–258 °/s | +0.03 s | 4.9 m/s | PASS |
-| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 181 / 180 / 188 m | ≤ 18.6° / ≤ 58.2° | 256–274 °/s | +0.01 … +0.03 s | 4.8–4.9 m/s | PASS (passively stable) |
-| **FAULT** barometer dies at T+1 s | 188 m | 0.8° / 1.0° | 8 °/s | +1.29 s | 4.9 m/s | PASS (inertial apogee) |
-| **FAULT** all steering dead in 6 m/s wind | 181 m | 17.8° / 60.4° | 262 °/s | +0.01 s | 4.9 m/s | INFO: tilts far over in the coast but still recovers; the test motors do not (why flights 1–3 need ≤ 3 m/s) |
-| **FAULT** parachute never opens | 188 m |  |  |  | **53 m/s** | INFO: why ground ejection tests matter |
-| TSP E12-0 in the adapter | 43 m | 0.2° / 3.4° | 2 °/s | +0.05 s | 5.0 m/s | INFO: leaves the rod at only 5.1 m/s, not recommended |
+| F35, calm | 170 m | 0.5° / 0.2° | 5 °/s | +0.04 s | 5.1 m/s | PASS |
+| F35, 3 m/s + gusts (baseline) | 170 m | 0.7° / 0.9° | 8 °/s | +0.02 s | 5.1 m/s | PASS |
+| F35, 6 m/s + 1.5 m/s gusts (1 m rod / 1.5 m rod) | 170 m | ≤ 0.9° / ≤ 1.4° | 9 °/s | +0.02 s | 5.0 m/s | PASS |
+| F35, 9 m/s + 2 m/s gusts (wind limit) | 169 m | 1.0° / 1.5° | 5 °/s | +0.03 s | 4.9 m/s | PASS |
+| payload 0 g / 50 g / 50 g in 6 m/s wind | 178 / 162 / 162 m | ≤ 0.9° / ≤ 1.5° | 6–9 °/s | +0.03 … +0.04 s | 5.0–5.1 m/s | PASS |
+| rod tilted 5° downwind | 168 m | 5.0° / 5.2° | 10 °/s | +0.03 s | 5.1 m/s | PASS |
+| 1.5° thrust misalignment | 169 m | 1.6° / 1.0° | 11 °/s | +0.02 s | 5.1 m/s | PASS |
+| 2° fin cant (strong roll torque) / crooked fins | 170 m | ≤ 0.7° / ≤ 0.9° | 8–27 °/s | +0.02 s | 5.1 m/s | PASS |
+| CG 20 mm aft / 15 % heavier / 20 % more drag | 170 / 134 / 164 m | ≤ 0.7° / ≤ 0.9° | 4–8 °/s | +0.02 … +0.03 s | 5.1–5.4 m/s | PASS |
+| TVC gains ×0.5 / ×2, tab gains ×0.5 / ×2 | 170 m | ≤ 1.6° / ≤ 1.5° | 8–9 °/s | +0.02 … +0.04 s | 5.1 m/s | PASS |
+| tabs 40 % less / more effective | 170 m | ≤ 0.8° / ≤ 1.6° | 7–10 °/s | +0.02 … +0.04 s | 5.1 m/s | PASS |
+| slow servos, IMU 2° crooked, gyro drift 10× | 170 m | ≤ 0.9° / ≤ 1.1° | 7–9 °/s | +0.02 s | 5.1 m/s | PASS |
+| camera panorama roll (90 °/s in the coast) | 170 m | 0.7° / 1.0° | 8 °/s | +0.02 s | 5.1 m/s | PASS |
+| tabs only damp pitch and yaw in the coast | 170 m | 0.7° / 5.1° | 8 °/s | +0.04 s | 5.1 m/s | PASS |
+| tabs switched off (TVC only, like KESTREL-1) | 170 m | 0.9° / 20.1° | 214 °/s | +0.02 s | 5.1 m/s | PASS (rolls fast) |
+| TSP D20 / E20 in the 24 mm adapter (test flights) | 16 / 46 m | ≤ 0.3° / ≤ 4.2° | 1–2 °/s | +0.04 … +0.05 s | 5.1 m/s | PASS |
+| F35 performing like its published curve | 176 m | 0.7° / 0.9° | 9 °/s | +0.04 s | 5.1 m/s | PASS |
+| **FAULT** launched 1 s after switch-on | 161 m | 20.1° / 59.7° | 214 °/s | +0.03 s | 5.1 m/s | PASS (steering stays centred) |
+| **FAULT** TVC servos dead, calm / 3 m/s | 170 m | ≤ 4.4° / ≤ 1.3° | 4 °/s | +0.02 s | 5.1 m/s | PASS (tabs steer) |
+| **FAULT** TVC pitch servo jams at full deflection at T+0.5 s | 25 m | loops | 41 °/s | −0.79 s (abort) | 5.1 m/s | PASS: abort, parachute out, lands 29 m from the pad |
+| **FAULT** tab 1 jams at full deflection at T+1 s | 130 m | 2.8° / 174.3° | 108 °/s | −0.05 s | 5.1 m/s | PASS (give-up rule, chute at apogee) |
+| **FAULT** tab 2 freezes / all four tab servos dead | 170 m | ≤ 1.1° / ≤ 20.8° | 15–214 °/s | +0.02 … +0.04 s | 5.1 m/s | PASS |
+| **FAULT** all six steering servos dead: calm / 3 m/s / 3 m/s with an empty bay | 163 / 162 / 169 m | ≤ 19.7° / ≤ 64.3° | 211–227 °/s | +0.02 s | 5.0–5.1 m/s | PASS (passively stable) |
+| **FAULT** barometer dies at T+1 s | 170 m | 0.7° / 1.0° | 7 °/s | +1.28 s | 5.1 m/s | PASS (inertial apogee) |
+| **FAULT** all steering dead in 6 m/s wind | 164 m | 19.1° / 67.4° | 217 °/s | +0.02 s | 5.1 m/s | INFO: tilts far over in the coast but still recovers; on the E20 it goes right over in the coast (why flights 1–3 need ≤ 3 m/s) |
+| **FAULT** parachute never opens | 170 m |  |  |  | **51 m/s** | INFO: why ground ejection tests matter |
+| TSP E12-0 in the adapter | 36 m | 0.2° / 2.8° | 2 °/s | +0.06 s | 5.1 m/s | INFO: leaves the rod at only 4.8 m/s, not recommended |
 
 ![baseline flight](../sim/results/scenario_nominal_wind3.png)
 
@@ -152,16 +152,16 @@ criteria above.
 | | TSP F35 (600 flights) | TSP E20 (adapter) (200 flights) | TSP D20 (adapter) (200 flights) |
 |---|---|---|---|
 | **Success** | **100 %** | **100 %** | **100 %** |
-| Apogee mean (5–95 %) | **198 m** (164–236) | **58 m** (41–75) | **20 m** (16–25) |
-| Max tilt during the burn, mean / 95 % | 1.9° / 3.6° | 1.5° / 3.3° | 1.5° / 3.2° |
-| Max roll rate during the burn, mean / 95 % | 8.3 / 18.7 °/s | 2.2 / 4.8 °/s | 1.3 / 2.6 °/s |
-| Largest roll-angle error before apogee, 95 % | 17.0° | 3.9° | 16.4° |
-| Max gimbal, mean / 95 % | 0.9° / 1.5° | 1.0° / 1.7° | 1.1° / 2.8° |
-| Deploy − apogee, 5–95 % | −0.13 … +0.13 s | −0.03 … +0.09 s | −0.01 … +0.08 s |
-| Airspeed at deploy, mean / 95 % | 4.3 / 8.3 m/s | 2.7 / 5.6 m/s | 1.7 / 3.4 m/s |
-| Landing speed, mean / max | 4.9 / 5.9 m/s | 5.0 / 6.0 m/s | 4.9 / 6.1 m/s |
-| Landing distance, mean / 95 % / max | 177 / 358 / 498 m | 43 / 93 / 141 m | 12 / 26 / 31 m |
-| Rod-exit speed, mean | 10.2 m/s | 6.8 m/s | 7.1 m/s |
+| Apogee mean (5–95 %) | **179 m** (147–214) | **50 m** (35–66) | **18 m** (14–22) |
+| Max tilt during the burn, mean / 95 % | 1.8° / 3.6° | 1.5° / 3.3° | 1.4° / 3.2° |
+| Max roll rate during the burn, mean / 95 % | 6.3 / 14.4 °/s | 1.7 / 3.7 °/s | 1.0 / 2.1 °/s |
+| Largest roll-angle error before apogee, 95 % | 12.6° | 3.5° | 13.7° |
+| Max gimbal, mean / 95 % | 0.9° / 1.6° | 1.0° / 1.7° | 1.2° / 3.4° |
+| Deploy − apogee, 5–95 % | −0.12 … +0.13 s | −0.02 … +0.09 s | −0.00 … +0.08 s |
+| Airspeed at deploy, mean / 95 % | 4.1 / 8.0 m/s | 2.5 / 5.2 m/s | 1.5 / 3.0 m/s |
+| Landing speed, mean / max | 5.1 / 6.1 m/s | 5.1 / 6.2 m/s | 5.1 / 6.3 m/s |
+| Landing distance, mean / 95 % / max | 154 / 312 / 436 m | 35 / 78 / 115 m | 10 / 21 / 27 m |
+| Rod-exit speed, mean | 9.8 m/s | 6.4 m/s | 6.7 m/s |
 
 ![Apogee against payload](../sim/results/montecarlo_payload.png)
 
@@ -170,17 +170,17 @@ Three things in the histograms are expected, not faults:
 - **Tabs at their 15° limit near apogee.** In wind, as the rocket slows, the coast attitude hold asks the tabs to
   keep it vertical against weathercocking. Below about 15 m/s they cannot (holding an angle of attack α needs about
   0.8 α of tab), so they saturate. Once the rocket is 25° off course the give-up rule centres them.
-- **Roll on the F35.** 95 % of F35 flights stay within 17° of their launch roll angle (E20 3.9°). On the F35 the
-  error builds up during the boost and peaks at burn-out, at the highest dynamic pressure, with the tabs at only
-  3–5° (checked on the four worst flights), then the tabs bring it back in the coast. The roll rates stay far inside
-  the criteria (95 % below 19 °/s in the boost). Tab backlash is not the cause: 0.05° and 0.6° give the same result.
+- **Roll on the F35.** 95 % of F35 flights stay within 13° of their launch roll angle (E20 3.5°). On the F35 the
+  error builds up during the boost and peaks just after burn-out, at the highest dynamic pressure, with the tabs at
+  only 3–5° (checked on the four worst flights), then the tabs bring it back in the coast (three of those four are
+  within 2° by apogee). The roll rates stay far inside the criteria (95 % below 15 °/s in the boost). Tab backlash is not the cause: 0.05° and 0.6° give the same result.
   A firmer roll gain for the F35 would tighten it; it only matters for how steady the onboard video looks.
-- **A few large tilts at apogee on the D20** (95 % below 43°, a handful above 90°). At a few metres per second near
+- **A few large tilts at apogee on the D20** (95 % below 40°, one above 90°). At a few metres per second near
   apogee in wind the rocket turns to follow the relative wind, as any stable rocket does. The parachute still opens
-  within 0.10 s of apogee at under 4.3 m/s in every case.
+  within 0.11 s of apogee at under 3.8 m/s in every case.
 
-**Drift on the F35** grows with the wind, by about 60 m per 1 m/s: farthest landing 189 m from the pad in 0–2 m/s
-of wind, 232 m in 2–3 m/s, 325 m in 3–4 m/s, 392 m in 4–5 m/s and 498 m in 5–6 m/s. The recovery-area rules in
+**Drift on the F35** grows with the wind, by about 55 m per 1 m/s: farthest landing 156 m from the pad in 0–2 m/s
+of wind, 198 m in 2–3 m/s, 266 m in 3–4 m/s, 332 m in 4–5 m/s and 436 m in 5–6 m/s. The recovery-area rules in
 [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md) come from these numbers.
 
 Run time: about 18 minutes on 4 CPU cores.
@@ -195,23 +195,24 @@ effectiveness 0.4–1.6, parachute Cd and fill time) and wind **0–9 m/s**, usi
 | Wind | Flights | Meets every normal-flight criterion |
 |---|---|---|
 | 0-3 m/s | 337 | 99.4 % |
-| 3-6 m/s | 316 | 99.4 % |
-| 6-9 m/s | 347 | 99.1 % |
-| **all** | **1000** | **99.3 %**; parachute out and landing below 7 m/s in **100 %** |
+| 3-6 m/s | 316 | 99.7 % |
+| 6-9 m/s | 347 | 99.4 % |
+| **all** | **1000** | **99.5 %**; parachute out and landing below 7 m/s in **99.9 %** |
 
-The 7 flights that miss a criterion: four tilt 10.3–13.7° during the burn (one with a motor seated 3.7° crooked,
-far beyond anything the normal spread draws; one with the weakest tabs the stress run allows, 0.4), two release the
-parachute at 15.5–15.9 m/s in 8.3–8.5 m/s of wind (the criterion is 15 m/s), and one rolls at 66 °/s in the boost
-with the weakest tabs. Every one still releases its parachute and lands gently. That is why the pre-flight checklist
+The 5 flights that miss a criterion: three tilt 10.0–12.7° during the burn (one with a motor seated 3.7° crooked,
+far beyond anything the normal spread draws; one with the weakest tabs the stress run allows, 0.4), one releases
+the parachute at 15.1 m/s in 8.3 m/s of wind (the criterion is 15 m/s), and one lands at 7.1 m/s in 8.4 m/s of wind
+(the criterion is 7 m/s: the multi-flight rocket is heavier and lands at 5.1 m/s on average instead of 4.9). Every
+one releases its parachute; all but that one land below 7 m/s. That is why the pre-flight checklist
 insists on the motor being pushed fully home against the washer and why the wind limits are 3 m/s for the first
-flights and 6 m/s afterwards (9 m/s ever). Apogee 190 m mean (136–254 m); 95 % of landings within 568 m with wind up
+flights and 6 m/s afterwards (9 m/s ever). Apogee 171 m mean (122–232 m); 95 % of landings within 487 m with wind up
 to 9 m/s.
 
 ## 6. What the fin tabs do
 
-With the tabs switched off (`tabs_disabled`) the F35 rocket rolls at 258 °/s during the burn and 304 °/s in the
-coast: fine for the flight, useless for the camera. With the tabs it holds its roll angle to within 17°
-(95 %) and tilts less in the coast (1.1° instead of 18.8° in the baseline wind). They also steer on their own if the
+With the tabs switched off (`tabs_disabled`) the F35 rocket rolls at 214 °/s during the burn and 266 °/s in the
+coast: fine for the flight, useless for the camera. With the tabs it holds its roll angle to within 13°
+(95 %) and tilts less in the coast (0.9° instead of 20.1° in the baseline wind). They also steer on their own if the
 TVC fails, and `rollprog` turns the coast into a slow camera panorama.
 
 ![tabs switched off](../sim/results/scenario_tabs_disabled.png)
@@ -222,15 +223,15 @@ Things the simulator does not cover, checked by hand for the final fins, the F35
 
 | Check | Result | Margin / what to do |
 |---|---|---|
-| Tab hinge moment against the MG90S (1.8 kgf·cm stall at 4.8 V, [datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/MG90S_Micro_Servo_Datenblatt_AZ-Delivery_Vertriebs_GmbH.pdf)) | at most 0.15 kgf·cm at the F35's 55.5 m/s (1.86 kPa) with a full 15° of tab, taking the whole tab-induced force (q × 22.9 cm² × δ) at the middle of the 27 mm behind the hinge | 12× (8× with tabs 40 % more effective than modelled) |
-| Fin flutter (NACA TN 4197 estimate for the thin 4 mm part of the fin: root chord 110 mm, tip 60 mm, span 50 mm, sea level) | flutter speed at least 450 m/s even with a deliberately low shear modulus of 0.3 GPa for printed PETG | 8× the F35's top speed; the low aspect ratio (0.6) and the 15 mm band at the root make these fins very stiff |
+| Tab hinge moment against the MG90S (1.8 kgf·cm stall at 4.8 V, [datasheet](https://cdn.shopify.com/s/files/1/1509/1638/files/MG90S_Micro_Servo_Datenblatt_AZ-Delivery_Vertriebs_GmbH.pdf)) | at most 0.13 kgf·cm at the F35's 51.6 m/s (1.61 kPa) with a full 15° of tab, taking the whole tab-induced force (q × 22.9 cm² × δ) at the middle of the 27 mm behind the hinge | 14× (10× with tabs 40 % more effective than modelled) |
+| Fin flutter (NACA TN 4197 estimate for the thin 4 mm part of the fin: root chord 110 mm, tip 60 mm, span 50 mm, sea level) | flutter speed at least 450 m/s even with a deliberately low shear modulus of 0.3 GPa for printed PETG | 8.7× the F35's top speed; the low aspect ratio (0.6) and the 15 mm band at the root make these fins very stiff |
 | TVC pivots and servos | the F35's peak thrust (55 N on its test curve) passes through the gimbal pivot, so the servos carry only friction and the motor's inertia; the two M3 pivots each carry about 28 N | large |
-| Acceleration | 6.0 g peak at lift-off (F35), 1.8 g when the parachute opens at apogee | the 50 g payload weighs about 0.3 kg-force in the boost: screw it to the bay floor |
+| Acceleration | 5.6 g peak at lift-off (F35), 1.8 g when the parachute opens at apogee | the 50 g payload weighs about 0.3 kg-force in the boost: screw it to the bay floor |
 | Tab servo speed | the simulator uses the datasheet's 0.10 s/60° (4.8 V) | matches |
 | Tab effectiveness | 0.45 assumed (simulator and firmware agree); thin-aerofoil flap theory says the final, longer tab is about 20 % more effective | inside the ±40 % the scenarios test; `sim/mc_tab_effectiveness.py` flies 200 F35 Monte Carlo flights with it centred 20 % higher: 200 / 200 succeed |
 | Fin root, sideways load on a foot | section modulus ≈ 1900 mm³ (the 15 mm band carries it) | about 1 kN at the foot |
 | Landing loads on a foot: every section of the real fin, sliced from the CAD (`cad/kestrel_cad.py` geometry; the strength of each slice is its section modulus over its distance from the foot; 15 MPa across the print layers, as before) | the tab bay leaves the outer part of each fin (servo housing + leg) joined to the rest only above z ≈ 17 mm, so **the servo housing's two side walls carry every leg load**. With the original 1.2 mm walls they were the weakest point, at about **66 N outward / 105 N sideways at the foot**, not the leg root (the old check said 180 / 225 N there) | walls 2.2 mm (housing 17 mm): about **125 N / 204 N**. Fin-can tongue under each tip: 228 / 193 N. **Replaceable leg** (tough PLA, solid): its post breaks first, at about **73 N / 112 N**, so a hard landing costs a 5 g leg, not the fin can. TEST_PLAN A19 break-tests spare legs (≈ 7.5 / 11.5 kg), A20 drop-tests the whole rocket at the 5.1 m/s landing speed |
-| Spring ejection | 32.5 N packed, 0.41 J stored; 126 g to move (nose, ballast, 36 in chute, cord, piston): ideal separation 2.5 m/s | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |
+| Spring ejection | 32.5 N packed, 0.41 J stored; 139 g to move (nose, 46 g of ballast, 36 in chute, cord, piston): ideal separation 2.4 m/s | test A13 (10 of 10 ground ejections) is the real check; see the note there if separations are slow |
 
 ## 7. Design iterations: what testing changed
 
@@ -246,7 +247,7 @@ Things the simulator does not cover, checked by hand for the final fins, the F35
 | Build-guide walk-through | the CAD drew only 4 of the 7 servo plugs on the board | mechanical export fixed; the other 3 checked for interference: none |
 | Build-guide walk-through | a servo plug cannot pass the notch in the parachute wall | release lead is laid along the tube before the wall is glued in |
 | Build-guide walk-through | the GPS antenna bias resistor would put 3.3 V on a passive antenna | R24 not fitted |
-| Passive-flight scenarios | with every steering servo dead the rocket is safe in 3 m/s but not in 6 m/s on the small motors | wind limit 3 m/s for flights 1–3; 1.5 m rod above 3 m/s |
+| Passive-flight scenarios | with every steering servo dead the rocket is safe in 3 m/s, but in 6 m/s it goes right over in the coast on the small motors | wind limit 3 m/s for flights 1–3; 1.5 m rod above 3 m/s |
 | Balance check | the limit did not allow for an empty payload bay | limit 640 mm from the nose tip |
 | Firmware tests | a synthetic boost was too strong for the rated-impulse timing | test profile corrected |
 | New overhang check (every STL in its print orientation) | flat 55 mm ceilings printed in mid-air (nose bulkhead, parachute wall), a piston and a door laid the wrong way up, an unsupported GPS shelf, hanging nut blocks and lug | 45° conical nose bulkhead, wall skirt moved up, orientations fixed, gusseted GPS platform, 45° wedges: only 4 parts still need supports, and the check now runs on every CAD build |

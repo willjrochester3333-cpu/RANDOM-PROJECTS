@@ -61,7 +61,7 @@ in Chrome or Edge (one file, works offline); it reads the flight computer over U
   **Scenario and fault suite: 41 of 41 graded cases pass** (plus 3 informational cases).
   **1000-flight Monte Carlo** (600 on the F35, 200 each on the E20 and D20 test motors): **1000 of 1000**
   meet every normal-flight criterion. A stress Monte Carlo with about twice the error spreads and wind up to 9 m/s:
-  99.3 % meet every normal-flight criterion and 100.0 % recover safely.
+  99.5 % meet every normal-flight criterion and 99.9 % recover safely (one landed at 7.1 m/s in 8.4 m/s of wind).
   → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
 - **CAD checked automatically on every run.** All 35 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three
