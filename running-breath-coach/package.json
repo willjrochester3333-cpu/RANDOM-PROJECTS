@@ -1,0 +1,14 @@
+{
+  "name": "running-breath-coach",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BreathPace: a running coach web app that listens to your breathing through a chest microphone and tells you to slow down or speed up.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "serve": "node tools/serve.js app 8080",
+    "e2e": "node tests/e2e/run-e2e.cjs",
+    "make-test-audio": "node tools/make-test-audio.js breathing-test.wav"
+  },
+  "license": "MIT"
+}

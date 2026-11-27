@@ -1,0 +1,42 @@
+# Publishes running-breath-coach/app (BreathPace) to GitHub Pages at
+#   https://<user>.github.io/<repo>/breath-coach/
+# One-time setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
+name: Deploy BreathPace to GitHub Pages
+
+on:
+  push:
+    paths:
+      - 'running-breath-coach/app/**'
+      - '.github/workflows/breath-coach-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Pages deploys from the default branch; pushes to other branches are skipped.
+    if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}breath-coach/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/breath-coach
+          cp -r running-breath-coach/app/. _site/breath-coach/
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><title>BreathPace</title><meta http-equiv="refresh" content="0; url=breath-coach/"><a href="breath-coach/">BreathPace running coach</a>' > _site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

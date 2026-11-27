@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BreathPace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Running coach that listens to your breathing through a clip-on chest microphone and tells you to slow down or speed up.">
+  <meta name="theme-color" content="#0b1016" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BreathPace">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preload" href="fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".35"/>
+        <path d="M5 16c2.2 0 2.8-6 5.5-6s3 12 5.5 12 2.8-12 5.5-12S24 16 27 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span>BreathPace</span>
+    </div>
+    <button class="zone-chip" id="zone-chip" type="button" aria-label="Change target zone">
+      <span id="zone-chip-name">Easy</span><b id="zone-chip-range">26–34</b>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- RUN ------------------------------------------------------------ -->
+    <section class="view view-run" id="view-run" data-state="idle" aria-label="Run">
+      <div class="status-row">
+        <span class="status-pill" id="run-status">Ready</span>
+        <span class="source-tag" id="run-source"></span>
+      </div>
+
+      <div class="readout">
+        <div class="ring" id="breath-ring" aria-hidden="true"><i></i></div>
+        <div class="rate" aria-live="off"><span id="rate-value">26–34</span></div>
+        <div class="rate-unit" id="rate-unit">target breaths / min</div>
+      </div>
+
+      <div class="gauge" id="zone-gauge">
+        <div class="gauge-track">
+          <div class="gauge-zone" id="gauge-zone"></div>
+          <div class="gauge-marker" id="gauge-marker" hidden></div>
+        </div>
+        <div class="gauge-scale" aria-hidden="true">
+          <span style="left:0%">10</span><span style="left:16.667%">20</span><span style="left:33.333%">30</span><span style="left:50%">40</span><span style="left:66.667%">50</span><span style="left:83.333%">60</span><span style="left:100%">70</span>
+        </div>
+      </div>
+
+      <p class="cue-caption" id="cue-caption" aria-live="polite"></p>
+
+      <dl class="stats live-only">
+        <div><dt>Time</dt><dd id="stat-time">0:00</dd></div>
+        <div><dt>In zone</dt><dd id="stat-inzone">–</dd></div>
+        <div class="cad"><dt>Cadence</dt><dd><span id="stat-cadence">–</span><small id="stat-spb"></small></dd></div>
+      </dl>
+
+      <div class="controls" id="controls-idle">
+        <button class="btn primary big" id="btn-start" type="button">Start run</button>
+        <button class="btn ghost" id="btn-demo" type="button">Try the demo (no mic)</button>
+      </div>
+      <div class="controls" id="controls-running" hidden>
+        <button class="btn big" id="btn-pause" type="button">Pause</button>
+        <button class="btn big hold" id="btn-stop" type="button"><i class="hold-fill"></i><span>Hold to stop</span></button>
+      </div>
+      <p class="hint" id="run-hint">Clip the mic to your shirt a hand's width below your chin, plug it in, then press Start. Breathing shows up after about 10 seconds.</p>
+
+      <div class="chart-card live-only">
+        <canvas id="run-chart" class="chart" height="130" aria-label="Breathing rate during this run"></canvas>
+      </div>
+
+      <div class="signal live-only" id="signal" aria-label="Microphone signal">
+        <span class="signal-label">Mic</span>
+        <div class="meter"><i id="meter-fill"></i></div>
+        <span class="signal-quality" id="signal-quality" title="How clearly the breathing rhythm is detected"><i></i><i></i><i></i><i></i></span>
+      </div>
+
+      <div class="controls-extra" id="controls-extra" hidden>
+        <button class="btn small" id="btn-learn" type="button">Make this my zone</button>
+        <button class="btn small" id="btn-lock" type="button">Pocket lock</button>
+      </div>
+    </section>
+
+    <!-- CHECK ---------------------------------------------------------- -->
+    <section class="view" id="view-check" hidden aria-label="Check the microphone">
+      <h1>Mic check</h1>
+      <p class="lede">See what the mic hears before you run. Breathe like you do when running: the trace should rise and fall with every breath.</p>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>Live</h2>
+          <button class="btn small primary" id="btn-listen" type="button">Start listening</button>
+        </div>
+        <div class="check-readout">
+          <div><span class="check-rate" id="check-rate">--</span><small>breaths/min</small></div>
+          <div><span class="check-rate small" id="check-conf">--</span><small>clarity</small></div>
+          <div><span class="check-rate small" id="check-level">--</span><small>level dBFS</small></div>
+        </div>
+        <canvas id="scope" class="chart" height="120" aria-label="Breath sound trace"></canvas>
+        <p class="chart-note">Breath sound, last 20 seconds</p>
+        <canvas id="curve" class="chart" height="120" aria-label="Rhythm strength by breathing rate"></canvas>
+        <p class="chart-note">Rhythm strength by breathing rate. The marked peak is your breathing; peaks to its left are the same rhythm counted every second or third breath.</p>
+        <div class="bands" id="bands" aria-label="How useful each frequency band is"></div>
+        <div class="row-actions">
+          <button class="btn small" id="btn-save-clip" type="button" disabled>Save last 30 s as WAV</button>
+          <span class="muted small" id="clip-note"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Breath sound test</h2></div>
+        <p>Follow the circle for 45 seconds: breathe in while it grows, out while it shrinks, loudly through your mouth. BreathPace checks whether it hears one sound per breath or two (in and out), and sets itself up to count correctly.</p>
+        <div class="pacer" id="pacer" hidden>
+          <div class="pacer-dot" id="pacer-dot"></div>
+          <div class="pacer-text" id="pacer-text">In</div>
+          <div class="pacer-left" id="pacer-left"></div>
+        </div>
+        <p class="result" id="test-result" hidden></p>
+        <button class="btn" id="btn-test" type="button">Start breath test</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Analyse a recording</h2></div>
+        <p>Record a run with any voice-recorder app using the clip-on mic, then load the file here to see your breathing rate over time and where the coach would have spoken.</p>
+        <label class="file-btn btn" for="file-input">Choose audio file</label>
+        <input type="file" id="file-input" accept="audio/*,.wav,.m4a,.mp3,.aac,.ogg,.webm" hidden>
+        <p class="muted small" id="file-status"></p>
+        <div id="file-result" hidden>
+          <canvas id="file-chart" class="chart" height="150" aria-label="Breathing rate in the recording"></canvas>
+          <dl class="stats compact" id="file-stats"></dl>
+          <ol class="cue-list" id="file-cues"></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -------------------------------------------------------- -->
+    <section class="view" id="view-history" hidden aria-label="Run history">
+      <h1>Runs</h1>
+      <p class="lede" id="history-empty">No runs saved yet. Runs longer than 30 seconds are saved on this phone when you stop them.</p>
+      <ul class="run-list" id="run-list"></ul>
+      <div class="card" id="run-detail" hidden>
+        <div class="card-head">
+          <h2 id="detail-title">Run</h2>
+          <button class="btn small" id="btn-detail-close" type="button">Close</button>
+        </div>
+        <canvas id="detail-chart" class="chart" height="160" aria-label="Breathing rate during the run"></canvas>
+        <dl class="stats compact" id="detail-stats"></dl>
+        <div class="row-actions">
+          <button class="btn small danger" id="btn-detail-delete" type="button">Delete run</button>
+          <span class="confirm" id="detail-confirm" hidden>
+            Delete for good?
+            <button class="btn small danger" id="btn-detail-delete-yes" type="button">Delete</button>
+            <button class="btn small" id="btn-detail-delete-no" type="button">Keep</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETUP ---------------------------------------------------------- -->
+    <section class="view" id="view-setup" hidden aria-label="Setup">
+      <h1>Setup</h1>
+
+      <form class="settings" id="settings-form" autocomplete="off">
+        <fieldset class="card" id="zone-section">
+          <legend>Target zone</legend>
+          <p class="muted">Breaths per minute you want to stay between. These are starting points: everyone breathes differently, so after a few minutes at the right effort use <em>Make this my zone</em> on the run screen.</p>
+          <div class="presets" id="zone-presets" role="radiogroup" aria-label="Zone presets"></div>
+          <div class="range-inputs">
+            <label>Low <span class="stepper"><button type="button" data-step="zoneLow:-1" aria-label="Lower the low limit">−</button><input id="set-zoneLow" name="zoneLow" type="number" inputmode="numeric" min="8" max="80"><button type="button" data-step="zoneLow:1" aria-label="Raise the low limit">+</button></span></label>
+            <label>High <span class="stepper"><button type="button" data-step="zoneHigh:-1" aria-label="Lower the high limit">−</button><input id="set-zoneHigh" name="zoneHigh" type="number" inputmode="numeric" min="10" max="90"><button type="button" data-step="zoneHigh:1" aria-label="Raise the high limit">+</button></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Coaching</legend>
+          <label class="field">Warm-up (no “speed up” cues)
+            <select id="set-warmupMin" name="warmupMin">
+              <option value="0">None</option><option value="1">1 min</option><option value="2">2 min</option><option value="3">3 min</option><option value="5">5 min</option><option value="10">10 min</option>
+            </select>
+          </label>
+          <label class="field">React after breathing is out of zone for
+            <select id="set-dwellSec" name="dwellSec">
+              <option value="5">5 s</option><option value="10">10 s</option><option value="15">15 s</option><option value="20">20 s</option><option value="30">30 s</option>
+            </select>
+          </label>
+          <label class="field">Remind me every
+            <select id="set-repeatSec" name="repeatSec">
+              <option value="30">30 s</option><option value="45">45 s</option><option value="60">1 min</option><option value="90">90 s</option><option value="120">2 min</option>
+            </select>
+          </label>
+          <label class="field">Spoken status update
+            <select id="set-statusEveryMin" name="statusEveryMin">
+              <option value="0">Off</option><option value="1">Every minute</option><option value="2">Every 2 min</option><option value="5">Every 5 min</option><option value="10">Every 10 min</option>
+            </select>
+          </label>
+          <label class="toggle"><input type="checkbox" id="set-inZoneCue" name="inZoneCue"> Tell me when I'm back in the zone</label>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Voice &amp; alerts</legend>
+          <label class="toggle"><input type="checkbox" id="set-voice" name="voice"> Spoken cues</label>
+          <label class="toggle"><input type="checkbox" id="set-tones" name="tones"> Tones (falling = slow down, rising = speed up)</label>
+          <label class="toggle"><input type="checkbox" id="set-vibrate" name="vibrate"> Vibrate (Android)</label>
+          <label class="field">How much to say
+            <select id="set-verbosity" name="verbosity">
+              <option value="detailed">Detailed</option>
+              <option value="short">Short</option>
+            </select>
+          </label>
+          <p class="muted small">Detailed: “Slow down a little. Breathing 42, target 26 to 34.” Short: “Slow down.”</p>
+          <label class="field">Voice
+            <select id="set-voiceURI" name="voiceURI"><option value="">Automatic</option></select>
+          </label>
+          <label class="field">Speaking speed
+            <input type="range" id="set-speechRate" name="speechRate" min="0.7" max="1.4" step="0.1">
+          </label>
+          <button class="btn small" id="btn-test-voice" type="button">Test the cue</button>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Microphone</legend>
+          <label class="field">Input
+            <select id="set-micDeviceId" name="micDeviceId"><option value="">Default microphone</option></select>
+          </label>
+          <p class="muted small" id="mic-names-note">Mic names appear after you've allowed microphone access once.</p>
+          <label class="field">Breath sounds
+            <select id="set-breathMode" name="breathMode">
+              <option value="auto">Automatic</option>
+              <option value="double">In and out sound the same</option>
+            </select>
+          </label>
+          <p class="muted small">Automatic suits most people: exhales are louder, or inhales sound different. If the rate reads about double what you count, run the breath sound test in Check or pick “In and out sound the same”.</p>
+          <label class="toggle"><input type="checkbox" id="set-showCadence" name="showCadence"> Show cadence and steps per breath (beta)</label>
+        </fieldset>
+
+        <fieldset class="card">
+          <legend>Screen &amp; demo</legend>
+          <label class="toggle"><input type="checkbox" id="set-keepAwake" name="keepAwake"> Keep the screen on during a run</label>
+          <label class="field">Demo speed
+            <select id="set-demoSpeed" name="demoSpeed">
+              <option value="1">Real time</option><option value="3">3× faster</option><option value="6">6× faster</option>
+            </select>
+          </label>
+          <button class="btn small" id="btn-reset" type="button">Reset all settings</button>
+          <span class="confirm" id="reset-confirm" hidden>
+            Reset everything?
+            <button class="btn small danger" id="btn-reset-yes" type="button">Reset</button>
+            <button class="btn small" id="btn-reset-no" type="button">Cancel</button>
+          </span>
+        </fieldset>
+      </form>
+      <p class="muted small about">BreathPace is a training aid, not a medical device. Listen to your body: stop if you feel dizzy, faint or unwell. Everything runs on your phone; audio never leaves it.</p>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Sections">
+    <a href="#run" data-view="run"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h4l2.5-6 4.5 12 2.5-6H22"/></svg><span>Run</span></a>
+    <a href="#check" data-view="check"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg><span>Check</span></a>
+    <a href="#history" data-view="history"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Runs</span></a>
+    <a href="#setup" data-view="setup"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Setup</span></a>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div class="sheet-backdrop" id="summary-sheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="summary-title">
+      <h2 id="summary-title">Run complete</h2>
+      <canvas id="summary-chart" class="chart" height="150" aria-label="Breathing rate during the run"></canvas>
+      <dl class="stats compact" id="summary-stats"></dl>
+      <p class="muted small" id="summary-note"></p>
+      <button class="btn primary" id="btn-summary-close" type="button">Done</button>
+    </div>
+  </div>
+
+  <div class="lock-overlay" id="lock-overlay" hidden>
+    <div class="lock-state" id="lock-state">Listening</div>
+    <div class="lock-rate" id="lock-rate">--</div>
+    <div class="lock-zone" id="lock-zone"></div>
+    <button class="btn hold unlock" id="btn-unlock" type="button"><i class="hold-fill"></i><span>Hold to unlock</span></button>
+  </div>
+</div>
+</body>
+</html>
