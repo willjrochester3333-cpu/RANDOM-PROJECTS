@@ -165,14 +165,14 @@
   "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 16805.992460400284,
-  "area_mm2": 19205.086550295022,
+  "volume_mm3": 16890.43851809209,
+  "area_mm2": 19270.505377428308,
   "centroid_assembly_mm": [
-   -1.5321517940538165,
-   -0.7161061393469783,
-   270.2149947942773
+   -1.441991204905031,
+   -0.7775267971916043,
+   270.09642837343455
   ],
-  "r_gyr_mm": 21.57184681632409,
+  "r_gyr_mm": 21.559068224079134,
   "z_len_mm": 104.0
  },
  {
@@ -402,7 +402,7 @@
  {
   "name": "camera_cradle",
   "qty": 1,
-  "note": "PETG, 3 walls, 25%, as exported (no supports). Epoxy inside the bottom tube round the camera window (the drill guide marks it); the camera slides into the cup through the window, lens out, and the door holds it",
+  "note": "PETG, 2 walls, 10%, as exported (no supports). Epoxy inside the bottom tube round the camera window (the drill guide marks it); the camera slides into the cup through the window, lens out, and the door holds it",
   "group": "rocket",
   "part": "bottom",
   "volume_mm3": 11239.776589979421,
@@ -418,7 +418,7 @@
  {
   "name": "radio_cradle",
   "qty": 1,
-  "note": "PETG, 3 walls, 20%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor 160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie",
+  "note": "PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor 160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie",
   "group": "rocket",
   "part": "bottom",
   "volume_mm3": 5539.640206603181,

@@ -675,7 +675,7 @@ class RadioSession {
 /* ------------------------------------------------------------------ landing prediction
    Before launch: the motor's nominal apogee and the wind you enter. Boost / coast: apogee from the speed (drag included),
    then drift. Under the parachute: the drift measured from the GPS track and the measured descent rate.            */
-const NOMINAL_APOGEE = { 0: 15, 2: 41, 5: 158 };   // motor index -> simulated apogee (m): D20, E20, F35 (sim/whatif.py)
+const NOMINAL_APOGEE = { 0: 14, 2: 40, 5: 157 };   // motor index -> apogee (m) for D20, E20, F35: straight up, calm air, 25 g payload (firmware/tools/gen_motor_db.py)
 const DESCENT_DEFAULT = 5.1;                        // m/s under the 36 in canopy (sim scenarios)
 function windFromInput() {
   const s = parseFloat($("windSpd").value), d = parseFloat($("windDir").value);

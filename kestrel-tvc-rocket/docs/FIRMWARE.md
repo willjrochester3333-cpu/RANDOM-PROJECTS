@@ -1,11 +1,11 @@
-# Flight firmware (v2.04, KESTREL-2)
+# Flight firmware (v3.00, KESTREL-2, board v3)
 
 Two layers, one code base:
 
 | Layer | Where | What it does | Tested by |
 |---|---|---|---|
-| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record. Pure C++17, no hardware, no heap | 375,587 unit-test checks (`core_tests`) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
-| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC), 500 Hz loop, flash logger, USB command line, bench test modes | 128 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
+| **Flight core** | `firmware/core/` | attitude estimator, altitude Kalman filter, TVC controller, **fin-tab controller and mixer**, flight state machine, log record, **radio frame format and airtime budget** (`telemetry.hpp`). Pure C++17, no hardware, no heap | 375,585 unit-test checks (`core_tests`, including pymavlink reference frames, a damaged-stream resync test and an hour stuck at full rate against the airtime cap) + **every simulated flight** (the 6-DOF simulator loads this exact code as a shared library: software-in-the-loop) |
+| **Pico application** | `firmware/pico/` | drivers (LSM6DSO, BMP580, W25Q128, ATGM336H GPS, **7 servos**, buzzer/LEDs, battery ADC, **telemetry radio on UART1**), 500 Hz loop, flash logger, USB command line, bench test modes | 148 host checks (`pico_logic_tests`: NMEA, IMU axis calibration in all 24 mountings, TVC and **fin-tab** mapping, settings CRC, the logger against a model of the flash chip, **the radio link end to end**: rates by flight phase, flow control, range-test mode) + a clean cross-compile (`-Wall -Wextra -Wdouble-promotion`: 0 warnings) |
 
 Ready-to-flash binary: **`firmware/pico/kestrel_fc.uf2`** (hold BOOTSEL, plug in USB, drag the file onto the
 `RP2350` drive).
@@ -92,7 +92,7 @@ Commands that move servos or write flash are refused unless the rocket is on the
 | Command | Purpose |
 |---|---|
 | `status` | everything: state, sensors (body frame), pad tilt, baro, GPS, battery cells, servo rail, log, settings, last flight |
-| `calaxes` | **required once**: measures the IMU orientation (pose 1 nose up, pose 2 flat with the camera pod down) |
+| `calaxes` | **required once**: measures the IMU orientation (pose 1 nose up, pose 2 flat with the camera door down) |
 | `dirtest` | moves each TVC axis +3° in turn so you can check the direction |
 | `tabtest` | moves each fin tab +10° in turn: seen from behind (nozzle towards you) its trailing edge must swing **anticlockwise**, towards the fin with the next-lower number |
 | `dir <1,2,4-7> <1\|-1>` | flip a servo direction (1–2 TVC, 4–7 tabs 1–4) |
@@ -109,13 +109,39 @@ Commands that move servos or write flash are refused unless the rocket is on the
 | `motor [n]` | list / select the motor profile: 0 TSP D20, 1 TSP E12, 2 TSP E20, 3 Estes E12, 4 Estes D12, **5 TSP F35 (default, the mission)**. The 24 mm motors fly in the printed adapter sleeve; their tables include its mass |
 | `hold <1\|0>` | hold the launch-rod direction / vertical |
 | `save`, `defaults` | store settings in the Pico's flash / factory settings |
-| `log`, `dump [first]` | log summary / CSV of the whole log over USB |
+| `radio` | telemetry radio: frames sent / dropped / held back, airtime in the last hour, the radio's own link report (signal here and at the ground radio, noise, its buffer), whether Mission Control's heartbeat is being heard |
+| `radio on` / `radio off` | telemetry on / silent (`save` to keep; on by default) |
+| `radio test` | 60 s of flight-rate frames (50 + 5 a second) on the ground, for the range test |
+| `log`, `dump [first]` | log summary / CSV of the whole log over USB (a 29th column, `rssi`, is the radio signal at the rocket) |
 | `erase yes` | wipe the 16 MB log (≈ 40 s) |
 | `reboot`, `bootsel` | restart / USB drive for new firmware |
 
 Download and plot: `python firmware/tools/kestrel_link.py dump --port COMx -o flight.csv`, then
 `... plot flight.csv` (altitude, speed, tilt and gimbal, **fin tabs and roll rate**, states, GPS track with the
 landing point). `firmware/tools/example_flight_sim.csv` is a simulated F35 flight in the same format to try it on.
+
+## Radio telemetry (3.00)
+
+The board's radio socket (J7, Pixhawk TELEM pinout) carries a SiK 433 MHz radio on UART1 (GP4 = TX, GP5 = RX,
+57600 baud, the radio's default). The frames are **MAVLink v1 shaped** (0xFE, length, sequence, system 75, component,
+message id, payload, CRC-16/MCRF4XX with a per-message extra byte), so the SiK radio in its default `MAVLINK=1` mode
+keeps every frame whole inside one radio packet: a lost radio packet loses whole frames, never half of one.
+
+| Message | Id | Bytes | Contents | Rate |
+|---|---|---|---|---|
+| `KESTREL_FAST` | 230 | 42 + 8 | time, state, flags, gyro, accel, altitude, vertical speed, tilt, gimbal y/z, attitude quaternion, the four tab commands, roll | 50 / s from lift-off to landing, 1 / s on the pad |
+| `KESTREL_SLOW` | 231 | 46 + 8 | GPS position (1e-7°), GPS altitude and satellites, baro altitude, battery, cell 1, servo rail, flight number, firmware version, motor, health bits, highest altitude, airtime used, signal at both ends, log state, ground station heard | 5 / s in flight, 0.5 / s on the pad, 1 / s for a minute after landing, then every 5 s |
+| `HEARTBEAT` | 0 | 9 + 8 | standard MAVLink; it makes the rocket's radio report its link quality (`RADIO_STATUS`) back to the board | 1 / s |
+
+Rules: frames go into a 2 kB ring that is emptied into the UART's FIFO every loop, so the 500 Hz loop never waits;
+a frame that does not fit is dropped whole; when the rocket's radio reports its buffer under 25 % free (a weak
+link), motion frames are held back so it can drain. A rolling one-hour airtime estimate (one-minute buckets, 2 % of
+every hour for the radio's own link packets, 60 s assumed at power-on) switches to lean rates (10 + 2 a second) above
+270 s and to a 0.2 Hz beacon above 330 s: the UK limit is 360 s per hour (see
+[SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio)). Nothing the radio receives changes the flight: the board only
+reads its own radio's `RADIO_STATUS` (the signal strength is logged in every flash record) and notes Mission
+Control's heartbeat. The decoder in `ground/mission_control.html` is tested against frames made by a separate
+Python implementation (`ground/radio_frames.py`, `ground/test_radio.mjs`).
 
 ## Flight log format
 
@@ -135,6 +161,7 @@ buffer), 50 Hz in DESCENT, 10 Hz on the pad, 5 Hz after landing for 10 minutes t
 | 36–37 | battery | mV |
 | 38–45 | latitude, longitude | float ° |
 | 46–48 | GPS altitude (m), satellites | |
+| 49 | radio signal at the rocket (SiK units, dBm ≈ value / 1.9 − 127; 0 = no radio report) | fw 3.00 |
 | 50–55 | attitude quaternion x, y, z (w ≥ 0) | ÷ 32767 |
 | 56–59 | fin tab commands 1–4 | 0.25° |
 | 60–61 | roll angle since launch | 0.01° |
@@ -161,7 +188,16 @@ After changing `design.json`, the CAD or the motor list, regenerate the motor an
 (`python3 firmware/tools/gen_motor_db.py`: thrust, inertia and lever arm against time for every motor, plus the
 tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo.py`.
 
-## Updating from 2.00 – 2.03
+## Updating from 2.00 – 2.04
+
+3.00 is for board v3 (the radio socket replaces the Qwiic port: GP4/GP5 are now UART1) and the airframe with the
+camera inside and the radio installed: the rocket is 43 g heavier (947 g with the F35; CG 638 mm from the nose tip),
+so the motor and airframe tables are regenerated (F35 now about 158 m at 6.5 s, E20 41 m at 3.9 s). It adds the
+radio telemetry above, logs the radio signal in the record's spare byte, and fixes a bug: records written after an
+in-flight reset had their recovery flag set after their CRC was computed, so `dump` would have skipped them. The
+settings layout is unchanged (version 6; the spare byte that becomes `radio_off` reads 0 = radio on), so a board that
+ran 2.04 keeps its calibration, trims and motor selection. 3.00 also runs on a v2 board: the radio frames then go
+out on the Qwiic pins, harmlessly.
 
 2.04 is for the multi-flight airframe (replaceable legs, thicker servo housings, battery hatch, 46 g of nose
 ballast): the rocket is 48 g heavier (its CG stays at 634 mm from the nose tip), so the motor and airframe tables (pitch
@@ -188,6 +224,6 @@ starts with factory settings: run `calaxes`, `dirtest`, `tabtest`, the trims and
   curve to the manufacturer's rated impulse and burn time (`KESTREL_MOTOR_BASIS=curve` uses the file as is).
 - Tab gains, limits and safety rules: `FinGains` in `core/include/kestrel/config.hpp` (all settable in the SIL by
   name for experiments, e.g. `SilFsw({"roll_kp": 120})`).
-- New sensor on the Qwiic port (I²C0 on GP4/GP5, 3.3 V): add a driver next to `src/hw/sensors.cpp` and log it in
-  a new record type.
+- Board v3 has no Qwiic port (its two pins carry the radio). A new I²C sensor would need a v4 board with an
+  I²C-to-serial or I²C expander chip.
 - Every change should pass the scenario suite and the Monte Carlo before it flies.

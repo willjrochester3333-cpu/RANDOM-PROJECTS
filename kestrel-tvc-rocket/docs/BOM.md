@@ -18,13 +18,25 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 
 | # | Item | Qty | Brand / exact part | Where | Price |
 |---|---|---|---|---|---|
-| 1 | **KESTREL FC v2 board**, made and assembled by JLCPCB | 2 assembled + 3 bare | upload `pcb/production/` (see [PCB.md](PCB.md#ordering-from-jlcpcb)) | [jlcpcb.com](https://jlcpcb.com) | ≈ £80 |
+| 1 | **KESTREL FC v3 board** (v3 = with the radio socket), made and assembled by JLCPCB | 2 assembled + 3 bare | upload `pcb/production/` (see [PCB.md](PCB.md#ordering-from-jlcpcb)) | [jlcpcb.com](https://jlcpcb.com) | ≈ £80 |
 | 2 | Raspberry Pi Pico 2 **W with headers** (2 WH) | 1 | Raspberry Pi (UK) | [The Pi Hut](https://thepihut.com/collections/latest-raspberry-pi-products/products/raspberry-pi-pico-2-w) (choose "with headers") | ≈ £7 |
 | 3 | 2S 7.4 V 350 mAh 25C LiPo, **about 40 × 19 × 15 mm** (the pocket takes up to 16 mm; one shop lists 25 mm: check). A second pack lets you swap a charged one in through the battery hatch between flights | 1 (2 recommended) | **Overlander OL-3492** (UK) | [overlander.co.uk](https://overlander.co.uk/350mah-7-4v-2s-25c-lipo-battery.html) | ✔ about £7 |
 | 4 | JST-PH → JST-XH 2S balance adapter lead | 2: one stays in the rocket, one lives with the charger (packs are charged outside the rocket) | **Overlander OL-2529** | [overlander.co.uk](https://www.overlander.co.uk/jst-ph-to-jst-xh-balance-conversion-lead-for-130x-beast.html) | ✔ £1.58 each |
 | 5 | GPS antenna, passive 15 × 15 mm, U.FL | 1 | **Adafruit 2461** (US, international) | [The Pi Hut](https://www.thepihut.com/product/2461) | ✔ £3.90 |
 | 6a | Micro-USB cable with an **angled** plug, USB-A, 1–2 m: reaches the Pico's socket through the battery hatch. The cable must leave the plug on the side **facing away from the Pico's board** (towards the hatch): StarTech sell an up-angle and a down-angle version, so compare the product photo with your Pico before ordering | 1 | **StarTech.com** A to up-angle micro-B, or A to down-angle micro-B (USBAUB2MD) | [up angle, 2 m (BT Business Direct)](https://www.businessdirect.bt.com/products/startech-com-2m-micro-usb-cable---a-to-up-angle-micro-b-8ZCX.html) · [down angle, 2 m (Rapid)](https://www.rapidonline.com/startech-com-usbaub2md-startech-com-2m-micro-usb-cable-a-to-down-angle-micro-b-71-1981) | ≈ £5 |
 | 6 | 2S LiPo balance charger (skip if you have one) | 1 | SkyRC or ISDT USB-powered 2S/3S balance charger | Amazon UK [search](https://www.amazon.co.uk/s?k=SkyRC+lipo+balance+charger+2S) | ≈ £15–28 |
+
+## 1b. Telemetry radio (live data to Mission Control)
+
+| # | Item | Qty | Brand / exact part | Where | Price |
+|---|---|---|---|---|---|
+| R1 | SiK telemetry radio **pair, 433 MHz, the 100 mW version** (each radio has micro-USB and the 6-pin JST-GH socket; the box has the JST-GH 6-pin cable that plugs into the board's radio socket). Set to 8 dBm for the UK with Mission Control's set-up dialog before first use | 1 pair | **Holybro SiK Telemetry Radio V3, 433 MHz, 100 mW** | [Flyingtech](https://www.flyingtech.co.uk/product/holybro-100mw-500mw-telemetry-radio-set-v3/) (UK, ✔ £71.90; choose 433 MHz, 100 mW) · [Unmanned Tech](https://www.unmannedtechshop.co.uk/products/100mw-sik-telemetry-radio-kit-v3-433mhz) (UK, ✔ £52.99, sold out when checked) | £53–72 |
+| R2 | Rocket antenna: a 433 MHz whip with an **RP-SMA** plug, **no longer than 125 mm** (the channel it stands in). Known fit: the 3DR one, 115 mm with a hinged base. The antennas in the Holybro box (2 dBi, RP-SMA) can be used if they are no longer than 125 mm: measure one before ordering this | 1 | **3DR** RF Antenna 433 MHz RP-SMA | [3DR store](https://store.3dr.com/rf-antenna-433mhz-rp-sma/) | price not checked |
+| R3 | RP-SMA extension, RG-316, 152 mm: **bulkhead socket with nut** at one end (it goes through the antenna bracket), plug at the other (onto the radio) | 1 | **Amphenol RF 095-902-536-006** | [Digi-Key UK](https://www.digikey.co.uk/en/products/detail/amphenol-rf/095-902-536-006/13246160) | price not checked (2024 listings: about $5–22) |
+| R4 | Cable ties, 100 × 2.5 mm (hold the radio in its cradle) | 2 | **HellermannTyton** or any branded pack | Amazon UK [search](https://www.amazon.co.uk/s?k=HellermannTyton+cable+ties+100mm) | ≈ £3 |
+
+The ground radio stays at the launch field with the laptop: it plugs into the laptop's USB (Chrome or Edge) and keeps the
+second antenna from the box. Why this radio, and the UK rules it is set up for: [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio).
 
 ## 2. Servos, wiring, linkages
 
@@ -42,7 +54,7 @@ link.
 
 | # | Item | Qty | Brand / exact part | Where | Price |
 |---|---|---|---|---|---|
-| 11 | SQ12-type 23 mm cube 1080p mini camera (**unbranded OK**) | 1 | must be a ≈ 23 mm cube with the lens in the middle of one face (fits the pod) | Amazon UK [search](https://www.amazon.co.uk/s?k=SQ12+mini+camera) | ≈ £12–15 |
+| 11 | SQ12-type 23 mm cube 1080p mini camera (**unbranded OK**) | 1 | must be a ≈ 23 mm cube with the lens in the middle of one face (it sits inside the bottom tube in a cradle behind the camera door) | Amazon UK [search](https://www.amazon.co.uk/s?k=SQ12+mini+camera) | ≈ £12–15 |
 | 12 | microSD card 32 GB | 1 | **SanDisk** Ultra 32 GB | Amazon UK [search](https://www.amazon.co.uk/s?k=SanDisk+Ultra+32GB+microSD) | ≈ £6 |
 
 Some SQ12 clones stop recording in 1080p after a while; record in 720p if yours does (a reviewer reported this).
@@ -103,15 +115,17 @@ rest of the prints.
 | | £ |
 |---|---|
 | 1. Flight computer + electronics (without charger) | ≈ 107 |
+| 1b. Telemetry radio (radio pair + antenna + extension + ties; two items not price-checked, counted at ≈ £15 each) | ≈ 86–105 |
 | 2. Servos, wiring, linkages | ≈ 41 |
 | 3. Camera + card | ≈ 20 |
 | 4. Airframe, recovery, consumables | ≈ 125 |
 | 5. Launch pad (without controller) | ≈ 24 |
-| **Total** | **≈ £317** |
-| with one primer can and a cheaper 36 in chute | ≈ £305 |
+| **Total** | **≈ £403–422** (≈ £317 without the radio) |
+| with one primer can and a cheaper 36 in chute | ≈ £391–410 |
 | plus charger / launch controller if you have neither | + £35–48 |
 
-This is about **£35–47 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
+The telemetry radio (asked for after the £270 figure was agreed) adds ≈ £86–105. Without it, the rocket is
+about **£35–47 over the agreed ~£270**. The overrun comes from what KESTREL-2 added since that figure:
 four more servos, the bigger 36 in parachute it needs for gentle landings at its weight, and the ejection spring,
 which RS only sells in packs of 10 (£21); putting the servos inside the fins added about £11 (longer tab-servo extensions, their M2
 screws, the ballast nuts, and the step from a 30 in to a 36 in parachute for the extra weight). Biggest single item: the PCB order (≈ £80), which gives you **two**

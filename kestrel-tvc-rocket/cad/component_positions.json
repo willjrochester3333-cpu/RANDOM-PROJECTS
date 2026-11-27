@@ -15,9 +15,9 @@
   "radius": 14.5
  },
  "nose_ballast_M3_nuts": {
-  "z_from_tip": 38.8,
-  "length": 35.8,
-  "radius": 15.0
+  "z_from_tip": 40.2,
+  "length": 37.8,
+  "radius": 15.5
  },
  "servo_MG90S_tvc_ring": {
   "z_from_tip": 784.4,

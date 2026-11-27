@@ -223,6 +223,7 @@ GPS_X, GPS_Y = (GPS_X0 + GPS_X1) / 2, -6.0             # antenna centre (15 x 15
 PCB_Y_BACK = -11.0
 PCB_Y_FRONT = PCB_Y_BACK + BT
 STANDOFF_H = 4.0
+PCB_REST_PAD = (3.5, 78.5)                 # board coords of the v2 hole the v3 radio socket replaced
 PLATE_T = 2.0
 PLATE_Y = PCB_Y_BACK - STANDOFF_H - PLATE_T / 2
 SOCKET_H = 8.5
@@ -744,6 +745,11 @@ def avbay_sled(M):
         L = STANDOFF_H + 0.5
         m = m + ycyl(2.6, L, 32).translate((x, PCB_Y_BACK - L / 2, z))
         m = m - ycyl(1.05, 3 * L, 16).translate((x, PCB_Y_BACK - L, z))
+    # board v3: the radio socket took the fourth corner's screw hole. A plain rest pad (no screw) under that corner,
+    # behind the socket, takes the push of the radio plug so the board does not flex (nothing on the board's back there)
+    x, z = board_to_rocket(*PCB_REST_PAD)
+    L = STANDOFF_H + 0.5
+    m = m + ycyl(2.6, L, 32).translate((x, PCB_Y_BACK - L / 2, z))
     # battery pocket behind the Pico (multi-flight): the pack slides in and out through the battery hatch (+y); the hatch
     # door's pad holds it against a backing wall that keeps it off the Pico, and the 45 deg ledge carries it in flight.
     # The tray plate has a window the pack passes through; the inner side walls start above the servo plugs

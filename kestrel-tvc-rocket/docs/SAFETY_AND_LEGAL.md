@@ -71,6 +71,42 @@ One failure nothing on board can handle: the **servo power supply** feeds all se
 parachute release. That is why the board checks the servo rail before it arms (red LED if it is low), and why the
 pre-flight `status` check matters.
 
+## Steering: straight up only
+
+KESTREL-2's steering (TVC and fin tabs) only keeps the rocket pointing the way it left the rod: straight up, or
+along the rod's small downwind tilt. It never steers towards a chosen place, and the radio link carries nothing that
+changes the flight: the rocket sends telemetry, and the only thing it reads from the radio is the ground station's
+heartbeat and its own radio's link report. That is deliberate. A rocket that can be flown to a point you pick is a
+guided weapon, whether the point is in the sky or over the ground, and the safety codes expect model rockets to fly
+nearly straight up and never at targets (for example the [NAR Model Rocket Safety Code](https://nar.org/ModelRocketSafetyCode)).
+Mission Control's landing prediction only *shows* where the rocket will come down, so you can walk to it.
+
+## Radio
+
+The telemetry radio (a Holybro SiK V3 pair on 433 MHz) is a licence-exempt short-range device. For the
+433.05–434.79 MHz band the European rules (CEPT [ERC Recommendation 70-03](https://docdb.cept.org/download/4435))
+allow **10 mW e.r.p.** and **10 % duty cycle**; in that framework the duty cycle is measured over **one hour** unless
+stated otherwise ([EU decision 2019/1345](https://eur-lex.europa.eu/eli/dec_impl/2019/1345/oj/eng); the UK kept it as
+[retained law](https://legislation.gov.uk/eudn/2019/1345/data.pdf)), i.e. at most 360 s on air per hour
+([UK 433 MHz explainer](https://iottechnologies.co.uk/news-and-insights/433-mhz-ism-band-uk-explained)). Ofcom's own
+interface requirement (IR 2030) was not read for this project: check it, or ask your club, if you want certainty.
+
+How KESTREL stays inside those limits:
+
+- **Power.** The radios leave the factory at 100 mW (TXPOWER 20), which is too much for the UK. Mission Control's
+  **Set up a radio (UK settings)** dialog sets each radio to **8 dBm** (6.3 mW): with the 2 dBi antennas that is
+  about 6 mW e.r.p. The next step up (11 dBm) would be about 12 mW e.r.p., over the limit. If you fit a bigger
+  antenna to the ground radio, lower its power by the extra gain.
+- **Airtime.** The rocket sends its 50 + 5 frames a second only between lift-off and landing (about 45 s on an F35),
+  1.5 frames a second on the pad and a slow beacon after landing. The firmware keeps a rolling one-hour estimate of
+  its time on air (counting the radio's own link-keeping packets as 2 % of every hour), and drops to lean rates
+  above 270 s and to a beacon above 330 s, so it cannot pass 360 s even if something kept it at full rate for an
+  hour (unit-tested). Four F35 flights in one hour use well under that (`radio` on the USB command line and the
+  Mission Control radio card show the running total). The ground radio transmits only its link packets and a
+  once-a-second heartbeat.
+- **Frequencies.** The SiK radios hop over 10 channels inside 433.05–434.79 MHz (their 433 MHz defaults, which the
+  set-up dialog checks), with network ID 75 so they ignore other SiK users nearby.
+
 ## LiPo battery
 
 - Charge only with a **balance charger**, on a non-flammable surface or in a LiPo bag, never unattended, and

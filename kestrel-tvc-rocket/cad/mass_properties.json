@@ -81,8 +81,8 @@
  },
  {
   "name": "avbay_sled",
-  "mass_g": 21.0,
-  "z": 628.8,
+  "mass_g": 21.1,
+  "z": 628.9,
   "length": 0.0,
   "radius": 21.6,
   "source": "CAD"

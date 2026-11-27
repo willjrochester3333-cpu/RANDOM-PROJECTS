@@ -10,7 +10,7 @@
 | payload_wall | 1 | 54.8 x 55.0 x 14.4 | 9.1 | 11.3 | 1.20 | yes | 1 | yes | 60 / 60 | none | PASS |
 | spring_piston | 1 | 53.8 x 53.5 x 13.0 | 8.5 | 10.7 | 1.10 | yes | 1 | yes | 0 / 0 | none | PASS |
 | avbay_coupler | 1 | 56.3 x 56.3 x 134.4 | 28.3 | 35.3 | 1.19 | yes | 1 | yes | 411 / 112 | none | PASS |
-| avbay_sled | 1 | 51.3 x 51.3 x 104.0 | 16.8 | 21.0 | 0.74 | yes | 1 | yes | 526 / 113 | none | PASS |
+| avbay_sled | 1 | 51.3 x 51.3 x 104.0 | 16.9 | 21.1 | 0.75 | yes | 1 | yes | 542 / 113 | none | PASS |
 | tvc_motor_holder | 1 | 40.3 x 34.0 x 95.4 | 17.1 | 21.3 | 1.60 | yes | 1 | yes | 786 / 499 | under the pushrod tab | PASS |
 | tvc_gimbal_ring | 1 | 45.6 x 44.7 x 8.0 | 3.0 | 3.8 | 2.14 | yes | 1 | yes | 89 / 24 | none | PASS |
 | tvc_frame | 1 | 55.0 x 55.0 x 156.0 | 20.6 | 25.7 | 1.00 | yes | 1 | yes | 1195 / 99 | under the four servo bars | PASS |

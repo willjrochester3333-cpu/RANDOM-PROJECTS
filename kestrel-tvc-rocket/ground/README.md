@@ -1,21 +1,29 @@
 # KESTREL Mission Control
 
-A ground-station screen for KESTREL-2: a 3D map of the launch range with the rocket flying on it, the flight
-events as they happen (liftoff, burnout, apogee, parachute, landing), live telemetry, the steering (nose direction,
-motor gimbal, the four fin tabs), the rocket's systems, strip charts, and a recorder that keeps every flight for
-replay on the same 3D map.
+A ground-station screen for KESTREL-2: a 3D map of the launch range with the rocket flying on it, **live over the
+telemetry radio**, the flight events as they happen (liftoff, burnout, apogee, parachute, landing), live telemetry,
+**where it will land**, the steering (nose direction, motor gimbal, the four fin tabs), the rocket's systems, the
+radio link's health, strip charts, and a recorder that keeps every flight for replay on the same 3D map.
 
 | File | What it is |
 |---|---|
 | `kestrel_mission_control.html` | **Use this one at the launch field.** One self-contained file (three.js and the demo flight built in): works without internet, from a laptop or a USB stick. Open it in **Chrome or Edge** to use USB |
 | `mission_control.html` | The page itself (loads three.js from a CDN and `demo_flight.csv` from beside it); also published as a private claude.ai page |
-| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 161 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format. Made by `make_demo_flight.py` |
+| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 149 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format (firmware 3.00). Made by `make_demo_flight.py` |
 | `build_offline.py` | Builds `kestrel_mission_control.html` from the page, the demo flight and `vendor/three-r128.min.js` (three.js r128, MIT licence in `vendor/THREE_LICENSE`) |
+| `radio_frames.py` | The radio frame format in Python (a second, independent implementation): decodes a raw radio recording to CSV (`decode rec.bin out.csv`), or makes the demo flight's radio bytes (`demo out.bin`) |
+| `test_radio.mjs` | Tests the page's own radio decoder against pymavlink reference frames and against `radio_frames.py`, including a damaged link (`python3 ground/radio_frames.py demo d.bin && node ground/test_radio.mjs d.bin`) |
 
 ## What it can show
 
-- **Simulated live**: the demo flight streamed in real time, from the pad (calibrating, READY) through liftoff,
-  burnout, apogee and the parachute to landing, exactly as a live link would feed it.
+- **Live over the radio** (Chrome or Edge, offline file): plug the ground radio into the laptop's USB, press
+  **Connect radio** and choose its port. As soon as the rocket is switched on its frames arrive (1 a second on the
+  pad, **50 motion frames + 5 status frames a second from liftoff to landing**), the flight appears on the map and
+  follows the rocket live. See [Live radio link](#live-radio-link) below.
+- **Simulated live**: the demo flight sent through a simulated radio link in real time (the same frames, rates,
+  2 % lost packets and signal strength falling with distance as the real link), from the pad (calibrating, READY)
+  through liftoff, burnout, apogee and the parachute to landing. After landing it merges the "full log" exactly as
+  a real flight does.
 - **Replay**: any flight log. Drag the file onto the page or use **Load flight**: a `dump` from the flight
   computer (`kestrel_link.py dump`) or a flight saved here. A log with several flights asks which one. Play,
   pause, 0.25–8× speed, scrub the timeline (event ticks on it), click a chart to jump, arrow keys step
@@ -41,21 +49,63 @@ Until the flight computer reaches READY its altitude is not yet zeroed on the pa
 100 m or more), so altitude and vertical speed read "–" while it boots and calibrates; saved files keep the raw
 values.
 
-## Live during the flight: what is still missing
+## Live radio link
 
-**The rocket has no radio link yet**, so today the live view works with the simulated flight, and with the rocket
-on its USB cable on the bench or pad. During a real flight the screen fills in from the log after landing (Get log
-over USB). To see a real flight live, the rocket needs a small telemetry transmitter and a receiver plugged into the
-laptop by USB. Mission Control already accepts the receiver's lines: one line per sample in the log format,
+The rocket carries a **Holybro SiK V3 433 MHz** radio on the flight computer's radio socket; its twin plugs into the
+laptop by USB. Set **both** radios up once, before the rocket's radio is built in: **Set up a radio (UK settings)…**
+in the Radio link panel (one radio on USB at a time). It sets the transmit power to 8 dBm (about 6 mW e.r.p. with
+the 2 dBi antennas, inside the UK's 10 mW licence-free limit) and both radios' network ID to 75, saves and
+restarts the radio; everything else stays at the SiK defaults.
+
+What arrives (firmware 3.00, details in [FIRMWARE.md](../docs/FIRMWARE.md#radio-telemetry-300)):
+
+| From the rocket | Rate | Mission Control shows |
+|---|---|---|
+| motion frame: attitude, gyro, accelerometer, altitude, vertical speed, tilt, gimbal, fin tabs, roll | 50 / s in flight, 1 / s on the pad | the rocket on the map, the instruments, the strip charts |
+| status frame: GPS position and satellites, battery and servo rail, motor, health, highest altitude, airtime, signal at both ends, log state | 5 / s in flight, 0.5 / s on the pad | Systems, the GPS track, the Radio link panel |
+| heartbeat | 1 / s | (keeps both radios reporting their link quality) |
+
+The **Radio link** panel: frames a second and in all, frames lost (counted from the frame numbers), the signal at
+this radio (dBm and how far above the noise), the signal at the rocket and whether the rocket hears this station,
+and the rocket's own airtime count against the UK's 360 s an hour. The page sends a heartbeat once a second: the
+rocket only notes it (and sends "ground heard" back); **nothing sent from the laptop changes what the rocket does**.
+
+**The full flight afterwards**: the radio frames are what you watch live; the flight computer still logs every
+sample at 500 Hz to its flash memory. After landing, plug USB in through the hatch and press **Get log over USB**:
+the full log is loaded and merged with the radio recording of the same flight (the replay then has every sample
+plus the link statistics). Every radio flight is also kept under **Flights**; `firmware/tools/kestrel_link.py radio
+--port … -o flight.bin` records the raw radio bytes on any computer (and decodes them to CSV with
+`radio_frames.py` when you press Ctrl+C).
+
+## Landing prediction
+
+The **Landing prediction** panel says where the rocket will come down, as a distance and bearing from the pad, a
+latitude/longitude you can copy (for a phone map), and an orange search ring on the 3D map:
+
+- **On the pad**: from the motor's expected apogee (41 m on the E20, 158 m on the F35, calm air) and the wind
+  you type in before launch (speed, and the direction it comes **from**). With no wind typed in it assumes calm.
+- **Going up**: from the live vertical speed, a drag-limited coast to apogee, then the descent.
+- **Under the parachute**: the wind is **measured** from the rocket's own GPS drift (once the canopy has been
+  open 5 s) and the descent rate from the altitude, so the forecast tightens as it comes down.
+- **Landed**: the last GPS position.
+
+The search ring is ±8 m plus 30 % of the drift still to come. It is a forecast for finding the rocket, not a
+promise: gusts and a GPS fix that is a few metres out move it. The rocket itself does not steer towards it (it
+only ever steers straight up; see [SAFETY_AND_LEGAL.md](../docs/SAFETY_AND_LEGAL.md#steering-straight-up-only)).
+
+## Log line format
+
+Lines from the flight computer's USB (`dump`, or a live line) and saved flights use the log format,
 
 ```
-t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg
+t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg,rssi
 ```
 
 (`flags`: bit 0 TVC active, 1 parachute released, 2 new barometer sample, 3 GPS fix, 4 abort, 5 fin tabs active,
 6 fin tabs parked after a coast give-up;
-`state`: 0 BOOT, 1 CALIBRATING, 2 READY, 3 BOOST, 4 COAST, 5 DESCENT, 6 LANDED, 7 ERROR). Choosing the radio is
-an open decision: see the question in the work log.
+`state`: 0 BOOT, 1 CALIBRATING, 2 READY, 3 BOOST, 4 COAST, 5 DESCENT, 6 LANDED, 7 ERROR; `rssi`: the radio signal at
+the rocket in SiK units, dBm ≈ rssi / 1.9 − 127, 0 = no radio report; logs from firmware before 3.00 have no `rssi`
+column and load the same way).
 
 ## Rebuild
 

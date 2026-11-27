@@ -315,7 +315,7 @@ void handle_command(char* cmd) {
         bench = Bench{};
         bench.t_mode_us = time_us_64();
         printf("\nDIRECTION TEST (nozzle = bottom of the motor):\n"
-               " 0-2 s  servo 1 at +3 deg: nozzle must swing AWAY from the CAMERA POD\n"
+               " 0-2 s  servo 1 at +3 deg: nozzle must swing AWAY from the CAMERA DOOR\n"
                " 3-5 s  servo 2 at +3 deg: nozzle must swing AWAY from the PAYLOAD-DOOR side\n"
                "If one is wrong: dir <1|2> -1, save, repeat.\n");
         return;
@@ -550,7 +550,7 @@ void bench_step(uint64_t now) {
                 printf("  pose %d raw accel: %.2f %.2f %.2f m/s2\n", bench.step == 1 ? 1 : 2, static_cast<double>(dst[0]),
                        static_cast<double>(dst[1]), static_cast<double>(dst[2]));
                 if (bench.step == 1) {
-                    printf("Pose 2: lay the rocket FLAT on its side with the CAMERA POD pointing straight DOWN, hands off, press Enter.\n");
+                    printf("Pose 2: lay the rocket FLAT on its side with the CAMERA DOOR pointing straight DOWN, hands off, press Enter.\n");
                     bench.step = 2;
                 } else {
                     AxisMap m;

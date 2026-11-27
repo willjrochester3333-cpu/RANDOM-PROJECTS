@@ -7,6 +7,8 @@
     python kestrel_link.py dump   --port COM5 -o flight.csv
     python kestrel_link.py plot   flight.csv          # altitude, velocity, attitude/TVC, battery, GPS track
     python kestrel_link.py summary flight.csv
+    python kestrel_link.py radio  --port COM7 -o radio.bin   # record the ground radio (SiK, 57600) + live summary;
+                                                            # Ctrl+C writes radio.csv (the log format) next to it
 
 Any serial terminal works too (115200 8N1, the speed is ignored by USB): type 'status', 'dump', ...
 """
@@ -189,6 +191,57 @@ def cmd_plot(a):
         plt.show()
 
 
+def cmd_radio(a):
+    """record everything the ground radio hears (raw bytes, so nothing is lost even if decoding changes later), print a
+    one-line summary every second, and decode the recording into the log format when you stop (Ctrl+C)"""
+    import os
+    import serial
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "ground"))
+    import radio_frames as R
+    s = serial.Serial(a.port, 57600, timeout=0.1)
+    dec, out, hb_seq, t_hb, t_print = R.Decoder(), open(a.output, "wb"), 0, 0.0, 0.0
+    n = lost = 0
+    last_seq = rs = sl = fa = None
+    print(f"recording {a.port} at 57600 baud into {a.output} - Ctrl+C to stop")
+    try:
+        while True:
+            data = s.read(512)
+            if data:
+                out.write(data)
+                for fr in dec.feed(data):
+                    if fr["sys"] == R.SYS:
+                        if last_seq is not None:
+                            g = (fr["seq"] - last_seq - 1) & 255
+                            lost += g if g < 128 else 0
+                        last_seq = fr["seq"]
+                        n += 1
+                        if fr["msgid"] == R.SLOW and len(fr["payload"]) == 46:
+                            sl = R.slow(fr["payload"])
+                        elif fr["msgid"] == R.FAST and len(fr["payload"]) == 42:
+                            fa = R.fast(fr["payload"])
+                    elif fr["msgid"] == R.RS:
+                        rs = fr["payload"]
+            now = time.time()
+            if now - t_hb > 1.0:                      # heartbeat: the ground radio then reports the link quality
+                s.write(R.encode(R.HB, hb_seq, bytes([0, 0, 0, 0, 6, 8, 0, 4, 3]), 255, 190))
+                hb_seq, t_hb = hb_seq + 1, now
+            if now - t_print > 1.0:
+                t_print = now
+                st = STATES[fa["state"]] if fa and fa["state"] < len(STATES) else "?"
+                alt = f"{fa['alt']:.1f} m" if fa else "-"
+                sig = f"{rs[4] / 1.9 - 127:.0f} dBm" if rs else "-"
+                bat = f"{sl['vbat_mv'] / 1000:.2f} V" if sl else "-"
+                print(f"\r{n} frames, {lost} lost | {st:11s} alt {alt:9s} | signal {sig:8s} | battery {bat} | airtime "
+                      f"{(sl['airtime_ds'] / 10 if sl else 0):.0f} s/h   ", end="", flush=True)
+    except KeyboardInterrupt:
+        pass
+    out.close()
+    flights, stt = R.decode_capture(open(a.output, "rb").read())
+    csv_out = a.output.rsplit(".", 1)[0] + ".csv"
+    R.write_csv(csv_out, flights)
+    print(f"\n{stt['frames']} frames, {stt['lost']} lost -> {csv_out} (load it in Mission Control or 'plot' it)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -197,8 +250,9 @@ def main():
     d = sub.add_parser("dump"); d.add_argument("--port", required=True); d.add_argument("-o", "--output", default="flight.csv")
     pl = sub.add_parser("plot"); pl.add_argument("csv"); pl.add_argument("--no-show", action="store_true")
     su = sub.add_parser("summary"); su.add_argument("csv")
+    ra = sub.add_parser("radio"); ra.add_argument("--port", required=True); ra.add_argument("-o", "--output", default="radio.bin")
     a = p.parse_args()
-    {"ports": cmd_ports, "shell": cmd_shell, "dump": cmd_dump, "plot": cmd_plot, "summary": cmd_summary}[a.cmd](a)
+    {"ports": cmd_ports, "shell": cmd_shell, "dump": cmd_dump, "plot": cmd_plot, "summary": cmd_summary, "radio": cmd_radio}[a.cmd](a)
 
 
 if __name__ == "__main__":

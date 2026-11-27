@@ -5,7 +5,9 @@ Flies Monte Carlo seed 7 (the flight in the launch video: 4.9 m/s wind, 20 g pay
 the loop and writes it in the exact CSV format the flight computer's `dump` command produces, at the logger's
 rates thinned for a small file: 10 Hz on the pad, 50 Hz in BOOST/COAST, 10 Hz under the parachute, 5 Hz on the
 ground. The flight software keeps running for 10 s after touchdown (as the simulator does), and its own state
-(DESCENT, then LANDED once the rocket has been still for 5 s) is recorded, not made up.
+(DESCENT, then LANDED once the rocket has been still for 5 s) is recorded, not made up. The last column (`rssi`, the
+radio signal at the rocket, added in firmware 3.00) is 0 = "no radio report": the simulator does not model the
+radio. Mission Control's simulated-live mode models the radio link itself, on top of this file.
 
     python3 ground/make_demo_flight.py
 """
@@ -74,7 +76,7 @@ def main():
         rows.append(f"{int(round((tt + 600.0) * 1000))},{s},{flags},{p:.2f},{qd:.2f},{r:.2f},{az:.2f},0.00,0.00,"
                     f"{alt:.2f},{vz_est:.2f},{z:.2f},{tilt:.2f},{gy:.2f},{gz:.2f},7.900,{lat:.7f},{lon:.7f},"
                     f"{int(round(95 + z))},9,{qx:.4f},{qy:.4f},{qz:.4f},"
-                    f"{tabs[0]:.2f},{tabs[1]:.2f},{tabs[2]:.2f},{tabs[3]:.2f},{roll:.2f}")
+                    f"{tabs[0]:.2f},{tabs[1]:.2f},{tabs[2]:.2f},{tabs[3]:.2f},{roll:.2f},0")
 
     for k in range(len(t)):
         s = int(st[k])
@@ -99,7 +101,7 @@ def main():
     out = os.path.join(HERE, "demo_flight.csv")
     with open(out, "w") as fh:
         fh.write("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,"
-                 "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n")
+                 "vbat,lat,lon,gps_alt,sats,qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg,rssi\n")
         fh.write(f"# session: fw {fw_version()} flight 1 motor {cfg['motor']} (SIMULATED - ground/make_demo_flight.py, "
                  f"seed {SEED}, wind {cfg['wind_speed']:.1f} m/s, payload {cfg['payload_g']:.0f} g)\n")
         fh.write("\n".join(rows) + "\n")
