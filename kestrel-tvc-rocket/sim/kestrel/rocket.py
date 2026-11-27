@@ -362,10 +362,15 @@ class Rocket:
         else:
             base_area = self.A_ref
         t["base"] = cd_base_coef * base_area / self.A_ref
-        # protuberances: external camera pod (size from design.json, faired nose), 2 launch lugs, TVC gimbal gap
-        pod = self.design.get("camera_pod", {"width_mm": 24.0, "protrusion_mm": 12.0, "cd": 0.45})
-        pod_area = pod["width_mm"] * pod["protrusion_mm"] * 1e-6
-        t["camera pod"] = pod["cd"] * pod_area / self.A_ref
+        # protuberances: the camera (KESTREL-2e: inside, behind a door on the tube with a small brow over its lens; older
+        # designs: an external pod), 2 launch lugs, TVC gimbal gap
+        cd_door = self.design.get("camera_door")
+        if cd_door:
+            t["camera brow"] = cd_door["cd_brow"] * cd_door["brow_frontal_mm2"] * 1e-6 / self.A_ref
+            t["camera door"] = 0.3 * cd_door["door_width_mm"] * cd_door["door_thickness_mm"] * 1e-6 / self.A_ref
+        else:
+            pod = self.design.get("camera_pod", {"width_mm": 24.0, "protrusion_mm": 12.0, "cd": 0.45})
+            t["camera pod"] = pod["cd"] * pod["width_mm"] * pod["protrusion_mm"] * 1e-6 / self.A_ref
         lug_area = 2 * (0.0090 ** 2 - 0.0068 ** 2) * math.pi / 4 + 2 * 0.009 * 0.0012
         t["launch lugs (2)"] = 1.2 * lug_area / self.A_ref
         t["gimbal gap"] = 0.01  # TVC gimbal gap / nozzle step

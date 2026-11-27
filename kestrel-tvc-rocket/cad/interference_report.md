@@ -1,6 +1,6 @@
 # Interference check
 
-63 solids (1953 pairs) checked with exact mesh booleans.
+71 solids (2485 pairs) checked with exact mesh booleans.
 
 **No overlaps** (> 1 mm^3) between any printed part and any purchased part.
 

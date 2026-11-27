@@ -1,7 +1,8 @@
 {
  "avbay.imu_z (LSM6DSO U4)": 612.0,
- "camera_pod.protrusion_mm": 14.5,
- "camera_pod.width_mm": 26.8,
+ "camera_door.brow_height_mm": 5.0,
+ "camera_door.brow_frontal_mm2 /10": 8.7,
+ "camera_door.door_width_mm": 29.0,
  "fins.tab.r_from": 2.8,
  "fins.tab.r_to": 26.1,
  "fins.tab.chord": 34.2,
@@ -34,9 +35,33 @@
  "tail_z_on_pad": 108.0,
  "camera_lens_xyz": [
   0.0,
-  -29.65,
+  -26.15,
   200.0
  ],
+ "camera_tilt_deg": 30.0,
+ "camera_port": {
+  "deg": 270.0,
+  "z": [
+   180.0,
+   226.0
+  ],
+  "half_width": 12.5
+ },
+ "radio": {
+  "deg": 125.0,
+  "z": [
+   162.0,
+   215.0
+  ]
+ },
+ "antenna": {
+  "deg": 30.0,
+  "r": 19.9,
+  "z": [
+   213.0,
+   328.0
+  ]
+ },
  "cord_exit_xyz": [
   0.0,
   18.5,

@@ -7,7 +7,8 @@ Blender is used for the assemblies, materials, the .blend files and rendering.
 
 The rocket comes apart into three parts:
   1. BOTTOM part - fin can (4 fins that are also the legs it stands on, 4 servo-driven control tabs in
-                   streamlined pods), TVC module, camera pod, avionics bay (flight computer + battery), coupler
+                   streamlined pods), TVC module, camera (inside, behind a door), telemetry radio, avionics bay (flight
+                   computer + battery), coupler
   2. MIDDLE part - payload bay with a lockable door, a wall, the parachute bay, the release latch at the top
   3. NOSE cone   - printed; the ejection spring pushes it off when the release servo pulls the latch bolt
 
@@ -154,12 +155,29 @@ POST_W, POST_T = LEGP["post_mm"]        # 6.0 (along the span) x 9.2 (across the
 POST_X0, POST_X1 = TIP_R - 1.25 - POST_W, TIP_R - 1.25  # 72.0 .. 78.0: the foot stays where it was
 POST_Z1 = LEGP["post_top_z"]            # -18.5: top of the post (the weak section)
 LEG_RECESS = 0.8                        # bolt head / nut sunk this far into the sleeve's side walls
-# camera pod, avionics
-CAM_Z0 = 200.0
-CAM_POCKET = 23.6
-CAM_FLOOR = 1.8
-CAM_RC = R + 1.5
-CAM_WIN_W, CAM_WIN_H = CAM_POCKET + 2 * 1.6 + 0.2, 30.0
+# camera (KESTREL-2e): the SQ12 sits INSIDE the bottom tube at 270 deg behind a door that sits on the tube like the battery
+# hatch, lens tilted 30 deg down. A 23 mm cube tilted 30 deg puts the top edge of its lens face 4 mm further out than the
+# lens, so with the lens 2 mm under the skin that edge stands just proud: a small faired brow on the door covers it (the old
+# external pod stood 14.5 mm proud). Built in the "door frame" (+y = out, x across the door), then turned to 270 deg.
+CAM_ANG, CAM_TILT = 270.0, 30.0
+CAM_CUBE, CAM_LENS_R, CAM_LENS_L = 23.0, 4.0, 1.9
+CAM_LENS_Y, CAM_LENS_Z = R - 2.0, 200.0                  # lens front point (door frame)
+CAM_FOV_H, CAM_FOV_UP, CAM_FOV_DN = 62.0, 38.0, 40.0      # half-angles the lens port leaves clear (deg)
+CD_X, CD_Z0, CD_Z1 = 12.5, 180.0, 226.0                  # window in the tube: the camera goes in and out through it
+CDL_Z = CD_Z0 + 3.5                                       # door latch axis (below the picture)
+CD_RIM_T = 2.4                                            # cradle rim behind the window's top edge: the door's hooks catch it
+CAM_CRADLE_PRINT_ROT = (0, 0, 0)                          # cradle print orientation (door frame), checked by check_parts.py
+# telemetry radio (KESTREL-2e): SiK 433 MHz module (Holybro V3, 28 x 53 x 10.7 mm) in a cradle on the bottom-tube wall at
+# 125 deg; its antenna stands in a clear channel through the av-bay at 30 deg, screwed onto an RP-SMA bulkhead socket on a
+# small bracket, joined to the radio by a 152 mm RG-316 extension (Amphenol RF 095-902-536-006: bulkhead jack -> plug)
+RAD_ANG = 125.0
+RAD_W, RAD_L, RAD_T = 28.0, 53.0, 10.7
+RAD_R, RAD_Z0 = 17.0, 162.0                              # module centre radius, module bottom
+ANT_ANG, ANT_R = 30.0, 19.9                              # antenna axis
+ANT_D, ANT_L = 11.0, 115.0                               # reference antenna: 3DR 433 MHz RP-SMA whip, 115 mm (articulated base)
+ANT_SHELF_Z, ANT_SHELF_T = 204.0, 3.0                    # bulkhead bracket shelf (top face, thickness)
+ANT_JACK_UP = 9.0                                        # bulkhead jack: thread + nut above the shelf, up to its mating face
+ANT_Z0 = ANT_SHELF_Z + ANT_JACK_UP                       # antenna base
 RADIAL_SCREW_ANG = (0.0, 180.0)
 STATIC_PORT_ANG = (30.0, 150.0, 270.0)
 LUG_ANG = 90.0
@@ -751,6 +769,7 @@ def avbay_sled(M):
         m = m - polar(nt, ang) - polar(xcyl(1.65, 10).translate((rb - 3, 0, z0 + 12)), ang)
         m = m + (polar(boss, ang) ^ cyl(rb, 30, z0))
     m = m - bx(4.0, 19.0, -9.0, 2.5, z0 - 2.0, z0 + 6.0)          # pass-through for the 6 servo leads from below
+    m = m - polar(cyl(ANT_D / 2 + 1.0, 200.0, z0 - 10.0, ANT_R, 0.0, segs=48), ANT_ANG)   # clear channel: the av-bay slides past the antenna
     return register("avbay_sled", m, M["grey"], part="bottom",
                     note="Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB")
 
@@ -1073,24 +1092,156 @@ def upper_lug(M):
                          "while the glue sets (the joint's alignment notch keeps them in line afterwards)")
 
 
-def camera_pod(M):
-    z0, cam, wl = CAM_Z0, CAM_POCKET, 1.2
-    rc, w = CAM_RC, CAM_POCKET + 2 * 1.6
-    r_in, r_out = rc - cam / 2 - wl, rc + cam / 2 + wl
-    zt = z0 + CAM_FLOOR + cam + wl
-    base = box(w, r_out - r_in, zt - z0, 0, (r_in + r_out) / 2, (z0 + zt) / 2)
-    tip = box(4.0, 0.1, 1.0, 0, R + 2.0, zt + 24.0)
-    shell = M3.batch_hull([base, tip])
-    shell = shell - box(cam, cam, cam, 0, rc, z0 + CAM_FLOOR + cam / 2)
-    shell = shell - cyl(4.6, 6.0, z0 - 3.0, 0, rc, segs=40)
-    shell = shell - box(cam - 6.0, 10.0, 8.0, 0, r_out, z0 + CAM_FLOOR + cam - 2.0)
-    shell = shell - cyl(R + 0.1, 150.0, zt)
-    flange = (tube(R + 1.2, R + 0.1, CAM_WIN_H + 3.0, z0) ^ box(w + 10.0, 40.0, CAM_WIN_H + 3.0, 0, R, z0 + (CAM_WIN_H + 3.0) / 2)) - \
-        box(w - 0.1, 40, CAM_WIN_H + 30, 0, R, z0 + CAM_WIN_H / 2)
-    m = shell + flange
-    m = m - box(cam, cam, cam, 0, rc, z0 + CAM_FLOOR + cam / 2)
-    return register("camera_pod", polar(m, 180), M["black"], part="bottom",
-                    note=f"Cut a {CAM_WIN_W:.0f} x {CAM_WIN_H:.0f} mm window in the bottom tube (drill guide marks it); glue the flange")
+def cam_pose(m):
+    """a solid modelled in the camera's own frame (lens axis +y, up +z, origin = lens front point) -> door frame"""
+    return m.rotate((-CAM_TILT, 0, 0)).translate((0, CAM_LENS_Y, CAM_LENS_Z))
+
+
+def camera_body_local(grow=0.0):
+    c = CAM_CUBE + 2 * grow
+    cube = box(c, c, c, 0, -(CAM_LENS_L + CAM_CUBE / 2), 0)
+    lens = ycyl(CAM_LENS_R + grow, CAM_LENS_L + 2 * grow, 32).translate((0, -CAM_LENS_L / 2, 0))
+    return cube + lens
+
+
+def camera_view_local(depth=40.0):
+    """the lens's field of view as a pyramid (camera frame) - everything in it is cut away from the door and brow"""
+    th, tu, td = (math.tan(math.radians(a)) for a in (CAM_FOV_H, CAM_FOV_UP, CAM_FOV_DN))
+    near = box(2 * CAM_LENS_R, 0.2, 2 * CAM_LENS_R, 0, -0.3, 0)
+    far = bx(-depth * th - CAM_LENS_R, depth * th + CAM_LENS_R, depth - 0.1, depth, -depth * td - CAM_LENS_R, depth * tu + CAM_LENS_R)
+    return M3.batch_hull([near, far])
+
+
+def camera_window():
+    """the opening through the bottom tube (door frame)"""
+    return bx(-CD_X, CD_X, 15.0, 40.0, CD_Z0, CD_Z1)
+
+
+def camera_door_solid():
+    """camera door: a curved panel ON the tube, 2 mm larger than the window all round (as the battery hatch), with the lens
+    port, a faired brow over the edge of the camera that stands proud, two hooks at the top and the quarter-turn latch boss"""
+    z0, z1, w = CD_Z0 - HD_M, CD_Z1 + HD_M, CD_X + HD_M
+    m = tube(HD_R0 + 0.6, HD_R0, z1 - z0, z0) ^ bx(-w, w, 0.0, 40.0, z0, z1)
+    m = m + (tube(HD_R0 + HD_T, HD_R0 + 0.55, z1 - z0 - 1.2, z0 + 0.6) ^ bx(-(w - 0.6), w - 0.6, 0.0, 40.0, z0, z1))
+    # brow: hull of the part of the camera (+0.3 clearance +0.9 skin) that stands outside the door's inner surface and a
+    # thin line on the door 22 mm higher up, so it rises smoothly from the skin into the airflow
+    skin = cam_pose(camera_body_local(1.2)) - cyl(HD_R0 - 0.01, 60.0, CAM_LENS_Z - 30.0)
+    bb = skin.bounding_box()
+    ramp = bx(-6.0, 6.0, HD_R0 + 0.25, HD_R0 + HD_T - 0.15, bb[5] + 22.0, bb[5] + 22.2)
+    sides = bx(bb[0], bb[3], HD_R0 + 0.25, HD_R0 + HD_T - 0.15, bb[2], bb[5])
+    brow = M3.batch_hull([skin, ramp, sides]) - cyl(HD_R0 + 0.1, 80.0, CAM_LENS_Z - 40.0, segs=180)
+    m = m + brow
+    hook = M3.batch_hull([bx(HD_R0 - 0.3, HD_R0 + 0.3, -2.5, 2.5, CD_Z1 - 6.0, CD_Z1 - 0.4),
+                          bx(RI - CD_RIM_T - 1.3, RI - CD_RIM_T - 1.0, -2.5, 2.5, CD_Z1 - 2.6, CD_Z1 - 0.4)])
+    hook = hook + bx(RI - CD_RIM_T - 1.3, RI - CD_RIM_T - 0.25, -2.5, 2.5, CD_Z1 - 2.6, CD_Z1 + 4.5)
+    for sx in (1, -1):
+        m = m + polar(hook, 90.0 - 90.0 - sx * math.degrees(math.asin(8.0 / R))).rotate((0, 0, 90.0))
+    m = m + ycyl(3.3, HD_R0 + 0.3 - (HL_Y1 + 0.3), 32).translate((0, (HD_R0 + 0.3 + HL_Y1 + 0.3) / 2, CDL_Z))
+    m = m - ycyl(2.2, 12.0, 24).translate((0, HD_R0, CDL_Z))
+    m = m - ycyl(4.6, 2.0, 32).translate((0, HD_R0 + HD_T - 0.97 + 1.0, CDL_Z))        # counterbore: knob head flush
+    m = m - cam_pose(camera_body_local(0.3)) - cam_pose(camera_view_local())
+    return m
+
+
+def camera_latch_knob():
+    return hatch_latch_knob().translate((0, 0, CDL_Z - HL_Z))
+
+
+def camera_latch_cam(locked=True):
+    return hatch_latch_cam(locked).translate((0, 0, CDL_Z - HL_Z))
+
+
+def camera_cradle_solid():
+    """camera cradle, glued inside the bottom tube round the window: a cup that holds the camera at its 30 deg tilt (open
+    towards the window, so the camera goes in and out through it), a rim behind the window's top edge for the door's hooks
+    and a catch below the window for the latch cam. Door frame."""
+    rin = RI - FIT
+    cup = cam_pose(camera_body_local(1.9)) - cam_pose(camera_body_local(0.3))
+    # open the cup towards the window (everything in front of the camera's back half, seen along the lens axis) and drop
+    # its roof, so it prints upright without supports
+    cup = cup - cam_pose(bx(-20.0, 20.0, -CAM_LENS_L - CAM_CUBE * 0.55, 30.0, -12.6, 12.6))
+    cup = cup - cam_pose(bx(-20.0, 20.0, -40.0, 30.0, CAM_CUBE / 2 + 0.25, 30.0))
+    cup = cup - cam_pose(bx(-6.0, 6.0, -40.0, 0.0, -7.0, 7.0))               # window in the back wall: buttons / leads / air
+    # seat: a solid wedge under the camera whose underside falls at ~50 deg to the catch level (prints without supports)
+    slab = cam_pose(bx(-(CAM_CUBE / 2 + 1.9), CAM_CUBE / 2 + 1.9, -(CAM_LENS_L + CAM_CUBE + 1.9), -CAM_LENS_L, -(CAM_CUBE / 2 + 1.9),
+                       -(CAM_CUBE / 2 + 0.3)))
+    foot = bx(-(CAM_CUBE / 2 + 1.9), CAM_CUBE / 2 + 1.9, 19.0, 21.0, CD_Z0 - 4.0, CD_Z0 - 3.0)
+    seat = M3.batch_hull([slab, foot]) - cam_pose(camera_body_local(0.3))
+    webs = (bx(-9.6, -6.0, 19.0, rin - 0.5, CD_Z0 - 9.0, CD_Z0 - 3.0) + bx(6.0, 9.6, 19.0, rin - 0.5, CD_Z0 - 9.0, CD_Z0 - 3.0))
+    cup = cup + seat + webs
+    saddle = (tube(rin, rin - 2.2, CD_Z1 + 10.0 - (CD_Z0 - 12.0), CD_Z0 - 12.0) ^
+              bx(-(CD_X + 5.0), CD_X + 5.0, 10.0, 40.0, CD_Z0 - 12.0, CD_Z1 + 10.0)) - camera_window()
+    rim = tube(rin, rin - CD_RIM_T, 8.0, CD_Z1) ^ bx(-(CD_X + 3.0), CD_X + 3.0, 10.0, 40.0, CD_Z1, CD_Z1 + 8.0)
+    catch = bx(-8.0, 8.0, HC_Y, rin, CD_Z0 - 9.0, CD_Z0) ^ cyl(rin, 40.0, CD_Z0 - 20.0, segs=96)
+    struts = (bx(-(CAM_CUBE / 2 + 2.2), -(CAM_CUBE / 2 + 0.4), 2.0, rin - 1.0, CD_Z1 - 16.0, CD_Z1 + 6.0) +
+              bx(CAM_CUBE / 2 + 0.4, CAM_CUBE / 2 + 2.2, 2.0, rin - 1.0, CD_Z1 - 16.0, CD_Z1 + 6.0))
+    m = cup + saddle + rim + catch + (struts - cam_pose(camera_body_local(0.3)))
+    m = m ^ cyl(rin, 200.0, 100.0, segs=128)
+    m = m ^ bx(-40.0, 40.0, -1.6, 40.0, 0.0, 400.0)          # stays on its own side of the axis (clear of the radio cradle)
+    return m - cam_pose(camera_view_local())
+
+
+def camera_parts(M):
+    door, cradle = camera_door_solid(), camera_cradle_solid()
+    register("camera_door", polar(door, CAM_ANG - 90.0), M["black"], part="bottom", export=door, export_rot=(0, 0, 0),
+             note="PETG black, print standing on its bottom edge as exported, with a brim (no supports: the lens port's top is a short "
+                  "bridge). The lens looks through the port under the brow. Fit: hooks in at the top behind the cradle's rim, swing the "
+                  "bottom in, turn the latch")
+    register("camera_latch_knob", polar(camera_latch_knob(), CAM_ANG - 90.0), M["black"], part="bottom", export=camera_latch_knob(),
+             export_rot=(90, 0, 0), note="Quarter-turn latch as on the battery hatch: knob from outside, coin slot, flush. Head-down, 100% infill")
+    register("camera_latch_cam", polar(camera_latch_cam(True), CAM_ANG - 90.0), M["black"], part="bottom", export=camera_latch_cam(True),
+             export_rot=(90, 0, 0), note="Push onto the knob's square end from inside + a drop of CA. Arm DOWN = locked")
+    register("camera_cradle", polar(cradle, CAM_ANG - 90.0), M["black"], part="bottom", export=cradle, export_rot=CAM_CRADLE_PRINT_ROT,
+             note="PETG, 2 walls, 10%, as exported (no supports). Epoxy inside the bottom tube round the camera window (the drill guide "
+                  "marks it); the camera slides into the cup through the window, lens out, and the door holds it")
+
+
+def radio_module_local():
+    """SiK module (Holybro V3 433 MHz: 28 x 53 x 10.7 mm without antenna) in the radio frame (+x = out)"""
+    return bx(RAD_R - RAD_T / 2, RAD_R + RAD_T / 2, -RAD_W / 2, RAD_W / 2, RAD_Z0, RAD_Z0 + RAD_L)
+
+
+def radio_cradle_solid():
+    """radio cradle, glued to the bottom-tube wall: a back plate, two side rails and a floor; the module drops in from the
+    top (before the av-bay goes in) and a cable tie through the two slots holds it. Radio frame (+x = out)."""
+    rin = RI - FIT
+    c = 0.3
+    x0, x1 = RAD_R - RAD_T / 2 - c, RAD_R + RAD_T / 2 + c
+    y1 = RAD_W / 2 + c
+    z0, z1 = RAD_Z0 - 2.0, RAD_Z0 + RAD_L - 6.0
+    back = bx(x0 - 1.8, x0, -y1 - 1.8, y1 + 1.8, z0, z1)
+    rails = bx(x0 - 1.8, rin + 1.0, y1, y1 + 1.8, z0, z1) + bx(x0 - 1.8, rin + 1.0, -y1 - 1.8, -y1, z0, z1)
+    floor = bx(x0 - 1.8, x1 + 0.5, -y1 - 1.8, y1 + 1.8, z0, RAD_Z0)
+    pads = bx(x1, rin + 1.0, -y1 - 1.8, -y1 + 5.0, z0, z1) + bx(x1, rin + 1.0, y1 - 5.0, y1 + 1.8, z0, z1)   # glue feet
+    m = (back + rails + floor + pads) ^ cyl(rin, 120.0, z0 - 1.0, segs=128)
+    m = m - bx(x0 - 3.0, x0 + 0.1, -9.0, 9.0, z0 + 9.0, z1 - 9.0)                # window in the back plate
+    for zt in (RAD_Z0 + 14.0, RAD_Z0 + 36.0):                                   # cable-tie slots (4 x 1.5 mm)
+        m = m - bx(x0 - 3.0, x0 + 0.1, -y1 - 0.3, -y1 + 4.0 - 0.3, zt - 0.75, zt + 0.75)
+        m = m - bx(x0 - 3.0, x0 + 0.1, y1 - 4.0 + 0.3, y1 + 0.3, zt - 0.75, zt + 0.75)
+    return m
+
+
+def antenna_mount_solid():
+    """bracket for the RP-SMA bulkhead socket of the antenna extension: a shelf with a 6.6 mm hole on a saddle glued to the
+    tube wall, carried by a 45 deg gusset (prints without supports). Antenna frame (+x = out)."""
+    rin = RI - FIT
+    zt = ANT_SHELF_Z
+    shelf = bx(ANT_R - 6.5, rin + 1.0, -8.0, 8.0, zt - ANT_SHELF_T, zt)
+    saddle = bx(rin - 2.2, rin + 1.0, -9.0, 9.0, zt - 22.0, zt)
+    gusset = xz_plate([(rin - 1.0, zt - 22.0), (rin - 1.0, zt - ANT_SHELF_T), (ANT_R - 6.0, zt - ANT_SHELF_T)], 3.0)
+    m = (shelf + saddle + gusset.translate((0, 6.4, 0)) + gusset.translate((0, -6.4, 0))) ^ cyl(rin, 60.0, zt - 40.0, segs=128)
+    m = m - cyl(3.3, 20.0, zt - 10.0, ANT_R, 0.0, segs=32)
+    return m
+
+
+def radio_parts(M):
+    rc, am = radio_cradle_solid(), antenna_mount_solid()
+    register("radio_cradle", polar(rc, RAD_ANG), M["grey"], part="bottom", export=rc, export_rot=(0, 0, 0),
+             note="PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor "
+                  "160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie")
+    register("antenna_mount", polar(am, ANT_ANG), M["grey"], part="bottom", export=am, export_rot=(180, 0, 0),
+             note="PETG, 3 walls, 40%, shelf on the bed as exported. Epoxy to the bottom-tube wall at 30 deg, shelf top 204 mm above the "
+                  "tube's bottom end; the RP-SMA bulkhead socket goes through the hole from below, nut on top, antenna screwed on")
 
 
 # ======================================================================================
@@ -1164,7 +1315,7 @@ def pad_tile_clamp(M):
 # ======================================================================================
 def lower_tube_cut():
     t = tube(R, RI, L_LOW, 0.0)
-    t = t - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
+    t = t - polar(camera_window(), CAM_ANG - 90.0)
     t = t - polar(box(8.0, 7.0, 20.0, R, 0, SW_Z), SW_ANG)
     t = t - hatch_cut()
     for a in STATIC_PORT_ANG:
@@ -1187,19 +1338,21 @@ def middle_tube_cut():
 
 
 def drill_guide(M):
-    z_top, z_bot = Z_BAND0, CAM_Z0 - 6.0
+    z_top, z_bot = Z_BAND0, RAD_Z0 - 6.0
     m = tube(R + 2.2, R + 0.25, z_top - z_bot, z_bot) + tube(R + 2.2, RI - 0.8, 2.0, z_top)
     for a in RADIAL_SCREW_ANG:
         m = m - polar(xcyl(1.6, 10, 24).translate((R + 1, 0, Z_AV0 + 12.0)), a)
     for a in STATIC_PORT_ANG:
         m = m - polar(xcyl(1.0, 10, 16).translate((R + 1, 0, Z_AV0 + 40.0)), a)
     m = m - polar(box(8.0, 7.0, 20.0, R + 1.0, 0, SW_Z), SW_ANG)
-    m = m - polar(box(8.0, CAM_WIN_W, CAM_WIN_H, R + 1.0, 0, CAM_Z0 + CAM_WIN_H / 2), 270)
+    m = m - polar(camera_window(), CAM_ANG - 90.0)
+    for a in (RAD_ANG, ANT_ANG):                                                   # radio-cradle and antenna-mount lines
+        m = m - polar(box(1.6, 1.2, z_top - z_bot + 10.0, R + 2.2, 0, (z_top + z_bot) / 2), a)
     m = m - hatch_cut()
     m = m - polar(box(1.6, 1.2, z_top - z_bot + 10.0, R + 2.2, 0, (z_top + z_bot) / 2), LUG_ANG)
     return register("tool_drill_guide_bottom_tube", m, M["orange"], print_rot=(180, 0, 0), group="tool",
                     note="Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, "
-                         "battery-hatch opening (cut along the guide's edges with a sharp knife), lug line")
+                         "battery-hatch opening (cut along the guide's edges with a sharp knife), lug line, radio-cradle and antenna-mount lines")
 
 
 def tool_leg_test_block(M):
@@ -1289,8 +1442,12 @@ def purchased(M, tab_delta=0.0, latch_open=False):
     # 36 in chute rolled to ~44 x 90 mm on the piston (1.44 x the volume of the 30 in pack), cord coiled on top
     out["parachute_packed"] = (cyl(22.0, 90.0, Z_PISTON + 3.5, 0.0, 0.0, segs=48), M["nylon"])
     out["shock_cord_kevlar_elastic"] = (cyl(7.0, 20.0, Z_PISTON + 94.5, 7.0, -1.0, segs=32), M["cord"])
-    cam = box(23.0, 23.0, 23.0, 0, -CAM_RC, CAM_Z0 + CAM_FLOOR + 0.3 + 11.5) + cyl(4.0, 1.9, CAM_Z0 + 0.2, 0, -CAM_RC, segs=24)
-    out["camera_SQ12_class"] = (cam, M["camera"])
+    out["camera_SQ12_class"] = (polar(cam_pose(camera_body_local()), CAM_ANG - 90.0), M["camera"])
+    out["radio_sik_v3_433"] = (polar(radio_module_local(), RAD_ANG), M["pcb"])
+    jack = (cyl(3.17, ANT_JACK_UP + ANT_SHELF_T + 6.0, ANT_SHELF_Z - ANT_SHELF_T - 6.0, ANT_R, 0.0, segs=24) +
+            cyl(4.6, 2.0, ANT_SHELF_Z, ANT_R, 0.0, segs=6) + cyl(4.2, 8.0, ANT_SHELF_Z - ANT_SHELF_T - 14.0, ANT_R, 0.0, segs=24))
+    out["rpsma_bulkhead_extension_jack"] = (polar(jack, ANT_ANG), M["steel"])
+    out["antenna_433_rpsma_115mm"] = (polar(cyl(ANT_D / 2, ANT_L, ANT_Z0, ANT_R, 0.0, segs=32), ANT_ANG), M["black"])
     out["payload_example_25g"] = (bx(-8.0, 16.0, -12.0, 12.0, Z_FLOOR + 0.2, Z_FLOOR + 30.0), M["payload"])
     return out
 
@@ -1311,18 +1468,23 @@ def lead_paths():
     z_fc = PCB_Z_TOP - 74.85                       # servo headers at the bottom edge of the board
     hx = board_to_rocket(MECH["parts"]["J2"]["x"], 0)[0]
     p = {}
+    # KESTREL-2e: the camera (270 deg) and the radio (150 deg) sit between the TVC module and the av-bay, so the leads run up
+    # the tube wall past them and cross over their tops (z 224-236) to the hole in the sled disc
     p["lead_tvc_ring"] = [(4.0, 4.0, c1 - s["L"] / 2 + 2), (6.0, 2.0, c1 - s["L"] / 2 - 4), (7.0, -4.0, c1 - 10), (8.0, -8.0, FRAME_TOP - 2),
-                          (8.0, -8.0, FRAME_TOP + 30), (6.0, -4.0, Z_AV0 - 2), (hx, 1.0, Z_AV0 + 4)]
+                          (20.0, -12.0, FRAME_TOP + 14), (21.5, -11.0, 224.0), (10.0, -3.0, Z_AV0 - 4), (hx, 1.0, Z_AV0 + 4)]
     p["lead_tvc_holder"] = [(4.0, -4.0, c2 - s["L"] / 2 + 2), (2.0, -6.5, c2 - s["L"] / 2 - 3), (-2.0, -9.0, c2 + 6), (-1.0, -9.0, FRAME_TOP - 2),
-                            (-1.0, -9.0, FRAME_TOP + 30), (4.0, -4.0, Z_AV0 - 2), (hx + 2.5, 1.0, Z_AV0 + 4)]
+                            (-21.0, -12.0, FRAME_TOP + 14), (-21.5, -11.0, 224.0), (4.0, -4.0, Z_AV0 - 4), (hx + 2.5, 1.0, Z_AV0 + 4)]
     for k, a in enumerate(GROOVE_ANG):
         ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
         r_g = FRAME_R - 0.8
         zc = (CAB_Z0 + CAB_Z1) / 2
         xg = TIP_R - LEAD_GROOVE_D / 2 - 0.3
         pts = [(SVX1 - 2.0, SV_Z0 + SV["L"] - 2.0), (xg, SV_Z0 + SV["L"] + 1.5), (xg, zc), (TIP_R - 6.0, zc),
-               (CAN_RI - 1.0, zc), (r_g, zc + 3), (r_g, FRAME_TOP + 2), (r_g - 6, FRAME_TOP + 25)]
-        path = [(rr * ca, rr * sa, z) for rr, z in pts] + [(8.0, -4.0 + k, Z_AV0 - 4), (hx + 4.5 * (k + 1), 1.0, Z_AV0 + 4)]
+               (CAN_RI - 1.0, zc), (r_g, zc + 3), (r_g, FRAME_TOP + 2), (r_g - 0.6, 224.0)]
+        path = [(rr * ca, rr * sa, z) for rr, z in pts]
+        if k == 0:                                     # fin 1 (45 deg): round the antenna's side before going in
+            path.append((10.5, 17.0, 230.0))
+        path += [(8.0, -4.0 + k, Z_AV0 - 4), (hx + 4.5 * (k + 1), 1.0, Z_AV0 + 4)]
         p[f"lead_tab{k + 1}"] = path
     p["lead_release"] = [(RSV_XC, -11.0, RSV_Z0 + 2), (-24.0, -2.0, RSV_Z0 - 4), (-25.5, 0.0, Z_WALL1 + 4), (-25.0, 0.0, Z_WALL0 - 14),
                          (-25.0, 0.0, Z_FLOOR + 2), (-23.0, 0.0, SH_TOP - 4), (-22.0, 7.0, GPS_SHELF_Z + 6),
@@ -1351,7 +1513,7 @@ def build_all(M):
     door_frame(M); payload_door_parts(M); payload_wall(M); spring_piston(M)
     avbay_coupler(M); avbay_sled(M)
     tvc_holder(M); tvc_ring(M); tvc_frame(M); retainer(M); motor_adapter(M)
-    fin_can(M); fin_legs(M); fin_tabs(M); upper_lug(M); camera_pod(M); hatch_parts(M)
+    fin_can(M); fin_legs(M); fin_tabs(M); upper_lug(M); camera_parts(M); radio_parts(M); hatch_parts(M)
     pad_hub(M); pad_rod_block(M)
     tail_z = PAD_TOP - FOOT_Z
     pad_rod_stop(M, 150.0); pad_leg_foot(M); rod_cap(M)
@@ -1388,7 +1550,7 @@ def write_stl(path, V, F):
     tot = {}
     for cid, ar in zip(comp, area):
         tot[cid] = tot.get(cid, 0.0) + ar
-    F = F[np.array([tot[cid] > 1e-6 for cid in comp], dtype=bool)]
+    F = F[np.array([tot[cid] > 1e-3 for cid in comp], dtype=bool)]
     with open(path, "wb") as fh:
         fh.write(b"KESTREL-2 STL (mm)".ljust(80, b" "))
         fh.write(struct.pack("<I", len(F)))
@@ -1458,14 +1620,28 @@ def component_positions(buy, leads):
     return out
 
 
+def camera_brow_numbers():
+    """how far the camera door's brow stands out of the door's surface, and its frontal area (for the drag model)"""
+    door = camera_door_solid()
+    proud = door - cyl(HD_R0 + HD_T + 0.05, 200.0, CD_Z0 - 20.0, segs=192)
+    bb = proud.bounding_box()
+    r_max = 0.0
+    if not proud.is_empty():
+        V = np.asarray(proud.to_mesh().vert_properties)[:, :3]
+        r_max = float(np.sqrt(V[:, 0] ** 2 + V[:, 1] ** 2).max())
+    frontal = proud.project().area() if not proud.is_empty() else 0.0
+    return dict(height=max(0.0, r_max - (HD_R0 + HD_T)), frontal=float(frontal), z=[float(bb[2]), float(bb[5])])
+
+
 def check_layout():
     """Values the simulator / firmware take from design.json must match this CAD + the PCB layout."""
     u4 = MECH["parts"]["U4"]
     imu_from_tip = Z_TIP - board_to_rocket(u4["x"], u4["y"])[1]
     want = {
         "avbay.imu_z (LSM6DSO U4)": (D["avbay"]["imu_z"], imu_from_tip),
-        "camera_pod.protrusion_mm": (D["camera_pod"]["protrusion_mm"], CAM_RC + CAM_POCKET / 2 + 1.2 - R),
-        "camera_pod.width_mm": (D["camera_pod"]["width_mm"], CAM_POCKET + 2 * 1.6),
+        "camera_door.brow_height_mm": (D["camera_door"]["brow_height_mm"], camera_brow_numbers()["height"]),
+        "camera_door.brow_frontal_mm2 /10": (D["camera_door"]["brow_frontal_mm2"] / 10.0, camera_brow_numbers()["frontal"] / 10.0),
+        "camera_door.door_width_mm": (D["camera_door"]["door_width_mm"], 2 * (CD_X + HD_M)),
         "fins.tab.r_from": (TABP["r_from"], TAB_X0 - CAN_RO),
         "fins.tab.r_to": (TABP["r_to"], TAB_X1 - CAN_RO),
         "fins.tab.chord": (TABP["chord"], HINGE_Z + TAB_LE_R + TE_EXT),
@@ -1485,7 +1661,10 @@ def check_layout():
     lay.update(dict(z_tip_above_tail=Z_TIP, switch_slot_deg=round(SW_ANG, 1), groove_deg=[round(g, 1) for g in GROOVE_ANG],
                     fin_deg=FIN_ANG, lug_deg=LUG_ANG, camera_deg=270.0, door_deg=0.0,
                     rocket_xy_on_pad=[round(v, 2) for v in ROCKET_XY], tail_z_on_pad=PAD_TOP - FOOT_Z,
-                    camera_lens_xyz=[0.0, -round(CAM_RC, 2), CAM_Z0], cord_exit_xyz=[0.0, 18.5, Z_MID1],
+                    camera_lens_xyz=[0.0, -round(CAM_LENS_Y, 2), CAM_LENS_Z], camera_tilt_deg=CAM_TILT,
+                    camera_port=dict(deg=CAM_ANG, z=[CD_Z0, CD_Z1], half_width=CD_X),
+                    radio=dict(deg=RAD_ANG, z=[RAD_Z0, RAD_Z0 + RAD_L]), antenna=dict(deg=ANT_ANG, r=ANT_R, z=[ANT_Z0, ANT_Z0 + ANT_L]),
+                    cord_exit_xyz=[0.0, 18.5, Z_MID1],
                     nozzle_z=Z_MOTOR0, mid_top_z=Z_MID1, tab_hinge_z=HINGE_Z,
                     battery_hatch=dict(deg=90.0, z=[HATCH_Z0, HATCH_Z1], half_width=HATCH_X), upper_lug_z=[UPPER_LUG_Z, UPPER_LUG_Z + 25.0],
                     nose_cord_bar_z=round(Z_NOSE0 - 2.0 + (R - NS_W) - 9.0, 1)))
@@ -1793,7 +1972,10 @@ LAYOUT = [
         ("part", "fin_control_tab", "control tab\nx 4"),
         ("part", "avbay_coupler", "av-bay coupler"), ("part", "avbay_sled", "av-bay sled"),
         ("part", "battery_hatch_door", "battery-hatch\ndoor"), ("part", "battery_hatch_latch_knob", "hatch latch\nknob"),
-        ("part", "battery_hatch_latch_cam", "hatch latch\ncam"), ("part", "camera_pod", "camera pod")]),
+        ("part", "battery_hatch_latch_cam", "hatch latch\ncam"), ("part", "camera_cradle", "camera cradle"),
+        ("part", "camera_door", "camera door\n(lens port, brow)"), ("part", "camera_latch_knob", "camera latch\nknob"),
+        ("part", "camera_latch_cam", "camera latch\ncam"), ("part", "radio_cradle", "radio cradle"),
+        ("part", "antenna_mount", "antenna\nmount")]),
     ("TVC module (printed)", [
         ("part", "tvc_frame", "TVC frame"), ("part", "tvc_gimbal_ring", "gimbal ring"),
         ("part", "tvc_motor_holder", "motor holder"), ("part", "tvc_motor_retainer", "motor retainer"),
@@ -1825,7 +2007,7 @@ LAYOUT = [
 ]
 CUT_DX = 220.0            # the cut-open rocket stands this far beside the complete one
 CUTOPEN = ("avbay_coupler", "fin_can", "fin_control_tab", "tvc_frame", "nose_cone", "top_latch_insert", "payload_wall",
-           "spring_piston", "payload_door", "camera_pod", "camera_SQ12", "servo_MG90S_tab", "horn_tab", "upper_launch_lug",
+           "spring_piston", "payload_door", "camera_door", "camera_cradle", "camera_SQ12", "radio_sik", "servo_MG90S_tab", "horn_tab", "upper_launch_lug",
            LOWER_TUBE, MID_TUBE)
 
 

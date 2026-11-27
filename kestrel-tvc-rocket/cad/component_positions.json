@@ -1,6 +1,6 @@
 {
  "BT70_bottom_tube_340": {
-  "z_from_tip": 733.9,
+  "z_from_tip": 734.0,
   "length": 340.0,
   "radius": 28.2
  },
@@ -160,9 +160,24 @@
   "radius": 14.1
  },
  "camera_SQ12_class": {
-  "z_from_tip": 685.5,
-  "length": 24.9,
-  "radius": 42.7
+  "z_from_tip": 692.3,
+  "length": 31.4,
+  "radius": 32.4
+ },
+ "radio_sik_v3_433": {
+  "z_from_tip": 710.5,
+  "length": 53.0,
+  "radius": 26.4
+ },
+ "rpsma_bulkhead_extension_jack": {
+  "z_from_tip": 700.4,
+  "length": 26.0,
+  "radius": 24.5
+ },
+ "antenna_433_rpsma_115mm": {
+  "z_from_tip": 628.5,
+  "length": 115.0,
+  "radius": 25.4
  },
  "payload_example_25g": {
   "z_from_tip": 509.5,
@@ -170,40 +185,40 @@
   "radius": 20.0
  },
  "lead_tvc_ring": {
-  "z_from_tip": 730.1,
+  "z_from_tip": 729.0,
   "length": 144.9,
-  "radius": 11.3,
-  "path_length_mm": 158.0
+  "radius": 24.2,
+  "path_length_mm": 166.0
  },
  "lead_tvc_holder": {
-  "z_from_tip": 714.4,
+  "z_from_tip": 711.3,
   "length": 118.9,
-  "radius": 13.7,
-  "path_length_mm": 132.0
+  "radius": 24.2,
+  "path_length_mm": 158.0
  },
  "lead_tab1": {
-  "z_from_tip": 777.0,
+  "z_from_tip": 770.5,
   "length": 214.1,
   "radius": 77.0,
-  "path_length_mm": 272.0
+  "path_length_mm": 288.0
  },
  "lead_tab2": {
-  "z_from_tip": 774.7,
+  "z_from_tip": 768.2,
   "length": 214.1,
   "radius": 77.0,
-  "path_length_mm": 279.0
+  "path_length_mm": 295.0
  },
  "lead_tab3": {
-  "z_from_tip": 773.5,
+  "z_from_tip": 767.7,
   "length": 214.1,
   "radius": 77.0,
-  "path_length_mm": 281.0
+  "path_length_mm": 296.0
  },
  "lead_tab4": {
-  "z_from_tip": 773.0,
+  "z_from_tip": 769.6,
   "length": 214.1,
   "radius": 77.0,
-  "path_length_mm": 281.0
+  "path_length_mm": 290.0
  },
  "lead_release": {
   "z_from_tip": 382.7,

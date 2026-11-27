@@ -165,14 +165,14 @@
   "note": "Print with the bulkhead disc on the bed. 4 x M2.5x8 self-tapping screws hold the PCB",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 17421.24323750847,
-  "area_mm2": 19475.915795697943,
+  "volume_mm3": 16805.992460400284,
+  "area_mm2": 19205.086550295022,
   "centroid_assembly_mm": [
-   -0.9315585767912617,
-   -0.42467236773523986,
-   269.52582608761844
+   -1.5321517940538165,
+   -0.7161061393469783,
+   270.2149947942773
   ],
-  "r_gyr_mm": 21.75564215184157,
+  "r_gyr_mm": 21.57184681632409,
   "z_len_mm": 104.0
  },
  {
@@ -352,20 +352,100 @@
   "z_len_mm": 25.0
  },
  {
-  "name": "camera_pod",
+  "name": "camera_door",
   "qty": 1,
-  "note": "Cut a 27 x 30 mm window in the bottom tube (drill guide marks it); glue the flange",
+  "note": "PETG black, print standing on its bottom edge as exported, with a brim (no supports: the lens port's top is a short bridge). The lens looks through the port under the brow. Fit: hooks in at the top behind the cradle's rim, swing the bottom in, turn the latch",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 9268.12884293581,
-  "area_mm2": 9087.456845798457,
+  "volume_mm3": 2999.833704367562,
+  "area_mm2": 3666.234347698227,
   "centroid_assembly_mm": [
-   7.228727630326493e-08,
-   -30.549032590615212,
-   221.2454394202294
+   -7.494826595232917e-08,
+   -28.278225790148046,
+   212.84369049754685
   ],
-  "r_gyr_mm": 30.759043855594282,
-  "z_len_mm": 51.100006103515625
+  "r_gyr_mm": 28.219607850777297,
+  "z_len_mm": 59.457000732421875
+ },
+ {
+  "name": "camera_latch_knob",
+  "qty": 1,
+  "note": "Quarter-turn latch as on the battery hatch: knob from outside, coin slot, flush. Head-down, 100% infill",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 107.45525089741248,
+  "area_mm2": 210.66005439699038,
+  "centroid_assembly_mm": [
+   -1.9656189544513568e-14,
+   -27.604430692248677,
+   183.5000000000002
+  ],
+  "r_gyr_mm": 28.06473767019974,
+  "z_len_mm": 8.79998779296875
+ },
+ {
+  "name": "camera_latch_cam",
+  "qty": 1,
+  "note": "Push onto the knob's square end from inside + a drop of CA. Arm DOWN = locked",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 41.14268037241127,
+  "area_mm2": 117.05794425180561,
+  "centroid_assembly_mm": [
+   -3.5439924870933017e-15,
+   -24.175000190734952,
+   180.73336120256795
+  ],
+  "r_gyr_mm": 24.25972253578263,
+  "z_len_mm": 10.100006103515625
+ },
+ {
+  "name": "camera_cradle",
+  "qty": 1,
+  "note": "PETG, 3 walls, 25%, as exported (no supports). Epoxy inside the bottom tube round the camera window (the drill guide marks it); the camera slides into the cup through the window, lens out, and the door holds it",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 11239.776589979421,
+  "area_mm2": 9617.732543149981,
+  "centroid_assembly_mm": [
+   2.3258438542544827e-07,
+   -14.497553626917602,
+   198.96613426793172
+  ],
+  "r_gyr_mm": 24.981733358744158,
+  "z_len_mm": 68.0
+ },
+ {
+  "name": "radio_cradle",
+  "qty": 1,
+  "note": "PETG, 3 walls, 20%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor 160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 5539.640206603181,
+  "area_mm2": 6812.302176103327,
+  "centroid_assembly_mm": [
+   -9.312824855423786,
+   13.300093535813124,
+   181.65956060566668
+  ],
+  "r_gyr_mm": 20.517402980267807,
+  "z_len_mm": 49.0
+ },
+ {
+  "name": "antenna_mount",
+  "qty": 1,
+  "note": "PETG, 3 walls, 40%, shelf on the bed as exported. Epoxy to the bottom-tube wall at 30 deg, shelf top 204 mm above the tube's bottom end; the RP-SMA bulkhead socket goes through the hole from below, nut on top, antenna screwed on",
+  "group": "rocket",
+  "part": "bottom",
+  "volume_mm3": 1728.428084463946,
+  "area_mm2": 1680.8926760971494,
+  "centroid_assembly_mm": [
+   19.66926863188981,
+   11.356057135375073,
+   196.35107114689356
+  ],
+  "r_gyr_mm": 22.639436988506148,
+  "z_len_mm": 22.0
  },
  {
   "name": "battery_hatch_door",
@@ -514,18 +594,18 @@
  {
   "name": "tool_drill_guide_bottom_tube",
   "qty": 1,
-  "note": "Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, battery-hatch opening (cut along the guide's edges with a sharp knife), lug line",
+  "note": "Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, battery-hatch opening (cut along the guide's edges with a sharp knife), lug line, radio-cradle and antenna-mount lines",
   "group": "tool",
   "part": "",
-  "volume_mm3": 47675.19079187399,
-  "area_mm2": 50668.23186747004,
+  "volume_mm3": 60282.07025263035,
+  "area_mm2": 64668.01845558468,
   "centroid_assembly_mm": [
-   0.15385330806544373,
-   -1.437758246445983,
-   268.98164411147616
+   0.09671763334404461,
+   -0.9467912205928026,
+   248.90865648283292
   ],
-  "r_gyr_mm": 28.994042966444187,
-  "z_len_mm": 148.0
+  "r_gyr_mm": 28.999910529711585,
+  "z_len_mm": 186.0
  },
  {
   "name": "tool_drill_guide_middle_tube",

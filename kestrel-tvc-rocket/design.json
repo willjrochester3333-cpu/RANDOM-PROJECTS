@@ -245,6 +245,38 @@
       ]
     },
     {
+      "name": "radio_sik_v3_433_module",
+      "mass_g": 16.0,
+      "cad_ref": [
+        "radio_sik_v3_433"
+      ],
+      "note": "Holybro SiK Telemetry Radio V3 433 MHz, 28 x 53 x 10.7 mm; Holybro gives 23.5 g WITH its antenna: the 16 / 7.5 g split between module and antenna is an estimate"
+    },
+    {
+      "name": "antenna_433_rpsma_whip",
+      "mass_g": 7.5,
+      "cad_ref": [
+        "antenna_433_rpsma_115mm"
+      ],
+      "note": "rocket antenna, 433 MHz RP-SMA whip <= 125 mm (reference: 3DR 433 MHz, 115 mm); mass estimated (see the radio's note)"
+    },
+    {
+      "name": "rpsma_extension_bulkhead_152mm",
+      "mass_g": 7.0,
+      "cad_ref": [
+        "rpsma_bulkhead_extension_jack"
+      ],
+      "note": "Amphenol RF 095-902-536-006, RG-316 152 mm, RP-SMA bulkhead jack + plug, nut and washer; mass estimated (RG-316 ~10 g/m + connectors)"
+    },
+    {
+      "name": "radio_cable_jst_gh_6p",
+      "mass_g": 2.0,
+      "z_above_tail": 230.0,
+      "length": 40,
+      "radius": 15,
+      "note": "the radio's JST-GH 6-pin cable to the board's radio socket (estimate)"
+    },
+    {
       "name": "parachute_36in_nylon",
       "mass_g": 35.0,
       "cad_ref": [
@@ -318,11 +350,19 @@
     }
   ],
   "_cad_notes": "Blender Z = distance above the aft end of the lower body tube (mm). Avionics band (4 mm) sits between lower and upper tubes.",
-  "camera_pod": {
-    "width_mm": 26.8,
-    "protrusion_mm": 14.5,
-    "cd": 0.45,
-    "note": "external pod, lens axis 1.5 mm outside the tube; frontal area = width x protrusion (drag model)"
+  "camera_door": {
+    "deg": 270.0,
+    "tilt_down_deg": 30.0,
+    "window_mm": [
+      25.0,
+      46.0
+    ],
+    "door_width_mm": 29.0,
+    "door_thickness_mm": 1.2,
+    "brow_height_mm": 5.0,
+    "brow_frontal_mm2": 86.8,
+    "cd_brow": 0.45,
+    "note": "KESTREL-2e: the SQ12 camera sits inside the bottom tube behind a door ON the tube (like the battery hatch), lens 30 deg down. A 23 mm cube tilted 30 deg puts the top edge of its lens face ~4 mm further out than the lens, so a small faired brow on the door covers it: 5.0 mm proud of the door, 86.8 mm2 frontal area (cad/kestrel_cad.py camera_brow_numbers), vs the old pod's 14.5 mm and 389 mm2. Drag model: cd 0.45 on the brow's frontal area (as the pod had) + the door's edge step like the battery hatch"
   },
   "payload": {
     "max_mass_g": 50,

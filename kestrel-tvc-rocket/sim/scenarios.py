@@ -47,8 +47,14 @@ CASES = [
     ("roll_program", "camera panorama: 90 deg/s roll programme in the coast", {}, dict(roll_program_dps=90), "normal_noroll"),
     ("coast_rate_only", "tabs only damp pitch/yaw in the coast (no attitude hold)", {}, dict(coast_hold_attitude=0), "normal"),
     ("tabs_disabled", "tabs switched off in the settings (TVC only, like KESTREL-1)", {}, dict(fins_enabled=0), "normal_noroll"),
-    ("motor_D20", "TSP D20-0 in the 24 mm adapter (first test hops)", dict(motor="TSP-D20"), {}, "normal"),
-    ("motor_E20", "TSP E20-0 in the 24 mm adapter (second test flights)", dict(motor="TSP-E20"), {}, "normal"),
+    ("motor_D20", "TSP D20-0 in the adapter: optional, no longer in the flight programme (too low for a relaxed parachute)",
+     dict(motor="TSP-D20"), {}, "normal"),
+    ("motor_E20", "TSP E20-0 in the 24 mm adapter, 25 g payload, 3 m/s wind + gusts", dict(motor="TSP-E20"), {}, "normal"),
+    ("e20_flight1_tvc_only", "FIRST FLIGHT: E20, TVC only (tabs 0), no payload, 3 m/s wind + gusts",
+     dict(motor="TSP-E20", payload_g=0.0), dict(fins_enabled=0), "normal_noroll"),
+    ("e20_flight2_tabs", "SECOND FLIGHT: E20, TVC + tabs, no payload, 3 m/s wind + gusts", dict(motor="TSP-E20", payload_g=0.0), {}, "normal"),
+    ("e20_flight1_tvc_dead", "FAULT on the first flight: E20, tabs off and the TVC servos dead, 3 m/s",
+     dict(motor="TSP-E20", payload_g=0.0, servo_failure="dead"), dict(fins_enabled=0), "fault_safe"),
     ("motor_curve", "F35 performing like its published test curve instead of its rating", dict(motor_basis="curve"), {}, "normal"),
     ("unarmed_launch", "FAULT: launched before calibration finished (1 s on the pad)", dict(t_pad=1.0), {}, "fault_safe"),
     ("tvc_off_calm", "FAULT: TVC servos dead, calm", dict(servo_failure="dead", wind_speed=0.0, gust_sigma=0.0), {}, "fault_safe"),
@@ -70,7 +76,7 @@ CASES = [
     ("motor_E12", "TSP E12-0: NOT for KESTREL-2 (too little thrust for its mass)", dict(motor="TSP-E12"), {}, "fault_info"),
 ]
 
-PLOTS = ("nominal_wind3", "wind9_limit", "fin_cant2", "tabs_disabled", "roll_program", "tvc_off_wind3", "servo_hardover",
+PLOTS = ("nominal_wind3", "e20_flight1_tvc_only", "wind9_limit", "fin_cant2", "tabs_disabled", "roll_program", "tvc_off_wind3", "servo_hardover",
          "tab_hardover", "baro_dead", "payload_50g", "unarmed_launch", "rod_1.5m_wind6", "passive_wind3", "passive_wind6")
 
 

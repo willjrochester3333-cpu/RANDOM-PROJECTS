@@ -18,6 +18,8 @@ SETTINGS = {  # (wall mm, infill fraction) - match the print notes in the build 
     "payload_wall": (1.2, 0.25), "top_latch_insert": (1.2, 0.25), "fin_control_tab": (1.2, 0.20),
     "tvc_motor_adapter_24mm": (1.2, 0.30), "tvc_motor_retainer_24mm": (1.2, 0.40), "tvc_motor_spacer_D": (1.2, 0.30),
     "fin_leg": (1.2, 1.00),                      # tough PLA, solid: the post's strength is designed for 100 % infill
+    "camera_cradle": (0.8, 0.10), "radio_cradle": (0.8, 0.15), "antenna_mount": (1.2, 0.40),   # light loads: 2 walls
+    "camera_latch_knob": (1.2, 1.00), "camera_latch_cam": (1.2, 1.00),
     "default": (1.2, 0.20),
 }
 # parts flown only with some motors: the simulator adds them when the loaded motor matches

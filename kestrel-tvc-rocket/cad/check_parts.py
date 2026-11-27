@@ -30,7 +30,7 @@ SUPPORTS = {
 # parts whose larger flat overhangs are bridges (supported on both sides), reviewed by hand
 BRIDGES = {
     "fin_can": "printed upside down: lead-channel floors bridge 9 mm and servo-pocket floors 12.6 mm between the fin skins",
-    "camera_pod": "camera-pocket roof bridges 23.6 mm between its side walls",
+    "camera_door": "standing on its bottom edge: the lens port's top bridges ~20 mm between the brow's sides",
     "fin_leg": "printed sleeve-rim down: the pocket roof bridges 12.6 mm between the sleeve's side walls",
 }
 MAX_UNSUPPORTED_MM2 = 120.0   # flat downward region allowed without supports (bridges such as window tops are longer but narrow)

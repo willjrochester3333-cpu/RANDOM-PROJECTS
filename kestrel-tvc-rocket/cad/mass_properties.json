@@ -81,10 +81,10 @@
  },
  {
   "name": "avbay_sled",
-  "mass_g": 21.8,
-  "z": 629.5,
+  "mass_g": 21.0,
+  "z": 628.8,
   "length": 0.0,
-  "radius": 21.8,
+  "radius": 21.6,
   "source": "CAD"
  },
  {
@@ -189,11 +189,51 @@
   "source": "CAD"
  },
  {
-  "name": "camera_pod",
-  "mass_g": 11.6,
-  "z": 677.8,
+  "name": "camera_door",
+  "mass_g": 3.7,
+  "z": 686.2,
   "length": 0.0,
-  "radius": 30.8,
+  "radius": 28.2,
+  "source": "CAD"
+ },
+ {
+  "name": "camera_latch_knob",
+  "mass_g": 0.1,
+  "z": 715.5,
+  "length": 0.0,
+  "radius": 28.1,
+  "source": "CAD"
+ },
+ {
+  "name": "camera_latch_cam",
+  "mass_g": 0.1,
+  "z": 718.3,
+  "length": 0.0,
+  "radius": 24.3,
+  "source": "CAD"
+ },
+ {
+  "name": "camera_cradle",
+  "mass_g": 10.1,
+  "z": 700.0,
+  "length": 0.0,
+  "radius": 25.0,
+  "source": "CAD"
+ },
+ {
+  "name": "radio_cradle",
+  "mass_g": 6.8,
+  "z": 717.3,
+  "length": 0.0,
+  "radius": 20.5,
+  "source": "CAD"
+ },
+ {
+  "name": "antenna_mount",
+  "mass_g": 2.2,
+  "z": 702.6,
+  "length": 0.0,
+  "radius": 22.6,
   "source": "CAD"
  },
  {

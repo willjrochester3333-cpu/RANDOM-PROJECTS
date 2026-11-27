@@ -120,6 +120,16 @@ button, select, input { font: inherit; color: inherit; }
 .srow .tag.crit { color: #ff9c9c; border-color: var(--crit); }
 .srow .val { margin-left: auto; font-family: var(--mono); color: var(--ink); white-space: nowrap; }
 .feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; max-height: 210px; overflow: auto; }
+.btn.small { padding: 5px 9px; font-size: 12px; }
+.note2 { font-size: 12px; color: var(--ink-2); line-height: 1.35; }
+.windset { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+.windset input { width: 4.4em; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px 5px; font-family: var(--mono); font-size: 12px; }
+.llrow { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+.llrow .num { margin-right: auto; }
+.setup-log { font-family: var(--mono); font-size: 12px; background: var(--void); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-height: 38vh; overflow: auto; white-space: pre-wrap; color: var(--ink-2); margin: 0; }
+.setup-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.setup-table th, .setup-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.setup-table td.ok { color: #9ff09f; } .setup-table td.bad { color: var(--warn); }
 .feed li { display: grid; grid-template-columns: 62px 1fr; gap: 8px; color: var(--ink-2); }
 .feed li b { font-family: var(--mono); font-weight: 500; color: var(--muted); }
 
@@ -207,6 +217,9 @@ button, select, input { font: inherit; color: inherit; }
       <button class="btn" id="btnUsb" type="button" title="Connect the flight computer or a ground-station receiver over USB">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v14M8 7l4-4 4 4M7 13h10M7 13v3a5 5 0 0 0 10 0v-3"/></svg>
         Connect USB</button>
+      <button class="btn" id="btnRadio" type="button" title="Connect the ground radio (SiK 433 MHz) for live telemetry from the rocket">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20v-8M9.2 9.2a4 4 0 0 1 5.6 0M6.3 6.3a8 8 0 0 1 11.4 0M3.5 3.5a12 12 0 0 1 17 0"/><circle cx="12" cy="12" r="1.2"/></svg>
+        Connect radio</button>
       <button class="btn" id="btnLoad" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 15v4h16v-4M12 4v11M8 8l4-4 4 4"/></svg>
         Load flight</button>
@@ -238,6 +251,20 @@ button, select, input { font: inherit; color: inherit; }
         <div class="kv"><span class="k">Tilt off target</span><span class="v" id="tilt">–</span></div>
         <div class="kv"><span class="k">Roll</span><span class="v" id="roll">–</span></div>
       </div>
+    </section>
+    <section class="panel card" aria-labelledby="hLand">
+      <h2 class="eyebrow" id="hLand">Landing prediction</h2>
+      <div class="big"><span class="v num" id="ldDist">–</span><span class="u">m</span><span class="alt2 num" id="ldBrg">–</span></div>
+      <div class="grid2">
+        <div class="kv"><span class="k">Lands in</span><span class="v" id="ldTime">–</span></div>
+        <div class="kv"><span class="k">Apogee forecast</span><span class="v" id="ldApo">–</span></div>
+        <div class="kv"><span class="k">Wind</span><span class="v" id="ldWind">–</span></div>
+        <div class="kv"><span class="k">Descent rate</span><span class="v" id="ldDesc">–</span></div>
+      </div>
+      <div class="note2" id="ldNote">Where the rocket will come down: from the live data, the wind and the parachute's descent rate.</div>
+      <div class="windset"><label for="windSpd">Wind before launch</label><input id="windSpd" type="number" min="0" max="15" step="0.5" placeholder="m/s" aria-label="Wind speed, m/s"> m/s
+        from <input id="windDir" type="number" min="0" max="359" step="5" placeholder="deg" aria-label="Wind comes from, degrees"> °</div>
+      <div class="llrow"><span class="num" id="ldLL">–</span><button class="btn small" id="btnCopyLL" type="button" disabled>Copy position</button></div>
     </section>
   </aside>
 
@@ -285,6 +312,17 @@ button, select, input { font: inherit; color: inherit; }
         <div class="srow"><span class="tag" id="tLink">Data</span><span class="val" id="vLink">–</span></div>
       </div>
     </section>
+    <section class="panel card" aria-labelledby="hRadio">
+      <h2 class="eyebrow" id="hRadio">Radio link</h2>
+      <div class="status">
+        <div class="srow"><span class="tag" id="tRx">Frames</span><span class="val" id="vRx">–</span></div>
+        <div class="srow"><span class="tag" id="tLoss">Lost</span><span class="val" id="vLoss">–</span></div>
+        <div class="srow"><span class="tag" id="tSig">Signal here</span><span class="val" id="vSig">–</span></div>
+        <div class="srow"><span class="tag" id="tUp">At the rocket</span><span class="val" id="vUp">–</span></div>
+        <div class="srow"><span class="tag" id="tAir">Airtime</span><span class="val" id="vAir">–</span></div>
+      </div>
+      <button class="btn small" id="btnRadioSetup" type="button" title="Set a SiK radio plugged into this computer to the UK licence-free settings">Set up a radio (UK settings)…</button>
+    </section>
     <section class="panel card" aria-labelledby="hLog">
       <h2 class="eyebrow" id="hLog">Log</h2>
       <ul class="feed" id="feed"></ul>
@@ -315,6 +353,19 @@ button, select, input { font: inherit; color: inherit; }
     <p class="meta" id="sheetNote" style="margin:0;color:var(--ink-2)">Flights recorded or loaded here are kept in this browser for quick replays. Use Save flight to keep a file.</p>
     <ul class="flist" id="flist"></ul>
     <div class="row" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" id="btnSheetClose" type="button">Close</button></div>
+  </div>
+</div>
+<div class="sheet" id="rsheet" hidden>
+  <div class="box panel" role="dialog" aria-modal="true" aria-labelledby="hRsheet">
+    <h3 id="hRsheet">Set up a radio (UK settings)</h3>
+    <p class="note2" style="margin:0">Do this once for <b>each</b> of the two radios, before the rocket's radio goes into the rocket: plug ONE radio
+      into this computer's USB (nothing else needs to be on), press <b>Set up</b> and choose its port. The page reads all its settings, sets
+      the transmit power to 8 dBm (6.3 mW: with the 2 dBi antennas that is about 6 mW e.r.p., inside the UK's 10 mW limit for
+      433.05–434.79 MHz) and the network ID to 75, so both radios match and ignore other SiK users, saves and restarts the radio.
+      Everything else stays at the SiK defaults (57600 baud, 64 kbit/s air rate, MAVLink framing on).</p>
+    <pre class="setup-log" id="rsLog">Not started.</pre>
+    <table class="setup-table" id="rsTable" hidden></table>
+    <div class="row" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn primary" id="btnRsGo" type="button">Set up</button><button class="btn" id="btnRsClose" type="button">Close</button></div>
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -1188,6 +1239,7 @@ function parseLine(line) {
   if (p.length < 28) return null;
   const r = {};
   for (let i = 0; i < COLS.length; i++) { const v = Number(p[i]); if (!isFinite(v)) return null; r[COLS[i]] = v; }
+  const q = p.length > 28 ? Number(p[28]) : NaN; r.rssi = isFinite(q) ? q : 0;      // fw 3.00: radio signal at the rocket
   return r;
 }
 function parseLog(text) {
@@ -1207,9 +1259,10 @@ function parseLog(text) {
   return sessions.filter((s) => s.rows.length > 1);
 }
 function toCsv(flight) {
-  const head = COLS.join(",");
+  const cols = flight.rows.some((r) => r.rssi) ? COLS.concat(["rssi"]) : COLS;
+  const head = cols.join(",");
   const fx = (k, v) => (k === "lat" || k === "lon") ? v.toFixed(7) : (k === "vbat" ? v.toFixed(3) : (Number.isInteger(v) && ["t_ms", "state", "flags", "gps_alt", "sats"].includes(k) ? String(v) : v.toFixed(k[0] === "q" ? 4 : 2)));
-  const body = flight.rows.map((r) => COLS.map((k) => fx(k, r[k])).join(","));
+  const body = flight.rows.map((r) => cols.map((k) => k === "rssi" ? String(Math.round(r.rssi || 0)) : fx(k, r[k])).join(","));
   return head + "\n# session: " + flight.label.replace(/[\r\n]/g, " ") + "\n" + body.join("\n") + "\n# end: " + body.length + " records, 0 failed CRC\n";
 }
 
@@ -1299,11 +1352,280 @@ function rotate(q, v) {           // rotate body vector v by quaternion q = [w, 
   return [vx + w * tx + (y * tz - z * ty), vy + w * ty + (z * tx - x * tz), vz + w * tz + (x * ty - y * tx)];
 }
 
+/* ------------------------------------------------------------------ radio telemetry (SiK 433 MHz, MAVLink v1 framing)
+   Mirrors firmware/core/include/kestrel/telemetry.hpp. ground/test_radio.mjs checks this decoder against frames
+   made by ground/radio_frames.py (whose CRC is checked against pymavlink reference frames).                        */
+/* TLM-BEGIN */
+const TLM = (() => {
+  const STX = 0xFE, SYS = 75, FAST = 230, SLOW = 231, HB = 0, RS = 109;
+  const EXTRA = { 0: 50, 109: 185, 230: 0x4B, 231: 0x53 };
+  function crc(b, i0, i1, c) {
+    c = c === undefined ? 0xFFFF : c;
+    for (let i = i0; i < i1; i++) { let t = (b[i] ^ (c & 0xFF)) & 0xFF; t = (t ^ (t << 4)) & 0xFF; c = ((c >> 8) ^ (t << 8) ^ (t << 3) ^ (t >> 4)) & 0xFFFF; }
+    return c;
+  }
+  function encode(msgid, seq, payload, sys, comp) {
+    const n = payload.length, f = new Uint8Array(n + 8);
+    f[0] = STX; f[1] = n; f[2] = seq & 255; f[3] = sys === undefined ? SYS : sys; f[4] = comp === undefined ? 1 : comp; f[5] = msgid;
+    f.set(payload, 6);
+    let c = crc(f, 1, 6 + n); c = crc([EXTRA[msgid]], 0, 1, c);
+    f[6 + n] = c & 255; f[7 + n] = c >> 8;
+    return f;
+  }
+  class Decoder {                  // sliding window: a bad candidate costs only itself, a good frame is copied out
+    constructor() { this.w = new Uint8Array(144); this.n = 0; this.good = 0; this.bad = 0; }
+    drop(k) { if (k >= this.n) { this.n = 0; return; } this.w.copyWithin(0, k, this.n); this.n -= k; }
+    feed(b) {
+      if (this.n === this.w.length) this.drop(1);
+      this.w[this.n++] = b;
+      for (;;) {
+        let k = 0; while (k < this.n && this.w[k] !== STX) k++;
+        if (k) this.drop(k);
+        if (this.n < 2) return null;
+        const len = this.w[1];
+        if (len > 64) { this.bad++; this.drop(1); continue; }
+        const need = len + 8; if (this.n < need) return null;
+        const id = this.w[5];
+        if (id in EXTRA) {
+          let c = crc(this.w, 1, 6 + len); c = crc([EXTRA[id]], 0, 1, c);
+          if ((this.w[6 + len] | (this.w[7 + len] << 8)) === c) {
+            const fr = { msgid: id, seq: this.w[2], sys: this.w[3], comp: this.w[4], len, payload: this.w.slice(6, 6 + len) };
+            this.good++; this.drop(need); return fr;
+          }
+        }
+        this.bad++; this.drop(1);
+      }
+    }
+  }
+  const dv = (p) => new DataView(p.buffer, p.byteOffset, p.byteLength);
+  function fast(p) {               // KESTREL_FAST, 42 bytes
+    const d = dv(p);
+    return { t: d.getUint32(0, true), state: d.getUint8(4), flags: d.getUint8(5),
+      g: [d.getInt16(6, true), d.getInt16(8, true), d.getInt16(10, true)], a: [d.getInt16(12, true), d.getInt16(14, true), d.getInt16(16, true)],
+      alt: d.getFloat32(18, true), vz: d.getInt16(22, true), tilt: d.getInt16(24, true), gy: d.getInt16(26, true), gz: d.getInt16(28, true),
+      q: [d.getInt16(30, true), d.getInt16(32, true), d.getInt16(34, true)], tabs: [d.getInt8(36), d.getInt8(37), d.getInt8(38), d.getInt8(39)],
+      roll: d.getInt16(40, true) };
+  }
+  function slow(p) {               // KESTREL_SLOW, 46 bytes
+    const d = dv(p);
+    return { t: d.getUint32(0, true), lat: d.getInt32(4, true) / 1e7, lon: d.getInt32(8, true) / 1e7, gpsAlt: d.getInt16(12, true),
+      sats: d.getUint8(14), gpsOk: d.getUint8(15) === 1, baro: d.getFloat32(16, true), vbat: d.getUint16(20, true) / 1000,
+      cell1: d.getUint16(22, true) / 1000, servoV: d.getUint16(24, true) / 1000, flightNo: d.getUint16(26, true), fw: d.getUint16(28, true),
+      motor: d.getUint8(30), status: d.getUint8(31), apogee: d.getInt16(32, true) / 10, airtime: d.getUint16(34, true) / 10,
+      rssiLocal: d.getUint8(36), rssiRemote: d.getUint8(37), logDropped: d.getUint16(38, true), logRecords: d.getUint32(40, true),
+      deployReason: d.getUint8(44), groundHeard: d.getUint8(45) === 1 };
+  }
+  function radioStatus(p) {
+    const d = dv(p);
+    return { rxerrors: d.getUint16(0, true), fixed: d.getUint16(2, true), rssi: d.getUint8(4), remrssi: d.getUint8(5), txbuf: d.getUint8(6),
+      noise: d.getUint8(7), remnoise: d.getUint8(8) };
+  }
+  // SiK (Si1000) RSSI units -> dBm, as QGroundControl does for 3DR/SiK radios: input power = rssi / 1.9 - 127
+  const dbm = (r) => r > 0 ? Math.max(-120, Math.min(0, r / 1.9 - 127)) : NaN;
+  function heartbeat(seq) {        // a ground-station HEARTBEAT: makes the ground radio report RADIO_STATUS (link quality)
+    return encode(HB, seq, new Uint8Array([0, 0, 0, 0, 6, 8, 0, 4, 3]), 255, 190);
+  }
+  function packFast(o) {
+    const b = new Uint8Array(42), d = dv(b);
+    d.setUint32(0, o.t, true); d.setUint8(4, o.state); d.setUint8(5, o.flags);
+    for (let i = 0; i < 3; i++) { d.setInt16(6 + 2 * i, o.g[i], true); d.setInt16(12 + 2 * i, o.a[i], true); d.setInt16(30 + 2 * i, o.q[i], true); }
+    d.setFloat32(18, o.alt, true); d.setInt16(22, o.vz, true); d.setInt16(24, o.tilt, true); d.setInt16(26, o.gy, true); d.setInt16(28, o.gz, true);
+    for (let k = 0; k < 4; k++) d.setInt8(36 + k, o.tabs[k]);
+    d.setInt16(40, o.roll, true);
+    return b;
+  }
+  function packSlow(o) {
+    const b = new Uint8Array(46), d = dv(b);
+    d.setUint32(0, o.t, true); d.setInt32(4, Math.round(o.lat * 1e7), true); d.setInt32(8, Math.round(o.lon * 1e7), true);
+    d.setInt16(12, o.gpsAlt, true); d.setUint8(14, o.sats); d.setUint8(15, o.gpsOk ? 1 : 0); d.setFloat32(16, o.baro, true);
+    d.setUint16(20, Math.round(o.vbat * 1000), true); d.setUint16(22, Math.round((o.cell1 || 0) * 1000), true);
+    d.setUint16(24, Math.round((o.servoV || 0) * 1000), true); d.setUint16(26, o.flightNo, true); d.setUint16(28, o.fw, true);
+    d.setUint8(30, o.motor); d.setUint8(31, o.status || 0); d.setInt16(32, Math.round(o.apogee * 10), true); d.setUint16(34, Math.round(o.airtime * 10), true);
+    d.setUint8(36, o.rssiLocal || 0); d.setUint8(37, o.rssiRemote || 0); d.setUint16(38, 0, true); d.setUint32(40, o.logRecords || 0, true);
+    d.setUint8(44, 0); d.setUint8(45, o.groundHeard ? 1 : 0);
+    return b;
+  }
+  function rate(state, tLanded) {  // frames per second the rocket sends (firmware rates_for, budget level 0): [motion, status]
+    if (state >= 3 && state <= 5) return [50, 5];
+    if (state === 2) return [1, 0.5];
+    if (state === 6) return [0, tLanded < 60 ? 1 : 0.2];
+    return [0, 1];
+  }
+  // row in the flight computer's log format from a motion frame and the latest status frame
+  function toRow(f, s) {
+    return { t_ms: f.t, state: f.state, flags: f.flags, gx_dps: f.g[0] / 100, gy_dps: f.g[1] / 100, gz_dps: f.g[2] / 100,
+      ax: f.a[0] / 100, ay: f.a[1] / 100, az: f.a[2] / 100, alt_m: f.alt, vz_ms: f.vz / 100, baro_alt_m: s ? s.baro : f.alt,
+      tilt_deg: f.tilt / 100, gimbal_y: f.gy / 100, gimbal_z: f.gz / 100, vbat: s ? s.vbat : 0,
+      lat: s && s.gpsOk ? s.lat : 0, lon: s && s.gpsOk ? s.lon : 0, gps_alt: s ? s.gpsAlt : 0, sats: s ? s.sats : 0,
+      qx: f.q[0] / 32767, qy: f.q[1] / 32767, qz: f.q[2] / 32767, tab1: f.tabs[0] / 4, tab2: f.tabs[1] / 4, tab3: f.tabs[2] / 4, tab4: f.tabs[3] / 4,
+      roll_deg: f.roll / 100, rssi: s ? s.rssiLocal : 0 };
+  }
+  return { STX, SYS, FAST, SLOW, HB, RS, EXTRA, crc, encode, Decoder, fast, slow, radioStatus, dbm, heartbeat, packFast, packSlow, rate, toRow };
+})();
+/* TLM-END */
+
+/* A radio session: turns decoded frames into flights (one per power-on of the rocket = its flight number) + link statistics.
+   Used by the real ground radio (Web Serial) and by the simulated flight, which goes through the same decoder.           */
+class RadioSession {
+  constructor(kind) {
+    this.kind = kind; this.dec = new TLM.Decoder(); this.slow = null; this.lastFast = null; this.lastFastAt = -1e9; this.flight = null;
+    this.rs = null; this.rsAt = -1e9; this.seq = -1; this.frames = 0; this.lost = 0; this.hist = []; this.heard = -1e9; this.bytesIn = 0;
+    this.rocketState = null; this.onFlight = null; this.t0 = performance.now();
+  }
+  bytes(u8, now) { this.bytesIn += u8.length; for (let i = 0; i < u8.length; i++) { const fr = this.dec.feed(u8[i]); if (fr) this.frame(fr, now); } }
+  ensureFlight(no) {
+    if (this.flight && this.flight.flightNo === no) return this.flight;
+    const f = new Flight((this.kind === "sim" ? "Simulated radio" : "Radio") + " · flight " + (no || "?") + " · " + new Date().toLocaleString(), this.kind === "sim" ? "sim" : "radio");
+    f.flightNo = no; f.link = { frames: 0, lost: 0, rssiMin: null };
+    this.flight = f; if (this.onFlight) this.onFlight(f); return f;
+  }
+  frame(fr, now) {
+    if (fr.sys === TLM.SYS) {
+      this.heard = now;
+      if (this.seq >= 0) { const gap = (fr.seq - this.seq - 1 + 256) & 255; if (gap < 128) { this.lost += gap; this.hist.push([now, 0, gap]); } }
+      this.seq = fr.seq; this.frames++; this.hist.push([now, 1, 0]);
+      while (this.hist.length && now - this.hist[0][0] > 10000) this.hist.shift();
+      if (this.flight) { this.flight.link.frames++; }
+      if (fr.msgid === TLM.FAST && fr.len === 42) {
+        const f = TLM.fast(fr.payload); this.lastFast = f; this.lastFastAt = now;
+        const fl = this.ensureFlight(this.slow ? this.slow.flightNo : 0);
+        if (fl.add(TLM.toRow(f, this.slow))) { app.rateCount++; app.lastPacket = now; }
+      } else if (fr.msgid === TLM.SLOW && fr.len === 46) {
+        const s = TLM.slow(fr.payload); this.slow = s;
+        const fl = this.ensureFlight(s.flightNo);
+        if (s.rssiLocal && (fl.link.rssiMin == null || s.rssiLocal < fl.link.rssiMin)) fl.link.rssiMin = s.rssiLocal;
+        if (now - this.lastFastAt > 600) {         // on the pad / landed only status frames come: carry the last motion values
+          const base = this.lastFast ? Object.assign({}, this.lastFast, { t: s.t }) :
+            { t: s.t, state: 0, flags: s.gpsOk ? 8 : 0, g: [0, 0, 0], a: [0, 0, 981], alt: 0, vz: 0, tilt: 0, gy: 0, gz: 0, q: [0, 0, 0], tabs: [0, 0, 0, 0], roll: 0 };
+          if (fl.add(TLM.toRow(base, s))) { app.rateCount++; app.lastPacket = now; }
+        }
+      } else if (fr.msgid === TLM.HB && fr.len === 9) {
+        this.rocketState = fr.payload[0];
+      }
+      if (this.flight) this.flight.link.lost = this.lost;
+    } else if (fr.msgid === TLM.RS && fr.len === 9) {
+      this.rs = TLM.radioStatus(fr.payload); this.rsAt = now;
+    }
+  }
+  stats(now) {
+    let n = 0, lost = 0; for (const [t, k, g] of this.hist) if (now - t <= 10000) { n += k; lost += g; }
+    const span = Math.min(10, Math.max(1, (now - Math.max(this.t0, now - 10000)) / 1000));
+    return { rate: n / span, loss: n + lost ? lost / (n + lost) : 0, total: this.frames, lostTotal: this.lost, age: (now - this.heard) / 1000 };
+  }
+}
+
+/* ------------------------------------------------------------------ landing prediction
+   Before launch: the motor's nominal apogee and the wind you enter. Boost / coast: apogee from the speed (drag included),
+   then drift. Under the parachute: the drift measured from the GPS track and the measured descent rate.            */
+const NOMINAL_APOGEE = { 0: 15, 2: 41, 5: 158 };   // motor index -> simulated apogee (m): D20, E20, F35 (sim/whatif.py)
+const DESCENT_DEFAULT = 5.1;                        // m/s under the 36 in canopy (sim scenarios)
+function windFromInput() {
+  const s = parseFloat($("windSpd").value), d = parseFloat($("windDir").value);
+  if (!isFinite(s) || !isFinite(d) || s < 0) return null;
+  const to = (d + 180) * Math.PI / 180;            // the wind blows FROM d, so things drift TOWARDS d + 180
+  return { e: s * Math.sin(to), n: s * Math.cos(to), src: "entered" };
+}
+function measuredWind(f, t) {                      // drift under the open canopy = the wind (after the opening swing settles)
+  if (!f.events.chute || t < f.events.chute.t + 5) return null;
+  const a = f.posAt(t - 5), b = f.posAt(t); if (!a.ok || !b.ok) return null;
+  return { e: (b.e - a.e) / 5, n: (b.n - a.n) / 5, src: "measured under the parachute" };
+}
+function measuredDescent(f, t) {
+  if (!f.events.chute || t < f.events.chute.t + 2.5) return null;
+  const i1 = f.index(t), i0 = f.index(t - 3); if (i1 <= i0) return null;
+  let s = 0, k = 0; for (let i = i0; i <= i1; i++) { const v = f.rows[i].v; if (isFinite(v)) { s += -v; k++; } }
+  const d = k ? s / k : NaN; return d > 1 && d < 15 ? d : null;
+}
+function predictLanding(f, t, sm) {
+  if (!f || !sm) return null;
+  const wind = measuredWind(f, t) || windFromInput() || { e: 0, n: 0, src: "none (enter it before launch)" };
+  const desc = measuredDescent(f, t) || DESCENT_DEFAULT;
+  const st = sm.state;
+  if (st === 6 || (f.events.landed && t >= f.events.landed.t)) return { e: sm.e, n: sm.n, tLeft: 0, landed: true, wind, desc, unc: 0 };
+  let apo = null, e0 = sm.e, n0 = sm.n, hDrop = sm.alt, tFall = 0;
+  if (f.tLaunch == null || t < f.tLaunch) {        // on the pad
+    const mi = radioMotor(); const h = NOMINAL_APOGEE[mi];
+    if (h == null) return { e: NaN, n: NaN, wind, desc, unknown: true };
+    apo = { e: 0, n: 0, alt: h, t: null }; hDrop = h; e0 = 0; n0 = 0;
+  } else if ((st === 3 || st === 4) && sm.vz > 0) { // going up: drag-limited coast to apogee
+    const k = 1.43e-3, g = 9.81, v = sm.vz;
+    const dh = Math.log(1 + k * v * v / g) / (2 * k), ta = Math.atan(v * Math.sqrt(k / g)) / Math.sqrt(g * k);
+    const p0 = f.posAt(t - 0.5), p1 = f.posAt(t); const ve = p1.ok && p0.ok ? (p1.e - p0.e) / 0.5 : 0, vn = p1.ok && p0.ok ? (p1.n - p0.n) / 0.5 : 0;
+    apo = { e: sm.e + ve * ta * 0.6, n: sm.n + vn * ta * 0.6, alt: sm.alt + dh, t: ta };
+    e0 = apo.e; n0 = apo.n; hDrop = apo.alt; tFall = ta;
+  }
+  const tDesc = hDrop / desc;
+  const e = e0 + wind.e * tDesc, n = n0 + wind.n * tDesc;
+  const drift = Math.hypot(e - sm.e, n - sm.n);
+  return { e, n, tLeft: tFall + tDesc, apo, wind, desc, unc: 8 + 0.3 * drift, landed: false };
+}
+function radioMotor() { const s = app.radio && app.radio.slow; if (s) return s.motor; const f = app.flight; return f && f.motorIndex != null ? f.motorIndex : 5; }
+function llOf(f, e, n) {
+  if (!f || f.lat0 == null || !isFinite(e)) return null;
+  const lat = f.lat0 + n / 111320, lon = f.lon0 + e / (111320 * Math.cos(f.lat0 * Math.PI / 180));
+  return lat.toFixed(6) + ", " + lon.toFixed(6);
+}
+function updatePrediction(sm) {
+  const f = app.flight; const p = f && sm ? predictLanding(f, app.playT, sm) : null; app.pred = p;
+  const none = () => { setText("ldDist", "–"); setText("ldBrg", "–"); setText("ldTime", "–"); setText("ldApo", "–"); setText("ldDesc", "–"); $("ldLL").textContent = "–"; $("btnCopyLL").disabled = true; };
+  if (!p || p.unknown) { none(); setText("ldWind", p ? windText(p.wind) : "–"); setText("ldNote", p && p.unknown ? "Unknown motor: the forecast starts at liftoff." : "Where the rocket will come down: from the live data, the wind and the parachute's descent rate."); return; }
+  const d = Math.hypot(p.e, p.n), b = (Math.atan2(p.e, p.n) * 180 / Math.PI + 360) % 360;
+  setText("ldDist", d.toFixed(0)); setText("ldBrg", d > 1 ? b.toFixed(0) + "° " + compass(b) + " of the pad" : "at the pad");
+  setText("ldTime", p.landed ? "landed" : p.tLeft.toFixed(0) + " s");
+  setText("ldApo", p.apo ? p.apo.alt.toFixed(0) + " m" : (f.events.apogee ? f.events.apogee.alt.toFixed(0) + " m (reached)" : "–"));
+  setText("ldDesc", p.desc.toFixed(1) + " m/s"); setText("ldWind", windText(p.wind));
+  setText("ldNote", p.landed ? "Landed here: walk to the green marker." : "Search circle ±" + p.unc.toFixed(0) + " m (orange ring on the map). Wind: " + p.wind.src + ".");
+  const ll = llOf(f, p.e, p.n); $("ldLL").textContent = ll || "no GPS position yet"; $("btnCopyLL").disabled = !ll;
+}
+function windText(w) { const s = Math.hypot(w.e, w.n); if (s < 0.05) return w.src.startsWith("none") ? "not set" : "calm";
+  const from = (Math.atan2(-w.e, -w.n) * 180 / Math.PI + 360) % 360; return s.toFixed(1) + " m/s from " + compass(from); }
+
+/* ------------------------------------------------------------------ radio set-up (AT commands, one radio on USB) */
+async function radioSetup() {
+  const log = $("rsLog"), tbl = $("rsTable"); const say = (t) => { log.textContent += "\n" + t; log.scrollTop = log.scrollHeight; };
+  if (!("serial" in navigator)) { log.textContent = "Needs Chrome or Edge on a computer (Web Serial). Open ground/kestrel_mission_control.html there."; return; }
+  let port; try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 57600 }); }
+  catch (e) { log.textContent = e && e.name === "NotFoundError" ? "No port chosen." : "Could not open that port here."; return; }
+  log.textContent = "Port open at 57600 baud."; tbl.hidden = true;
+  const enc = new TextEncoder(), dec = new TextDecoder(); let buf = ""; let alive = true;
+  const reader = port.readable.getReader();
+  (async () => { try { for (;;) { const { value, done } = await reader.read(); if (done) break; buf += dec.decode(value).replace(/[^\x09\x0a\x0d\x20-\x7e]/g, ""); } } catch (e) {} alive = false; })();
+  const write = async (t) => { const w = port.writable.getWriter(); try { await w.write(enc.encode(t)); } finally { w.releaseLock(); } };
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const cmd = async (c, ms = 700) => { buf = ""; await write(c + "\r\n"); await wait(ms); return buf; };
+  try {
+    await wait(1200); buf = ""; await write("+++"); await wait(1500);
+    if (!/OK/.test(buf)) { say("No OK after +++: is this a SiK radio, and is nothing else using the port? Try again."); return; }
+    say("Command mode."); say((await cmd("ATI")).trim());
+    const parse = (t) => { const o = {}; for (const m of t.matchAll(/S(\d+):\s*([A-Z_]+)\s*=\s*(-?\d+)/g)) o[m[2]] = { reg: +m[1], v: +m[3] }; return o; };
+    let p = parse(await cmd("ATI5", 1200));
+    if (!p.TXPOWER) { say("Could not read the settings (ATI5)."); return; }
+    const want = { TXPOWER: 8, NETID: 75 };
+    for (const [k, v] of Object.entries(want)) if (p[k] && p[k].v !== v) { say(`set ${k} ${p[k].v} -> ${v}: ` + (await cmd(`ATS${p[k].reg}=${v}`)).trim()); }
+    say("save: " + (await cmd("AT&W")).trim());
+    p = parse(await cmd("ATI5", 1200));
+    const expect = { SERIAL_SPEED: 57, AIR_SPEED: 64, NETID: 75, TXPOWER: 8, ECC: 0, MAVLINK: 1, DUTY_CYCLE: 100, LBT_RSSI: 0, MIN_FREQ: 433050, MAX_FREQ: 434790 };
+    tbl.innerHTML = "<tr><th>Setting</th><th>Radio</th><th>Wanted</th></tr>";
+    let bad = 0;
+    for (const [k, v] of Object.entries(expect)) {
+      const have = p[k] ? p[k].v : "–"; const ok = have === v; if (!ok) bad++;
+      const tr = document.createElement("tr"); for (const [t, c] of [[k, ""], [String(have), ok ? "ok" : "bad"], [String(v), ""]]) { const td = document.createElement("td"); td.textContent = t; if (c) td.className = c; tr.appendChild(td); }
+      tbl.appendChild(tr);
+    }
+    tbl.hidden = false;
+    await write("ATZ\r\n"); say("Restarted the radio with the saved settings.");
+    say(bad ? `${bad} setting(s) differ from KESTREL's (orange). TXPOWER and NETID are set here; for the others use the SiK defaults (AT&F, then run this again).`
+            : "All good. Now do the same for the other radio.");
+  } catch (e) { say("Stopped: " + (e && e.message ? e.message : e)); }
+  finally { try { await reader.cancel(); } catch (e) {} try { await port.close(); } catch (e) {} }
+}
+
 /* ------------------------------------------------------------------ app state */
 const app = {
   flight: null, mode: "idle", usb: null, playing: false, speed: 1, playT: 0, followLive: false, lastFrame: performance.now(),
   view: "chase", scale: 8, src: null, lastPacket: 0, rateCount: 0, rate: 0, rateAt: performance.now(),
   firedEvents: new Set(), downloads: null,
+  radio: null, radioFlights: new Map(), pred: null,       // live radio session, its flights by flight number, landing prediction
 };
 
 /* ------------------------------------------------------------------ 3D range */
@@ -1414,8 +1736,18 @@ function initScene() {
   spot.rotation.x = -Math.PI / 2; spot.position.y = 0.04; scene.add(spot);
   // markers set when the events happen
   const markers = new THREE.Group(); scene.add(markers);
+  // landing prediction: search circle (scaled to its radius), a faint fill and a pin; its label is made when the text changes
+  const pred = new THREE.Group(); scene.add(pred);
+  const pRing = new THREE.Mesh(new THREE.RingGeometry(0.95, 1.0, 96), new THREE.MeshBasicMaterial({ color: C.kestrel, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false }));
+  pRing.rotation.x = -Math.PI / 2; pRing.position.y = 0.07; pred.add(pRing);
+  const pFill = new THREE.Mesh(new THREE.CircleGeometry(1.0, 96), new THREE.MeshBasicMaterial({ color: C.kestrel, transparent: true, opacity: 0.08, side: THREE.DoubleSide, depthWrite: false }));
+  pFill.rotation.x = -Math.PI / 2; pFill.position.y = 0.06; pred.add(pFill);
+  const pPinGeo = new THREE.BufferGeometry(); pPinGeo.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, 12, 0], 3));
+  pred.add(new THREE.LineSegments(pPinGeo, new THREE.LineBasicMaterial({ color: C.kestrel })));
+  pred.visible = false;
 
   R = { renderer, scene, camera, rocket, model, chute, canopy, flame, glow, beacon, trail, trailGeo, shadowGeo, dropGeo, drop, spot, markers,
+    pred, pRing, pFill, predLabel: null, predText: "",
     built: { flight: null, n: 0, version: -1 }, MAXP, cam: { target: new THREE.Vector3(0, 4, 0), dist: 45, theta: -0.75, phi: 1.12, fov: 50 },
     marks: {}, labels };
   buildLabels();
@@ -1589,6 +1921,17 @@ function updateScene(sm, dt) {
   R.dropGeo.attributes.position.needsUpdate = true; R.drop.computeLineDistances(); R.drop.visible = sm.alt > 2;
   R.spot.position.set(pos.x, 0.04, pos.z); R.spot.visible = sm.alt > 2;
   R.beacon.material.opacity = 0.25 + 0.25 * Math.sin(now / 400);
+  const pr = app.pred;
+  if (pr && !pr.landed && isFinite(pr.e)) {
+    const rr = Math.max(5, Math.ceil(pr.unc / 5) * 5);
+    R.pred.visible = true; R.pred.position.set(pr.e, 0, -pr.n); R.pRing.scale.set(rr, rr, 1); R.pFill.scale.set(rr, rr, 1);
+    const txt = "LANDING ±" + rr + " m";
+    if (R.predText !== txt) {
+      if (R.predLabel) { R.pred.remove(R.predLabel); R.predLabel.material.map.dispose(); R.predLabel.material.dispose(); }
+      R.predLabel = makeLabel(txt, { color: "#e6edf7", size: 12, bold: true, bg: "rgba(13,20,31,0.86)", anchorBottom: true });
+      R.predLabel.position.set(0, 12, 0); R.pred.add(R.predLabel); R.predText = txt; sizeSprites();
+    }
+  } else R.pred.visible = false;
   updateCamera(pos, dt, sm);
   R.renderer.render(R.scene, R.camera);
 }
@@ -1780,6 +2123,35 @@ function updatePanels(sm) {
   if (app.mode === "live") { setText("vLink", app.rate.toFixed(0) + " rows/s · " + (age < 10 ? age.toFixed(1) + " s ago" : "no data")); setTag("tLink", age < 1.5 ? "good" : age < 5 ? "warn" : "crit"); }
   else if (app.mode === "replay") { setText("vLink", "replay of " + f.rows.length + " rows"); setTag("tLink", ""); }
   else { setText("vLink", "–"); setTag("tLink", ""); }
+  updateRadioPanel();
+}
+function updateRadioPanel() {
+  const now = performance.now(); const r = (app.src && app.src.session) || null;
+  if (!r) {
+    for (const k of ["vRx", "vLoss", "vSig", "vUp", "vAir"]) setText(k, "–"); for (const k of ["tRx", "tLoss", "tSig", "tUp", "tAir"]) setTag(k, "");
+    const L = app.flight && app.flight.link;        // a replay of a radio recording (or a merged one): what the link did
+    if (L) {
+      setText("vRx", L.frames + " recorded"); const n = L.frames + L.lost;
+      setText("vLoss", (n ? (100 * L.lost / n).toFixed(1) : "0.0") + " % · " + L.lost + " in all"); setTag("tLoss", L.lost / Math.max(1, n) < 0.05 ? "good" : "warn");
+      if (L.rssiMin) setText("vUp", "weakest " + TLM.dbm(L.rssiMin).toFixed(0) + " dBm");
+    }
+    if (app.radio) setText("vSig", "radio connected (press LIVE)");
+    return;
+  }
+  const st = r.stats(now);
+  setText("vRx", st.total ? st.rate.toFixed(0) + " per s · " + st.total + " in all" + (st.age > 3 ? " · silent " + st.age.toFixed(0) + " s" : "") : "waiting for the rocket");
+  setTag("tRx", !st.total ? "" : st.age < 1.5 ? "good" : st.age < 5 ? "warn" : "crit");
+  setText("vLoss", st.total ? (100 * st.loss).toFixed(1) + " % · " + st.lostTotal + " in all" : "–");
+  setTag("tLoss", !st.total ? "" : st.loss < 0.05 ? "good" : st.loss < 0.2 ? "warn" : "crit");
+  if (r.rs && now - r.rsAt < 5000) {
+    const d = TLM.dbm(r.rs.rssi), m = (r.rs.rssi - r.rs.noise) / 1.9;
+    setText("vSig", d.toFixed(0) + " dBm · " + m.toFixed(0) + " dB above noise"); setTag("tSig", m > 20 ? "good" : m > 10 ? "warn" : "crit");
+  } else { setText("vSig", r.kind === "radio" ? "no report yet" : "–"); setTag("tSig", ""); }
+  const s = r.slow;
+  if (s && s.rssiLocal) { setText("vUp", TLM.dbm(s.rssiLocal).toFixed(0) + " dBm · " + (s.groundHeard ? "hears this station" : "not hearing us")); setTag("tUp", s.groundHeard ? "good" : "warn"); }
+  else { setText("vUp", s ? (s.groundHeard ? "hears this station" : "no report") : "–"); setTag("tUp", ""); }
+  if (s) { setText("vAir", s.airtime.toFixed(0) + " of 360 s per hour"); setTag("tAir", s.airtime < 270 ? "good" : s.airtime < 330 ? "warn" : "crit"); }
+  else { setText("vAir", "–"); setTag("tAir", ""); }
 }
 function small(t) { const s = document.createElement("small"); s.textContent = t; return s; }
 function maxAltUpTo(f, t) { if (f.events.apogee && t >= f.events.apogee.t) return f.events.apogee.alt; let m = 0; const i1 = f.index(t); for (let i = f.index(f.tLaunch); i <= i1; i++) m = Math.max(m, f.rows[i].alt_m); return m; }
@@ -1815,7 +2187,7 @@ function loadFlight(f, mode) {
   $("feed").textContent = "";
   if (R) { R.built = { flight: null }; clearMarkers(); }
   const chip = $("srcChip"); chip.className = "chip " + (mode === "live" ? (f.source === "sim" ? "live sim" : "live") : mode === "replay" ? "replay" : "");
-  setText("srcText", mode === "live" ? (f.source === "sim" ? "Simulated flight · live" : "Live · USB") : "Replay");
+  setText("srcText", mode === "live" ? (f.source === "sim" ? "Simulated flight · live (radio)" : f.source === "radio" ? "Live · radio" : "Live · USB") : "Replay");
   $("btnSave").disabled = false;
   $("btnLive").hidden = mode !== "live";
   renderTicks();
@@ -1851,7 +2223,7 @@ function tick(now) {
   }
   updateScene(sm, dt);
   if (now - (app.uiAt || 0) > 66) {
-    app.uiAt = now; updatePanels(sm); drawNose(sm); drawGimbal(sm); drawTabs(sm);
+    app.uiAt = now; updatePanels(sm); updatePrediction(sm); drawNose(sm); drawGimbal(sm); drawTabs(sm);
     if (f) { renderEvents(f, app.playT); const a = f.T[0], b = f.T[f.T.length - 1];
       if (!app.scrubbing) $("scrub").value = String(Math.round((app.playT - a) / Math.max(1e-6, b - a) * 1000));
       setText("ttime", (f.tLaunch == null || app.playT < f.tLaunch ? "T−" + fmtT(Math.abs(f.mt(app.playT))) : "T+" + fmtT(f.mt(app.playT))) + " / " + fmtT(f.mt(b))); }
@@ -1872,30 +2244,120 @@ async function getDemo() {
 }
 function startSimLive(text) {
   stopSource();
-  const s = parseLog(text)[0]; if (!s) return;
-  const f = new Flight(s.label, "sim");
-  f.onEvent = () => renderTicks();
-  loadFlight(f, "live");
-  const rows = s.rows; let i = 0; const t0 = rows[0].t_ms; const wall0 = performance.now();
-  app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true);
-  setView("chase");
-  app.src = { kind: "sim", pump(now) {
+  const sess0 = parseLog(text)[0]; if (!sess0) return;
+  // the simulated flight goes through the radio path: the frames the flight computer would send (its rates, its
+  // framing), a little packet loss that grows with distance, and the ground radio's link reports
+  const sched = simRadioSchedule(sess0.rows);
+  const sess = new RadioSession("sim");
+  sess.onFlight = (f) => { f.onEvent = () => renderTicks(); loadFlight(f, "live"); app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); setView("chase"); };
+  let i = 0, rsNext = 0, dist = 0; const t0 = sched.length ? sched[0].t : 0; const wall0 = performance.now(); const rnd = mulberry32(7);
+  app.src = { kind: "sim", session: sess, pump(now) {
     const tNow = t0 + (now - wall0);
-    while (i < rows.length && rows[i].t_ms <= tNow) { f.add(rows[i]); i++; app.rateCount++; app.lastPacket = now; }
-    if (i >= rows.length && !this.done) { this.done = true; feed("END", "Simulated flight finished: replay it with the timeline"); autoKeep(f); }
+    while (i < sched.length && sched[i].t <= tNow) {
+      const fr = sched[i++]; dist = fr.dist;
+      if (rnd() >= 0.01 + 0.03 * Math.min(1, dist / 400)) sess.bytes(fr.bytes, now);
+    }
+    if (tNow >= rsNext) { rsNext = tNow + 1000; sess.bytes(simRadioStatus(dist, rnd), now); }
+    if (i >= sched.length && !this.done) {
+      this.done = true; const rf = sess.flight; if (rf) { keepFlight(rf); }
+      feed("END", "Simulated flight landed. On the real rocket you would now plug USB in through the hatch: Get log over USB merges the full log with this radio recording.");
+      setTimeout(() => { if (app.src === this && rf) { const m = mergeLogWithRadio(rf, sess0); showReplay(m, true); feed("MERGED", "Full log (" + m.rows.length + " rows) + radio link record (" + rf.link.frames + " frames, " + rf.link.lost + " lost)"); } }, 4000);
+    }
   } };
-  feed("PAD", "Simulated flight: TSP F35, real flight code in the 6-DOF simulator");
+  feed("PAD", "Simulated flight through the radio link: TSP F35, real flight code in the 6-DOF simulator");
 }
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function simRadioSchedule(rows) {          // the frames the flight computer would send for this log (firmware rates, 2 ms loop)
+  const out = []; if (rows.length < 2) return out;
+  const t0 = rows[0].t_ms, t1 = rows[rows.length - 1].t_ms; let j = 0, seq = 0, maxAlt = 0, airtime = 0, tLanded = null;
+  const lat0 = rows.find((r) => Math.abs(r.lat) > 1e-6) || rows[0];
+  const at = (t) => { while (j < rows.length - 2 && rows[j + 1].t_ms <= t) j++; const a = rows[j], b = rows[j + 1]; const f = clamp((t - a.t_ms) / Math.max(1, b.t_ms - a.t_ms), 0, 1);
+    const o = {}; for (const k of COLS) o[k] = (k === "state" || k === "flags" || k === "sats") ? a[k] : a[k] + (b[k] - a[k]) * f; return o; };
+  for (let k = 0, t = t0; t <= t1; k++, t += 2) {
+    const r = at(t); const st = r.state;
+    if (st === 6 && tLanded == null) tLanded = t;
+    const [fHz, sHz] = TLM.rate(st, tLanded == null ? 0 : (t - tLanded) / 1000);
+    const fd = fHz ? Math.round(500 / fHz) : 0, sd = sHz ? Math.round(500 / sHz) : 0;
+    if (st >= 3 && st <= 5) maxAlt = Math.max(maxAlt, r.alt_m);
+    const dn = (r.lat - lat0.lat) * 111320, de = (r.lon - lat0.lon) * 111320 * Math.cos(lat0.lat * Math.PI / 180);
+    const dist = Math.hypot(de, dn, Math.max(0, r.alt_m)) + 30;          // ground station 30 m from the pad
+    const push = (id, pl) => { const b = TLM.encode(id, seq++, pl); airtime += (117 + (b.length + 2) * 8) * 16e-6; out.push({ t, bytes: b, dist }); };
+    if (fd && k % fd === 0) push(TLM.FAST, TLM.packFast({ t: Math.round(r.t_ms), state: st, flags: r.flags, g: [r.gx_dps, r.gy_dps, r.gz_dps].map((v) => Math.round(v * 100)),
+      a: [r.ax, r.ay, r.az].map((v) => Math.round(v * 100)), alt: r.alt_m, vz: Math.round(r.vz_ms * 100), tilt: Math.round(r.tilt_deg * 100),
+      gy: Math.round(r.gimbal_y * 100), gz: Math.round(r.gimbal_z * 100), q: [r.qx, r.qy, r.qz].map((v) => Math.round(v * 32767)),
+      tabs: [r.tab1, r.tab2, r.tab3, r.tab4].map((v) => Math.round(v * 4)), roll: Math.round(r.roll_deg * 100) }));
+    if (sd && k % sd === 3) push(TLM.SLOW, TLM.packSlow({ t: Math.round(r.t_ms), lat: r.lat, lon: r.lon, gpsAlt: Math.round(r.gps_alt), sats: r.sats, gpsOk: (r.flags & F_GPS) !== 0,
+      baro: r.baro_alt_m, vbat: r.vbat, cell1: r.vbat / 2, servoV: 5.0, flightNo: 1, fw: 300, motor: 5, status: 1 | 2 | 4 | 8 | 64 | 128, apogee: maxAlt,
+      airtime: 72 + 60 + airtime, rssiLocal: simRssi(dist), groundHeard: true }));
+    if (k % 500 === 7) push(TLM.HB, new Uint8Array([st, 0, 0, 0, 9, 8, 0, st >= 3 && st <= 5 ? 4 : 3, 3]));
+  }
+  return out;
+}
+function simRssi(d) {                       // 8 dBm + 2 dBi each end, free space at 433 MHz, 8 dB for the rocket's antenna pattern
+  const dbm = 8 + 2 + 2 - (20 * Math.log10(Math.max(d, 5) / 1000) + 85.17) - 8;
+  return Math.max(1, Math.min(255, Math.round((dbm + 127) * 1.9)));
+}
+function simRadioStatus(d, rnd) {
+  const r = simRssi(d), noise = Math.round((-112 + 127) * 1.9 + 3 * rnd());
+  return TLM.encode(TLM.RS, 0, new Uint8Array([0, 0, 0, 0, r, Math.max(1, r - 4), 90, noise, noise + 1]), 51, 68);
+}
+function mergeLogWithRadio(rf, session) {   // the flash log (every sample) + the radio recording's link statistics
+  const f = new Flight(session.label + " · full log + radio", "merged");
+  for (const r of session.rows) f.add(r);
+  f.flightNo = rf.flightNo; f.link = Object.assign({}, rf.link, { radioRows: rf.rows.length });
+  return f;
+}
+function tryMergeWithRadio(sessions) {
+  for (const se of sessions) {
+    const m = /flight (\d+)/.exec(se.label || ""); if (!m) continue;
+    const rf = app.radioFlights.get(Number(m[1])); if (!rf) continue;
+    const f = mergeLogWithRadio(rf, se); showReplay(f, true); keepFlight(f);
+    toast("Flight " + m[1] + ": the full log (" + se.rows.length + " rows) is merged with the radio recording (" + rf.link.frames + " frames, " + rf.link.lost + " lost).");
+    feed("MERGED", "Flight " + m[1] + ": full log + radio link record");
+    return true;
+  }
+  return false;
+}
+async function connectRadio() {
+  if (!("serial" in navigator)) { toast("The radio needs Chrome or Edge on a computer (Web Serial). Open ground/kestrel_mission_control.html there."); return; }
+  if (app.radio) { toast("The ground radio is already connected."); return; }
+  let port;
+  try { port = await navigator.serial.requestPort(); await port.open({ baudRate: 57600 }); }
+  catch (e) { toast(e && e.name === "NotFoundError" ? "No port chosen." : "This page is not allowed to open a serial port here. Open ground/kestrel_mission_control.html in Chrome or Edge."); return; }
+  const sess = new RadioSession("radio"); app.radio = sess;
+  const src = { kind: "radio", session: sess, port };
+  sess.onFlight = (f) => {
+    app.radioFlights.set(f.flightNo, f);
+    f.onEvent = (k) => { renderTicks(); if (k === "landed") setTimeout(() => { keepFlight(f); feed("RADIO", "Landed: kept under Flights. Plug USB in through the hatch and press Get log over USB: the full log is merged with this recording."); }, 3000); };
+    stopSource(); app.src = src; loadFlight(f, "live"); app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); setView("chase");
+    feed("RADIO", "Rocket flight " + (f.flightNo || "?") + " is on the air");
+  };
+  let hbSeq = 0;
+  const hb = setInterval(async () => { try { const w = port.writable.getWriter(); try { await w.write(TLM.heartbeat(hbSeq++)); } finally { w.releaseLock(); } } catch (e) {} }, 1000);
+  setRadioButton(true); feed("RADIO", "Ground radio connected. Waiting for the rocket (switch it on)...");
+  const reader = port.readable.getReader();
+  (async () => {
+    try { for (;;) { const { value, done } = await reader.read(); if (done) break; sess.bytes(value, performance.now()); } } catch (e) { /* unplugged */ }
+    clearInterval(hb); try { await port.close(); } catch (e) {}
+    if (app.radio === sess) app.radio = null; setRadioButton(false);
+    if (sess.flight) keepFlight(sess.flight);
+    feed("RADIO", "Radio disconnected"); toast("Ground radio disconnected");
+  })();
+}
+function setRadioButton(on) { const b = $("btnRadio"); b.lastChild.nodeValue = on ? " Radio connected" : " Connect radio"; b.disabled = on; }
 // the USB link stays open when another flight is shown (more dumps, live lines); it closes only when unplugged
-function stopSource() { if (app.src && app.src.close && app.src.kind !== "usb") app.src.close(); app.src = null; }
+function stopSource() { if (app.src && app.src.close && app.src.kind !== "usb" && app.src.kind !== "radio") app.src.close(); app.src = null; }
 function setUsbButton(src) {
   const b = $("btnUsb"); b.lastChild.nodeValue = src ? " Get log over USB" : " Connect USB";
   b.title = src ? "Download the flights stored on the flight computer (its dump command)" : "Connect the flight computer or a ground-station receiver over USB";
   b.onclick = src ? () => src.sendDump() : connectUsb;
 }
 function replayFlight(label, rows, source) {
-  stopSource();
   const f = new Flight(label, source || "file"); for (const r of rows) f.add(r);
+  return showReplay(f);
+}
+function showReplay(f) {
+  stopSource();
   loadFlight(f, "replay");
   const ev = f.events; app.playT = ev.apogee ? ev.apogee.t : f.T[f.T.length - 1];
   seek(app.playT); setPlaying(false); setView("orbit");
@@ -1930,7 +2392,7 @@ async function connectUsb() {
           if (dump) { dumpLast = performance.now();
             if (line.startsWith("refused")) { endDump("The flight computer says: " + line); continue; }
             dump.push(line);
-            if (line.startsWith("# end")) { const sessions = parseLog(dump.join("\n")); endDump(); if (sessions.length) chooseSession(sessions, "usb"); else toast("The flight computer's log is empty."); }
+            if (line.startsWith("# end")) { const sessions = parseLog(dump.join("\n")); endDump(); if (sessions.length) { if (!tryMergeWithRadio(sessions)) chooseSession(sessions, "usb"); } else toast("The flight computer's log is empty."); }
             continue; }
           const r = parseLine(line);
           if (r && f.add(r)) { app.rateCount++; app.lastPacket = performance.now();
@@ -2018,6 +2480,16 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false
 function wire() {
   $("btnSim").onclick = async () => { try { startSimLive(await getDemo()); } catch (e) { toast("The simulated flight could not be loaded."); } };
   $("btnUsb").onclick = connectUsb;
+  $("btnRadio").onclick = connectRadio;
+  $("btnRadioSetup").onclick = () => { $("rsheet").hidden = false; };
+  $("btnRsClose").onclick = () => { $("rsheet").hidden = true; };
+  $("rsheet").addEventListener("click", (e) => { if (e.target === $("rsheet")) $("rsheet").hidden = true; });
+  $("btnRsGo").onclick = async () => { $("btnRsGo").disabled = true; try { await radioSetup(); } finally { $("btnRsGo").disabled = false; } };
+  $("btnCopyLL").onclick = async () => { const t = $("ldLL").textContent; try { await navigator.clipboard.writeText(t); toast("Copied " + t); } catch (e) { toast(t); } };
+  for (const id of ["windSpd", "windDir"]) {
+    try { const v = localStorage.getItem("kestrel-" + id); if (v != null) $(id).value = v; } catch (e) {}
+    $(id).addEventListener("change", () => { try { localStorage.setItem("kestrel-" + id, $(id).value); } catch (e) {} });
+  }
   $("btnLoad").onclick = () => $("file").click();
   $("file").onchange = (e) => { const fl = e.target.files[0]; if (fl) readFile(fl); e.target.value = ""; };
   $("btnSave").onclick = saveFlight;
@@ -2027,8 +2499,8 @@ function wire() {
   $("btnPlay").onclick = () => { const f = app.flight; if (!f) return; if (!app.playing && app.playT >= f.T[f.T.length - 1] - 1e-3) seek(f.T[0]); app.followLive = false; $("btnLive").setAttribute("aria-pressed", "false"); setPlaying(!app.playing); };
   $("btnRestart").onclick = () => { const f = app.flight; if (!f) return; seek(f.tLaunch != null ? Math.max(f.T[0], f.tLaunch - 3) : f.T[0]); setPlaying(true); };
   $("btnLive").onclick = () => {
-    const u = app.usb && app.usb.flight;                 // back from a replay to the live USB data
-    if (app.mode !== "live" && u && u.rows.length) { stopSource(); app.src = app.usb; loadFlight(u, "live"); seek(u.T[u.T.length - 1]); setView("chase"); }
+    const rf = app.radio && app.radio.flight, u = rf || (app.usb && app.usb.flight);   // back from a replay to the live radio / USB data
+    if (app.mode !== "live" && u && u.rows.length) { stopSource(); app.src = rf ? { kind: "radio", session: app.radio } : app.usb; loadFlight(u, "live"); seek(u.T[u.T.length - 1]); setView("chase"); }
     app.followLive = true; $("btnLive").setAttribute("aria-pressed", "true"); setPlaying(true); };
   $("speed").onchange = (e) => { app.speed = Number(e.target.value); };
   const sc = $("scrub");
@@ -2043,7 +2515,7 @@ function wire() {
     else if (e.key === "ArrowLeft") seek(app.playT - (e.shiftKey ? 5 : 0.5));
     else if (["1", "2", "3", "4"].includes(e.key)) setView(["chase", "pad", "orbit", "top"][Number(e.key) - 1]);
     else if (e.key === "l" || e.key === "L") { if (!$("btnLive").hidden) $("btnLive").click(); }
-    else if (e.key === "Escape") closeSheet();
+    else if (e.key === "Escape") { closeSheet(); $("rsheet").hidden = true; }
   });
   // drag a log file anywhere onto the page
   let dragDepth = 0;
