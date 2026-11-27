@@ -42,7 +42,7 @@ ROTATION_RULES = [
 REVIEW = {"U4": "LSM6DSO LGA-14: pin-1 dot must sit at the chamfered silkscreen corner",
           "U5": "BMP580 LGA-10: pin-1 dot must sit at the silkscreen dot",
           "U7": "ATGM336H: pin 1 (GND) corner, module label upright when the U.FL is at the top",
-          "J7": "Qwiic JST-SH: cable entry must face the board edge",
+          "J7": "radio socket JST-GH 6-pin vertical (BM06B-GHS-TBT): pin 1 (+5V) at the end nearest the GPS / top of the board",
           "U2": "TPS563201: pin 1 dot next to the silkscreen dot (community rule 180 deg applied)",
           "U3": "TPS563201: pin 1 dot next to the silkscreen dot (community rule 180 deg applied)"}
 

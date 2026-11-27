@@ -1,4 +1,5 @@
-"""KESTREL FC v2.0 - single source of truth for the flight-computer circuit (7 servo outputs: 2 TVC, release, 4 fin tabs).
+"""KESTREL FC v3.0 - single source of truth for the flight-computer circuit (7 servo outputs: 2 TVC, release, 4 fin tabs;
+v3: a 6-pin JST-GH telemetry-radio socket (Pixhawk TELEM pinout) replaces the v2 Qwiic port).
 
 Used by gen_schematic.py (KiCad schematic), gen_pcb.py (KiCad PCB, routing, DRC, fab files) and jlc_bom.py.
 Board: 40 x 82 mm, 4 layers (F.Cu signals | In1 GND plane | In2 +3V3 plane | B.Cu signals + GND fill).
@@ -9,7 +10,8 @@ Coordinates: mm, board origin = top-left corner, x right, y down; the top edge p
 """
 
 BOARD_W, BOARD_H = 40.0, 82.0
-MOUNT_HOLES = [(3.5, 3.5), (36.5, 3.5), (3.5, 78.5), (36.5, 78.5)]   # M2.5, match the CAD sled standoffs
+MOUNT_HOLES = [(3.5, 3.5), (36.5, 3.5), (36.5, 78.5)]   # M2.5, match the CAD sled standoffs (v3: the bottom-left
+#                                                      corner holds the radio socket; the sled has a rest post there)
 
 # Pico 2 W socket rows (female headers 1x20, 17.78 mm apart)
 PICO_X1, PICO_X2, PICO_Y1 = 6.0, 23.78, 16.0
@@ -18,7 +20,7 @@ PICO_PIN_Y.update({p: PICO_Y1 + 48.26 - 2.54 * (p - 21) for p in range(21, 41)})
 
 
 def pico_nets():
-    m = {1: "GPS_RXD", 2: "GPS_TXD", 3: "GND", 4: "SERVO5_PWM", 5: "SERVO_PWR_OFF", 6: "I2C_SDA", 7: "I2C_SCL", 8: "GND",
+    m = {1: "GPS_RXD", 2: "GPS_TXD", 3: "GND", 4: "SERVO5_PWM", 5: "SERVO_PWR_OFF", 6: "RADIO_TX", 7: "RADIO_RX", 8: "GND",
          9: "SERVO1_PWM", 10: "SERVO2_PWM", 11: "SERVO3_PWM", 12: "SERVO4_PWM", 13: "GND", 14: "BUZZER", 15: "LED_GREEN",
          16: "LED_RED", 17: "SERVO6_PWM", 18: "GND", 19: "BUTTON", 20: "SERVO7_PWM", 21: "SPI_MISO", 22: "CS_IMU", 23: "GND",
          24: "SPI_SCK", 25: "SPI_MOSI", 26: "CS_BARO", 27: "CS_FLASH", 28: "GND", 29: "BARO_INT", 30: "RUN",
@@ -192,7 +194,7 @@ for i, x in enumerate(SERVO_X):
     R(f"R{24 + n}" if n <= 4 else f"R{36 + n - 4}", "220", f"SERVO{n}_PWM", f"S{n}", (x, 71.1, 90), "servos")
 
 # ------------------------------------------------------------------------------------------------
-# User interface: buzzer, LEDs, buttons, Qwiic
+# User interface: buzzer, LEDs, buttons, telemetry-radio socket
 part("BZ1", "Device:Buzzer", "TMB12A03", "Buzzer_Beeper:Buzzer_12x9.5RM7.6", {"1": "+3V3", "2": "BUZ_N"}, (9.2, 7.0, 0), "C96222",
      "12 mm active buzzer 3V 85 dB", "ui")
 part("Q4", "Transistor_FET:AO3400A", "AO3400A", SOT23, {"1": "BUZ_G", "2": "GND", "3": "BUZ_N"}, (21.0, 7.5, 0), "C20917", block="ui")
@@ -208,10 +210,11 @@ part("SW2", "Switch:SW_Push", "USER", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-118
      "C318884", "XKB TS-1187A 5.1 mm", "ui")
 part("SW3", "Switch:SW_Push", "RESET", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A", {"1": "RUN", "2": "GND"}, (31.0, 14.5, 0),
      "C318884", "XKB TS-1187A 5.1 mm", "ui")
-part("J7", "Connector_Generic:Conn_01x04", "QWIIC I2C", "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal",
-     {"1": "GND", "2": "+3V3", "3": "I2C_SDA", "4": "I2C_SCL", "MP": "GND"}, (4.2, 66.5, 90), "C160404", "JST SM04B-SRSS-TB", "ui")
-R("R35", "4.7k", "I2C_SDA", "+3V3", (2.0, 60.0, 90), "ui")
-R("R36", "4.7k", "I2C_SCL", "+3V3", (3.5, 60.0, 90), "ui")
+part("J7", "Connector_Generic:Conn_01x06", "RADIO (SiK, Pixhawk TELEM)", "Connector_JST:JST_GH_BM06B-GHS-TBT_1x06-1MP_P1.25mm_Vertical",
+     {"1": "VSYS", "2": "RADIO_TX", "3": "RADIO_RX", "4": None, "5": None, "6": "GND", "MP": "GND"}, (3.5, 74.5, 270), "C189892",
+     "JST BM06B-GHS-TBT(LF)(SN)", "ui",
+     note="telemetry radio, Pixhawk TELEM pinout: 1 +5V (VSYS), 2 TX out (GP4, UART1), 3 RX in (GP5), 4 CTS / 5 RTS not used, 6 GND")
+C("C25", "10uF", "VSYS", "GND", (4.6, 67.3, 0), "ui", C0805)
 
 # Mounting holes (not in BOM)
 MH = [dict(ref=f"H{i+1}", pos=p) for i, p in enumerate(MOUNT_HOLES)]
@@ -242,7 +245,7 @@ if __name__ == "__main__":
 
 
 # --- placement (legalised in board_build.py) ---
-PLACEMENT = {'BZ1': (9.45, 7.15, 0), 'J8': (22.6, 3.0, 90), 'L3': (21.3, 7.6, 90), 'R24': (21.3, 10.3, 90), 'C24': (23.6, 9.0, 90), 'C23': (23.6, 12.2, 90), 'U7': (14.9, 20.6, 270), 'FB1': (11.5, 28.3, 0), 'C21': (17.6, 28.3, 0), 'C22': (14.6, 30.3, 0), 'R23': (10.3, 30.3, 0), 'U4': (15.0, 38.0, 0), 'C16': (11.6, 38.0, 90), 'C17': (18.4, 38.0, 90), 'R20': (15.0, 35.4, 0), 'U5': (15.0, 45.0, 0), 'C18': (11.8, 45.0, 90), 'C19': (18.2, 45.0, 90), 'R21': (15.0, 42.4, 0), 'U6': (15.0, 54.5, 0), 'C20': (18.0, 58.6, 0), 'R22': (12.0, 58.6, 0), 'R35': (1.8, 61.0, 90), 'R36': (3.3, 61.0, 90), 'SW2': (29.7, 3.9, 0), 'SW3': (29.7, 9.9, 0), 'Q4': (30.5, 15.1, 0), 'R31': (34.2, 13.8, 0), 'R32': (34.2, 15.4, 0), 'D3': (36.6, 9.6, 180), 'U3': (30.0, 21.6, 0), 'C10': (30.0, 19.0, 0), 'L2': (36.5, 22.0, 90), 'C11': (26.9, 21.8, 90), 'R16': (31.2, 24.4, 0), 'R17': (29.1, 24.4, 0), 'R18': (29.1, 25.9, 0), 'R19': (31.2, 25.9, 0), 'C12': (36.5, 26.9, 0), 'C13': (36.5, 29.4, 0), 'D2': (29.5, 28.4, 180), 'C14': (26.9, 17.6, 90), 'C15': (26.9, 31.4, 90), 'SW1': (36.6, 40.0, 90), 'D4': (38.4, 33.3, 90), 'R33': (35.8, 33.3, 90), 'D5': (38.4, 46.7, 90), 'R34': (35.8, 46.7, 90), 'Q2': (29.0, 36.6, 0), 'R3': (32.3, 35.8, 90), 'R4': (32.3, 38.9, 90), 'R5': (26.4, 41.0, 90), 'R6': (26.4, 44.0, 90), 'C3': (26.4, 47.0, 90), 'R7': (28.2, 41.0, 90), 'R8': (28.2, 44.0, 90), 'C4': (28.2, 47.0, 90), 'R14': (30.0, 42.0, 90), 'R15': (30.0, 45.0, 90), 'C2': (32.0, 42.5, 90), 'C1': (32.4, 46.0, 0), 'U2': (30.0, 51.6, 0), 'C5': (30.0, 49.0, 0), 'L1': (36.5, 52.4, 90), 'C6': (26.9, 51.8, 90), 'R9': (31.2, 54.4, 0), 'R10': (29.1, 54.4, 0), 'R11': (29.1, 55.9, 0), 'R12': (31.2, 55.9, 0), 'C7': (36.5, 57.3, 0), 'C8': (36.5, 59.8, 0), 'Q3': (28.0, 59.2, 0), 'R13': (31.6, 58.4, 0), 'J1': (36.1, 70.45, 90), 'Q1': (29.3, 64.5, 0), 'R1': (26.4, 63.9, 90), 'R2': (26.4, 66.9, 90), 'D1': (28.5, 69.0, 0), 'J7': (3.6, 70.4, 90), 'C9': (15.5, 67.6, 0)}
+PLACEMENT = {'BZ1': (9.45, 7.15, 0), 'J8': (22.6, 3.0, 90), 'L3': (21.3, 7.6, 90), 'R24': (21.3, 10.3, 90), 'C24': (23.6, 9.0, 90), 'C23': (23.6, 12.2, 90), 'U7': (14.9, 20.6, 270), 'FB1': (11.5, 28.3, 0), 'C21': (17.6, 28.3, 0), 'C22': (14.6, 30.3, 0), 'R23': (10.3, 30.3, 0), 'U4': (15.0, 38.0, 0), 'C16': (11.6, 38.0, 90), 'C17': (18.4, 38.0, 90), 'R20': (15.0, 35.4, 0), 'U5': (15.0, 45.0, 0), 'C18': (11.8, 45.0, 90), 'C19': (18.2, 45.0, 90), 'R21': (15.0, 42.4, 0), 'U6': (15.0, 54.5, 0), 'C20': (18.0, 58.6, 0), 'R22': (12.0, 58.6, 0), 'SW2': (29.7, 3.9, 0), 'SW3': (29.7, 9.9, 0), 'Q4': (30.5, 15.1, 0), 'R31': (34.2, 13.8, 0), 'R32': (34.2, 15.4, 0), 'D3': (36.6, 9.6, 180), 'U3': (30.0, 21.6, 0), 'C10': (30.0, 19.0, 0), 'L2': (36.5, 22.0, 90), 'C11': (26.9, 21.8, 90), 'R16': (31.2, 24.4, 0), 'R17': (29.1, 24.4, 0), 'R18': (29.1, 25.9, 0), 'R19': (31.2, 25.9, 0), 'C12': (36.5, 26.9, 0), 'C13': (36.5, 29.4, 0), 'D2': (29.5, 28.4, 180), 'C14': (26.9, 17.6, 90), 'C15': (26.9, 31.4, 90), 'SW1': (36.6, 40.0, 90), 'D4': (38.4, 33.3, 90), 'R33': (35.8, 33.3, 90), 'D5': (38.4, 46.7, 90), 'R34': (35.8, 46.7, 90), 'Q2': (29.0, 36.6, 0), 'R3': (32.3, 35.8, 90), 'R4': (32.3, 38.9, 90), 'R5': (26.4, 41.0, 90), 'R6': (26.4, 44.0, 90), 'C3': (26.4, 47.0, 90), 'R7': (28.2, 41.0, 90), 'R8': (28.2, 44.0, 90), 'C4': (28.2, 47.0, 90), 'R14': (30.0, 42.0, 90), 'R15': (30.0, 45.0, 90), 'C2': (32.0, 42.5, 90), 'C1': (32.4, 46.0, 0), 'U2': (30.0, 51.6, 0), 'C5': (30.0, 49.0, 0), 'L1': (36.5, 52.4, 90), 'C6': (26.9, 51.8, 90), 'R9': (31.2, 54.4, 0), 'R10': (29.1, 54.4, 0), 'R11': (29.1, 55.9, 0), 'R12': (31.2, 55.9, 0), 'C7': (36.5, 57.3, 0), 'C8': (36.5, 59.8, 0), 'Q3': (28.0, 59.2, 0), 'R13': (31.6, 58.4, 0), 'J1': (36.1, 70.45, 90), 'Q1': (29.3, 64.5, 0), 'R1': (26.4, 63.9, 90), 'R2': (26.4, 66.9, 90), 'D1': (28.5, 69.0, 0), 'J7': (3.5, 74.5, 270), 'C25': (4.6, 67.3, 0), 'C9': (15.5, 67.6, 0)}
 for _p in PARTS:
     if _p['ref'] in PLACEMENT:
         _p['pos'] = PLACEMENT[_p['ref']]

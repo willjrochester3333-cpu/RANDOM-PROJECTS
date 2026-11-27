@@ -1,4 +1,5 @@
 // Host unit tests for the KESTREL flight core. Build with CMake and run `ctest`.
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -6,6 +7,9 @@
 
 #include "kestrel/flight.hpp"
 #include "kestrel/motor_db.hpp"
+#include "kestrel/telemetry.hpp"
+#include <cstring>
+#include <vector>
 
 using namespace kestrel;
 
@@ -306,6 +310,127 @@ static void test_fins_in_flight() {
     }
 }
 
+// ---------------------------------------------------------------- radio telemetry
+static void test_telemetry_crc_and_reference_frames() {
+    using namespace kestrel::tlm;
+    const char* chk = "123456789";
+    CHECK(crc_x25(reinterpret_cast<const uint8_t*>(chk), 9) == 0x6F91, "CRC-16/MCRF4XX check value");
+    // reference frames from pymavlink 2.4 (MAVLink 1.0, sys 255 comp 190, seq 0)
+    const uint8_t hb_ref[] = {0xfe, 0x09, 0x00, 0xff, 0xbe, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x08, 0x00, 0x04, 0x03, 0x49, 0x21};
+    const uint8_t hb_payload[] = {0, 0, 0, 0, 6, 8, 0, 4, 3};
+    uint8_t out[80];
+    size_t n = encode(kMsgHeartbeat, 0, hb_payload, 9, out, 255, 190);
+    CHECK(n == sizeof hb_ref && std::memcmp(out, hb_ref, n) == 0, "HEARTBEAT matches pymavlink");
+    const uint8_t rs_ref[] = {0xfe, 0x09, 0x00, 0xff, 0xbe, 0x6d, 0x03, 0x00, 0x01, 0x00, 0xb4, 0xaa, 0x5a, 0x28, 0x2d, 0xce, 0x56};
+    Decoder d;
+    bool got = false;
+    for (uint8_t b : rs_ref) got = d.feed(b) || got;
+    CHECK(got && d.msgid() == kMsgRadioStatus && d.len() == 9, "RADIO_STATUS decoded");
+    RadioStatus rs;
+    std::memcpy(&rs, d.payload(), sizeof rs);
+    CHECK(rs.rssi == 180 && rs.remrssi == 170 && rs.txbuf == 90 && rs.noise == 40 && rs.remnoise == 45 && rs.rxerrors == 3 &&
+              rs.fixed == 1, "RADIO_STATUS fields");
+}
+
+static void test_telemetry_roundtrip_and_resync() {
+    using namespace kestrel::tlm;
+    LogRecord r{};
+    r.t_ms = 123456; r.state = 4; r.flags = 0x21; r.alt_m = 151.25f; r.vz_ms = -3.456f; r.tilt_cdeg = 512;
+    r.gyro_cdps[0] = -1500; r.accel_cmss[2] = 981; r.q_i16[1] = 1234; r.tab_qdeg[3] = -40; r.roll_cdeg = 4500;
+    r.gimbal_y_cdeg = 120; r.gimbal_z_cdeg = -80;
+    FastPayload f;
+    make_fast(r, f);
+    CHECK(f.vz_cms == -346 && f.alt_m == 151.25f && f.gimbal_cdeg[1] == -80 && f.tab_qdeg[3] == -40, "fast payload fields");
+    SlowPayload sl{};
+    sl.t_ms = 99; sl.lat_e7 = 515012345; sl.lon_e7 = -1234567; sl.sats = 11; sl.gps_valid = 1; sl.apogee_dm = 1702;
+    // a stream: noise, fast, corrupted fast, slow, a foreign MAVLink frame, a false start byte inside noise, fast
+    std::vector<uint8_t> st;
+    std::mt19937 rng(7);
+    for (int i = 0; i < 40; ++i) st.push_back(static_cast<uint8_t>(rng()));
+    uint8_t fr[80];
+    size_t n = encode(kMsgFast, 1, &f, sizeof f, fr);
+    st.insert(st.end(), fr, fr + n);
+    n = encode(kMsgFast, 2, &f, sizeof f, fr);
+    fr[20] ^= 0x10;                                   // damaged in the air
+    st.insert(st.end(), fr, fr + n);
+    n = encode(kMsgSlow, 3, &sl, sizeof sl, fr);
+    st.insert(st.end(), fr, fr + n);
+    const uint8_t foreign[] = {0xfe, 0x03, 0x05, 0x01, 0x01, 0x1e, 0xaa, 0xbb, 0xcc, 0x12, 0x34};   // id 30, unknown here
+    st.insert(st.end(), foreign, foreign + sizeof foreign);
+    st.push_back(0xfe); st.push_back(0x40); st.push_back(0x00);                 // false start: claims 64 bytes
+    n = encode(kMsgFast, 4, &f, sizeof f, fr);
+    st.insert(st.end(), fr, fr + n);
+    n = encode(kMsgFast, 5, &f, sizeof f, fr);
+    st.insert(st.end(), fr, fr + n);
+    Decoder d;
+    std::vector<int> seqs;
+    for (uint8_t b : st) {
+        if (d.feed(b)) {
+            seqs.push_back(d.seq());
+            if (d.msgid() == kMsgSlow) {
+                SlowPayload g;
+                std::memcpy(&g, d.payload(), sizeof g);
+                CHECK(g.lat_e7 == 515012345 && g.lon_e7 == -1234567 && g.apogee_dm == 1702, "slow payload survives");
+            } else if (d.msgid() == kMsgFast) {
+                FastPayload g;
+                std::memcpy(&g, d.payload(), sizeof g);
+                CHECK(g.t_ms == 123456 && g.roll_cdeg == 4500, "fast payload survives");
+            }
+        }
+    }
+    // the false start swallows up to 64 following bytes, which may include frame 4; frame 5 must always come through
+    CHECK(seqs.size() >= 3 && seqs[0] == 1 && seqs[1] == 3 && seqs.back() == 5, "decoded %zu frames, last seq %d",
+          seqs.size(), seqs.empty() ? -1 : seqs.back());
+    CHECK(d.bad() >= 2, "bad candidates counted (%u)", d.bad());
+}
+
+static void test_telemetry_rates_and_budget() {
+    using namespace kestrel::tlm;
+    const Rates fl = rates_for(FlightState::COAST, 0, 0);
+    CHECK(fl.fast_div == 10 && fl.slow_div == 100, "50 Hz + 5 Hz in flight");
+    CHECK(rates_for(FlightState::READY, 0, 0).fast_div == 500, "1 Hz on the pad");
+    CHECK(rates_for(FlightState::LANDED, 30, 0).slow_div == 500 && rates_for(FlightState::LANDED, 90, 0).slow_div == 2500,
+          "landed beacon slows after a minute");
+    CHECK(rates_for(FlightState::BOOST, 0, 2).fast_div == 0, "hard limit: no fast frames");
+    // airtime of a 50-byte frame at 64 kbit/s: (117 + 52 * 8) ticks * 16 us = 8.53 ms
+    NEAR(frame_airtime_s(50), 8.528e-3f, 1e-5f);
+    // a busy hour: 4 flights, each 15 min on the pad then 45 s of flight at full rate and 2 min landed
+    AirtimeBudget b(60.0f);
+    uint32_t t = 0;
+    int max_level = 0;
+    float max_used = 0;
+    const size_t fast_bytes = sizeof(FastPayload) + kOverhead, slow_bytes = sizeof(SlowPayload) + kOverhead;
+    auto run = [&](FlightState s, float seconds, float landed0) {
+        for (int i = 0; i < static_cast<int>(seconds * 500.0f); ++i, t += 2) {
+            const Rates rt = rates_for(s, landed0 + i * 0.002f, b.level());
+            if (rt.fast_div && (t / 2) % rt.fast_div == 0) b.add(frame_airtime_s(fast_bytes));
+            if (rt.slow_div && (t / 2) % rt.slow_div == 0) b.add(frame_airtime_s(slow_bytes));
+            if (i % 50 == 0) b.tick(t);
+            max_used = std::fmax(max_used, b.used_s());
+            max_level = std::max(max_level, b.level());
+        }
+    };
+    for (int k = 0; k < 4; ++k) {
+        run(FlightState::READY, 900, 0);
+        run(FlightState::COAST, 45, 0);
+        run(FlightState::LANDED, 120, 0);
+    }
+    CHECK(max_used < AirtimeBudget::kLimitS, "busy hour stays under 360 s (max %.0f s)", double(max_used));
+    CHECK(max_level == 0, "a normal busy hour never needs the lean rates (max level %d, max %.0f s)", max_level, double(max_used));
+    // stuck streaming at full rate for an hour (e.g. a firmware fault in the state machine): the budget must cap it
+    AirtimeBudget c(0.0f);
+    t = 0;
+    float worst = 0;
+    for (int i = 0; i < 3600 * 500; ++i, t += 2) {
+        const Rates rt = rates_for(FlightState::COAST, 0, c.level());
+        if (rt.fast_div && (t / 2) % rt.fast_div == 0) c.add(frame_airtime_s(fast_bytes));
+        if (rt.slow_div && (t / 2) % rt.slow_div == 0) c.add(frame_airtime_s(slow_bytes));
+        if (i % 50 == 0) c.tick(t);
+        worst = std::fmax(worst, c.used_s());
+    }
+    CHECK(worst < AirtimeBudget::kLimitS, "continuous streaming capped below 360 s per hour (max %.0f s)", double(worst));
+}
+
 int main() {
     test_fin_mixer();
     test_fins_in_flight();
@@ -318,6 +443,9 @@ int main() {
     test_state_machine(true, false);
     test_state_machine(false, true);
     test_logrecord();
+    test_telemetry_crc_and_reference_frames();
+    test_telemetry_roundtrip_and_resync();
+    test_telemetry_rates_and_budget();
     std::printf("%d checks passed, %d failed\n", g_pass, g_fail);
     return g_fail ? EXIT_FAILURE : EXIT_SUCCESS;
 }

@@ -66,9 +66,11 @@ def build(routes_path):
         r.SetTextThickness(MM(0.15))
         fp.Value().SetVisible(False)
     # J10 pin 13 (GND) has a signal track squeezing one thermal spoke on B.Cu: connect it solid (JLCPCB solders it)
-    for pad in fps["J10"].Pads():
-        if pad.GetNumber() == "13":
-            pad.SetZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
+    # v3: the same for J10 pin 18 (F.Cu) and J11 pin 3 (B.Cu), squeezed by the radio-socket routes
+    for ref, num in (("J10", "13"), ("J10", "18"), ("J11", "3")):
+        for pad in fps[ref].Pads():
+            if pad.GetNumber() == num:
+                pad.SetZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
     routes = json.load(open(routes_path))
     for (net, l, x0, y0, x1, y1, w) in routes["tracks"]:
         if abs(x0 - x1) < 1e-6 and abs(y0 - y1) < 1e-6:
@@ -97,12 +99,12 @@ def build(routes_path):
     for i, x in enumerate(C.SERVO_X):
         text(b, str(i + 1), x, 67.3 if i == 5 else 69.4, 0.8)         # servo port numbers (front, above each resistor)
     for s_, y in (("S", 74.85), ("+", 77.39), ("-", 79.93)):
-        text(b, s_, 6.3, y, 0.8)
+        text(b, s_, 6.85, y, 0.8)
     text(b, "USB", 15.0, 32.8, 0.8)
     text(b, "^ PICO 2 W", 15.0, 34.0, 0.8)
     # back side (mirrored), positioned under the parts they describe
     BS = pcbnew.B_SilkS
-    title = "KESTREL FC v2.0"
+    title = "KESTREL FC v3.0"
     tx, ty = free_spot(b, len(title) * 1.0 * 0.95 + 0.6, 1.6, [(15.0, y / 2.0) for y in range(60, 130)])
     text(b, title, tx, ty, 1.0, layer=BS, mirror=True, bold=True)
     for i, (x, n) in enumerate(zip(C.SERVO_X, ("RING", "MOTOR", "CHUTE", "T1", "T2", "T3", "T4"))):
@@ -110,7 +112,7 @@ def build(routes_path):
     text(b, "SERVO  S + -   (T = FIN TAB)", 17.0, 66.4, 0.8, layer=BS, mirror=True)
     text(b, "BATT 2S", 35.0, 63.4, 0.8, layer=BS, mirror=True)
     text(b, "balance plug", 35.0, 62.2, 0.8, layer=BS, mirror=True)
-    text(b, "QWIIC I2C", 4.0, 64.6, 0.8, layer=BS, mirror=True, rot=90)
+    text(b, "RADIO", 1.0, 74.5, 0.8, layer=BS, mirror=True, rot=90)
     text(b, "GPS ANT", 22.6, 6.6, 0.8, layer=BS, mirror=True)
     text(b, "PWR ON/OFF", 33.0, 40.0, 0.8, layer=BS, mirror=True, rot=90)
     text(b, "USER  RST", 29.8, 13.2, 0.8, layer=BS, mirror=True)

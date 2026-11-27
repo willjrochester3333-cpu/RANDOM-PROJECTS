@@ -1,4 +1,4 @@
-// KESTREL FC v2.0 - Raspberry Pi Pico 2 W pin map (source of truth: pcb/circuit.py)
+// KESTREL FC v3.0 - Raspberry Pi Pico 2 W pin map (source of truth: pcb/circuit.py)
 #pragma once
 #include "pico/types.h"
 
@@ -7,8 +7,8 @@ namespace board {
 constexpr uint GPS_TX = 0;          // UART0 TX -> ATGM336H RXD
 constexpr uint GPS_RX = 1;          // UART0 RX <- ATGM336H TXD
 constexpr uint SERVO_PWR_OFF = 3;   // high = servo 5 V buck OFF (board pull-down keeps it ON by default)
-constexpr uint I2C_SDA = 4;         // Qwiic expansion (I2C0), 4.7k pull-ups on the board
-constexpr uint I2C_SCL = 5;
+constexpr uint RADIO_TX = 4;        // UART1 TX -> radio socket J7 pin 2 (telemetry radio RX)   (v2 boards: Qwiic SDA)
+constexpr uint RADIO_RX = 5;        // UART1 RX <- radio socket J7 pin 3 (telemetry radio TX)   (v2 boards: Qwiic SCL)
 // Servo ports 1-7 (PWM slices 3A 3B 4A 4B 1A 6B 7B, all 50 Hz):
 //   1 TVC ring, 2 TVC motor holder, 3 parachute release latch, 4-7 fin tabs 1-4 (fins at 45/135/225/315 deg)
 constexpr int SERVO_COUNT = 7;

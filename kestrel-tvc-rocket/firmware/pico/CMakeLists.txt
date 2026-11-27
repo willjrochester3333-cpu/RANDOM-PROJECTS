@@ -15,12 +15,15 @@ add_executable(kestrel_fc
     src/main.cpp
     src/hw/sensors.cpp
     src/hw/io.cpp
+    src/hw/radio.cpp
     src/app/logger.cpp
     src/app/settings_store.cpp
     src/logic/nmea.cpp
     src/logic/axis_cal.cpp
     src/logic/servo_map.cpp
+    src/logic/radio_link.cpp
     ${CORE}/src/flight.cpp
+    ${CORE}/src/telemetry.cpp
 )
 target_include_directories(kestrel_fc PRIVATE src ${CORE}/include)
 target_compile_options(kestrel_fc PRIVATE -Wall -Wextra -Wno-unused-parameter -Wdouble-promotion -fno-exceptions)
@@ -29,5 +32,5 @@ target_link_libraries(kestrel_fc
 pico_enable_stdio_usb(kestrel_fc 1)
 pico_enable_stdio_uart(kestrel_fc 0)
 pico_set_program_name(kestrel_fc "KESTREL FC")
-pico_set_program_version(kestrel_fc "2.02")
+pico_set_program_version(kestrel_fc "3.00")
 pico_add_extra_outputs(kestrel_fc)

@@ -1,0 +1,11 @@
+  FAILED SPI_MOSI
+  FAILED SPI_MISO
+routed in 21.9s: 1050 tracks, 178 vias, failed nets ['SPI_MOSI', 'SPI_MISO'], failed fan-outs []
+  FAILED SPI_MISO
+routed in 16.3s: 1071 tracks, 189 vias, failed nets ['SPI_MISO'], failed fan-outs []
+routed in 8.6s: 1119 tracks, 183 vias, failed nets [], failed fan-outs []
+wrote build/routes.json | unrouted: [] []
+
+real	0m50.021s
+user	0m49.689s
+sys	0m0.270s

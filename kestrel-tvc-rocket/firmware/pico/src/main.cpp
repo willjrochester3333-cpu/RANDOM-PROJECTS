@@ -14,10 +14,13 @@
 #include "hardware/gpio.h"
 #include "hardware/watchdog.h"
 #include "hw/io.hpp"
+#include "hw/radio.hpp"
 #include "hw/sensors.hpp"
 #include "kestrel/flight.hpp"
 #include "kestrel/motor_db.hpp"
+#include "kestrel/telemetry.hpp"
 #include "logic/axis_cal.hpp"
+#include "logic/radio_link.hpp"
 #include "logic/servo_map.hpp"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
@@ -26,7 +29,7 @@ using namespace kestrel;
 
 namespace {
 
-constexpr uint16_t kFwVersion = 204;            // 2.04 (KESTREL-2 multi-flight: replaceable legs, battery hatch, 46 g nose ballast; tables for the 904 g rocket)
+constexpr uint16_t kFwVersion = 300;            // 3.00 (board v3: SiK telemetry radio on UART1, live frames to Mission Control)
 constexpr uint32_t kScratchMagic = 0x4B53u;     // watchdog scratch tag ("KS")
 constexpr float kPadTiltWarnDeg = 20.0f;        // pad rod tilt is 0-15 deg by design
 
@@ -35,6 +38,8 @@ hw::Bmp58x baro;
 hw::W25q flash;
 hw::Gps gps;
 hw::Ui ui;
+hw::RadioUart radio_uart;
+RadioLink radio;
 app::Logger logger;
 Settings S;
 bool settings_ok = false;
@@ -56,6 +61,8 @@ float vbat_f = 0;
 ActuatorCmd last_out{};
 uint32_t loop_overruns = 0, max_loop_us = 0;
 bool landed_saved = false;
+uint32_t session_flight = 0;                    // flight number of this power-on (the log session)
+LogRecord last_rec{};
 
 // ------------------------------------------------------------------ helpers
 bool on_ground_state(FlightState s) {
@@ -104,6 +111,48 @@ bool warning_active(FlightState st) {
     if (st == FlightState::READY && pad_tilt_deg() > kPadTiltWarnDeg) return true;
     if (st == FlightState::READY && logger.ok() && logger.ready_bytes() < 256u * 1024u) return true;
     return false;
+}
+
+uint32_t now_ms() { return static_cast<uint32_t>(time_us_64() / 1000u); }
+
+void print_radio_brief() {
+    const uint32_t ms = now_ms();
+    printf("radio %s: %lu frames sent, %lu dropped, %lu held, airtime %.0f of 360 s/h (level %d), ", radio.enabled() ? "ON" : "OFF",
+           static_cast<unsigned long>(radio.frames_sent()), static_cast<unsigned long>(radio.frames_dropped()),
+           static_cast<unsigned long>(radio.frames_held()), static_cast<double>(radio.airtime_used_s()), radio.budget_level());
+    if (radio.have_radio_status(ms)) {
+        const auto& rs = radio.radio_status();
+        printf("RSSI here %u / ground %u, noise %u / %u, radio buffer %u%% free, %u rx errors, ground station %s\n", rs.rssi,
+               rs.remrssi, rs.noise, rs.remnoise, rs.txbuf, rs.rxerrors, radio.ground_heard(ms) ? "heard" : "not heard");
+    } else {
+        printf("no report from the radio (none plugged in, or not a SiK radio in MAVLink mode)\n");
+    }
+}
+
+void fill_slow(tlm::SlowPayload& p, const LogRecord& r, FlightState st) {
+    std::memset(&p, 0, sizeof p);
+    p.t_ms = r.t_ms;
+    p.lat_e7 = static_cast<int32_t>(std::llround(last_fix.lat_deg * 1e7));
+    p.lon_e7 = static_cast<int32_t>(std::llround(last_fix.lon_deg * 1e7));
+    p.gps_alt_m = static_cast<int16_t>(std::fmax(-32000.0f, std::fmin(32000.0f, last_fix.alt_m)));
+    p.sats = last_fix.sats;
+    p.gps_valid = last_fix.valid ? 1 : 0;
+    p.baro_alt_m = fc.baro_alt();
+    auto mv = [](float v) { return static_cast<uint16_t>(std::fmax(0.0f, std::fmin(65535.0f, v * 1000.0f))); };
+    p.vbat_mv = mv(pwr.vbat);
+    p.cell1_mv = mv(pwr.cell1);
+    p.servo_mv = mv(pwr.servo_v);
+    p.flight_no = static_cast<uint16_t>(session_flight);
+    p.fw_version = kFwVersion;
+    p.motor_index = S.motor_index;
+    p.status = static_cast<uint8_t>((imu.ok() ? tlm::ST_IMU_OK : 0) | (baro.ok() ? tlm::ST_BARO_OK : 0) |
+                                    (logger.ok() ? tlm::ST_LOG_OK : 0) | (S.axes_valid ? tlm::ST_AXES_CAL : 0) |
+                                    (warning_active(st) ? tlm::ST_WARNING : 0) | (recovery_mode ? tlm::ST_RECOVERY : 0) |
+                                    (S.tabs_enabled ? tlm::ST_TABS_ON : 0) | (settings_ok ? tlm::ST_SETTINGS_SAVED : 0));
+    p.apogee_dm = static_cast<int16_t>(std::fmax(-32000.0f, std::fmin(32000.0f, fc.stats().max_alt_m * 10.0f)));
+    p.log_dropped = static_cast<uint16_t>(logger.dropped() > 65535u ? 65535u : logger.dropped());
+    p.log_records = logger.count_records();
+    p.deploy_reason = fc.stats().deploy_reason;
 }
 
 // ------------------------------------------------------------------ bench state
@@ -156,6 +205,7 @@ void print_help() {
         "  motor [n]              list / choose the motor profile\n"
         "  hold <1|0>             TVC holds the launch-rod direction (1) or vertical (0)\n"
         "  save | defaults        store settings in flash | factory settings\n"
+        "  radio [on|off|test]    telemetry radio: status | on | off | 60 s of flight-rate frames (range test)\n"
         "  log | dump [first]     log summary | CSV dump over USB\n"
         "  erase yes              wipe the flight-log flash (~40 s)\n"
         "  reboot | bootsel       restart | USB drive for new firmware\n",
@@ -185,6 +235,7 @@ void print_status() {
     printf("log flash %s (jedec %06lX): %lu records, %lu kB verified blank ahead, %lu dropped\n", flash.ok() ? "ok" : "FAIL",
            static_cast<unsigned long>(flash.jedec()), static_cast<unsigned long>(logger.count_records()),
            static_cast<unsigned long>(logger.ready_bytes() / 1024u), static_cast<unsigned long>(logger.dropped()));
+    print_radio_brief();
     printf("motor %s, hold %s, max gimbal %.1f deg, deploy %.0f/%.0f us, flights %lu%s\n",
            cfg.motor->name, S.hold_launch_attitude ? "rod" : "vertical", static_cast<double>(S.max_gimbal_deg),
            static_cast<double>(S.deploy_latched_us), static_cast<double>(S.deploy_released_us), static_cast<unsigned long>(S.flights),
@@ -210,7 +261,7 @@ void print_status() {
 void dump_log(uint32_t first) {
     const uint32_t n = logger.count_records();
     printf("t_ms,state,flags,gx_dps,gy_dps,gz_dps,ax,ay,az,alt_m,vz_ms,baro_alt_m,tilt_deg,gimbal_y,gimbal_z,vbat,lat,lon,gps_alt,sats,"
-           "qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg\n");
+           "qx,qy,qz,tab1,tab2,tab3,tab4,roll_deg,rssi\n");
     LogRecord r;
     uint32_t bad = 0;
     for (uint32_t i = first; i < n; ++i) {
@@ -223,14 +274,14 @@ void dump_log(uint32_t first) {
             continue;
         }
         printf("%lu,%u,%u,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.3f,%.7f,%.7f,%d,%u,%.4f,%.4f,%.4f,"
-               "%.2f,%.2f,%.2f,%.2f,%.2f\n",
+               "%.2f,%.2f,%.2f,%.2f,%.2f,%u\n",
                static_cast<unsigned long>(r.t_ms), r.state, r.flags, r.gyro_cdps[0] * 0.01, r.gyro_cdps[1] * 0.01,
                r.gyro_cdps[2] * 0.01, r.accel_cmss[0] * 0.01, r.accel_cmss[1] * 0.01, r.accel_cmss[2] * 0.01,
                static_cast<double>(r.alt_m), static_cast<double>(r.vz_ms), static_cast<double>(r.baro_alt_m), r.tilt_cdeg * 0.01,
                r.gimbal_y_cdeg * 0.01, r.gimbal_z_cdeg * 0.01, r.vbat_mv * 0.001, static_cast<double>(r.lat_deg),
                static_cast<double>(r.lon_deg), r.gps_alt_m, r.sats, r.q_i16[0] / 32767.0, r.q_i16[1] / 32767.0,
                r.q_i16[2] / 32767.0, r.tab_qdeg[0] * 0.25, r.tab_qdeg[1] * 0.25, r.tab_qdeg[2] * 0.25, r.tab_qdeg[3] * 0.25,
-               r.roll_cdeg * 0.01);
+               r.roll_cdeg * 0.01, r.reserved);
         if ((i & 63u) == 0) watchdog_update();
     }
     printf("# end: %lu records, %lu failed CRC\n", static_cast<unsigned long>(n - first), static_cast<unsigned long>(bad));
@@ -411,6 +462,25 @@ void handle_command(char* cmd) {
         S = Settings{};
         apply_config();
         printf("factory settings loaded (not saved; IMU axes need calaxes)\n");
+        return;
+    }
+    if (!std::strcmp(c, "radio")) {
+        if (argc == 2 && !std::strcmp(argv[1], "on")) { S.radio_off = 0; radio.set_enabled(true); printf("radio on (save to keep)\n"); return; }
+        if (argc == 2 && !std::strcmp(argv[1], "off")) { S.radio_off = 1; radio.set_enabled(false); printf("radio off (save to keep)\n"); return; }
+        if (argc == 2 && !std::strcmp(argv[1], "test")) {
+            if (!need_ground()) return;
+            if (!radio.enabled()) { printf("radio is off ('radio on' first)\n"); return; }
+            radio.start_test(now_ms());
+            printf("sending flight-rate frames (50 + 5 per second) for %lu s: walk the rocket away and watch Mission Control\n",
+                   static_cast<unsigned long>(RadioLink::kTestSeconds));
+            return;
+        }
+        print_radio_brief();
+        const auto rt = radio.rates();
+        printf("UART1 %lu baud on GP4/GP5; now sending %u motion + %u status frames per 10 s; %lu bytes out, %lu frames in (%lu rejected)\n",
+               static_cast<unsigned long>(radio_uart.baud()), rt.fast_div ? 5000u / rt.fast_div : 0u,
+               rt.slow_div ? 5000u / rt.slow_div : 0u, static_cast<unsigned long>(radio.bytes_sent()),
+               static_cast<unsigned long>(radio.rx_good()), static_cast<unsigned long>(radio.rx_bad()));
         return;
     }
     if (!std::strcmp(c, "log")) {
@@ -617,8 +687,11 @@ int main() {
     flash.init();
     logger.init(&flash);
     gps.init();
+    radio_uart.init();
+    radio.set_enabled(S.radio_off == 0);
     apply_config();
-    logger.start_session(S.motor_index, S.flights + 1, kFwVersion, time_us_64());
+    session_flight = S.flights + 1;
+    logger.start_session(S.motor_index, session_flight, kFwVersion, time_us_64());
 
     watchdog_enable(250, true);
     uint64_t next = time_us_64();
@@ -671,7 +744,15 @@ int main() {
             LogRecord r;
             fc.fill_log(r, in, out);
             if (recovery_mode) r.flags |= 0x80u;
-            logger.log(r, recovery_mode ? FlightState::DESCENT : out.state);
+            r.reserved = radio.rssi_for_log(now_ms());   // radio signal strength at the rocket (0 = no radio report)
+            r.crc16 = crc16_ccitt(&r, 62);               // the flags / RSSI changes above must be inside the CRC
+            const FlightState log_state = recovery_mode ? FlightState::DESCENT : out.state;
+            logger.log(r, log_state);
+            last_rec = r;
+            tlm::SlowPayload sp;
+            fill_slow(sp, r, log_state);
+            const float t_land = log_state == FlightState::LANDED ? in.t - fc.stats().t_landed : 0.0f;
+            radio.step(tick, now_ms(), log_state, t_land, r, sp);
             watchdog_hw->scratch[0] = (kScratchMagic << 16) | static_cast<uint32_t>(recovery_mode ? FlightState::DESCENT : out.state);
             // landed: close the log page and count the flight (flash write is safe now - nothing to control)
             if (out.state == FlightState::LANDED && !landed_saved && in.t - fc.stats().t_landed > 5.0f) {
@@ -683,7 +764,11 @@ int main() {
         } else {
             bench_step(now);
             watchdog_hw->scratch[0] = (kScratchMagic << 16) | static_cast<uint32_t>(FlightState::BOOT);
+            tlm::SlowPayload sp;
+            fill_slow(sp, last_rec, FlightState::BOOT);
+            radio.step(tick, now_ms(), FlightState::BOOT, 0.0f, last_rec, sp);
         }
+        radio_uart.service(radio, now_ms());
         const FlightState st = mode == Mode::FLIGHT ? last_out.state : FlightState::BOOT;
         logger.service(on_ground_state(st) && !recovery_mode);
 

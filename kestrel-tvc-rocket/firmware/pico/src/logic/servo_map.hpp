@@ -19,7 +19,7 @@ struct Settings {
     uint8_t axes_valid{0};                // 0 until the two-pose calibration has been done
     uint8_t motor_index{5};               // index into kMotors (motor_db.hpp); default TSP-F35 (0 = D20, 2 = E20)
     uint8_t hold_launch_attitude{1};
-    uint8_t reserved0{0};
+    uint8_t radio_off{0};                 // 1 = telemetry radio silent (was reserved0: old saved settings read 0 = on)
     float trim_us[kServoCount]{0, 0, 0, 0, 0, 0, 0};
     int8_t dir[kServoCount]{1, 1, 1, 1, 1, 1, 1};  // +1 / -1 per servo, set by the bench direction tests
     uint8_t tabs_enabled{1};              // fin-tab control on/off

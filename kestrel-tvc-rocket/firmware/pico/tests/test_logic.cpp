@@ -9,6 +9,7 @@
 #include "app/logger.hpp"
 #include "logic/axis_cal.hpp"
 #include "logic/nmea.hpp"
+#include "logic/radio_link.hpp"
 #include "logic/servo_map.hpp"
 
 using namespace kestrel;
@@ -291,11 +292,94 @@ static void test_servo_settings() {
     CHECK(crc16_ccitt(v, 9) == 0x29B1u);
 }
 
+// ============================================================ radio link: rates by phase, framing, flow control, budget
+static void test_radio_link() {
+    RadioLink link;
+    tlm::Decoder ground;                       // what Mission Control's decoder sees (lossless link in this test)
+    LogRecord r{};
+    tlm::SlowPayload sp{};
+    sp.lat_e7 = 515000000;
+    int fast = 0, slow = 0, hb = 0;
+    uint32_t loop = 0, ms = 0;
+    auto run = [&](FlightState st, float seconds, float landed0 = 0.0f) {
+        const int n = static_cast<int>(seconds * 500.0f);
+        for (int i = 0; i < n; ++i, ++loop, ms += 2) {
+            r.t_ms = ms;
+            r.state = static_cast<uint8_t>(st);
+            sp.t_ms = ms;
+            link.step(loop, ms, st, landed0 + i * 0.002f, r, sp);
+            uint8_t b[16];
+            // UART at 57600 baud: 11.52 bytes per 2 ms loop on average
+            const size_t k = link.tx_pop(b, (loop % 25 < 13) ? 12 : 11);
+            for (size_t j = 0; j < k; ++j) {
+                if (ground.feed(b[j])) {
+                    if (ground.msgid() == tlm::kMsgFast) ++fast;
+                    else if (ground.msgid() == tlm::kMsgSlow) ++slow;
+                    else if (ground.msgid() == tlm::kMsgHeartbeat) ++hb;
+                }
+            }
+        }
+    };
+    run(FlightState::READY, 60);
+    CHECK(fast >= 58 && fast <= 61);           // 1 Hz on the pad
+    CHECK(slow >= 29 && slow <= 31);           // 0.5 Hz
+    CHECK(hb >= 59 && hb <= 61);               // 1 Hz heartbeat
+    fast = slow = hb = 0;
+    run(FlightState::BOOST, 2);
+    run(FlightState::COAST, 6);
+    run(FlightState::DESCENT, 34);
+    CHECK(fast >= 2090 && fast <= 2101);       // 50 Hz for 42 s, every frame arrives over a 57600 baud line
+    CHECK(slow >= 208 && slow <= 211);         // 5 Hz
+    CHECK(link.frames_dropped() == 0);
+    CHECK(ground.bad() == 0);
+    fast = slow = 0;
+    run(FlightState::LANDED, 120);
+    CHECK(fast == 0);
+    CHECK(slow >= 70 && slow <= 74);           // 1 Hz for 60 s, then 0.2 Hz
+    CHECK(link.airtime_used_s() < tlm::AirtimeBudget::kSoftS);
+    // flow control: our radio reports its buffer almost full -> motion frames are held, status frames still go
+    const uint8_t rs_payload[9] = {0, 0, 0, 0, 150, 140, 10, 30, 35};   // rxerrors, fixed, rssi, remrssi, txbuf=10 %, noise..
+    uint8_t fr[32];
+    const size_t n = tlm::encode(tlm::kMsgRadioStatus, 0, rs_payload, 9, fr, '3', 'D');
+    for (size_t i = 0; i < n; ++i) link.rx_byte(fr[i], ms);
+    CHECK(link.have_radio_status(ms) && link.radio_status().rssi == 150 && link.radio_status().txbuf == 10);
+    CHECK(link.rssi_for_log(ms) == 150);
+    const uint32_t held0 = link.frames_held();
+    fast = slow = 0;
+    run(FlightState::COAST, 1);
+    CHECK(link.frames_held() - held0 >= 45);   // ~50 motion frames held back
+    CHECK(fast == 0 && slow >= 4);
+    // a ground-station heartbeat (sys 255) is noticed; the radio report goes stale after 5 s
+    const uint8_t gcs_hb[9] = {0, 0, 0, 0, 6, 8, 0, 4, 3};
+    const size_t m = tlm::encode(tlm::kMsgHeartbeat, 1, gcs_hb, 9, fr, 255, 190);
+    for (size_t i = 0; i < m; ++i) link.rx_byte(fr[i], ms);
+    CHECK(link.ground_heard(ms) && !link.ground_heard(ms + 3500));
+    CHECK(!link.have_radio_status(ms + 6000));
+    // radio off: nothing goes out
+    link.set_enabled(false);
+    const uint32_t sent0 = link.frames_sent();
+    run(FlightState::COAST, 1);
+    CHECK(link.frames_sent() == sent0 && link.tx_pending() == 0);
+    // range test on the pad: flight rates for 60 s, then back to pad rates
+    link.set_enabled(true);
+    const uint8_t rs_ok[9] = {0, 0, 0, 0, 150, 140, 90, 30, 35};      // radio buffer 90 % free again
+    const size_t q = tlm::encode(tlm::kMsgRadioStatus, 2, rs_ok, 9, fr, '3', 'D');
+    for (size_t i = 0; i < q; ++i) link.rx_byte(fr[i], ms);
+    link.start_test(ms);
+    CHECK(link.testing(ms) && link.rates().fast_div == 0);   // rates update on the next step
+    fast = 0;
+    run(FlightState::READY, 2);
+    CHECK(fast >= 95 && link.rates().fast_div == 10);
+    run(FlightState::READY, 60);
+    CHECK(!link.testing(ms) && link.rates().fast_div == 500);
+}
+
 int main() {
     test_nmea();
     test_axis_cal();
     test_servo_settings();
     test_logger();
+    test_radio_link();
     std::printf("%d checks passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;
 }

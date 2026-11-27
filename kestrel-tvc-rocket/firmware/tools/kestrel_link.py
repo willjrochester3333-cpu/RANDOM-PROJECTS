@@ -97,7 +97,8 @@ def load(path):
                 continue
             keys = ["t_ms", "state", "flags", "gx", "gy", "gz", "ax", "ay", "az", "alt", "vz", "baro_alt", "tilt",
                     "gimbal_y", "gimbal_z", "vbat", "lat", "lon", "gps_alt", "sats", "qx", "qy", "qz",
-                    "tab1", "tab2", "tab3", "tab4", "roll"]          # KESTREL-2 (fw 2.00) adds the fin tabs + roll
+                    "tab1", "tab2", "tab3", "tab4", "roll",          # KESTREL-2 (fw 2.00) adds the fin tabs + roll
+                    "rssi"]                                           # fw 3.00: radio signal at the rocket (SiK units)
             row = {k: float(x) for k, x in zip(keys, v)}
             for k in keys[23:]:
                 row.setdefault(k, 0.0)
