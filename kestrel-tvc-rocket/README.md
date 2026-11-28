@@ -73,7 +73,7 @@ or Edge (one file, works offline); **Simulated live** shows a whole flight throu
   normal-flight criterion. A **first-flight study** of the E20 (700 flights: flight 1 with the fin tabs off, flight
   2 with them on, and 100 in more wind than allowed): 700 of 700, the canopy fully open at about 40 m. A stress Monte
   Carlo with about twice the error spreads and wind up to 9 m/s: 99.7 % meet every normal-flight criterion and
-  99.9 % recover safely; a tab-effectiveness Monte Carlo: 200 of 200. More than 3,400 simulated flights in all.
+  99.9 % recover safely; a tab-effectiveness Monte Carlo: 200 of 200. About 3,700 simulated flights on the final design.
   → [docs/SIMULATION_REPORT.md](docs/SIMULATION_REPORT.md)
 - **CAD checked automatically on every run.** All 40 printed parts are watertight, single-body and fit a
   220 × 220 × 250 mm bed, and an overhang check confirms they print as exported without support material (three

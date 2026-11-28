@@ -12,7 +12,7 @@ board (now v3, with the radio socket), the radio pair and the rest of the parts 
 | Hide the cameras to cut drag | The camera sits **inside** the bottom tube, in a cradle behind a door with a lens port, looking out **30° down**. Camera drag is down **71 %** (the 30° view needs a low 5 mm brow over the lens, so it is not perfectly flush) | [BUILD_GUIDE.md §6](BUILD_GUIDE.md#6-camera-radio-and-antenna-the-bay-between-the-tvc-module-and-the-av-bay) |
 | Fly to a waypoint in the sky | Declined: steering to a chosen point is guided-weapon capability. You chose the **live landing prediction** instead: where it will come down, with a search ring and a position to copy to a phone map | [ground/README.md](../ground/README.md#landing-prediction) |
 | A smaller first motor that still deploys the parachute easily | **E20 first**, twice: flight 1 with the fin tabs off, flight 2 with them on, then the F35. The D20 hops are gone. In 700 simulated first flights the canopy was **fully open at about 40 m** (28 m in the worst 5 %, never below 18 m), with about 7.5 s under it | [TEST_PLAN.md](TEST_PLAN.md#c-flight-programme) |
-| Test everything, at least 200 simulations | **About 3,700 simulated flights** on the final design (and as many again on the version before the ballast fix), plus every software test | below |
+| Test everything, at least 200 simulations | **About 3,700 simulated flights** on the final design (and about 5,000 more on two earlier versions of it this round: before the ballast fix and before the radio-cradle fix), plus every software test | below |
 
 ## The rocket in numbers (final design)
 
