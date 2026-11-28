@@ -17,14 +17,15 @@ Files marked *(generated)* are made by a script in this project: change the scri
 
 | File | What it is |
 |---|---|
-| `BOM.md` | Shopping list: every part to buy, brand, shop link, price (≈ £312), and the motors |
-| `BUILD_GUIDE.md` | Step-by-step build: printing, tubes, TVC module, fins and tabs, camera, avionics bay, recovery, firmware set-up, launch pad, loading a motor and the balance check |
+| `STATUS.md` | **Where the project stands**: what this round added, the numbers, every test run on the final design, problems found and fixed, honest gaps, what to do next |
+| `BOM.md` | Shopping list: every part to buy, brand, shop link, price (≈ £403–422 with the telemetry radio, ≈ £317 without), and the motors |
+| `BUILD_GUIDE.md` | Step-by-step build: printing, tubes, TVC module, fins and tabs, camera, radio and antenna, avionics bay, recovery, firmware set-up, launch pad, loading a motor and the balance check |
 | `PCB.md` | The flight-computer circuit board: what is on it, the pin map, how it was checked, and how to order it from JLCPCB |
-| `FIRMWARE.md` | The flight software: how it works, every USB command, logging, how to flash it, version history |
-| `TEST_PLAN.md` | Bench tests, field tests and the flight programme (D20, D20, E20, then the F35), with pass criteria |
+| `FIRMWARE.md` | The flight software: how it works, every USB command, the radio telemetry, logging, how to flash it, version history |
+| `TEST_PLAN.md` | Bench tests (radio and camera door included), field tests (radio range) and the flight programme (E20, E20, then the F35), with pass criteria |
 | `PREFLIGHT_CHECKLIST.md` | Printable checklist for the night before, the field, the pad, the launch and recovery |
 | `SAFETY_AND_LEGAL.md` | UK rules (UKRA/BMFA, CAA, motors, LiPo) and the safety rules this rocket needs (distances, wind, recovery area) |
-| `SIMULATION_REPORT.md` | All simulation results: validation against RocketPy, apogee and drag, 44 scenario and fault cases, Monte Carlo, stress Monte Carlo, hand checks, design iterations |
+| `SIMULATION_REPORT.md` | All simulation results: validation against RocketPy, apogee and drag, 47 scenario and fault cases, Monte Carlo, the E20 first-flight study, landing-prediction accuracy, stress Monte Carlo, hand checks, design iterations |
 
 ## cad/ — the 3D model (Blender + manifold3d)
 

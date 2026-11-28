@@ -110,6 +110,8 @@ Honest gaps against what we agreed:
   airframe, next to the wiring), and the masses of the radio parts (estimates). The test plan has a bench and a
   field range test before the first flight.
 
+**Where the project stands, in one page:** [docs/STATUS.md](docs/STATUS.md).
+
 Real flights then confirm what models cannot; [docs/TEST_PLAN.md](docs/TEST_PLAN.md) takes you from the bench to
 the first F35 flight in steps (two E20 flights first: TVC only, then with the fin tabs).
 
