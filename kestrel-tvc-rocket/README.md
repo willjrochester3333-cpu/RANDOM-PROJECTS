@@ -60,7 +60,7 @@ or Edge (one file, works offline); **Simulated live** shows a whole flight throu
 | Recovery | 36 in parachute, spring ejection, servo-released snap-in latch, 5.2 m/s landing; from 157 m it drifts about 46 m for every 1 m/s of wind |
 | Payload | 130 mm bay, 32 × 50 mm hinged door with a quarter-turn lock, 4 × M3 mounting holes, up to 50 g |
 | Flight computer | Pico 2 W + LSM6DSO IMU + BMP580 baro + ATGM336H GPS + 16 MB log, 4-layer 40 × 82 mm PCB (v3), 7 servo ports, a radio socket |
-| Telemetry | Holybro SiK V3 433 MHz pair, set to 8 dBm (≈ 6 mW e.r.p., inside the UK's 10 mW limit) and kept under the 10 %-an-hour airtime rule by the firmware; MAVLink-framed binary frames with a CRC, 50 motion + 5 status a second in flight, 1.5 a second on the pad. Receive only on the rocket: nothing sent from the ground changes the flight |
+| Telemetry | Holybro SiK V3 433 MHz pair, set to 8 dBm (≈ 6 mW e.r.p., inside the UK's 10 mW limit) and kept under the 10 %-an-hour airtime rule by the firmware; MAVLink-framed binary frames with a CRC, 50 motion + 5 status a second in flight, 1.5 a second on the pad. Nothing sent from the ground changes the flight: the rocket only notes the ground station's heartbeat |
 | Camera | SQ12-class 23 mm cube **inside** the bottom tube, in a cradle behind a door with a lens port and a low brow, looking out 30° down (the old external pod is gone: −71 % camera drag) |
 | Launch pad | printed hub, 3 dowel legs, 1 m (or 1.5 m) × 6 mm rod, 0–15° tilt, 200 mm tile the rocket stands on |
 
