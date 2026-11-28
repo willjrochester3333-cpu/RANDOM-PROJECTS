@@ -44,14 +44,15 @@ def main():
             ax.axvline(np.median(v), color=c, lw=1, ls=(0, (2, 2)))
         if limit is not None:
             ax.axvline(limit, color=INK2, lw=1)
-            ax.text(limit, ax.get_ylim()[1] * 0.97, "command limit ", color=INK2, va="top", ha="right", fontsize=8.5)
+            ax.text(limit, 1.0, "command limit", transform=ax.get_xaxis_transform(), color=INK2, va="bottom", ha="right",
+                    fontsize=8.5)                       # just above the plot: clear of the bars
         ax.set_title(title, loc="left", color=INK, fontsize=11)
         ax.grid(axis="y", color=GRID, lw=0.8)
         ax.set_axisbelow(True)
         for s in ("top", "right"):
             ax.spines[s].set_visible(False)
         ax.set_ylabel("flights")
-    axes.flat[0].legend(frameon=False, fontsize=9, loc="upper left")
+    axes.flat[0].legend(frameon=False, fontsize=9, loc="upper center", bbox_to_anchor=(0.40, 1.0))   # empty band between E20 and F35
     f35 = summ["TSP-F35"]
     fig.suptitle(
         f"Monte Carlo, real flight code in the loop: {sum(len(v) for v in runs.values())} flights, "
