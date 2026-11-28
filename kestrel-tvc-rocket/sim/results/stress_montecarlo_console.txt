@@ -1,12 +1,9 @@
-stress Monte Carlo, TSP-F35, n=1000: success 99.5 %, parachute out and landing < 7 m/s in 99.9 %
-   wind 0-3 m/s: n=337 success 99.4 %
+stress Monte Carlo, TSP-F35, n=1000: success 99.7 %, parachute out and landing < 7 m/s in 99.9 %
+   wind 0-3 m/s: n=337 success 99.7 %
    wind 3-6 m/s: n=316 success 99.7 %
-   wind 6-9 m/s: n=347 success 99.4 %
-   apogee mean 171.1 m (5-95 % 122-232), tilt in boost p95 6.7 deg, landing distance p95 487 m
-   FAIL {'i': 329, 'wind': 8.4, 'tab_eff': 1.06, 'misalign': 1.2, 'why': ['landing 7.1 m/s']}
-   FAIL {'i': 347, 'wind': 1.6, 'tab_eff': 1.09, 'misalign': 3.65, 'why': ['tilt in boost 12.7 deg']}
-   FAIL {'i': 383, 'wind': 3.4, 'tab_eff': 1.14, 'misalign': 0.75, 'why': ['tilt in boost 11.3 deg']}
-   FAIL {'i': 413, 'wind': 0.4, 'tab_eff': 0.4, 'misalign': 0.77, 'why': ['tilt in boost 10.0 deg']}
-   FAIL {'i': 567, 'wind': 8.3, 'tab_eff': 0.93, 'misalign': 1.17, 'why': ['deploy at 15.1 m/s']}
-total 1101 s
-EXIT 0
+   wind 6-9 m/s: n=347 success 99.7 %
+   apogee mean 158.1 m (5-95 % 111-216), tilt in boost p95 6.6 deg, landing distance p95 439 m
+   FAIL {'i': 329, 'wind': 8.4, 'tab_eff': 1.06, 'misalign': 1.2, 'why': ['landing 7.2 m/s']}
+   FAIL {'i': 347, 'wind': 1.6, 'tab_eff': 1.09, 'misalign': 3.65, 'why': ['tilt in boost 12.3 deg']}
+   FAIL {'i': 383, 'wind': 3.4, 'tab_eff': 1.14, 'misalign': 0.75, 'why': ['tilt in boost 11.2 deg']}
+total 1040 s

@@ -183,7 +183,7 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   frame ring + flow control, 10 %/hour airtime budget (lean > 270 s, beacon > 330 s), radio command, RSSI in the
   log record, recovery-flag CRC bug fixed; 375,585 + 148 checks. Mission Control: Web Serial radio link, link
   panel, radio set-up (ATS3=75, ATS4=8), landing prediction, log merge; decoder tested against pymavlink frames
-  and radio_frames.py. CAD: camera door + cradle (brow 5 mm, camera drag -72 %), radio cradle, antenna mount and
+  and radio_frames.py. CAD: camera door + cradle (brow 5 mm, camera drag -71 %), radio cradle, antenna mount and
   channel through the sled, drill-guide lines; no overlaps.
 - Fri 20:30: the radio put ~43 g aft of the CG: F35 + empty bay balanced 0.9 mm behind the 640 mm limit
   (+0.67 cal). Ballast 46 -> 51 g (+0.72..+0.84 again, as before). Sims restarted for the corrected rocket; the

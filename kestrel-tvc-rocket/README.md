@@ -51,7 +51,7 @@ or Edge (one file, works offline); **Simulated live** shows a whole flight throu
 | Length / diameter / fin span | 903 mm (929 mm standing on its fin feet) / 56.3 mm (Estes BT-70) / 159 mm |
 | Lift-off mass | 952 g with a TSP F35 and 25 g of payload (861 g without motor) |
 | Motors | 29 mm TSP **F35-0** (mission); 24 mm TSP **E20-0** for the first two flights, in a printed adapter sleeve (the D20 fits too, but is not in the flight programme) |
-| Apogee (simulated, F35) | **157 m** nominal with 25 g of payload (164 m with an empty bay); Monte Carlo mean 166 m, 90 % of flights 135–199 m. E20: 41 m (about 47 m on the first flights, which carry no payload) |
+| Apogee (simulated, F35) | **157 m** nominal with 25 g of payload (164 m with an empty bay); Monte Carlo mean 166 m, 90 % of flights 135–200 m. E20: 41 m (about 47 m on the first flights, which carry no payload) |
 | Stability | +0.72 to +0.84 calibres at lift-off (empty to full payload bay, with 51 g of nose ballast), +0.91 to +1.02 at burn-out: still flies straight enough to recover normally if all six steering servos fail |
 | TVC | 2-axis gimbal for 29 mm motors, ±6° vector limit, 2 × MG90S, 500 Hz control loop |
 | Fins | 4 × normal 4 mm fins with a half-round leading edge; only the bottom band (45 mm next to the tail) is 15 mm thick (17 mm round the servo), joined by a smooth 15° wedge, and holds the tab hinge, the tab servo (in a pocket open at the tip) and its lead channel; band and tabs taper to thin trailing edges below the tail |
@@ -61,7 +61,7 @@ or Edge (one file, works offline); **Simulated live** shows a whole flight throu
 | Payload | 130 mm bay, 32 × 50 mm hinged door with a quarter-turn lock, 4 × M3 mounting holes, up to 50 g |
 | Flight computer | Pico 2 W + LSM6DSO IMU + BMP580 baro + ATGM336H GPS + 16 MB log, 4-layer 40 × 82 mm PCB (v3), 7 servo ports, a radio socket |
 | Telemetry | Holybro SiK V3 433 MHz pair, set to 8 dBm (≈ 6 mW e.r.p., inside the UK's 10 mW limit) and kept under the 10 %-an-hour airtime rule by the firmware; MAVLink-framed binary frames with a CRC, 50 motion + 5 status a second in flight, 1.5 a second on the pad. Receive only on the rocket: nothing sent from the ground changes the flight |
-| Camera | SQ12-class 23 mm cube **inside** the bottom tube, in a cradle behind a door with a lens port and a low brow, looking out 30° down (the old external pod is gone: −72 % camera drag) |
+| Camera | SQ12-class 23 mm cube **inside** the bottom tube, in a cradle behind a door with a lens port and a low brow, looking out 30° down (the old external pod is gone: −71 % camera drag) |
 | Launch pad | printed hub, 3 dowel legs, 1 m (or 1.5 m) × 6 mm rod, 0–15° tilt, 200 mm tile the rocket stands on |
 
 ## How it was verified
@@ -98,7 +98,7 @@ Honest gaps against what we agreed:
 - **Apogee**: you asked for 200 m. On the 29 mm TSP F35 the rocket reached 188 m; making it a multiple-flight
   rocket added 48 g (170 m), and the telemetry radio, its antenna and cradles and 5 g more nose ballast to keep the
   same stability added another 48 g, so it now reaches **157 m** with 25 g of payload (164 m with an empty bay).
-  Hiding the camera inside cut its drag by 72 % and won back a little of that. The TVC module takes 29 mm motors;
+  Hiding the camera inside cut its drag by 71 % and won back a little of that. The TVC module takes 29 mm motors;
   the E20 flies in a printed adapter for the first two flights. The price of height is drift: about 30 s under the
   parachute, so it needs a recovery area of about 500 m downwind in winds up to 6 m/s, or 250 m if you fly it only
   in 3 m/s or less. The details, with what-if numbers, are in the simulation report, section 3.

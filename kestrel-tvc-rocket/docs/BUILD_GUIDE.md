@@ -218,14 +218,15 @@ The 84 mm of tube between the top of the TVC module and the bottom of the av-bay
 **telemetry radio** in its cradle (122°) and the **antenna mount** (30°), from which the radio's antenna stands up
 through a channel in the av-bay sled. Nothing sticks out of the rocket except the camera door's low brow. All three
 cradles are glued in through the **top** of the bottom tube with the av-bay still out (the TVC module can already be
-in). Use a stick marked with the depth to push each one down, and slow (30-minute) epoxy on its glue feet.
+in). Use a stick marked with the depth to push each one down, and slow (30-minute) epoxy on the faces that touch
+the tube.
 
 1. **Set up both radios first**, before the rocket's radio goes in: open Mission Control
    (`ground/kestrel_mission_control.html`, Chrome or Edge), plug **one** radio into the laptop's USB and press
    **Set up a radio (UK settings)…** in the Radio link panel, then the other radio. Each one is set to network ID 75
    and 8 dBm (about 6 mW e.r.p. with its 2 dBi antenna, inside the UK's 10 mW limit; see
-   [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio)), saved and restarted. Then plug both in (one on the laptop, one
-   on a USB power bank): within a few seconds they find each other. Put a sticker on the rocket's radio.
+   [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio)), saved and restarted. Put a sticker on the rocket's radio. The
+   link between the two is checked on the bench once the rocket is built (test plan A23).
 2. **Camera cradle:** dry-fit it first. Push it down the tube from the top, turn it to the camera side and slide it
    down until its open front lines up with the 25 × 46 mm camera window (look through the window): its rim sits
    behind the window's top edge, its catch below the window. Epoxy the curved saddle round the window, push it
@@ -235,7 +236,7 @@ in). Use a stick marked with the depth to push each one down, and slow (30-minut
 4. **Radio cradle** (122°): first thread **two 150 × 2.5 mm cable ties**, one through each pair of slots in its back
    plate: in through one slot from the flat back of the plate, out through the slot beside it, so that each tie makes a
    loose loop on the open side of the cradle, round the space where the radio will sit; close each tie loosely behind
-   the plate. Epoxy the curved ends of the two side rails and the edge of the floor, push the cradle down on the 122°
+   the plate. Epoxy the curved ends of the two side rails (the faces that touch the tube), push the cradle down on the 122°
    line until the **underside of its floor is 180 mm below the tube's top end**, and hold it against the wall until the
    epoxy has set. The fin-2 tab lead runs up the tube wall here: let it lie flat against the wall between the cradle's
    rails (it passes behind the radio).

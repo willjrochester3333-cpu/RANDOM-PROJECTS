@@ -2,47 +2,50 @@
 
 | case | description | apogee m | max tilt boost ° | max tilt coast ° | max gimbal ° | roll rate boost / coast °/s | max tab ° | deploy − apogee s | speed at deploy m/s | landing m/s | drift m | verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| nominal_calm | F35, no wind | 170 | 0.5 | 0.2 | 0.4 | 5 / 9 | 2.0 | +0.04 | 0.4 | 5.1 | 1 | **PASS**  |
-| nominal_wind3 | F35, 3 m/s wind + gusts (baseline) | 170 | 0.7 | 0.9 | 1.1 | 8 / 11 | 3.4 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| wind6_gusty | F35, 6 m/s wind, 1.5 m/s gusts | 170 | 0.9 | 1.4 | 1.3 | 9 / 5 | 13.3 | +0.02 | 9.4 | 5.0 | 324 | **PASS**  |
-| wind9_limit | F35, 9 m/s wind (UKRA/NAR wind limit) | 169 | 1.0 | 1.5 | 1.2 | 5 / 3 | 13.3 | +0.03 | 14.3 | 4.9 | 488 | **PASS**  |
-| rod_tilt5 | rod tilted 5 deg downwind (rocket holds the rod direction) | 168 | 5.0 | 5.2 | 0.9 | 10 / 7 | 14.4 | +0.03 | 6.8 | 5.1 | 172 | **PASS**  |
-| rod_1.5m_wind6 | 1.5 m launch rod, 6 m/s wind + 1.5 m/s gusts | 170 | 0.9 | 1.4 | 1.3 | 9 / 4 | 13.5 | +0.02 | 9.4 | 5.0 | 324 | **PASS**  |
-| wind6_payload50 | 6 m/s wind + gusts with the maximum 50 g payload | 162 | 0.9 | 1.5 | 1.5 | 7 / 4 | 11.8 | +0.04 | 9.2 | 5.1 | 281 | **PASS**  |
-| misalign_1p5 | 1.5 deg thrust misalignment (badly seated motor) | 169 | 1.6 | 1.0 | 1.6 | 11 / 5 | 6.1 | +0.02 | 4.2 | 5.1 | 155 | **PASS**  |
-| fin_cant2 | 2 deg fin cant: strong roll torque the tabs must cancel | 170 | 0.6 | 0.9 | 0.9 | 27 / 27 | 7.3 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| fin_misalign | fins glued crooked: +1.0 / -0.5 / +0.8 / -0.2 deg | 170 | 0.7 | 0.9 | 1.1 | 8 / 8 | 4.1 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| cg_aft_20mm | CG 20 mm further aft than predicted | 170 | 0.6 | 0.5 | 0.4 | 6 / 8 | 2.7 | +0.02 | 4.5 | 5.1 | 158 | **PASS**  |
-| heavy_15pct | airframe 15% heavier than predicted | 134 | 0.7 | 0.9 | 1.3 | 4 / 7 | 11.0 | +0.03 | 3.8 | 5.4 | 116 | **PASS**  |
-| cd_plus20 | drag 20% higher than predicted | 164 | 0.7 | 0.9 | 1.1 | 8 / 7 | 3.4 | +0.03 | 4.2 | 5.1 | 137 | **PASS**  |
-| payload_0g | empty payload bay | 178 | 0.7 | 0.8 | 1.0 | 9 / 7 | 3.8 | +0.03 | 4.4 | 5.0 | 160 | **PASS**  |
-| payload_50g | maximum payload 50 g | 162 | 0.7 | 0.9 | 1.3 | 6 / 6 | 3.6 | +0.03 | 4.2 | 5.1 | 137 | **PASS**  |
-| tvc_gains_x0.5 | TVC gains halved | 170 | 1.6 | 1.4 | 1.1 | 8 / 9 | 3.4 | +0.04 | 4.2 | 5.1 | 153 | **PASS**  |
-| tvc_gains_x2 | TVC gains doubled | 170 | 0.3 | 1.0 | 1.2 | 9 / 9 | 4.0 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| tab_gains_x0.5 | tab (roll + coast) gains halved | 170 | 0.7 | 1.5 | 1.2 | 9 / 12 | 4.3 | +0.04 | 4.2 | 5.1 | 154 | **PASS**  |
-| tab_gains_x2 | tab (roll + coast) gains doubled | 170 | 0.7 | 0.6 | 1.1 | 8 / 5 | 3.8 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| tab_eff_minus40 | tabs 40% less effective than predicted | 170 | 0.8 | 1.6 | 1.3 | 7 / 8 | 5.6 | +0.04 | 4.2 | 5.1 | 154 | **PASS**  |
-| tab_eff_plus40 | tabs 40% more effective than predicted | 170 | 0.6 | 0.6 | 1.0 | 10 / 11 | 3.0 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| slow_servos | all servos half speed, 25 ms lag, extra backlash | 170 | 0.9 | 1.1 | 0.7 | 7 / 7 | 3.4 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| imu_misalign2 | IMU mounted 2 deg crooked | 170 | 0.6 | 0.7 | 1.2 | 8 / 8 | 4.2 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| gyro_drift | gyro bias drifting 10x faster than spec | 170 | 0.7 | 0.9 | 1.2 | 9 / 9 | 4.0 | +0.02 | 4.3 | 5.1 | 157 | **PASS**  |
-| roll_program | camera panorama: 90 deg/s roll programme in the coast | 170 | 0.7 | 1.0 | 1.1 | 8 / 107 | 4.1 | +0.02 | 4.2 | 5.1 | 156 | **PASS**  |
-| coast_rate_only | tabs only damp pitch/yaw in the coast (no attitude hold) | 170 | 0.7 | 5.1 | 1.1 | 8 / 10 | 4.4 | +0.04 | 3.4 | 5.1 | 151 | **PASS**  |
-| tabs_disabled | tabs switched off in the settings (TVC only, like KESTREL-1) | 170 | 0.9 | 20.1 | 3.2 | 214 / 266 | 0.0 | +0.02 | 2.5 | 5.1 | 149 | **PASS**  |
-| motor_D20 | TSP D20-0 in the 24 mm adapter (first test hops) | 16 | 0.3 | 4.2 | 0.7 | 1 / 4 | 14.4 | +0.04 | 1.0 | 5.1 | 7 | **PASS**  |
-| motor_E20 | TSP E20-0 in the 24 mm adapter (second test flights) | 46 | 0.2 | 2.0 | 0.7 | 2 / 3 | 9.3 | +0.05 | 2.3 | 5.1 | 30 | **PASS**  |
-| motor_curve | F35 performing like its published test curve instead of its rating | 176 | 0.7 | 0.9 | 0.7 | 9 / 4 | 4.1 | +0.04 | 4.3 | 5.1 | 161 | **PASS**  |
-| unarmed_launch | FAULT: launched before calibration finished (1 s on the pad) | 161 | 20.1 | 59.7 | 0.0 | 214 / 268 | 0.0 | +0.03 | 7.7 | 5.1 | 80 | **PASS**  |
-| tvc_off_calm | FAULT: TVC servos dead, calm | 170 | 3.6 | 0.7 | 0.0 | 4 / 3 | 9.9 | +0.02 | 0.4 | 5.1 | 5 | **PASS**  |
-| tvc_off_wind3 | FAULT: TVC servos dead, 3 m/s wind (tabs still steer) | 170 | 4.4 | 1.3 | 0.0 | 4 / 6 | 11.3 | +0.02 | 4.1 | 5.1 | 153 | **PASS**  |
-| servo_hardover | FAULT: TVC pitch servo jams at full deflection at T+0.5 s | 25 | 160.3 | 0.0 | 6.5 | 41 / 0 | 14.4 | -0.79 | 26.6 | 5.1 | 29 | **PASS** contained near pad |
-| tab_hardover | FAULT: tab 1 jams at full deflection at T+1 s | 130 | 2.8 | 174.3 | 4.1 | 108 / 567 | 16.0 | -0.05 | 7.9 | 5.1 | 137 | **PASS**  |
-| tab_stuck | FAULT: tab 2 freezes at T+0.5 s | 170 | 0.7 | 1.3 | 1.0 | 15 / 21 | 5.5 | +0.04 | 4.2 | 5.1 | 154 | **PASS**  |
-| tabs_dead | FAULT: all four tab servos dead from launch | 170 | 1.1 | 20.8 | 1.1 | 214 / 266 | 0.0 | +0.02 | 2.4 | 5.1 | 148 | **PASS**  |
-| passive_calm | FAULT: all 6 steering servos dead (TVC + tabs), calm | 163 | 17.0 | 41.4 | 0.0 | 211 / 263 | 0.0 | +0.02 | 7.9 | 5.1 | 61 | **PASS**  |
-| passive_wind3 | FAULT: all 6 steering servos dead, 3 m/s wind | 162 | 19.6 | 64.3 | 0.0 | 214 / 268 | 0.0 | +0.02 | 7.6 | 5.1 | 86 | **PASS**  |
-| passive_empty_bay | FAULT: all steering dead + empty payload bay (least stable), 3 m/s | 169 | 19.7 | 61.1 | 0.0 | 227 / 280 | 0.0 | +0.02 | 7.7 | 5.0 | 95 | **PASS**  |
-| baro_dead | FAULT: barometer dies at T+1 s | 170 | 0.7 | 1.0 | 1.1 | 7 / 6 | 4.5 | +1.28 | 12.9 | 5.1 | 136 | **PASS**  |
-| passive_wind6 | FAULT: all steering dead in 6 m/s wind (why first flights need <= 3 m/s) | 164 | 19.1 | 67.4 | 0.0 | 217 / 271 | 0.0 | +0.02 | 5.2 | 5.1 | 221 | **INFO** informational |
-| no_chute | FAULT: parachute fails to deploy (shows why ground tests matter) | 170 | 0.7 | 0.9 | 1.1 | 8 / 11 | 3.4 | +0.02 | 4.3 | 50.8 | 43 | **INFO** informational |
-| motor_E12 | TSP E12-0: NOT for KESTREL-2 (too little thrust for its mass) | 36 | 0.2 | 2.8 | 0.5 | 2 / 2 | 14.4 | +0.06 | 2.3 | 5.1 | 24 | **INFO** informational |
+| nominal_calm | F35, no wind | 157 | 0.5 | 0.2 | 0.3 | 7 / 9 | 2.0 | +0.04 | 0.4 | 5.2 | 1 | **PASS**  |
+| nominal_wind3 | F35, 3 m/s wind + gusts (baseline) | 157 | 0.6 | 0.8 | 1.1 | 6 / 6 | 3.2 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| wind6_gusty | F35, 6 m/s wind, 1.5 m/s gusts | 156 | 0.8 | 1.3 | 1.2 | 7 / 3 | 14.4 | +0.02 | 9.2 | 5.2 | 276 | **PASS**  |
+| wind9_limit | F35, 9 m/s wind (UKRA/NAR wind limit) | 156 | 0.9 | 2.8 | 1.2 | 4 / 4 | 14.4 | +0.03 | 14.0 | 5.0 | 419 | **PASS**  |
+| rod_tilt5 | rod tilted 5 deg downwind (rocket holds the rod direction) | 155 | 5.0 | 5.2 | 1.0 | 6 / 4 | 14.4 | +0.03 | 6.7 | 5.2 | 164 | **PASS**  |
+| rod_1.5m_wind6 | 1.5 m launch rod, 6 m/s wind + 1.5 m/s gusts | 156 | 0.8 | 1.3 | 1.3 | 6 / 4 | 14.4 | +0.02 | 9.2 | 5.2 | 276 | **PASS**  |
+| wind6_payload50 | 6 m/s wind + gusts with the maximum 50 g payload | 149 | 0.8 | 1.6 | 1.5 | 6 / 4 | 14.4 | +0.04 | 9.0 | 5.1 | 276 | **PASS**  |
+| misalign_1p5 | 1.5 deg thrust misalignment (badly seated motor) | 156 | 1.6 | 1.0 | 1.6 | 15 / 10 | 6.1 | +0.02 | 4.0 | 5.2 | 132 | **PASS**  |
+| fin_cant2 | 2 deg fin cant: strong roll torque the tabs must cancel | 157 | 0.6 | 0.8 | 1.0 | 23 / 25 | 7.3 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| fin_misalign | fins glued crooked: +1.0 / -0.5 / +0.8 / -0.2 deg | 157 | 0.6 | 0.9 | 1.1 | 6 / 12 | 3.7 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| cg_aft_20mm | CG 20 mm further aft than predicted | 157 | 0.6 | 0.5 | 0.4 | 5 / 7 | 5.0 | +0.04 | 4.3 | 5.2 | 137 | **PASS**  |
+| heavy_15pct | airframe 15% heavier than predicted | 122 | 0.6 | 1.1 | 1.4 | 4 / 6 | 8.2 | +0.03 | 3.6 | 5.6 | 96 | **PASS**  |
+| cd_plus20 | drag 20% higher than predicted | 152 | 0.6 | 0.8 | 1.1 | 6 / 7 | 3.2 | +0.03 | 4.1 | 5.2 | 137 | **PASS**  |
+| payload_0g | empty payload bay | 164 | 0.6 | 0.8 | 1.0 | 7 / 14 | 2.9 | +0.02 | 4.2 | 5.1 | 145 | **PASS**  |
+| payload_50g | maximum payload 50 g | 149 | 0.6 | 0.8 | 1.3 | 5 / 9 | 3.5 | +0.03 | 4.0 | 5.3 | 132 | **PASS**  |
+| tvc_gains_x0.5 | TVC gains halved | 157 | 1.5 | 1.4 | 1.2 | 7 / 6 | 3.2 | +0.04 | 4.0 | 5.2 | 134 | **PASS**  |
+| tvc_gains_x2 | TVC gains doubled | 157 | 0.3 | 1.0 | 1.3 | 6 / 3 | 3.5 | +0.04 | 4.2 | 5.2 | 135 | **PASS**  |
+| tab_gains_x0.5 | tab (roll + coast) gains halved | 157 | 0.6 | 1.7 | 1.1 | 9 / 10 | 4.1 | +0.04 | 4.0 | 5.2 | 134 | **PASS**  |
+| tab_gains_x2 | tab (roll + coast) gains doubled | 157 | 0.7 | 0.6 | 1.1 | 5 / 2 | 3.4 | +0.04 | 4.2 | 5.2 | 135 | **PASS**  |
+| tab_eff_minus40 | tabs 40% less effective than predicted | 157 | 0.7 | 1.5 | 1.5 | 7 / 5 | 5.9 | +0.04 | 4.0 | 5.2 | 134 | **PASS**  |
+| tab_eff_plus40 | tabs 40% more effective than predicted | 157 | 0.6 | 0.6 | 0.9 | 9 / 14 | 2.4 | +0.04 | 4.2 | 5.2 | 135 | **PASS**  |
+| slow_servos | all servos half speed, 25 ms lag, extra backlash | 157 | 0.8 | 1.2 | 0.6 | 10 / 9 | 3.4 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| imu_misalign2 | IMU mounted 2 deg crooked | 157 | 0.6 | 0.7 | 1.2 | 6 / 11 | 3.1 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| gyro_drift | gyro bias drifting 10x faster than spec | 157 | 0.6 | 0.9 | 1.1 | 8 / 10 | 3.5 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| roll_program | camera panorama: 90 deg/s roll programme in the coast | 157 | 0.6 | 0.9 | 1.1 | 6 / 102 | 6.7 | +0.04 | 4.1 | 5.2 | 135 | **PASS**  |
+| coast_rate_only | tabs only damp pitch/yaw in the coast (no attitude hold) | 157 | 0.6 | 5.1 | 1.1 | 6 / 5 | 3.6 | +0.03 | 3.3 | 5.2 | 131 | **PASS**  |
+| tabs_disabled | tabs switched off in the settings (TVC only, like KESTREL-1) | 157 | 0.8 | 22.2 | 3.7 | 193 / 245 | 0.0 | +0.04 | 2.5 | 5.2 | 128 | **PASS**  |
+| motor_D20 | TSP D20-0 in the adapter: optional, no longer in the flight programme (too low for a relaxed parachute) | 14 | 0.3 | 4.7 | 0.6 | 1 / 4 | 14.4 | +0.05 | 0.9 | 5.3 | 5 | **PASS**  |
+| motor_E20 | TSP E20-0 in the 24 mm adapter, 25 g payload, 3 m/s wind + gusts | 40 | 0.2 | 2.4 | 0.4 | 2 / 2 | 14.4 | +0.05 | 2.1 | 5.2 | 29 | **PASS**  |
+| e20_flight1_tvc_only | FIRST FLIGHT: E20, TVC only (tabs 0), no payload, 3 m/s wind + gusts | 43 | 0.2 | 8.3 | 0.8 | 47 / 63 | 0.0 | +0.05 | 2.3 | 5.2 | 31 | **PASS**  |
+| e20_flight2_tabs | SECOND FLIGHT: E20, TVC + tabs, no payload, 3 m/s wind + gusts | 43 | 0.2 | 2.2 | 0.4 | 2 / 1 | 12.5 | +0.05 | 2.3 | 5.2 | 31 | **PASS**  |
+| e20_flight1_tvc_dead | FAULT on the first flight: E20, tabs off and the TVC servos dead, 3 m/s | 43 | 18.0 | 47.0 | 0.0 | 48 / 65 | 0.0 | +0.04 | 2.9 | 5.2 | 20 | **PASS**  |
+| motor_curve | F35 performing like its published test curve instead of its rating | 162 | 0.6 | 0.9 | 0.7 | 5 / 4 | 3.9 | +0.04 | 4.2 | 5.2 | 139 | **PASS**  |
+| unarmed_launch | FAULT: launched before calibration finished (1 s on the pad) | 148 | 22.4 | 48.9 | 0.0 | 193 / 247 | 0.0 | +0.03 | 7.6 | 5.2 | 88 | **PASS**  |
+| tvc_off_calm | FAULT: TVC servos dead, calm | 156 | 3.8 | 0.8 | 0.0 | 5 / 4 | 10.5 | +0.04 | 0.6 | 5.2 | 5 | **PASS**  |
+| tvc_off_wind3 | FAULT: TVC servos dead, 3 m/s wind (tabs still steer) | 156 | 4.5 | 1.0 | 0.0 | 3 / 3 | 12.0 | +0.04 | 4.0 | 5.2 | 131 | **PASS**  |
+| servo_hardover | FAULT: TVC pitch servo jams at full deflection at T+0.5 s | 24 | 156.1 | 0.0 | 6.5 | 37 / 0 | 14.4 | -0.81 | 25.1 | 5.2 | 27 | **PASS** contained near pad |
+| tab_hardover | FAULT: tab 1 jams at full deflection at T+1 s | 125 | 2.3 | 173.8 | 4.0 | 94 / 478 | 16.0 | -0.03 | 7.6 | 5.2 | 117 | **PASS**  |
+| tab_stuck | FAULT: tab 2 freezes at T+0.5 s | 157 | 0.7 | 1.3 | 1.2 | 11 / 15 | 6.2 | +0.04 | 4.0 | 5.2 | 134 | **PASS**  |
+| tabs_dead | FAULT: all four tab servos dead from launch | 157 | 1.0 | 22.8 | 1.3 | 193 / 245 | 0.0 | +0.04 | 2.3 | 5.2 | 127 | **PASS**  |
+| passive_calm | FAULT: all 6 steering servos dead (TVC + tabs), calm | 148 | 20.0 | 38.8 | 0.0 | 190 / 242 | 0.0 | +0.03 | 8.5 | 5.2 | 63 | **PASS**  |
+| passive_wind3 | FAULT: all 6 steering servos dead, 3 m/s wind | 148 | 21.5 | 52.4 | 0.0 | 194 / 247 | 0.0 | +0.02 | 7.3 | 5.2 | 85 | **PASS**  |
+| passive_empty_bay | FAULT: all steering dead + empty payload bay (least stable), 3 m/s | 155 | 21.9 | 52.0 | 0.0 | 205 / 259 | 0.0 | +0.03 | 7.6 | 5.1 | 87 | **PASS**  |
+| baro_dead | FAULT: barometer dies at T+1 s | 157 | 0.7 | 1.0 | 1.0 | 7 / 7 | 4.1 | +1.27 | 12.8 | 5.2 | 126 | **PASS**  |
+| passive_wind6 | FAULT: all steering dead in 6 m/s wind (why first flights need <= 3 m/s) | 151 | 20.5 | 58.7 | 0.0 | 196 / 250 | 0.0 | +0.04 | 5.3 | 5.2 | 219 | **INFO** informational |
+| no_chute | FAULT: parachute fails to deploy (shows why ground tests matter) | 157 | 0.6 | 0.8 | 1.1 | 6 / 6 | 3.2 | +0.04 | 4.1 | 49.8 | 40 | **INFO** informational |
+| motor_E12 | TSP E12-0: NOT for KESTREL-2 (too little thrust for its mass) | 30 | 0.2 | 3.2 | 0.5 | 4 / 2 | 14.4 | +0.07 | 2.1 | 5.2 | 23 | **INFO** informational |

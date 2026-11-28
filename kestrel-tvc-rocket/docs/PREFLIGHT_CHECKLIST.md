@@ -30,7 +30,8 @@
 **At the field**
 - [ ] Wind measured: **≤ 3 m/s for flights 1 and 2**, ≤ 6 m/s afterwards (use the 1.5 m rod above 3 m/s), never
       above 9 m/s, and no more than the recovery area allows (F35: about 46 m of drift per 1 m/s). Note the direction
-      and **type the wind into Mission Control's Landing prediction panel** (speed, and the direction it comes from)
+      and **type the wind into Mission Control's Landing prediction panel** (speed measured at head height, and the
+      direction it comes from)
 - [ ] Pad set up and pegged, rod tilted 0–5° **downwind** only, tile on, dry grass around the pad cleared
 - [ ] Recovery area clear downwind: F35 ≈ 500 m (wind up to 6 m/s) or 250 m (wind 3 m/s or less);
       E20 150 m; D20 50 m. The predicted landing point (Mission Control) is inside it

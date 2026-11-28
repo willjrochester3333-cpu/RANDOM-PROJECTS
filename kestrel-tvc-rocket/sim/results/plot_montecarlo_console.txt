@@ -1,0 +1,2 @@
+saved /home/user/RANDOM-PROJECTS/kestrel-tvc-rocket/sim/results/montecarlo_summary.png
+saved /home/user/RANDOM-PROJECTS/kestrel-tvc-rocket/sim/results/montecarlo_payload.png

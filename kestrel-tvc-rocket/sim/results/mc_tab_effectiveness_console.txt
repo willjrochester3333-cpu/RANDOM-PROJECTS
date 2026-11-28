@@ -1,0 +1,10 @@
+tab effectiveness x1.2 (range 0.72-1.65): n=200 success=100.0%
+   apogee                 mean  165.01  p95  200.69  max  226.06
+   max_tilt_burn          mean    1.68  p95    3.47  max    5.07
+   max_tilt_coast         mean    1.98  p95    4.00  max    9.84
+   max_roll_rate_burn     mean    5.18  p95   11.26  max   24.35
+   max_roll_rate_coast    mean    4.85  p95   14.07  max   22.51
+   max_abs_roll_deg       mean    3.76  p95    8.47  max   14.88
+   max_tab                mean    8.29  p95   15.11  max   15.55
+   landing_vz             mean    5.23  p95    5.74  max    6.12
+total 198 s

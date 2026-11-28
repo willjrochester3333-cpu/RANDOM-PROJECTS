@@ -51,7 +51,7 @@ ERROR ◀─ sensor failure / IMU axes not calibrated            COAST ◀──
 
 | Port | Pico pin | Servo |
 |---|---|---|
-| 1 | GP6 | TVC ring (tilts the nozzle away from / towards the camera pod) |
+| 1 | GP6 | TVC ring (tilts the nozzle away from / towards the camera door) |
 | 2 | GP7 | TVC motor holder (tilts the nozzle away from / towards the payload door) |
 | 3 | GP8 | parachute release latch (top of the middle part, lead runs down the inside wall) |
 | 4 | GP9 | fin tab 1 (the fin with the pip, at 45° between the payload door and the launch lug) |
@@ -191,13 +191,14 @@ tab mixer constants), rebuild, and re-run `sim/scenarios.py` and `sim/montecarlo
 ## Updating from 2.00 – 2.04
 
 3.00 is for board v3 (the radio socket replaces the Qwiic port: GP4/GP5 are now UART1) and the airframe with the
-camera inside and the radio installed: the rocket is 43 g heavier (947 g with the F35; CG 638 mm from the nose tip),
-so the motor and airframe tables are regenerated (F35 now about 158 m at 6.5 s, E20 41 m at 3.9 s). It adds the
+camera inside and the radio installed: the rocket is 48 g heavier (952 g with the F35 and 25 g of payload; 5 g more
+nose ballast keeps its CG at 634 mm from the nose tip), so the motor and airframe tables are regenerated (F35 now
+about 157 m at 6.4 s, E20 41 m at 3.9 s). It adds the
 radio telemetry above, logs the radio signal in the record's spare byte, and fixes a bug: records written after an
 in-flight reset had their recovery flag set after their CRC was computed, so `dump` would have skipped them. The
 settings layout is unchanged (version 6; the spare byte that becomes `radio_off` reads 0 = radio on), so a board that
-ran 2.04 keeps its calibration, trims and motor selection. 3.00 also runs on a v2 board: the radio frames then go
-out on the Qwiic pins, harmlessly.
+ran 2.04 keeps its calibration, trims and motor selection. On a v2 board (the same pins otherwise; not tried on
+hardware) the radio frames would go out on the Qwiic pins, which do nothing with nothing plugged in.
 
 2.04 is for the multi-flight airframe (replaceable legs, thicker servo housings, battery hatch, 46 g of nose
 ballast): the rocket is 48 g heavier (its CG stays at 634 mm from the nose tip), so the motor and airframe tables (pitch
