@@ -23,6 +23,11 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 | R15 | Shopping list: mostly Amazon UK; UK or large international brands, except unbranded servos, camera, parachute (~£270) | Q&A |
 | R16 | Ground screen that runs live during the flight: everything about the rocket (parachute out, apogee reached…), a 3D map of where it is, and the 3D movement saved for replay | Mon 19:20 |
 | R17 | **A multiple-flight rocket** ("that is its purpose"): replaceable legs (user prints them in extra-tough PLA), stronger servo housings, battery out and USB without taking the rocket apart (door with no gaps), full package accepted at ~170 m with 46 g of nose ballast | Wed |
+| R18 | **Live radio link** to the flying rocket on Mission Control with all the live data and "lots and lots of packets a second" for analysis later: SiK 433 MHz pair, PCB v3 (radio socket replaces the Qwiic port) | Fri 27 Nov (user's choices: "SiK 433 + PCB v3", "Radio replaces Qwiic") |
+| R19 | Camera hidden to cut drag: **inside, behind a flush port, looking 30° down** | Fri 27 Nov ("Inside, flush port", "30° down") |
+| R20 | Smaller first motor that still deploys the parachute easily: **E20 first** (flight 1 TVC only, flight 2 with tabs), D20 hops dropped, then the F35 | Fri 27 Nov ("E20 first") |
+| R21 | **Live landing predictor** (instead of flying to a waypoint, which was declined: command guidance) | Fri 27 Nov |
+| R22 | A status check of where the rocket is; test everything; at least 200 simulations; work until 08:00 Sat | Fri 27 Nov |
 
 ## Plan / status
 
@@ -37,17 +42,23 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
 - [x] 9. Video render (final, rated motor model; re-rendered for the F35, seed 7)
 - [x] 10. Shopping list with real prices/links
 - [x] 11. Docs rewritten for KESTREL-2 (README, build guide, test plan, checklist, safety, simulation report, PCB, firmware, BOM)
-- [ ] 12. Test-and-adjust loop until the deadline (final renders, final regression run)
+- [x] 12. Test-and-adjust loop until the deadline (final renders, final regression run)
+- [x] 13. Radio (R18): PCB v3, firmware 3.00 telemetry, Mission Control live link, radio set-up, log merge
+- [x] 14. Camera inside (R19): door + cradle, brow, drag; radio and antenna mounts; renders
+- [x] 15. E20 first (R20): first-flight study (700 flights), test plan, motor table
+- [x] 16. Landing predictor (R21): model, search ring fitted and checked on 120 simulated flights
+- [x] 17. Status check (R22), all docs, final simulation run
 
 ## Known gaps against the agreed requirements (report them)
 
-- R14 apogee: F35 **170 m** nominal with 25 g payload since the multi-flight changes (R17, user's choice: 48 g of
-  legs, tongues, bolts, housings, hatch and ballast; 188 m before). ~190 m would need ~45 g off elsewhere.
-- R15 budget: ≈ £317 vs ~£270 (4 more servos, 36 in chute, spring pack of 10, servos inside the fins, multi-flight
-  extras ~£5).
-- R16 live view: the rocket has **no radio**, so a real flight can only be shown after landing (log over USB);
-  live works for the simulated flight and on the USB cable. Needs a telemetry transmitter + receiver and a
-  firmware streaming command -> question to the user (which radio).
+- R14 apogee: F35 **157 m** nominal with 25 g payload: the multi-flight changes (R17) cost 48 g (188 -> 170 m),
+  the radio, antenna, cradles and 5 g more ballast another 48 g (170 -> 157 m). ~190 m would need ~90 g off.
+- R15 budget: ≈ £317 without the radio vs ~£270; ≈ £403–422 with it. Antenna and antenna extension prices not
+  checked.
+- R16 live view: done with the radio (R18). Not yet proven on real hardware: the radio's range with the antenna
+  inside the airframe (test plan A23, B5).
+- R19: the camera's own field of view is unknown (unbranded); the lens port leaves ±62° across and 38°/40° up/down
+  clear. The brow stands 5 mm proud (not perfectly flush: a 30° tilt with the lens at the wall needs it).
 
 ## Log
 - 19:45 GMT Sun: requirements fixed (motor E20). Starting step 1.
@@ -163,3 +174,25 @@ Deliver between **15:30 and 16:00 GMT, Mon 23 Nov 2026**. Keep testing and adjus
   m/s); stress 99.5 % / 99.9 % (one landing at 7.1 m/s in 8.4 m/s wind); tab effectiveness x1.2 200/200; RocketPy
   within 0.33 %. F35 nominal 170 m (was 188 m). Recovery area 500 m (6 m/s) / 250 m (3 m/s). Docs, test plan
   (leg break test, drop test from 1.3 m, hatch test), checklist, BOM (~£317) updated; renders and video redone.
+- Fri 27 Nov 19:16 GMT: user: live radio link with lots of packets a second, hide the camera to cut drag, fly to a
+  waypoint in the sky, a smaller first motor that still deploys the parachute, a status check, test everything,
+  200+ simulations, work until 08:00. Questions asked up front (radio, first motor, camera, extras, Qwiic, camera
+  view). Waypoint guidance declined (command guidance = weapon capability); the user chose the landing predictor.
+- Fri evening: PCB v3 (J7 = JST-GH 6-pin Pixhawk TELEM socket, GP4/GP5 UART1, C25 10 µF; bottom-left hole
+  removed; DRC 0/0). Firmware 3.00: MAVLink-v1-framed KESTREL_FAST (50/s) + KESTREL_SLOW (5/s) + HEARTBEAT,
+  frame ring + flow control, 10 %/hour airtime budget (lean > 270 s, beacon > 330 s), radio command, RSSI in the
+  log record, recovery-flag CRC bug fixed; 375,585 + 148 checks. Mission Control: Web Serial radio link, link
+  panel, radio set-up (ATS3=75, ATS4=8), landing prediction, log merge; decoder tested against pymavlink frames
+  and radio_frames.py. CAD: camera door + cradle (brow 5 mm, camera drag -72 %), radio cradle, antenna mount and
+  channel through the sled, drill-guide lines; no overlaps.
+- Fri 20:30: the radio put ~43 g aft of the CG: F35 + empty bay balanced 0.9 mm behind the 640 mm limit
+  (+0.67 cal). Ballast 46 -> 51 g (+0.72..+0.84 again, as before). Sims restarted for the corrected rocket; the
+  board's free corner got a rest pad under the radio socket.
+- Fri 21:21: all suites finished. Then no work until the user's "carry on" at 08:29 Sat (the session sat idle).
+- Sat 08:30-: radio cradle could not hold the radio (0.3 mm gaps: no room for a tie) -> 1.5 mm side gaps, slots
+  in the gaps, two 150 mm ties, radio 1 mm further in and at 122 deg (cleared a 1.4 mm³ touch with the camera
+  cradle). Final regression run on the final design. New camera + radio cut-away render. Launch video re-rendered
+  with the onboard camera looking out of the door, 30 deg down. Servo-jam landing check over 4 wind directions
+  (spectators upwind or to the side). Landing predictor tested on 120 simulated flights: fixed the boost forecast
+  (used a coast formula while the motor still burned: 108 m median miss -> 23 m) and added the wind's growth with
+  height; search ring fitted (5 m + 40 % drift + 0.4 m/s x time left). Motor read from a log's session line.

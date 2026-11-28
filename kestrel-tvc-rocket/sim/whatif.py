@@ -72,7 +72,7 @@ def main():
         ap, vr = passive(**over)
         lines.append(f"| {name} | {ap:.1f} m | {vr:.1f} m/s |")
         print(name, f"{ap:.1f}", flush=True)
-    for m, use in (("TSP-E20", "second test flights"), ("TSP-D20", "first test hops")):   # 24 mm, in the adapter sleeve
+    for m, use in (("TSP-E20", "the first two flights"), ("TSP-D20", "optional, not in the flight programme")):   # 24 mm, in the adapter sleeve
         ap, vr = passive(motor=m)
         lines.append(f"| {m.replace('-', ' ')} in the 24 mm adapter ({use}) | {ap:.1f} m | {vr:.1f} m/s |")
         print(m, f"{ap:.1f}", flush=True)

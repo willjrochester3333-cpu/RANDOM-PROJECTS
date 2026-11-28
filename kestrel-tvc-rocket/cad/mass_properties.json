@@ -222,10 +222,10 @@
  },
  {
   "name": "radio_cradle",
-  "mass_g": 6.8,
-  "z": 717.3,
+  "mass_g": 5.9,
+  "z": 718.1,
   "length": 0.0,
-  "radius": 20.5,
+  "radius": 19.3,
   "source": "CAD"
  },
  {

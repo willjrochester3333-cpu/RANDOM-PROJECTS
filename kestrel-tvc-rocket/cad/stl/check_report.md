@@ -26,7 +26,7 @@
 | camera_latch_knob | 1 | 8.8 x 8.8 x 5.8 | 0.1 | 0.1 | 0.55 | yes | 1 | yes | 54 / 48 | none | PASS |
 | camera_latch_cam | 1 | 5.2 x 10.1 x 1.1 | 0.0 | 0.1 | 0.99 | yes | 1 | yes | 0 / 0 | none | PASS |
 | camera_cradle | 1 | 35.0 x 29.1 x 68.0 | 11.2 | 14.0 | 0.45 | yes | 1 | yes | 208 / 59 | none | PASS |
-| radio_cradle | 1 | 16.3 x 32.2 x 49.0 | 5.5 | 6.9 | 0.97 | yes | 1 | yes | 61 / 32 | none | PASS |
+| radio_cradle | 1 | 14.2 x 34.6 x 49.0 | 4.8 | 6.0 | 0.89 | yes | 1 | yes | 43 / 32 | none | PASS |
 | antenna_mount | 1 | 14.1 x 18.0 x 22.0 | 1.7 | 2.2 | 0.84 | yes | 1 | yes | 0 / 0 | none | PASS |
 | battery_hatch_door | 1 | 30.0 x 9.1 x 83.5 | 3.8 | 4.7 | 0.45 | yes | 1 | yes | 80 / 25 | none | PASS |
 | battery_hatch_latch_knob | 1 | 8.8 x 8.8 x 5.8 | 0.1 | 0.1 | 0.55 | yes | 1 | yes | 54 / 48 | none | PASS |
@@ -41,6 +41,6 @@
 | tool_drill_guide_middle_tube | 1 | 60.7 x 60.7 x 94.0 | 31.0 | 38.7 | 1.95 | yes | 1 | yes | 75 / 66 | none | PASS |
 | tool_leg_test_block | 1 | 30.0 x 28.0 x 22.0 | 10.4 | 6.9 | 5.35 | yes | 1 | yes | 33 / 22 | none | PASS |
 
-Estimated printed rocket parts total: **433 g** as flown with the F35 (walls 1.2 mm + 20% infill assumption; the 24 mm adapter set, launch pad and build tools not included)
+Estimated printed rocket parts total: **432 g** as flown with the F35 (walls 1.2 mm + 20% infill assumption; the 24 mm adapter set, launch pad and build tools not included)
 
 Overhangs are measured in the exported print orientation. A part without listed supports passes only if no flat downward region is larger than 120 mm² apart from narrow bridges; see the table for the parts that are printed with support material.

@@ -418,17 +418,17 @@
  {
   "name": "radio_cradle",
   "qty": 1,
-  "note": "PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor 160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie",
+  "note": "PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 122 deg (drill guide line), floor 160 mm above the tube's bottom end, before the av-bay goes in, with two 150 mm cable ties already threaded through the slot pairs as loose loops. The radio drops into the loops, antenna socket up; pull the ties tight",
   "group": "rocket",
   "part": "bottom",
-  "volume_mm3": 5539.640206603181,
-  "area_mm2": 6812.302176103327,
+  "volume_mm3": 4800.924630758359,
+  "area_mm2": 5886.809737326563,
   "centroid_assembly_mm": [
-   -9.312824855423786,
-   13.300093535813124,
-   181.65956060566668
+   -7.0978601845075175,
+   11.358947723340624,
+   180.8964025263445
   ],
-  "r_gyr_mm": 20.517402980267807,
+  "r_gyr_mm": 19.331391724087055,
   "z_len_mm": 49.0
  },
  {
@@ -597,14 +597,14 @@
   "note": "Build tool (not flown). Slides over the TOP of the bottom tube: av-bay screws, static ports, switch slot, camera window, battery-hatch opening (cut along the guide's edges with a sharp knife), lug line, radio-cradle and antenna-mount lines",
   "group": "tool",
   "part": "",
-  "volume_mm3": 60282.07025263035,
-  "area_mm2": 64668.01845558468,
+  "volume_mm3": 60281.97987975526,
+  "area_mm2": 64667.82979918692,
   "centroid_assembly_mm": [
-   0.09671763334404461,
-   -0.9467912205928026,
-   248.90865648283292
+   0.09291194986930038,
+   -0.9493660983673425,
+   248.9086563458432
   ],
-  "r_gyr_mm": 28.999910529711585,
+  "r_gyr_mm": 28.997304844472414,
   "z_len_mm": 186.0
  },
  {

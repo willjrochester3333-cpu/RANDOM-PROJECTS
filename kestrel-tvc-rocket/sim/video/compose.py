@@ -230,7 +230,7 @@ def compose_video(traj, view_dir, mp4, draft=False):
         maxalt = max(maxalt, fr["z"])
         canvas = Image.new("RGB", (W, H), BG)
         for j, (cam, title, sub) in enumerate((("ground", "GROUND CAMERA", "tracking camera, 30 m from the pad"),
-                                               ("onboard", "ONBOARD CAMERA", "camera pod, looking down past the fins"))):
+                                               ("onboard", "ONBOARD CAMERA", "behind the camera door, looking out 30° down"))):
             p = os.path.join(view_dir, cam, f"{k + 1:04d}.png")
             if os.path.exists(p):
                 v = Image.open(p).convert("RGB")

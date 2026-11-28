@@ -1,5 +1,5 @@
 #!/bin/sh
-# Every simulation suite in order (about 80 min on 4 cores). Console logs go to sim/results/*_console.txt.
+# Every simulation suite in order (about 45 min on 4 cores). Console logs go to sim/results/*_console.txt.
 set -e
 cd "$(dirname "$0")"
 python3 scenarios.py            > results/scenarios_console.txt 2>&1

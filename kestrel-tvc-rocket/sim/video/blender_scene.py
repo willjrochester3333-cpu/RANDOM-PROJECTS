@@ -5,7 +5,8 @@
 Builds a field with the launch pad, appends the real CAD rocket (cad/kestrel.blend) and the open canopy
 (cad/kestrel_parachute_open.blend), animates them from the simulated trajectory and renders one camera:
   ground  - tracking camera on a tripod 30 m from the pad, zooming to keep the rocket framed
-  onboard - the rocket's own camera, in the camera pod, looking down past the fins (lens position from the CAD)
+  onboard - the rocket's own camera, inside behind its door, looking out sideways and 30 deg down (lens position and
+            tilt from the CAD; the picture is the field the door's lens port leaves clear)
 """
 import json
 import math
@@ -376,10 +377,14 @@ else:
     co.parent = RK
     co.matrix_parent_inverse = off
     lx, ly, lz = LAY["camera_lens_xyz"]
-    co.location = (lx, ly, lz - 1.0)
-    co.rotation_euler = (0, 0, 0)                               # looks along CAD -Z (down the rocket), up = towards the tube
-    cam.lens = 9.0
-    cam.clip_start = 1.0; cam.clip_end = 1.5e6                 # the body tube is only 1.5 mm from the lens
+    tilt = math.radians(LAY["camera_tilt_deg"])                 # lens axis below horizontal
+    ang = math.radians(LAY["camera_port"]["deg"])               # side of the rocket the lens looks out of
+    look = Vector((math.cos(ang) * math.cos(tilt), math.sin(ang) * math.cos(tilt), -math.sin(tilt)))
+    co.location = Vector((lx, ly, lz)) + 0.3 * look              # just in front of the lens glass
+    co.rotation_euler = (math.pi / 2 - tilt, 0.0, ang - math.pi / 2)   # camera -Z along `look`, its up towards the nose
+    cam.sensor_fit = "VERTICAL"; cam.sensor_height = 24.0
+    cam.lens = 12.0 / math.tan(math.radians(38.0))             # the port's clear field: +-38 deg up/down, +-54 deg across
+    cam.clip_start = 1.0; cam.clip_end = 1.5e6                 # the door's port is only a few mm from the lens
 
 # --------------------------------------------------------------------------- render
 sc.render.engine = "BLENDER_EEVEE"

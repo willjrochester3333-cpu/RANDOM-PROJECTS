@@ -9,10 +9,11 @@ radio link's health, strip charts, and a recorder that keeps every flight for re
 |---|---|
 | `kestrel_mission_control.html` | **Use this one at the launch field.** One self-contained file (three.js and the demo flight built in): works without internet, from a laptop or a USB stick. Open it in **Chrome or Edge** to use USB |
 | `mission_control.html` | The page itself (loads three.js from a CDN and `demo_flight.csv` from beside it); also published as a private claude.ai page |
-| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 149 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format (firmware 3.00). Made by `make_demo_flight.py` |
+| `demo_flight.csv` | A simulated F35 flight (Monte Carlo seed 7: 148 m, 4.9 m/s wind, 20 g payload) flown by the real flight code, in the flight computer's log format (firmware 3.00). Made by `make_demo_flight.py` |
 | `build_offline.py` | Builds `kestrel_mission_control.html` from the page, the demo flight and `vendor/three-r128.min.js` (three.js r128, MIT licence in `vendor/THREE_LICENSE`) |
 | `radio_frames.py` | The radio frame format in Python (a second, independent implementation): decodes a raw radio recording to CSV (`decode rec.bin out.csv`), or makes the demo flight's radio bytes (`demo out.bin`) |
 | `test_radio.mjs` | Tests the page's own radio decoder against pymavlink reference frames and against `radio_frames.py`, including a damaged link (`python3 ground/radio_frames.py demo d.bin && node ground/test_radio.mjs d.bin`) |
+| `prediction_test/` | The landing-prediction test: `make_flights.py a` flies 60 simulated flights into the log format, `node test_prediction.js a` runs the page's own forecast on them at five moments of each flight and scores it against where each rocket came down (set `b`: 60 fresh flights) |
 
 ## What it can show
 
@@ -82,16 +83,37 @@ plus the link statistics). Every radio flight is also kept under **Flights**; `f
 The **Landing prediction** panel says where the rocket will come down, as a distance and bearing from the pad, a
 latitude/longitude you can copy (for a phone map), and an orange search ring on the 3D map:
 
-- **On the pad**: from the motor's expected apogee (41 m on the E20, 158 m on the F35, calm air) and the wind
-  you type in before launch (speed, and the direction it comes **from**). With no wind typed in it assumes calm.
-- **Going up**: from the live vertical speed, a drag-limited coast to apogee, then the descent.
-- **Under the parachute**: the wind is **measured** from the rocket's own GPS drift (once the canopy has been
-  open 5 s) and the descent rate from the altitude, so the forecast tightens as it comes down.
+- **On the pad**: from the motor's expected apogee (41 m on the E20, 157 m on the F35, calm air; the motor comes
+  from the rocket's status frames, or from a log's session line) and the wind you type in before launch: its speed
+  **measured at head height** (a hand-held meter), and the direction it comes **from**. With no wind typed in it
+  assumes calm, and is then no use: type it in.
+- **Going up**: in the boost, the motor's expected apogee; after burn-out, a drag-limited coast from the live
+  vertical speed; then the descent.
+- **Under the parachute**: the wind is **measured** from the rocket's own GPS drift (from 3 s after the canopy
+  opens, over up to the last 10 s) and the descent rate from the altitude, so the forecast tightens as it comes down.
 - **Landed**: the last GPS position.
 
-The search ring is ±8 m plus 30 % of the drift still to come. It is a forecast for finding the rocket, not a
-promise: gusts and a GPS fix that is a few metres out move it. The rocket itself does not steer towards it (it
-only ever steers straight up; see [SAFETY_AND_LEGAL.md](../docs/SAFETY_AND_LEGAL.md#steering-straight-up-only)).
+Wind grows with height, so a wind measured at one height (your meter, or the rocket under its canopy) is turned
+into the average wind over the rest of the fall with the 1/7 power law that open ground usually follows (the
+simulator uses the same law). The search ring is 5 m + 40 % of the drift still to come + 0.4 m for every second
+the rocket is still in the air (for gusts).
+
+How good it is, tested on 120 simulated flights flown by the real flight code (`ground/prediction_test/`; the ring
+was fitted on the first 60, the numbers below are the 60 fresh ones):
+
+| Forecast made | F35: typical miss (median) | F35: inside the ring | E20: typical miss | E20: inside the ring |
+|---|---|---|---|---|
+| on the pad, wind typed in | 26 m | 33 of 40 | 6 m | 16 of 20 |
+| 1 s into the boost | 24 m | 35 of 40 | 6 m | 18 of 20 |
+| just after apogee | 14 m | 37 of 40 | 4 m | 20 of 20 |
+| 8 s under the open canopy | 15 m | 36 of 40 | 0 m | 20 of 20 |
+| halfway down | 9 m | 38 of 40 | 1 m | 20 of 20 |
+| on the pad, **no wind typed in** | 152 m (all of the drift) | 2 of 40 | 19 m | 2 of 20 |
+
+(The F35 flights drifted 102 m from the pad on average, up to 327 m; the E20 flights 28 m, up to 76 m. The "no
+wind" row is from the first 60 flights.) It is a forecast for finding the rocket, not a promise: real wind does not
+always follow the 1/7 law. The rocket itself does not steer towards it (it only ever steers straight up; see
+[SAFETY_AND_LEGAL.md](../docs/SAFETY_AND_LEGAL.md#steering-straight-up-only)).
 
 ## Log line format
 

@@ -1,11 +1,11 @@
 # Safety and the rules (UK)
 
-KESTREL-2 is a model rocket: an F motor (TSP F35, rated 65 Ns), about 0.90 kg at lift-off, and no pyrotechnic
+KESTREL-2 is a model rocket: an F motor (TSP F35, rated 65 Ns), about 0.95 kg at lift-off, and no pyrotechnic
 ejection charge. With under 160 Ns of total impulse it stays in the simplest category (UKRA's "model rocket"; no
 CAA permission needed, see below). But a rocket that steers itself with six servos has failure modes that a passive
-rocket does not have: a servo that jams can push it sideways. It flies about **170 m** high, so it drifts a long
-way under its parachute, and on the small D20 / E20 test motors it leaves its launch rod slowly (about 6.5 m/s;
-10 m/s on the F35), so it relies on its steering more than a light rocket would. Everything below assumes you take that
+rocket does not have: a servo that jams can push it sideways. It flies about **157 m** high, so it drifts a long
+way under its parachute, and on the E20 test motor it leaves its launch rod slowly (about 6 m/s; 9.5 m/s on the
+F35), so it relies on its steering more than a light rocket would. Everything below assumes you take that
 seriously.
 
 This page is guidance, not legal advice. Rules change; check the current versions of the sources linked here.
@@ -22,7 +22,8 @@ This page is guidance, not legal advice. Rules change; check the current version
   ([CAA: notifications for smaller rockets](https://www.caa.co.uk/space/licences-and-permissions/large-rocket-permission/notifications-for-smaller-rockets/)).
   You still must not enter controlled airspace without permission ([UKRA](https://ukra.org.uk/safety/launching-rockets/))
   or fly inside an aerodrome traffic zone, and you must never fly where you could endanger an aircraft. The F35
-  flights reach about 170 m (560 ft): check a current air chart or a drone app for airspace before choosing a site.
+  flights reach about 157 m (515 ft), and up to about 230 m (760 ft) on a light, calm day (the highest of 1,000
+  simulated flights): check a current air chart or a drone app for airspace before choosing a site.
 - **Motors**: buy certified motors from a UK rocketry retailer; they will apply age (normally 18+) and storage
   rules. Store them cool and dry, away from igniters. Use **"-0" (plugged) motors only**: KESTREL-2 has no use for
   an ejection charge, and a delay/ejection charge would fire into the TVC mount.
@@ -34,10 +35,10 @@ Every number in this table comes from the simulator flying the real flight code 
 
 | Rule | Why |
 |---|---|
-| Spectators **≥ 40 m** from the pad for the F35 (≥ 30 m for the D20 / E20), behind the launcher | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down 23–26 m from the pad with the F35 (6 wind seeds; 20–22 m on the E20, 9–12 m on the D20) |
-| **Wind ≤ 3 m/s for the first three flights** (D20, D20, E20) | with all six steering servos dead, the rocket still flies and recovers normally in 3 m/s on the D20 and the E20 (E20: tilting 20° in the boost, 45° in the coast). In 6 m/s the E20 tilts 47° in the boost and goes right over in the coast (the parachute still opens at apogee) |
-| Afterwards (F35) ≤ 6 m/s with the **1.5 m rod**, never above 9 m/s, and only as much wind as the recovery area allows | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); even with every steering servo dead the F35 (10 m/s off the rod) recovers normally in 3 m/s (`passive_wind3`). It drifts about 55 m per 1 m/s of wind: 160 m in 3 m/s, 320 m in 6 m/s, 490 m in 9 m/s |
-| Recovery area **≥ 500 m** clear downwind for the F35 in up to 6 m/s of wind, or **250 m** if it flies only in 3 m/s or less; 150 m (E20), 50 m (D20) | Monte Carlo: 95 % of F35 flights land within 312 m (wind up to 6 m/s), farthest 436 m; in 3 m/s or less farthest 198 m; E20 farthest 115 m; D20 farthest 27 m |
+| Spectators **≥ 40 m** from the pad for the F35 (≥ 30 m for the E20 / D20), **upwind or to the side of the pad, never downwind** | `servo_hardover`: if a TVC servo jams at full deflection 0.5 s after launch, the rocket loops over; the abort logic releases the parachute and it comes down under it. Flown with 6 gust seeds and 4 wind directions: F35 within 26 m of the pad in calm air; in 3–6 m/s never more than 8 m upwind or 28 m to the side, but up to 47 m **downwind**. E20 (0–3 m/s): within 28 m, at most 7 m upwind |
+| **Wind ≤ 3 m/s for the first two flights** (E20, E20) | the first flight has the fin tabs off. If the TVC servos failed on it as well (`e20_flight1_tvc_dead`), in 3 m/s the E20 still tilts only 18° in the boost and 47° in the coast, the parachute opens at 3 m/s and it lands normally. In 6 m/s the same failure tilts it 56° in the boost and 86° in the coast, and the parachute opens at 20 m/s |
+| Afterwards (F35) ≤ 6 m/s with the **1.5 m rod**, never above 9 m/s, and only as much wind as the recovery area allows | with working steering every case up to 9 m/s passes (`wind6_gusty`, `rod_1.5m_wind6`, `wind9_limit`); even with every steering servo dead the F35 (9.5 m/s off the rod) recovers normally in 3 m/s (`passive_wind3`). It drifts about 46 m per 1 m/s of wind: 135 m in 3 m/s, 276 m in 6 m/s, 419 m in 9 m/s |
+| Recovery area **≥ 500 m** clear downwind for the F35 in up to 6 m/s of wind, or **250 m** if it flies only in 3 m/s or less; 150 m (E20), 50 m (D20) | Monte Carlo: 95 % of F35 flights land within 279 m (wind up to 6 m/s), farthest 431 m; in 3 m/s or less farthest 181 m; E20 farthest 101 m; D20 farthest 19 m |
 | Rod tilt 0–5° **downwind** only, never towards people | the rocket holds the rod direction during the burn (`rod_tilt5`) |
 | Electric ignition with a key-switch controller, 5 s countdown | standard model-rocket safety code |
 | Misfire: key out, wait **60 s** before approaching | |
@@ -47,7 +48,7 @@ Every number in this table comes from the simulator flying the real flight code 
 | Power the flight computer on only when the rocket is on the rod | in READY, a hard jolt can look like a launch to the sensors |
 
 The ten-out-of-ten ejection test in [TEST_PLAN.md](TEST_PLAN.md) is not optional: a rocket that comes down without
-its parachute hits the ground at about 51 m/s after an F35 flight (`no_chute`).
+its parachute hits the ground at about 50 m/s after an F35 flight (`no_chute`).
 
 ## Built-in protections (all exercised in the simulator)
 
@@ -58,8 +59,8 @@ its parachute hits the ground at about 51 m/s after an F35 flight (`no_chute`).
   keep working (`tab_stuck`, `tabs_dead`); a fully jammed tab can still tumble it in the coast, so a **give-up rule**
   centres all tabs if it is more than 25° off course, and the parachute still opens at apogee (`tab_hardover`).
 - **All six steering servos dead**: it is still statically stable (+0.72 to +0.84 calibres at lift-off with the
-  F35 depending on payload, +0.91 to +1.03 at burn-out, thanks to the nose ballast) and recovers normally in light
-  wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
+  F35 depending on payload, +0.91 to +1.02 at burn-out, thanks to the 51 g of nose ballast) and recovers normally in
+  light wind (`passive_calm`, `passive_wind3`, `passive_empty_bay`).
 - **Excessive tilt (> 50°) or tumbling during the burn**: abort, parachute out as soon as it is slower than 30 m/s.
 - **Barometer failure**: apogee detected from the inertial estimate, with a backup timer (`baro_dead`).
 - **No apogee detected**: backup release at the motor's nominal apogee time + 3 s, or as soon as it falls faster
@@ -97,8 +98,9 @@ How KESTREL stays inside those limits:
   **Set up a radio (UK settings)** dialog sets each radio to **8 dBm** (6.3 mW): with the 2 dBi antennas that is
   about 6 mW e.r.p. The next step up (11 dBm) would be about 12 mW e.r.p., over the limit. If you fit a bigger
   antenna to the ground radio, lower its power by the extra gain.
-- **Airtime.** The rocket sends its 50 + 5 frames a second only between lift-off and landing (about 45 s on an F35),
-  1.5 frames a second on the pad and a slow beacon after landing. The firmware keeps a rolling one-hour estimate of
+- **Airtime.** The rocket sends its 50 + 5 frames a second only between lift-off and landing (about 35 s on an F35,
+  about 17 s of airtime), 1.5 frames a second on the pad (about 62 s of airtime an hour) and a slow beacon after
+  landing. The firmware keeps a rolling one-hour estimate of
   its time on air (counting the radio's own link-keeping packets as 2 % of every hour), and drops to lean rates
   above 270 s and to a beacon above 330 s, so it cannot pass 360 s even if something kept it at full rate for an
   hour (unit-tested). Four F35 flights in one hour use well under that (`radio` on the USB command line and the

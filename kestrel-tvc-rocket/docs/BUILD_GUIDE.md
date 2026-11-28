@@ -1,22 +1,24 @@
 # Build guide (KESTREL-2, no soldering)
 
 Everything electrical is either assembled by JLCPCB or plugs together: servo plugs, the Pico 2 WH on its sockets,
-the LiPo balance plug, the U.FL antenna lead. You will print, cut, drill, glue and screw.
+the LiPo balance plug, the U.FL antenna lead, the radio's 6-pin cable and its antenna lead. You will print, cut, drill,
+glue and screw.
 
 The rocket comes apart into **three parts**:
 
 | Part | What is in it |
 |---|---|
-| **1. Bottom** | fin can (4 normal 4 mm fins with a 15 mm band along the bottom that holds the tab servo, 17 mm round the servo, and a control tab at the trailing edge), 4 replaceable legs bolted under the fin tips, the TVC module (motor gimbal + 2 servos), the camera pod, the avionics bay (flight computer, battery behind a hatch, GPS antenna) and its coupler |
+| **1. Bottom** | fin can (4 normal 4 mm fins with a 15 mm band along the bottom that holds the tab servo, 17 mm round the servo, and a control tab at the trailing edge), 4 replaceable legs bolted under the fin tips, the TVC module (motor gimbal + 2 servos), the camera (inside, behind a door with a lens port), the telemetry radio and its antenna, the avionics bay (flight computer, battery behind a hatch, GPS antenna) and its coupler |
 | **2. Middle** | payload bay with a hinged, lockable door · a wall · the parachute bay (spring, piston, parachute, shock cord) · the release latch with its servo at the very top |
-| **3. Nose cone** | printed, with about 46 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
+| **3. Nose cone** | printed, with about 51 g of ballast (M3 nuts set in epoxy) in its tip; the spring pushes it off when the release servo pulls the latch bolt |
 
 Time: roughly 35 h of printing for the rocket, 20 h for the launch pad and 6 h for the two drill guides
 (estimates from the part volumes, depending on your printer), plus two weekends of building. **Order the PCB
 first**: it takes 1–3 weeks to arrive.
 
 Pictures that help: `cad/renders/rocket_exploded.png` (all parts), `tvc_module.png` and
-`tvc_module_assembly_steps.png` (TVC), `avbay_cutaway.png`, `release_latch_cutaway.png`, `payload_bay_open.png`,
+`tvc_module_assembly_steps.png` (TVC), `camera_radio_cutaway.png` (camera, radio and antenna),
+`avbay_cutaway.png`, `release_latch_cutaway.png`, `payload_bay_open.png`,
 `fin_tab_closeup.png`, `fin_servo_cutaway.png` (a fin cut open: servo, horn, tab, lead), `launch_pad.png`. Open
 `cad/kestrel.blend` in Blender 4 to turn any part around: scene 1 shows the complete rocket, the same rocket cut
 open with everything inside it, and every part laid out on its own with its name; the scene list (top right) has
@@ -31,12 +33,14 @@ Look down on the rocket from the nose. Angles go **anticlockwise**, exactly as i
 | Angle | Name used below | What is there |
 |---|---|---|
 | 0° | **door side** | payload door (middle part), one av-bay screw |
+| 30° | | inside: the radio antenna, standing up through the av-bay |
 | 45° | **fin 1** | the fin with a small raised **pip** near its root, on both faces |
 | 90° | **lug side** | the two launch lugs (the upper one on the middle part), one middle-part joint screw, one tail screw, the **battery hatch** |
+| 122° | | inside: the telemetry radio in its cradle |
 | 135° | fin 2 | |
 | 180° | | the other av-bay screw; inside: the release-servo lead |
 | 225° | fin 3 | |
-| 270° | **camera side** | camera pod, the other joint screw |
+| 270° | **camera side** | camera door (the camera looks out of it, 30° down), the other joint screw |
 | 315° | fin 4 | |
 
 Each fin is a normal **4 mm fin** with a half-round leading edge. Only its **bottom band** (the 45 mm next to the
@@ -58,7 +62,7 @@ Follow [PCB.md → Ordering from JLCPCB](PCB.md#ordering-from-jlcpcb): upload
 ## 2. Print the parts
 
 All STLs are in `cad/stl/`, **already in print orientation: print them exactly as they load**. `cad/stl/check_report.md`
-lists sizes, estimated masses and the automatic printability checks: all 35 parts are watertight, one body each,
+lists sizes, estimated masses and the automatic printability checks: all 40 parts are watertight, one body each,
 and fit a 220 × 220 × 250 mm bed. The same report measures every overhang in that orientation. Only **three parts
 need support material** (marked below); everything else is built from 45° slopes and short bridges. Print the rocket
 in **PETG** (PLA softens in a hot car and near the motor), except the four legs: **tough PLA**, printed solid.
@@ -75,7 +79,11 @@ in **PETG** (PLA softens in a hot car and near the motor), except the four legs:
 | `tvc_motor_adapter_24mm`, `tvc_motor_retainer_24mm`, `tvc_motor_spacer_D` | 1 each | upright, 3 walls, 30–40 %, PETG | only for the 24 mm test motors (D20, E20): a sleeve that turns the 29 mm motor bore into a 24 mm one, its own retainer (16 mm opening) and a 25 mm spacer that sits above the shorter D20. Print them in a different colour from the F35 retainer so the two retainers cannot be mixed up |
 | `avbay_coupler` | 1 | **upside down** (bulkhead on the bed), 4 walls, 25 % gyroid | its bulkhead is the payload-bay floor and carries the parachute load path |
 | `avbay_sled` | 1 | bulkhead disc on the bed, 3 walls, 20 % | its battery pocket opens towards the battery hatch |
-| `camera_pod` | 1 | floor and flange on the bed, 3 walls, 20 %, no supports | |
+| `camera_door` | 1 | standing on its bottom edge as exported, **with a brim**, 3 walls, 20 %, black PETG, no supports | the lens port's top is a short bridge between the brow's sides. Its outer face is what you see |
+| `camera_latch_knob`, `camera_latch_cam` | 1 each | as exported; 100 % infill | the same quarter-turn latch as the battery hatch: print several and keep the best |
+| `camera_cradle` | 1 | as exported, 2 walls, 10 %, no supports | holds the camera at 30° down behind the door |
+| `radio_cradle` | 1 | standing on its floor as exported, 2 walls, 15 % | |
+| `antenna_mount` | 1 | shelf on the bed as exported, 3 walls, 40 % | |
 | `battery_hatch_door` | 1 | standing on its bottom edge as exported, **with a brim**, 3 walls, 20 %, no supports | its outer face is what you see: print it in the rocket's colour |
 | `battery_hatch_latch_knob`, `battery_hatch_latch_cam` | 1 each | as exported; 100 % infill | small: print several and keep the best |
 | **Middle part** | | | |
@@ -97,7 +105,7 @@ in **PETG** (PLA softens in a hot car and near the motor), except the four legs:
 | **Build tools (not flown)** | | | |
 | `tool_drill_guide_bottom_tube`, `tool_drill_guide_middle_tube` | 1 each | 2 walls, 10 % | |
 
-Printed rocket parts ≈ **420 g** (the fin can alone is ≈ 164 g, the four legs ≈ 19 g). The simulator uses the masses computed from
+Printed rocket parts ≈ **431 g** (the fin can alone is ≈ 164 g, the four legs ≈ 19 g). The simulator uses the masses computed from
 these exact STLs with these settings (`cad/mass_properties.py`), so print them as listed.
 
 ## 3. Body tubes
@@ -109,10 +117,13 @@ these exact STLs with these settings (`cad/mass_properties.py`), so print them a
    - 2 × 3.3 mm holes, door side and 180°: av-bay screws;
    - 3 × 2 mm holes: barometer static ports (keep them clean and round: they set the altitude reading);
    - the 7 × 20 mm slot at about 204°: power switch and status LEDs;
-   - the 27 × 30 mm camera window on the camera side (drill the corners, cut with a knife);
+   - the 25 × 46 mm camera window on the camera side (drill the corners, cut with a knife). The camera door
+     overlaps it by 2 mm all round, like the battery hatch, so the cut only has to be straight;
    - the **26 × 78 mm battery-hatch opening** on the lug side: cut along the guide's edges with a fresh blade. The
      door overlaps it by 2 mm all round, so the cut only has to be straight;
-   - pencil along the groove on the lug side: the launch-lug line.
+   - pencil along the groove on the lug side: the launch-lug line;
+   - pencil along the two other grooves: at **122°** the radio-cradle line, at **30°** the antenna-mount line. Carry
+     both marks over the tube's top edge onto the inside: they line those parts up when you glue them in (section 6).
 3. **Middle tube**: slide `tool_drill_guide_middle_tube` over its **bottom** end (lip on the tube end):
    - 2 × 3.3 mm holes on the lug and camera sides: the joint screws;
    - the 32 × 50 mm payload-door window on the door side;
@@ -200,18 +211,57 @@ goes straight into a servo horn glued inside the tab. The tab turns exactly as f
    point of the whole tail: after a hard landing the leg breaks there and the fin can and servo are untouched. A new
    leg is a one-screw swap: keep two spare legs and two spare screws and nuts in the field box.
 
-## 6. Camera pod
+## 6. Camera, radio and antenna (the bay between the TVC module and the av-bay)
 
-Push the pod through the 27 × 30 mm window from outside and glue its saddle flange to the tube (epoxy). Foam-pad
-the camera into the pocket, lens in the floor hole looking down. The lens axis sits 1.5 mm outside the tube, so
-the body fills one edge of the picture; the rest is ground, fins and sky.
+The 84 mm of tube between the top of the TVC module and the bottom of the av-bay holds three things
+(`cad/renders/camera_radio_cutaway.png`): the **camera** in a cradle behind the camera door (camera side, 270°), the
+**telemetry radio** in its cradle (122°) and the **antenna mount** (30°), from which the radio's antenna stands up
+through a channel in the av-bay sled. Nothing sticks out of the rocket except the camera door's low brow. All three
+cradles are glued in through the **top** of the bottom tube with the av-bay still out (the TVC module can already be
+in). Use a stick marked with the depth to push each one down, and slow (30-minute) epoxy on its glue feet.
+
+1. **Set up both radios first**, before the rocket's radio goes in: open Mission Control
+   (`ground/kestrel_mission_control.html`, Chrome or Edge), plug **one** radio into the laptop's USB and press
+   **Set up a radio (UK settings)…** in the Radio link panel, then the other radio. Each one is set to network ID 75
+   and 8 dBm (about 6 mW e.r.p. with its 2 dBi antenna, inside the UK's 10 mW limit; see
+   [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio)), saved and restarted. Then plug both in (one on the laptop, one
+   on a USB power bank): within a few seconds they find each other. Put a sticker on the rocket's radio.
+2. **Camera cradle:** dry-fit it first. Push it down the tube from the top, turn it to the camera side and slide it
+   down until its open front lines up with the 25 × 46 mm camera window (look through the window): its rim sits
+   behind the window's top edge, its catch below the window. Epoxy the curved saddle round the window, push it
+   against the wall from inside (reach through the window) and keep it there until the epoxy has set.
+3. **Antenna mount** (30°): epoxy its saddle and push it down on the 30° line until the **top of its shelf is 136 mm
+   below the tube's top end** (the stick). Hold it against the wall until the epoxy has set.
+4. **Radio cradle** (122°): first thread **two 150 × 2.5 mm cable ties**, one through each pair of slots in its back
+   plate: in through one slot from the flat back of the plate, out through the slot beside it, so that each tie makes a
+   loose loop on the open side of the cradle, round the space where the radio will sit; close each tie loosely behind
+   the plate. Epoxy the curved ends of the two side rails and the edge of the floor, push the cradle down on the 122°
+   line until the **underside of its floor is 180 mm below the tube's top end**, and hold it against the wall until the
+   epoxy has set. The fin-2 tab lead runs up the tube wall here: let it lie flat against the wall between the cradle's
+   rails (it passes behind the radio).
+5. **Radio:** drop the rocket's radio into the cradle from the top, **antenna socket up**, through both cable-tie loops;
+   pull the ties tight with long-nose pliers (they pull the radio against the back plate) and trim them. Plug the radio's 6-pin cable into the radio now (its other
+   end goes to the flight computer in section 7) and leave it hanging out of the top of the tube.
+6. **Antenna lead:** screw the extension's plug onto the radio's antenna socket, finger-tight. Push the extension's
+   other end, the **bulkhead socket**, up through the hole in the antenna mount's shelf from below, and screw its nut
+   down on top of the shelf with a small spanner. Loop the spare cable loosely beside the radio. Screw the antenna onto
+   the bulkhead socket, **straight up** (its hinge straight): it stands up the tube on the 30° line.
+7. **Camera:** charge it and set it recording (or loop recording) at the field, then slide it into the cradle through
+   the window, **lens outwards**: the cradle tilts it 30° down. Fit the camera door like the battery hatch (section
+   7, step 9): hooks into the top of the window behind the cradle's rim, swing the bottom in, turn the coin slot
+   horizontal to lock. The lens looks out of the port under the brow. To fit the latch, push the knob through the
+   door from outside and press the cam onto its square end from inside with a drop of CA so that the cam arm points
+   **down when the coin slot is horizontal** (horizontal = locked).
+
+The servo leads coming up from the TVC module and the fins run up the tube wall past the cradles and cross over
+their tops into the av-bay; tuck them against the wall, clear of the camera window and the antenna.
 
 ## 7. Avionics bay
 
 The av-bay is the **coupler** (a tube with a bulkhead on top: the payload-bay floor) with the **sled** inside it.
 
-1. **Board on the sled:** 4 × M2.5 × 8 self-tapping screws into the standoffs. The servo headers point down
-   (towards the tail), the U.FL GPS connector up.
+1. **Board on the sled:** 3 × M2.5 × 8 self-tapping screws into the standoffs (the fourth corner, beside the radio
+   socket, rests on a plain pad). The servo headers point down (towards the tail), the U.FL GPS connector up.
 2. **Pico 2 WH** into its two sockets, USB connector up (as printed on the board).
 3. **GPS antenna:** stick the 15 × 15 mm patch, **ceramic side up**, on the U-shaped platform at the top of the
    sled (double-sided tape on the two arms and the back bar). Its lead goes down through the open middle of the U to
@@ -227,9 +277,12 @@ The av-bay is the **coupler** (a tube with a bulkhead on top: the payload-bay fl
 6. Push an M3 nut into each of the two pockets at the bottom of the sled. Slide the sled into the coupler from
    below; the slot in the coupler wall must line up with the power switch and the LEDs.
 7. Feed the six servo leads coming up out of the bottom tube (TVC 1–2, tabs 4–7) through the big hole in the sled
-   disc and plug each into its numbered port (signal wire, orange/yellow, towards the board edge marked `S`).
+   disc and plug each into its numbered port (signal wire, orange/yellow, towards the board edge marked `S`). Feed the
+   **radio's 6-pin cable** up the same way and plug it into the **RADIO** socket (J7, the small white socket in the
+   bottom corner beside port 1) until it clicks; it only fits one way round.
 8. Slide the coupler (with the sled) into the top of the bottom tube until its band sits on the tube end, the
-   small notch in the band on the lug side. Fix it with **2 × M3 radial screws** (door side and 180°) through tube
+   small notch in the band on the lug side. Line it up before it goes in: the **antenna** standing up on the 30° line
+   must slide into the round channel through the sled, so go slowly and look in from above. Fix it with **2 × M3 radial screws** (door side and 180°) through tube
    and coupler into the sled's nuts. Through the switch slot you can now see the green/red LEDs and reach the
    power switch with a toothpick.
 9. **Battery hatch:** press the latch **cam** onto the knob's square end (knob pushed through the door from
@@ -248,7 +301,8 @@ the charger. The Pico's own USB socket is just above the pack: plug in an angled
 leave the plug towards the hatch: see the shopping list) to download the log or change settings.
 
 To take the av-bay out for repairs: remove the hatch door and the middle part (section 8), remove the two av-bay
-screws and slide the av-bay up out of the tube. The tab extensions give the leads enough slack.
+screws and slide the av-bay up out of the tube (straight up: the antenna stays in its channel until the sled is clear
+of it). The tab extensions and the radio cable give the leads enough slack.
 
 ## 8. Middle part: release latch, wall, payload bay, joint
 
@@ -286,7 +340,7 @@ is allowed (the simulator flew the whole 0–50 g range).
 ## 9. Recovery
 
 0. **Nose ballast (once):** the thick servo bands, the replaceable legs and their bolts put weight at the tail, so
-   the nose carries **about 46 g of ballast**: roughly 130 M3 nuts (0.33 g each, two 100-packs) and 3 ml of epoxy. Hold the nose cone tip-down and
+   the nose carries **about 51 g of ballast**: roughly 145 M3 nuts (0.33 g each, two 100-packs) and 3 ml of epoxy. Hold the nose cone tip-down and
    pour the nuts in through the 14 mm hole at the top of its conical bulkhead (beside the cord bar); they settle
    into the tip. Tape over the hole for now and do the balance check (section 12) **with the payload bay empty**,
    adding or removing nuts until it passes. Then, still tip-down, pour 3 ml of 30-minute epoxy through the hole
@@ -311,8 +365,8 @@ is allowed (the simulator flew the whole 0–50 g range).
 3. `status`: IMU, barometer and log flash must say `ok`; outdoors the GPS gets a fix within a few minutes.
 4. **`calaxes`, required once:** the firmware measures how the board sits in the rocket instead of trusting the
    drawings. Pose 1: rocket standing on its fins on a level table. Pose 2: lying on its side with the **camera
-   pod pointing straight down** (it rests on fins 3 and 4). Then `save`. Without this the board refuses to arm.
-5. **`dirtest`:** servo 1 moves +3°: the nozzle must swing **away from the camera pod**; then servo 2: away from
+   door pointing straight down** (it rests on fins 3 and 4). Then `save`. Without this the board refuses to arm.
+5. **`dirtest`:** servo 1 moves +3°: the nozzle must swing **away from the camera door**; then servo 2: away from
    the **door side**. Wrong way? `dir 1 -1` (or `dir 2 -1`), `save`, repeat.
 6. **`tabtest`:** tabs 1–4 move to +10° one after the other. Look at the tail from behind (nozzle towards you):
    each tab's **trailing edge must swing anticlockwise**, towards the fin with the next-lower number (tab 1
@@ -327,8 +381,13 @@ is allowed (the simulator flew the whole 0–50 g range).
 10. **`fintest`:** hold it upright and still for 2 s, then twist it about its long axis: all four tabs swing the
     same way to twist it back. Tilt it: the tabs push the nose back up.
 11. Choose the motor: `motor` lists them, `motor 5` selects the TSP-F35 (the mission; the TVC gains and the backup
-    deploy timer depend on it), `motor 0` the TSP-D20 for the first hops and `motor 2` the TSP-E20 for the second
-    test flights. `save`.
+    deploy timer depend on it), `motor 2` the TSP-E20 for the first two flights (test plan flights 1 and 2) and
+    `motor 0` the TSP-D20 (optional, not in the flight programme). `save`.
+12. **Radio:** `radio` shows the frames sent, the airtime used in the last hour and the radio's own link report;
+    with Mission Control connected to the ground radio (**Connect radio**) the rocket's frames arrive once a second
+    on the pad and the Radio link panel shows the signal at both ends. `radio test` sends 60 s of the in-flight rate
+    (55 frames a second) for the range test (test plan B5). `radio off` + `save` silences it; `radio on` turns it
+    back on (on by default).
 
 ## 11. Launch pad
 
@@ -355,9 +414,9 @@ Always **"-0" (plugged) motors**. Check that the penny washer is still in the to
   hold it.
 
 With the motor in, the parachute packed and the payload loaded, balance the rocket on a finger or a string:
-**the balance point must be no further than 640 mm from the nose tip** (design with the F35 and the 46 g of nose
+**the balance point must be no further than 640 mm from the nose tip** (design with the F35 and the 51 g of nose
 ballast: 634 mm with 25 g of payload, 638 mm with an empty bay, 631 mm with 50 g; stability margin +0.72 to +0.84
-calibres at lift-off, +0.91 to +1.03 at burn-out, so it still flies if the TVC and tabs do nothing; with the E20 or
+calibres at lift-off, +0.91 to +1.02 at burn-out, so it still flies if the TVC and tabs do nothing; with the E20 or
 D20 in the adapter it balances 1–4 mm further forward). The empty bay with the F35 is the closest to the limit: if
 it balances further back, add M3 nuts through the fill hole in the nose bulkhead and fix them with a few drops of
 epoxy (section 9, step 0). A fin can or legs that print heavier than the estimated 164 g and 4 × 5 g need more

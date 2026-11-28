@@ -425,12 +425,16 @@ function toCsv(flight) {
 }
 
 /* ------------------------------------------------------------------ a flight: rows + derived track + events */
+const MOTOR_NAMES = ["TSP-D20", "TSP-E12", "TSP-E20", "Estes-E12", "Estes-D12", "TSP-F35"];   // firmware motor_db.hpp order
 class Flight {
   constructor(label, source) {
     this.label = label; this.source = source; this.rows = []; this.T = [];
     this.gps = []; this.lat0 = null; this.lon0 = null;
     this.tLaunch = null; this.events = {}; this.maxAlt = 0; this.maxAltT = null; this.maxVz = 0; this.maxG = 0;
     this.version = 0; this.zeroed = false;
+    // a dump's session line names the motor ("# session: fw 300 flight 4 motor TSP-E20"): the pad forecast needs it
+    const mm = /\bmotor\s+([\w-]+)/.exec(label || ""); const mi = mm ? MOTOR_NAMES.indexOf(mm[1]) : -1;
+    this.motorIndex = mi >= 0 ? mi : null;
   }
   get t0() { return this.rows.length ? this.rows[0].t_ms / 1000 : 0; }
   mt(t) { return this.tLaunch == null ? t - this.t0 : t - this.tLaunch; }     // mission time of a log time (s)
@@ -673,20 +677,37 @@ class RadioSession {
 }
 
 /* ------------------------------------------------------------------ landing prediction
-   Before launch: the motor's nominal apogee and the wind you enter. Boost / coast: apogee from the speed (drag included),
-   then drift. Under the parachute: the drift measured from the GPS track and the measured descent rate.            */
-const NOMINAL_APOGEE = { 0: 14, 2: 40, 5: 157 };   // motor index -> apogee (m) for D20, E20, F35: straight up, calm air, 25 g payload (firmware/tools/gen_motor_db.py)
-const DESCENT_DEFAULT = 5.1;                        // m/s under the 36 in canopy (sim scenarios)
+   Before launch: the motor's nominal apogee and the wind you enter. Boost: the motor's nominal apogee. Coast: apogee
+   from the speed (drag included). Under the parachute: the drift measured from the GPS track and the measured descent
+   rate. The wind grows with height (1/7 power law over open ground, as in the simulator), so a wind measured at one
+   height is turned into the average wind over the rest of the fall. Accuracy against 120 simulated flights:
+   docs/SIMULATION_REPORT.md section 5b (ground/prediction_test/ re-runs it).                                     */
+const NOMINAL_APOGEE = { 0: 14, 2: 41, 5: 157 };   // motor index -> apogee (m) for D20, E20, F35: straight up, calm air, 25 g payload (firmware/tools/gen_motor_db.py)
+const NOMINAL_APOGEE_T = { 0: 2.2, 2: 3.9, 5: 6.4 };   // ... and the time from lift-off to apogee (s)
+const DESCENT_DEFAULT = 5.2;                        // m/s under the 36 in canopy (Monte Carlo mean landing speed)
+const WIND_ENTERED_H = 2.0;                         // the wind you type is measured at head height (m)
+const WIND_EXP = 1 / 7;
+// search ring: 5 m + 40 % of the drift still to come + 0.4 m per second still in the air (gusts). Fitted to 60
+// simulated flights (it holds the true landing point in 9 of 10 of them at every stage); on 60 fresh flights it held it
+// in about 8 of 10 on the pad and 9 of 10 or more from the boost on
+const PRED_RING_M = 5, PRED_RING_K = 0.4, PRED_RING_V = 0.4;
+function fallWindFactor(H, hRef) {                 // mean wind over a fall from H to the ground / the wind at hRef
+  return Math.pow(Math.max(H, 1) / Math.max(hRef, 1), WIND_EXP) / (1 + WIND_EXP);
+}
 function windFromInput() {
   const s = parseFloat($("windSpd").value), d = parseFloat($("windDir").value);
   if (!isFinite(s) || !isFinite(d) || s < 0) return null;
   const to = (d + 180) * Math.PI / 180;            // the wind blows FROM d, so things drift TOWARDS d + 180
-  return { e: s * Math.sin(to), n: s * Math.cos(to), src: "entered" };
+  return { e: s * Math.sin(to), n: s * Math.cos(to), h: WIND_ENTERED_H, src: "entered" };
 }
 function measuredWind(f, t) {                      // drift under the open canopy = the wind (after the opening swing settles)
-  if (!f.events.chute || t < f.events.chute.t + 5) return null;
-  const a = f.posAt(t - 5), b = f.posAt(t); if (!a.ok || !b.ok) return null;
-  return { e: (b.e - a.e) / 5, n: (b.n - a.n) / 5, src: "measured under the parachute" };
+  if (!f.events.chute) return null;
+  const t0 = Math.max(f.events.chute.t + 3, t - 10);
+  if (t - t0 < 3) return null;
+  const a = f.posAt(t0), b = f.posAt(t); if (!a.ok || !b.ok) return null;
+  const m = f.sample((t0 + t) / 2); const h = m && m.altOk ? m.alt : null;
+  if (h == null || h < 2) return null;
+  return { e: (b.e - a.e) / (t - t0), n: (b.n - a.n) / (t - t0), h, src: "measured under the parachute" };
 }
 function measuredDescent(f, t) {
   if (!f.events.chute || t < f.events.chute.t + 2.5) return null;
@@ -696,7 +717,7 @@ function measuredDescent(f, t) {
 }
 function predictLanding(f, t, sm) {
   if (!f || !sm) return null;
-  const wind = measuredWind(f, t) || windFromInput() || { e: 0, n: 0, src: "none (enter it before launch)" };
+  const wind = measuredWind(f, t) || windFromInput() || { e: 0, n: 0, h: WIND_ENTERED_H, src: "none (enter it before launch)" };
   const desc = measuredDescent(f, t) || DESCENT_DEFAULT;
   const st = sm.state;
   if (st === 6 || (f.events.landed && t >= f.events.landed.t)) return { e: sm.e, n: sm.n, tLeft: 0, landed: true, wind, desc, unc: 0 };
@@ -707,15 +728,19 @@ function predictLanding(f, t, sm) {
     apo = { e: 0, n: 0, alt: h, t: null }; hDrop = h; e0 = 0; n0 = 0;
   } else if ((st === 3 || st === 4) && sm.vz > 0) { // going up: drag-limited coast to apogee
     const k = 1.43e-3, g = 9.81, v = sm.vz;
-    const dh = Math.log(1 + k * v * v / g) / (2 * k), ta = Math.atan(v * Math.sqrt(k / g)) / Math.sqrt(g * k);
+    let dh = Math.log(1 + k * v * v / g) / (2 * k), ta = Math.atan(v * Math.sqrt(k / g)) / Math.sqrt(g * k);
+    if (st === 3) {                                // still burning: the coast formula would stop at today's speed
+      const mi = radioMotor(), hN = NOMINAL_APOGEE[mi], tN = NOMINAL_APOGEE_T[mi];
+      if (hN != null && hN > sm.alt + dh) { dh = hN - sm.alt; ta = Math.max(ta, tN - (t - f.tLaunch)); }
+    }
     const p0 = f.posAt(t - 0.5), p1 = f.posAt(t); const ve = p1.ok && p0.ok ? (p1.e - p0.e) / 0.5 : 0, vn = p1.ok && p0.ok ? (p1.n - p0.n) / 0.5 : 0;
     apo = { e: sm.e + ve * ta * 0.6, n: sm.n + vn * ta * 0.6, alt: sm.alt + dh, t: ta };
     e0 = apo.e; n0 = apo.n; hDrop = apo.alt; tFall = ta;
   }
-  const tDesc = hDrop / desc;
-  const e = e0 + wind.e * tDesc, n = n0 + wind.n * tDesc;
+  const tDesc = hDrop / desc, wf = fallWindFactor(hDrop, wind.h);
+  const e = e0 + wind.e * wf * tDesc, n = n0 + wind.n * wf * tDesc;
   const drift = Math.hypot(e - sm.e, n - sm.n);
-  return { e, n, tLeft: tFall + tDesc, apo, wind, desc, unc: 8 + 0.3 * drift, landed: false };
+  return { e, n, tLeft: tFall + tDesc, apo, wind, desc, unc: PRED_RING_M + PRED_RING_K * drift + PRED_RING_V * (tFall + tDesc), landed: false };
 }
 function radioMotor() { const s = app.radio && app.radio.slow; if (s) return s.motor; const f = app.flight; return f && f.motorIndex != null ? f.motorIndex : 5; }
 function llOf(f, e, n) {

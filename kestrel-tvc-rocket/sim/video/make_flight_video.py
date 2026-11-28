@@ -6,8 +6,8 @@
 
 1. flies one randomised flight in the 6-DOF simulator (same dispersions as the Monte Carlo: wind, gusts,
    motor, mass, drag, payload 0-50 g, sensor errors ...) with the C++ flight core (SIL);
-2. renders it in Blender from two cameras: a tracking camera on the ground and the rocket's own downward
-   camera (in the camera pod, exactly where the CAD puts it);
+2. renders it in Blender from two cameras: a tracking camera on the ground and the rocket's own camera (inside,
+   behind the camera door, looking out 30 deg down, exactly where the CAD puts it);
 3. adds the live telemetry (bottom left) and live graphs (bottom right) and encodes an MP4 with ffmpeg.
 Output: sim/results/video/kestrel2_flight_seed<N>.mp4 (+ a poster frame PNG).
 """

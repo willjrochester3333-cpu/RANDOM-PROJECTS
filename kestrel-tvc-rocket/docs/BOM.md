@@ -33,7 +33,7 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 | R1 | SiK telemetry radio **pair, 433 MHz, the 100 mW version** (each radio has micro-USB and the 6-pin JST-GH socket; the box has the JST-GH 6-pin cable that plugs into the board's radio socket). Set to 8 dBm for the UK with Mission Control's set-up dialog before first use | 1 pair | **Holybro SiK Telemetry Radio V3, 433 MHz, 100 mW** | [Flyingtech](https://www.flyingtech.co.uk/product/holybro-100mw-500mw-telemetry-radio-set-v3/) (UK, ✔ £71.90; choose 433 MHz, 100 mW) · [Unmanned Tech](https://www.unmannedtechshop.co.uk/products/100mw-sik-telemetry-radio-kit-v3-433mhz) (UK, ✔ £52.99, sold out when checked) | £53–72 |
 | R2 | Rocket antenna: a 433 MHz whip with an **RP-SMA** plug, **no longer than 125 mm** (the channel it stands in). Known fit: the 3DR one, 115 mm with a hinged base. The antennas in the Holybro box (2 dBi, RP-SMA) can be used if they are no longer than 125 mm: measure one before ordering this | 1 | **3DR** RF Antenna 433 MHz RP-SMA | [3DR store](https://store.3dr.com/rf-antenna-433mhz-rp-sma/) | price not checked |
 | R3 | RP-SMA extension, RG-316, 152 mm: **bulkhead socket with nut** at one end (it goes through the antenna bracket), plug at the other (onto the radio) | 1 | **Amphenol RF 095-902-536-006** | [Digi-Key UK](https://www.digikey.co.uk/en/products/detail/amphenol-rf/095-902-536-006/13246160) | price not checked (2024 listings: about $5–22) |
-| R4 | Cable ties, 100 × 2.5 mm (hold the radio in its cradle) | 2 | **HellermannTyton** or any branded pack | Amazon UK [search](https://www.amazon.co.uk/s?k=HellermannTyton+cable+ties+100mm) | ≈ £3 |
+| R4 | Cable ties, 150 × 2.5 mm (hold the radio in its cradle; a 100 mm tie is too short to close round it) | 2 | **HellermannTyton** or any branded pack | Amazon UK [search](https://www.amazon.co.uk/s?k=HellermannTyton+cable+ties+150mm) | ≈ £3 |
 
 The ground radio stays at the launch field with the laptop: it plugs into the laptop's USB (Chrome or Edge) and keeps the
 second antenna from the box. Why this radio, and the UK rules it is set up for: [SAFETY_AND_LEGAL.md](SAFETY_AND_LEGAL.md#radio).
@@ -97,9 +97,9 @@ tile clamps) + an M4 thumb screw (rod clamp); M6 × 70 bolt + wing nut (pad tilt
 
 | Motor (single use, CE certified) | Rated (UKROC list) | Use | Simulated apogee, 25 g payload | Where |
 |---|---|---|---|---|
-| **TSP F35-0** (29 mm, twin pack) | 65 Ns, 2.0 s, 92 g | **the mission** | **170 m** (176 m if the motor performs like its published test curve) | [modelrockets.co.uk](https://modelrockets.co.uk/rocket-motors-and-consumables/all-rocket-motors-chooser/f35-0-twin-pack-29mm-tsp-model-rocket-motors-engine-mid-power/): about £25–30 per twin pack (the prices I saw differ; most F35 delays were out of stock when checked, so order early) |
-| **TSP E20-0** (24 mm, in the printed adapter) | 36 Ns, 2.0 s, 64 g | second test flights | 46 m | same shop |
-| **TSP D20-0** (24 mm, in the printed adapter) | 20 Ns, 1.0 s | first test hops | 16 m | same shop |
+| **TSP F35-0** (29 mm, twin pack) | 65 Ns, 2.0 s, 92 g | **the mission** (test plan flight 3 onwards) | **157 m** (162 m if the motor performs like its published test curve) | [modelrockets.co.uk](https://modelrockets.co.uk/rocket-motors-and-consumables/all-rocket-motors-chooser/f35-0-twin-pack-29mm-tsp-model-rocket-motors-engine-mid-power/): about £25–30 per twin pack (the prices I saw differ; most F35 delays were out of stock when checked, so order early) |
+| **TSP E20-0** (24 mm, in the printed adapter) | 36 Ns, 2.0 s, 64 g | **the first two flights** (buy a twin pack or two: a spare for a repeat) | 41 m (about 47 m with the empty bay of the first flights) | same shop |
+| **TSP D20-0** (24 mm, in the printed adapter) | 20 Ns, 1.0 s | optional: not in the flight programme (14 m is too low for the parachute to open with room to spare) | 14 m | same shop |
 
 Sold in the UK by [modelrockets.co.uk](https://modelrockets.co.uk/blog/tsp-rocket-motors-d20-e20-f35-rocket-motors-engines),
 which states TSP motors are CE certified and legal to buy and use in the UK. Ratings from the

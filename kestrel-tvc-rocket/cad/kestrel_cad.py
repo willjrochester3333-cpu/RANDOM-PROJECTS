@@ -168,11 +168,12 @@ CDL_Z = CD_Z0 + 3.5                                       # door latch axis (bel
 CD_RIM_T = 2.4                                            # cradle rim behind the window's top edge: the door's hooks catch it
 CAM_CRADLE_PRINT_ROT = (0, 0, 0)                          # cradle print orientation (door frame), checked by check_parts.py
 # telemetry radio (KESTREL-2e): SiK 433 MHz module (Holybro V3, 28 x 53 x 10.7 mm) in a cradle on the bottom-tube wall at
-# 125 deg; its antenna stands in a clear channel through the av-bay at 30 deg, screwed onto an RP-SMA bulkhead socket on a
+# 122 deg; its antenna stands in a clear channel through the av-bay at 30 deg, screwed onto an RP-SMA bulkhead socket on a
 # small bracket, joined to the radio by a 152 mm RG-316 extension (Amphenol RF 095-902-536-006: bulkhead jack -> plug)
-RAD_ANG = 125.0
+RAD_ANG = 122.0
 RAD_W, RAD_L, RAD_T = 28.0, 53.0, 10.7
-RAD_R, RAD_Z0 = 17.0, 162.0                              # module centre radius, module bottom
+RAD_R, RAD_Z0 = 16.0, 162.0                     # module centre radius, module bottom
+RADIO_TIE_Z = (RAD_Z0 + 14.0, RAD_Z0 + 36.0)    # heights of the radio's two cable ties
 ANT_ANG, ANT_R = 30.0, 19.9                              # antenna axis
 ANT_D, ANT_L = 11.0, 115.0                               # reference antenna: 3DR 433 MHz RP-SMA whip, 115 mm (articulated base)
 ANT_SHELF_Z, ANT_SHELF_T = 204.0, 3.0                    # bulkhead bracket shelf (top face, thickness)
@@ -1208,22 +1209,23 @@ def radio_module_local():
 
 
 def radio_cradle_solid():
-    """radio cradle, glued to the bottom-tube wall: a back plate, two side rails and a floor; the module drops in from the
-    top (before the av-bay goes in) and a cable tie through the two slots holds it. Radio frame (+x = out)."""
+    """radio cradle, glued to the bottom-tube wall: a back plate, two side rails (their curved ends are the glue faces)
+    and a floor; the module drops in from the top (before the av-bay goes in). A cable tie holds it: from the back plate's
+    inner side through a slot, out along the module's side in the 1.5 mm side gap, round its outer face, back along the
+    other side and through the other slot (put the loose loop in before the cradle is glued in). Radio frame (+x = out)."""
     rin = RI - FIT
-    c = 0.3
+    c, cs = 0.3, 1.5                    # clearance behind the module / beside it (room for the tie)
     x0, x1 = RAD_R - RAD_T / 2 - c, RAD_R + RAD_T / 2 + c
-    y1 = RAD_W / 2 + c
+    y1 = RAD_W / 2 + cs
     z0, z1 = RAD_Z0 - 2.0, RAD_Z0 + RAD_L - 6.0
     back = bx(x0 - 1.8, x0, -y1 - 1.8, y1 + 1.8, z0, z1)
     rails = bx(x0 - 1.8, rin + 1.0, y1, y1 + 1.8, z0, z1) + bx(x0 - 1.8, rin + 1.0, -y1 - 1.8, -y1, z0, z1)
     floor = bx(x0 - 1.8, x1 + 0.5, -y1 - 1.8, y1 + 1.8, z0, RAD_Z0)
-    pads = bx(x1, rin + 1.0, -y1 - 1.8, -y1 + 5.0, z0, z1) + bx(x1, rin + 1.0, y1 - 5.0, y1 + 1.8, z0, z1)   # glue feet
-    m = (back + rails + floor + pads) ^ cyl(rin, 120.0, z0 - 1.0, segs=128)
+    m = (back + rails + floor) ^ cyl(rin, 120.0, z0 - 1.0, segs=128)
     m = m - bx(x0 - 3.0, x0 + 0.1, -9.0, 9.0, z0 + 9.0, z1 - 9.0)                # window in the back plate
-    for zt in (RAD_Z0 + 14.0, RAD_Z0 + 36.0):                                   # cable-tie slots (4 x 1.5 mm)
-        m = m - bx(x0 - 3.0, x0 + 0.1, -y1 - 0.3, -y1 + 4.0 - 0.3, zt - 0.75, zt + 0.75)
-        m = m - bx(x0 - 3.0, x0 + 0.1, y1 - 4.0 + 0.3, y1 + 0.3, zt - 0.75, zt + 0.75)
+    for zt in RADIO_TIE_Z:                                                      # cable-tie slots in the side gaps (1.5 x 4 mm)
+        m = m - bx(x0 - 3.0, x0 + 0.1, RAD_W / 2, y1, zt - 2.0, zt + 2.0)
+        m = m - bx(x0 - 3.0, x0 + 0.1, -y1, -RAD_W / 2, zt - 2.0, zt + 2.0)
     return m
 
 
@@ -1243,8 +1245,9 @@ def antenna_mount_solid():
 def radio_parts(M):
     rc, am = radio_cradle_solid(), antenna_mount_solid()
     register("radio_cradle", polar(rc, RAD_ANG), M["grey"], part="bottom", export=rc, export_rot=(0, 0, 0),
-             note="PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 125 deg (drill guide line), floor "
-                  "160 mm above the tube's bottom end, before the av-bay goes in. The radio drops in, antenna socket up; one cable tie")
+             note="PETG, 2 walls, 15%, standing on its floor as exported. Epoxy to the bottom-tube wall at 122 deg (drill guide line), floor "
+                  "160 mm above the tube's bottom end, before the av-bay goes in, with two 150 mm cable ties already threaded through "
+                  "the slot pairs as loose loops. The radio drops into the loops, antenna socket up; pull the ties tight")
     register("antenna_mount", polar(am, ANT_ANG), M["grey"], part="bottom", export=am, export_rot=(180, 0, 0),
              note="PETG, 3 walls, 40%, shelf on the bed as exported. Epoxy to the bottom-tube wall at 30 deg, shelf top 204 mm above the "
                   "tube's bottom end; the RP-SMA bulkhead socket goes through the hole from below, nut on top, antenna screwed on")
@@ -1474,7 +1477,7 @@ def lead_paths():
     z_fc = PCB_Z_TOP - 74.85                       # servo headers at the bottom edge of the board
     hx = board_to_rocket(MECH["parts"]["J2"]["x"], 0)[0]
     p = {}
-    # KESTREL-2e: the camera (270 deg) and the radio (150 deg) sit between the TVC module and the av-bay, so the leads run up
+    # KESTREL-2e: the camera (270 deg) and the radio (122 deg) sit between the TVC module and the av-bay, so the leads run up
     # the tube wall past them and cross over their tops (z 224-236) to the hole in the sled disc
     p["lead_tvc_ring"] = [(4.0, 4.0, c1 - s["L"] / 2 + 2), (6.0, 2.0, c1 - s["L"] / 2 - 4), (7.0, -4.0, c1 - 10), (8.0, -8.0, FRAME_TOP - 2),
                           (20.0, -12.0, FRAME_TOP + 14), (21.5, -11.0, 224.0), (10.0, -3.0, Z_AV0 - 4), (hx, 1.0, Z_AV0 + 4)]
@@ -1914,7 +1917,8 @@ def add_solids(items, coll, offset=(0, 0, 0), suffix=""):
 
 
 def rocket_items(buy, cut=None, skip=()):
-    """(name, manifold, material) for every rocket solid; cut = (y0, names) removes everything at y > y0 from those"""
+    """(name, manifold, material) for every rocket solid; cut = (y0, names[, ang]) removes everything beyond y0 from those
+    parts, on the side facing ang (default 90 deg = the +y side)"""
     items = []
     for name, p in PARTS.items():
         if p["group"] != "rocket" or name in skip:
@@ -1922,14 +1926,14 @@ def rocket_items(buy, cut=None, skip=()):
         for i, m in enumerate(p["inst"]):
             nm = name if len(p["inst"]) == 1 else f"{name}_{i + 1}"
             if cut and name in cut[1]:
-                m = m - box(2000.0, 1000.0, 4000.0, 0, 500.0 + cut[0], 500.0)
+                m = m - polar(box(2000.0, 1000.0, 4000.0, 0, 500.0 + cut[0], 500.0), (cut[2] if len(cut) > 2 else 90.0) - 90.0)
             if not m.is_empty():
                 items.append((nm, m, p["material"]))
     for name, (m, material) in buy.items():
         if name in skip:
             continue
         if cut and name in cut[1]:
-            m = m - box(2000.0, 1000.0, 4000.0, 0, 500.0 + cut[0], 500.0)
+            m = m - polar(box(2000.0, 1000.0, 4000.0, 0, 500.0 + cut[0], 500.0), (cut[2] if len(cut) > 2 else 90.0) - 90.0)
         if not m.is_empty():
             items.append((name, m, material))
     return items
@@ -2291,8 +2295,8 @@ def organize_main_file(M, buy, items):
     lights = _lights(main)
     main.name = "1 Rocket + all parts"
     plan = [("2 Exploded view", ["Exploded view"], ["cam_rocket_exploded"], 0.0),
-            ("3 Cut-aways", ["Section av-bay", "Section TVC", "Section latch"],
-             ["cam_avbay_cutaway", "cam_tvc_gimbal_cutaway", "cam_release_latch_cutaway"], 250.0),
+            ("3 Cut-aways", ["Section av-bay", "Section TVC", "Section latch", "Section camera radio"],
+             ["cam_avbay_cutaway", "cam_tvc_gimbal_cutaway", "cam_release_latch_cutaway", "cam_camera_radio_cutaway"], 250.0),
             ("4 Payload door open", ["Payload door open"], ["cam_payload_bay_open"], 0.0),
             ("5 Fin tabs deflected", ["Tab deflected"], ["cam_fin_tab_closeup"], 0.0),
             ("6 Fin cut open", ["Section fin"], ["cam_fin_servo_cutaway"], 0.0),
@@ -2415,7 +2419,8 @@ def main():
               "payload_door_frame", LOWER_TUBE, MID_TUBE}
     cut_sets = {"Section av-bay": (4.5, shells | {"avbay_sled", "lipo_overlander_350_2s"}),
                 "Section TVC": (0.0, shells),
-                "Section latch": (BOLT_Y, shells | {"latch_bolt", "parachute_packed", "shock_cord_kevlar_elastic"})}
+                "Section latch": (BOLT_Y, shells | {"latch_bolt", "parachute_packed", "shock_cord_kevlar_elastic"}),
+                "Section camera radio": (0.0, shells | {"avbay_sled", "lipo_overlander_350_2s"}, 20.0)}
     for cname, cut in cut_sets.items():
         cc = collection(cname)
         add_solids(rocket_items(buy, cut=cut, skip=("upper_launch_lug",)), cc, suffix="_" + cname[-3:])
@@ -2475,6 +2480,8 @@ def main():
             ("rocket_on_pad", (1100, -2600, 520), (0, 0, (foot_z + top) / 2 + 30), 50, {c_on.name, c_pad.name, c_gnd.name}, (1100, 1600)),
             ("rocket_exploded", (1250, -2350, 560), (110, 0, 500), 50, {c_ex.name}, (1200, 1700)),
             ("avbay_cutaway", (90, 360, zav + 60), (0, -4, zav + 20), 50, {"Section av-bay"}, (1200, 1600)),
+            ("camera_radio_cutaway", (330 * math.cos(math.radians(20)), 330 * math.sin(math.radians(20)), 235), (0, 0, 196), 50,
+             {"Section camera radio"}, (1200, 1400)),
             ("tvc_gimbal_cutaway", (110, 330, 140), (0, -4, 70), 50, {"Section TVC"}, (1200, 1600)),
             ("release_latch_cutaway", (-120, 230, BOLT_Z + 40), (-14, 0, BOLT_Z - 15), 50, {"Section latch"}, (1200, 1200)),
             ("payload_bay_open", (175, -120, 450), (24, 0, 408), 50, {c_door.name}, (1200, 1200)),
