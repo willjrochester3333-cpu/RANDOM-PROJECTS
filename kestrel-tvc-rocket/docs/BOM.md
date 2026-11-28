@@ -32,7 +32,7 @@ needle-nose pliers, a ruler, sandpaper, and a micro-USB cable for the Pico. **No
 |---|---|---|---|---|---|
 | R1 | SiK telemetry radio **pair, 433 MHz, the 100 mW version** (each radio has micro-USB and the 6-pin JST-GH socket; the box has the JST-GH 6-pin cable that plugs into the board's radio socket). Set to 8 dBm for the UK with Mission Control's set-up dialog before first use | 1 pair | **Holybro SiK Telemetry Radio V3, 433 MHz, 100 mW** | [Flyingtech](https://www.flyingtech.co.uk/product/holybro-100mw-500mw-telemetry-radio-set-v3/) (UK, ✔ £71.90; choose 433 MHz, 100 mW) · [Unmanned Tech](https://www.unmannedtechshop.co.uk/products/100mw-sik-telemetry-radio-kit-v3-433mhz) (UK, ✔ £52.99, sold out when checked) | £53–72 |
 | R2 | Rocket antenna: a 433 MHz whip with an **RP-SMA** plug, **no longer than 125 mm** (the channel it stands in). Known fit: the 3DR one, 115 mm with a hinged base. The antennas in the Holybro box (2 dBi, RP-SMA) can be used if they are no longer than 125 mm: measure one before ordering this | 1 | **3DR** RF Antenna 433 MHz RP-SMA | [3DR store](https://store.3dr.com/rf-antenna-433mhz-rp-sma/) | price not checked |
-| R3 | RP-SMA extension, RG-316, 152 mm: **bulkhead socket with nut** at one end (it goes through the antenna bracket), plug at the other (onto the radio) | 1 | **Amphenol RF 095-902-536-006** | [Digi-Key UK](https://www.digikey.co.uk/en/products/detail/amphenol-rf/095-902-536-006/13246160) | price not checked (2024 listings: about $5–22) |
+| R3 | RP-SMA extension, RG-316, 152 mm: **bulkhead socket with nut** at one end (it goes through the antenna bracket), plug at the other (onto the radio) | 1 | **Amphenol RF 095-902-536-006** | [Digi-Key UK](https://www.digikey.co.uk/en/products/detail/amphenol-rf/095-902-536-006/13246160) | UK price not readable from here; US distributors list one at about $22–29 ([Techni-Tool](https://techni-tool.com/product/55624-1-095-902-536-006), [TestEquity](https://www.testequity.com/product/55624-1-095-902-536-006); search of 28 Nov 2026) |
 | R4 | Cable ties, 150 × 2.5 mm (hold the radio in its cradle; a 100 mm tie is too short to close round it) | 2 | **HellermannTyton** or any branded pack | Amazon UK [search](https://www.amazon.co.uk/s?k=HellermannTyton+cable+ties+150mm) | ≈ £3 |
 
 The ground radio stays at the launch field with the laptop: it plugs into the laptop's USB (Chrome or Edge) and keeps the
@@ -115,7 +115,7 @@ rest of the prints.
 | | £ |
 |---|---|
 | 1. Flight computer + electronics (without charger) | ≈ 107 |
-| 1b. Telemetry radio (radio pair + antenna + extension + ties; two items not price-checked, counted at ≈ £15 each) | ≈ 86–105 |
+| 1b. Telemetry radio (radio pair + antenna + extension + ties; the antenna and the extension have no UK price yet and are counted at ≈ £15 each, which may be low for the extension: see R3) | ≈ 86–105 |
 | 2. Servos, wiring, linkages | ≈ 41 |
 | 3. Camera + card | ≈ 20 |
 | 4. Airframe, recovery, consumables | ≈ 125 |

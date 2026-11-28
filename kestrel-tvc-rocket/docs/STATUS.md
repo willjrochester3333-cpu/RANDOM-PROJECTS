@@ -65,10 +65,12 @@ board (now v3, with the radio socket), the radio pair and the rest of the parts 
 - **Height:** 157 m against the 200 m you asked for. The multi-flight changes and then the radio each cost 48 g.
 - **Not tried on hardware:** the radio's range with its antenna inside the airframe, next to the wiring. The test
   plan has a bench test (A23) and a field range test (B5) before the first flight.
-- **Not read directly:** Ofcom's IR 2030 (the UK limits come from the CEPT/EU rules the UK kept), and the Holybro
-  product pages, which could not be opened from here (radio size, mass and pinout came from search results and the
-  SiK firmware source). The radio parts' masses are estimates: the balance check sets the real ballast.
-- **Prices not checked:** the antenna and the antenna extension lead.
+- **Not read directly:** Ofcom's IR 2030 (the UK limits come from the CEPT/EU rules the UK kept; the Ofcom site
+  cannot be reached from this cloud environment), and the Holybro product pages, which could not be opened from here
+  either (radio size, mass and pinout came from search results and the SiK firmware source). The radio parts'
+  masses are estimates: the balance check sets the real ballast.
+- **No UK price yet** for the antenna or the antenna extension lead (US distributors list the extension at about
+  $22–29 for one; DigiKey UK stocks it).
 - **Unknown:** the unbranded camera's real field of view. The lens port leaves ±62° across and 38° up / 40° down clear.
 - **Landing prediction** is calibrated on simulated flights; real wind does not always follow the model.
 - **Time:** the final simulations finished at 21:21 on Friday, and then the session sat idle until your "carry on"
